@@ -1546,9 +1546,9 @@ class Ext4Parser(object):
 
         state = ""
         for k, v in EXT4_STATE.items():
-            if v == self.ext4_super_block['s_state']:
-                state = k
-                break
+            if (v & self.ext4_super_block['s_state']) != 0:
+                state += k
+                state += " "
         state = s(state)
         print("File system state              : " + state)
 
