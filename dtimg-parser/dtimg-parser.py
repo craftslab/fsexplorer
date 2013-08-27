@@ -46,7 +46,28 @@ banner = '''
 '''
 
 HEADER_SZ = 4 + (4 * 2)
-DEVENTRY_SZ = 4 * 5
+
+DEVENTRY_SZ_V1  = 4 * 5
+DEVENTRY_SZ_V2  = DEVENTRY_SZ_V1 + 4
+DEVENTRY_SZ_V3  = DEVENTRY_SZ_V2 + 4
+DEVENTRY_SZ_V16 = DEVENTRY_SZ_V3
+DEVENTRY_SZ_V17 = DEVENTRY_SZ_V16 + 4
+
+DEVENTRY_SZ_MAP = {
+    '1'  : DEVENTRY_SZ_V1,
+    '2'  : DEVENTRY_SZ_V2,
+    '3'  : DEVENTRY_SZ_V3,
+    '16' : DEVENTRY_SZ_V16,
+    '17' : DEVENTRY_SZ_V17
+    }
+
+DEVENTRY_ST_MAP = {
+    '1'  : 'IIIII',
+    '2'  : 'IIIIII',
+    '3'  : 'IIIIIII',
+    '16' : 'IIIIIII',
+    '17' : 'IIIIIIII'
+    }
 
 PAGE_SZ = 2048
 
@@ -61,7 +82,7 @@ class Header(object):
     s = struct.Struct('4sII')
 
     def __init__(self, data):
-        unpacked_data      = (Header.s).unpack(data)
+        unpacked_data = (Header.s).unpack(data)
         self.unpacked_data = unpacked_data
 
         self.magic   = unpacked_data[0]
@@ -87,27 +108,59 @@ class Header(object):
 Class of device entry
 '''
 class DevEntry(object):
-    s = struct.Struct('IIIII')
+    s = struct.Struct(DEVENTRY_ST_MAP['1'])
 
-    def __init__(self, data):
-        unpacked_data      = (DevEntry.s).unpack(data)
+    def __init__(self, version, data):
+        self.version = version
+        DevEntry.s = struct.Struct(DEVENTRY_ST_MAP[str(version)])
+        unpacked_data = (DevEntry.s).unpack(data)
         self.unpacked_data = unpacked_data
 
-        self.chipset  = unpacked_data[0]
-        self.platform = unpacked_data[1]
-        self.rev_num  = unpacked_data[2]
-        self.offset   = unpacked_data[3]
-        self.size     = unpacked_data[4]
+        if str(self.version) == '1':
+            self.chipset  = unpacked_data[0]
+            self.platform = unpacked_data[1]
+            self.rev_num  = unpacked_data[2]
+            self.offset   = unpacked_data[3]
+            self.size     = unpacked_data[4]
+        elif str(self.version) == '2':
+            self.chipset  = unpacked_data[0]
+            self.platform = unpacked_data[1]
+            self.rev_num  = unpacked_data[2]
+            self.padding  = unpacked_data[3]
+            self.offset   = unpacked_data[4]
+            self.size     = unpacked_data[5]
+        else:
+            self.chipset  = unpacked_data[0]
+            self.platform = unpacked_data[1]
+            self.rev_num  = unpacked_data[2]
+            self.padding  = unpacked_data[3]
+            self.offset   = unpacked_data[4]
+            self.size     = unpacked_data[5]
 
     def __del__(self):
         pass
 
     def get_packed_data(self):
-        values = [self.chipset,
-                  self.platform,
-                  self.rev_num,
-                  self.offset,
-                  self.size]
+        if str(self.version) == '1':
+            values = [self.chipset,
+                      self.platform,
+                      self.rev_num,
+                      self.offset,
+                      self.size]
+        elif str(self.version) == '2':
+            values = [self.chipset,
+                      self.platform,
+                      self.rev_num,
+                      self.padding,
+                      self.offset,
+                      self.size]
+        else:
+            values = [self.chipset,
+                      self.platform,
+                      self.rev_num,
+                      self.padding,
+                      self.offset,
+                      self.size]
 
         return (DevEntry.s).pack(*values)
 
@@ -190,8 +243,8 @@ class Unpacker(object):
             Populate device entry
             '''
             self.fp.seek(offset, os.SEEK_SET)
-            self.buf_deventry = self.fp.read(DEVENTRY_SZ)
-            self.deventry = DevEntry(self.buf_deventry)
+            self.buf_deventry = self.fp.read(DEVENTRY_SZ_MAP[str(self.header.version)])
+            self.deventry = DevEntry(self.header.version, self.buf_deventry)
 
             fp_deventry = -1
             fp_deventry = open(os.path.join(self.dirname, str(index) + '.deventry'), 'ab')
@@ -234,7 +287,7 @@ class Unpacker(object):
 
             print >> sys.stdout
 
-            offset += DEVENTRY_SZ
+            offset += DEVENTRY_SZ_MAP[str(self.header.version)]
 
 '''
 Function Definition
@@ -325,9 +378,9 @@ def pack_dtimg(dname, fname, tool):
             print >> sys.stderr, str(err)
             return False
 
-        offset += DEVENTRY_SZ
+        offset += DEVENTRY_SZ_MAP[str(header.version)]
 
-    padding = PAGE_SZ - ((header.num_dtb * DEVENTRY_SZ) % PAGE_SZ)
+    padding = PAGE_SZ - ((header.num_dtb * DEVENTRY_SZ_MAP[str(header.version)]) % PAGE_SZ)
     if padding < 0:
         if fp != -1:
             fp.close()
@@ -400,7 +453,7 @@ def pack_dtimg(dname, fname, tool):
         print >> sys.stderr, 'invalid device tree blob number!'
         return False
 
-    header_deventry_size = HEADER_SZ + (header.num_dtb * DEVENTRY_SZ)
+    header_deventry_size = HEADER_SZ + (header.num_dtb * DEVENTRY_SZ_MAP[str(header.version)])
     padding = PAGE_SZ - (header_deventry_size % PAGE_SZ)
     if padding == PAGE_SZ:
         padding = 0
@@ -410,7 +463,7 @@ def pack_dtimg(dname, fname, tool):
             fp_deventry = -1
             fp_deventry = open(deventry_list[index])
             buf_deventry = fp_deventry.read()
-            deventry = DevEntry(buf_deventry)
+            deventry = DevEntry(header.version, buf_deventry)
             fp_deventry.close()
 
             fp_dtb = -1
@@ -435,7 +488,7 @@ def pack_dtimg(dname, fname, tool):
             '''
             Update dt blob offset/size in device entry
             '''
-            offset = HEADER_SZ + (index * DEVENTRY_SZ)
+            offset = HEADER_SZ + (index * DEVENTRY_SZ_MAP[str(header.version)])
             fp.seek(offset, os.SEEK_SET)
             fp.write(str(deventry.get_packed_data()))
 
@@ -473,6 +526,9 @@ def print_usage():
     print >> sys.stdout, '  Pack: python dtimg-parser.py -d dtimg-dir'
     print >> sys.stdout, '        OR:'
     print >> sys.stdout, '        python dtimg-parser.py -d dtimg-dir -t /path/to/dtc\n'
+    print >> sys.stdout, 'Dtc version supported:'
+    print >> sys.stdout, '        v1'
+    print >> sys.stdout, '        v2\n'
 
 '''
 Main Entry
