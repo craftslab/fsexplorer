@@ -10,10 +10,9 @@ class Explorer : public QWidget
 public:
   Explorer(QWidget *parent = 0);
 
+  bool openFile();
   bool saveFile();
   bool closeFile();
-
-  static Explorer *openFile();
 
 protected:
   void closeEvent(QCloseEvent *event);

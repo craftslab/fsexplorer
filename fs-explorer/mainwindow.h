@@ -12,47 +12,46 @@ class Explorer;
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    MainWindow();
+  MainWindow();
 
 protected:
-    void closeEvent(QCloseEvent *event);
+  void closeEvent(QCloseEvent *event);
 
 private slots:
-    void openFile();
-    void saveFile();
-    void closeFile();
-    void cut();
-    void copy();
-    void paste();
-    void about();
-    void updateActions();
+  void openFile();
+  void saveFile();
+  void closeFile();
+  void cut();
+  void copy();
+  void paste();
+  void about();
+  void updateActions();
 
 private:
-    void createActions();
-    void createMenus();
-    void createToolBars();
-    void createStatusBar();
-    void addExplorer(Explorer *explorer);
-    Explorer *activeExplorer();
+  void createActions();
+  void createMenus();
+  void createToolBars();
+  void createStatusBar();
 
-    QLabel *readyLabel;
+  Explorer *explorer;
+  QLabel *readyLabel;
 
-    QMenu *fileMenu;
-    QMenu *editMenu;
-    QMenu *helpMenu;
-    QToolBar *fileToolBar;
-    QToolBar *editToolBar;
-    QAction *openAction;
-    QAction *saveAction;
-    QAction *closeAction;
-    QAction *exitAction;
-    QAction *cutAction;
-    QAction *copyAction;
-    QAction *pasteAction;
-    QAction *aboutAction;
-    QAction *aboutQtAction;
+  QMenu *fileMenu;
+  QMenu *editMenu;
+  QMenu *helpMenu;
+  QToolBar *fileToolBar;
+  QToolBar *editToolBar;
+  QAction *openAction;
+  QAction *saveAction;
+  QAction *closeAction;
+  QAction *exitAction;
+  QAction *cutAction;
+  QAction *copyAction;
+  QAction *pasteAction;
+  QAction *aboutAction;
+  QAction *aboutQtAction;
 };
 #endif

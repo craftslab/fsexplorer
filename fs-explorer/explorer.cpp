@@ -7,6 +7,11 @@ Explorer::Explorer(QWidget *parent)
 {
 }
 
+bool Explorer::openFile()
+{
+  return false;
+}
+
 bool Explorer::saveFile()
 {
   return false;
@@ -15,11 +20,6 @@ bool Explorer::saveFile()
 bool Explorer::closeFile()
 {
   return false;
-}
-
-Explorer *Explorer::openFile()
-{
-  return NULL;
 }
 
 void Explorer::closeEvent(QCloseEvent *event)

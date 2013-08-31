@@ -5,6 +5,9 @@
 
 MainWindow::MainWindow()
 {
+  explorer = new Explorer;
+  setCentralWidget(explorer);
+
   createActions();
   createMenus();
   createToolBars();
@@ -20,24 +23,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openFile()
 {
-  Explorer *explorer = Explorer::openFile();
-  if (explorer) {
-    addExplorer(explorer);
-  }
+  explorer->openFile();
 }
 
 void MainWindow::saveFile()
 {
-  if (activeExplorer()) {
-    activeExplorer()->saveFile();
-  }
+  explorer->saveFile();
 }
 
 void MainWindow::closeFile()
 {
-  if (activeExplorer()) {
-    activeExplorer()->closeFile();
-  }
+  explorer->closeFile();
 }
 
 void MainWindow::cut()
@@ -61,15 +57,6 @@ void MainWindow::about()
 
 void MainWindow::updateActions()
 {
-  bool hasExplorer = (activeExplorer() != 0);
-  bool hasSelection = activeExplorer();  // add code here
-
-  saveAction->setEnabled(hasExplorer);
-  closeAction->setEnabled(hasExplorer);
-
-  cutAction->setEnabled(hasSelection);
-  copyAction->setEnabled(hasSelection);
-  pasteAction->setEnabled(hasExplorer);
 }
 
 void MainWindow::createActions()
@@ -165,14 +152,4 @@ void MainWindow::createStatusBar()
 {
   readyLabel = new QLabel(tr(" Ready"));
   statusBar()->addWidget(readyLabel, 1);
-}
-
-void MainWindow::addExplorer(Explorer *explorer)
-{
-  explorer = explorer;
-}
-
-Explorer *MainWindow::activeExplorer()
-{
-  return NULL;
 }
