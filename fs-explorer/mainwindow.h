@@ -8,6 +8,8 @@ class QActionGroup;
 class QLabel;
 class QMenu;
 class QToolBar;
+class QSplitter;
+class QTreeView;
 class Explorer;
 
 class MainWindow : public QMainWindow
@@ -36,8 +38,10 @@ private:
   void createToolBars();
   void createStatusBar();
 
-  Explorer *explorer;
+  QTreeView *treeView;
+  QSplitter *splitter;
   QLabel *readyLabel;
+  Explorer *explorer;
 
   QMenu *fileMenu;
   QMenu *editMenu;

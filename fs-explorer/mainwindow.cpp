@@ -1,19 +1,37 @@
 #include <QtGui>
+#include <QSplitter>
+#include <QTreeView>
+#include <QFileSystemModel>
 
 #include "explorer.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow()
 {
-  explorer = new Explorer;
-  setCentralWidget(explorer);
+  QFileSystemModel *model = new QFileSystemModel;
+  model->setRootPath(QDir::homePath());
+  QModelIndex index = model->index(QDir::homePath());
+
+  treeView = new QTreeView;
+  treeView->setModel(model);
+  treeView->setColumnHidden(1, true);
+  treeView->setColumnHidden(2, true);
+  treeView->scrollTo(index);
+  treeView->expand(index);
+  treeView->setCurrentIndex(index);
+
+  splitter = new QSplitter;
+  splitter->addWidget(treeView);
+
+  setCentralWidget(splitter);
+  setWindowTitle(tr("Filesystem Explorer"));
 
   createActions();
   createMenus();
   createToolBars();
   createStatusBar();
 
-  setWindowTitle(tr("Filesystem Explorer"));
+  explorer = new Explorer;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

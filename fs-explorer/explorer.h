@@ -1,9 +1,9 @@
 #ifndef EXPLORER_H
 #define EXPLORER_H
 
-#include <QWidget>
+#include <QObject>
 
-class Explorer : public QWidget
+class Explorer : public QObject
 {
   Q_OBJECT
 
@@ -13,8 +13,5 @@ public:
   bool openFile();
   bool saveFile();
   bool closeFile();
-
-protected:
-  void closeEvent(QCloseEvent *event);
 };
 #endif

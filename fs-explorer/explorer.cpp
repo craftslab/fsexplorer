@@ -3,8 +3,8 @@
 #include "explorer.h"
 
 Explorer::Explorer(QWidget *parent)
-  : QWidget(parent)
 {
+  parent = parent;
 }
 
 bool Explorer::openFile()
@@ -22,7 +22,3 @@ bool Explorer::closeFile()
   return false;
 }
 
-void Explorer::closeEvent(QCloseEvent *event)
-{
-  event->accept();
-}
