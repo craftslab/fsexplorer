@@ -8,17 +8,22 @@
 
 MainWindow::MainWindow()
 {
-  QFileSystemModel *model = new QFileSystemModel;
-  model->setRootPath(QDir::homePath());
-  QModelIndex index = model->index(QDir::homePath());
-
   treeView = new QTreeView;
-  treeView->setModel(model);
+  treeView->setHeaderHidden(true);
   treeView->setColumnHidden(1, true);
   treeView->setColumnHidden(2, true);
+  treeView->setColumnHidden(3, true);
+
+#if 1 // test only
+  QFileSystemModel *model = new QFileSystemModel;
+  model->setRootPath(QDir::homePath());
+  treeView->setModel(model);
+
+  QModelIndex index = model->index(QDir::homePath());
   treeView->scrollTo(index);
   treeView->expand(index);
   treeView->setCurrentIndex(index);
+#endif
 
   splitter = new QSplitter;
   splitter->addWidget(treeView);
@@ -44,26 +49,9 @@ void MainWindow::openFile()
   explorer->openFile();
 }
 
-void MainWindow::saveFile()
-{
-  explorer->saveFile();
-}
-
 void MainWindow::closeFile()
 {
   explorer->closeFile();
-}
-
-void MainWindow::cut()
-{
-}
-
-void MainWindow::copy()
-{
-}
-
-void MainWindow::paste()
-{
 }
 
 void MainWindow::about()
@@ -85,14 +73,8 @@ void MainWindow::createActions()
   openAction->setStatusTip(tr("Open an existing file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
-  saveAction = new QAction(tr("&Save"), this);
-  saveAction->setIcon(QIcon(":/images/save.png"));
-  saveAction->setShortcut(QKeySequence::Save);
-  saveAction->setStatusTip(tr("Save the file to disk"));
-  connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
-
   closeAction = new QAction(tr("&Close"), this);
-  //closeAction->setIcon(QIcon(":/images/close.png"));
+  closeAction->setIcon(QIcon(":/images/close.png"));
   closeAction->setShortcut(QKeySequence::Close);
   closeAction->setStatusTip(tr("Close the file"));
   connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
@@ -101,27 +83,6 @@ void MainWindow::createActions()
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-
-  cutAction = new QAction(tr("Cu&t"), this);
-  cutAction->setIcon(QIcon(":/images/cut.png"));
-  cutAction->setShortcut(QKeySequence::Cut);
-  cutAction->setStatusTip(tr("Cut the current selection to the "
-                             "clipboard"));
-  connect(cutAction, SIGNAL(triggered()), this, SLOT(cut()));
-
-  copyAction = new QAction(tr("&Copy"), this);
-  copyAction->setIcon(QIcon(":/images/copy.png"));
-  copyAction->setShortcut(QKeySequence::Copy);
-  copyAction->setStatusTip(tr("Copy the current selection to the "
-                              "clipboard"));
-  connect(copyAction, SIGNAL(triggered()), this, SLOT(copy()));
-
-  pasteAction = new QAction(tr("&Paste"), this);
-  pasteAction->setIcon(QIcon(":/images/paste.png"));
-  pasteAction->setShortcut(QKeySequence::Paste);
-  pasteAction->setStatusTip(tr("Paste the clipboard's contents at "
-                               "the cursor position"));
-  connect(pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
 
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
@@ -136,15 +97,9 @@ void MainWindow::createMenus()
 {
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(openAction);
-  fileMenu->addAction(saveAction);
   fileMenu->addAction(closeAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
-
-  editMenu = menuBar()->addMenu(tr("&Edit"));
-  editMenu->addAction(cutAction);
-  editMenu->addAction(copyAction);
-  editMenu->addAction(pasteAction);
 
   menuBar()->addSeparator();
 
@@ -157,13 +112,7 @@ void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("File"));
   fileToolBar->addAction(openAction);
-  fileToolBar->addAction(saveAction);
-  fileToolBar->addAction(closeAction);
- 
-  editToolBar = addToolBar(tr("Edit"));
-  editToolBar->addAction(cutAction);
-  editToolBar->addAction(copyAction);
-  editToolBar->addAction(pasteAction);
+  fileToolBar->addAction(closeAction); 
 }
 
 void MainWindow::createStatusBar()

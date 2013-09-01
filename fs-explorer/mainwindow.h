@@ -24,11 +24,7 @@ protected:
 
 private slots:
   void openFile();
-  void saveFile();
   void closeFile();
-  void cut();
-  void copy();
-  void paste();
   void about();
   void updateActions();
 
@@ -47,14 +43,9 @@ private:
   QMenu *editMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
-  QToolBar *editToolBar;
   QAction *openAction;
-  QAction *saveAction;
   QAction *closeAction;
   QAction *exitAction;
-  QAction *cutAction;
-  QAction *copyAction;
-  QAction *pasteAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
 };

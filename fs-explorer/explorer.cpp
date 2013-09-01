@@ -12,11 +12,6 @@ bool Explorer::openFile()
   return false;
 }
 
-bool Explorer::saveFile()
-{
-  return false;
-}
-
 bool Explorer::closeFile()
 {
   return false;

@@ -11,7 +11,6 @@ public:
   Explorer(QWidget *parent = 0);
 
   bool openFile();
-  bool saveFile();
   bool closeFile();
 };
 #endif
