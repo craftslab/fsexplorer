@@ -1,5 +1,5 @@
 /**
- * explorer.h - The entry of explorer
+ * platform_unix.h - Header of platform_unix
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,21 +19,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <QtGui>
+#ifndef _PLATFORM_UNIX_H
+#define _PLATFORM_UNIX_H
 
-#include "explorer.h"
+/*
+ * Macro Definition
+ */
 
-Explorer::Explorer(QWidget *parent)
-{
-  parent = parent;
-}
+/*
+ * Type Definition
+ */
 
-bool Explorer::openFile()
-{
-  return false;
-}
+/*
+ * Global Variable Definition
+ */
 
-bool Explorer::closeFile()
-{
-  return false;
-}
+/*
+ * Function Declaration
+ */
+
+#endif /* _PLATFORM_UNIX_H */

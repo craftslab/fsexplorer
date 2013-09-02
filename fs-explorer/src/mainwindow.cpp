@@ -30,10 +30,6 @@
 MainWindow::MainWindow()
 {
   treeView = new QTreeView;
-  treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(1, true);
-  treeView->setColumnHidden(2, true);
-  treeView->setColumnHidden(3, true);
 
 #if 1 // test only
   QFileSystemModel *model = new QFileSystemModel;
@@ -45,6 +41,11 @@ MainWindow::MainWindow()
   treeView->expand(index);
   treeView->setCurrentIndex(index);
 #endif
+
+  treeView->setHeaderHidden(true);
+  treeView->setColumnHidden(1, true);
+  treeView->setColumnHidden(2, true);
+  treeView->setColumnHidden(3, true);
 
   splitter = new QSplitter;
   splitter->addWidget(treeView);

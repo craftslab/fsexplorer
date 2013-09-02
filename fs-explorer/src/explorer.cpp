@@ -1,5 +1,5 @@
 /**
- * main.c - Main entry of FS explorer
+ * explorer.cpp - The entry of explorer
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,36 +19,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <QApplication>
+#include <QtGui>
 
-#include "mainwindow.h"
+#include "explorer.h"
 
-/*
- * Macro Definition
- */
-
-/*
- * Type Definition
- */
-
-/*
- * Global Variable Definition
- */
-
-/*
- * Function Declaration
- */
-static void print_banner(void);
-static void print_usage(void);
-
-/*
- * Function Definition
- */
-int main(int argc, char *argv[])
+Explorer::Explorer(QWidget *parent)
 {
-  QApplication app(argc, argv);
-  MainWindow mainWin;
-  mainWin.resize(800, 480);
-  mainWin.show();
-  return app.exec();
+  parent = parent;
+}
+
+bool Explorer::openFile()
+{
+  return false;
+}
+
+bool Explorer::closeFile()
+{
+  return false;
 }
