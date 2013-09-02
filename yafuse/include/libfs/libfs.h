@@ -1,5 +1,5 @@
 /**
- * filesystem.h - The header of filesystem.
+ * libfs.h - The header of libfs.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _FILESYSTEM_H
-#define _FILESYSTEM_H
+#ifndef _LIBFS_H
+#define _LIBFS_H
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -71,4 +71,4 @@ fs_opt_handle_t fs_opt_hdl_match(int32_t fs_type, const char *fs_cmd);
 int32_t fs_opt_num(int32_t fs_type);
 const char* fs_opt_cmd_enum(int32_t fs_type, int32_t opt_idx);
 
-#endif /* _FILESYSTEM_H */
+#endif /* _LIBFS_H */

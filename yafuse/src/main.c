@@ -60,9 +60,9 @@
 
 #include "include/debug.h"
 
-#include "filesystem.h"
-#include "fs_ext4.h"
-#include "fs_fat.h"
+#include "include/libfs/libfs.h"
+#include "include/libext4/fs_ext4.h"
+#include "include/libfat/fs_fat.h"
 #include "subsystem.h"
 
 /*

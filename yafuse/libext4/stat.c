@@ -126,21 +126,25 @@ static void ext4_show_sb_stat(const struct ext4_super_block *sb)
   fprintf(stdout, "Maximum mount count            : %u\n", sb->s_max_mnt_count);
   fprintf(stdout, "Magic signature                : 0x%X\n", sb->s_magic);
 
-  switch (sb->s_state) {
-  case EXT4_VALID_FS:
+  fprintf(stdout, "File system state              : ");
+  str = NULL;
+  if (sb->s_state & EXT4_VALID_FS) {
     str = "cleanly umounted";
-    break;
-  case EXT4_ERROR_FS:
-    str = "errors detected";
-    break;
-  case EXT4_ORPHAN_FS:
-    str = "orphans being recovered";
-    break;
-  default:
-    str = EXT4_DUMMY_STR;
-    break;
+    fprintf(stdout, "%s ", str);
   }
-  fprintf(stdout, "File system state              : %s\n", str);
+  if (sb->s_state & EXT4_ERROR_FS) {
+    str = "errors detected";
+    fprintf(stdout, "%s ", str);
+  }
+  if (sb->s_state & EXT4_ORPHAN_FS) {
+    str = "orphans being recovered";
+    fprintf(stdout, "%s ", str);
+  }
+  if (!str) {
+    str = EXT4_DUMMY_STR;
+    fprintf(stdout, "%s", str);
+  }
+  fprintf(stdout, "\n");
 
   switch (sb->s_errors) {
   case EXT4_ERRORS_CONTINUE:

@@ -48,8 +48,8 @@
 
 #include "include/debug.h"
 
+#include "include/libfs/libfs.h"
 #include "subsystem.h"
-#include "filesystem.h"
 
 /*
  * Macro Definition

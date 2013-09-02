@@ -24,6 +24,7 @@ AC_PREREQ(2.59)
 AC_INIT([yafuse],[2013.1.12],[angersax@gmail.com])
 YAFUSE_VERSION="1"
 LIBIO_VERSION="1"
+LIBFS_VERSION="1"
 LIBEXT4_VERSION="1"
 LIBFAT_VERSION="1"
 AC_CONFIG_SRCDIR([src/main.c])
@@ -184,14 +185,17 @@ test "${enable_really_static}" = "yes" && enable_library="no"
 # Settings
 pkgconfigdir="\$(libdir)/pkgconfig"
 libioincludedir="\$(includedir)/libio"
+libfsincludedir="\$(includedir)/libfs"
 libext4includedir="\$(includedir)/libext4"
 libfatincludedir="\$(includedir)/libfat"
 AC_SUBST([pkgconfigdir])
 AC_SUBST([libioincludedir])
+AC_SUBST([libfsincludedir])
 AC_SUBST([libext4includedir])
 AC_SUBST([libfatincludedir])
 AC_SUBST([YAFUSE_VERSION])
 AC_SUBST([LIBIO_VERSION])
+AC_SUBST([LIBFS_VERSION])
 AC_SUBST([LIBEXT4_VERSION])
 AC_SUBST([LIBFAT_VERSION])
 AM_CONDITIONAL([GENERATE_LDSCRIPT], [test "${enable_ldscript}" = "yes"])
@@ -205,10 +209,13 @@ AC_CONFIG_FILES([
 	Makefile
 	include/Makefile
 	include/libio/Makefile
+	include/libfs/Makefile
 	include/libext4/Makefile
 	include/libfat/Makefile
 	libio/Makefile
 	libio/libio.pc
+	libfs/Makefile
+	libfs/libfs.pc
 	libext4/Makefile
 	libext4/libext4.pc
 	libfat/Makefile

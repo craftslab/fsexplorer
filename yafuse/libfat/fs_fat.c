@@ -54,12 +54,11 @@
 
 #include "include/debug.h"
 #include "include/types.h"
+#include "include/libio/io.h"
+#include "include/libfs/libfs.h"
 #include "include/libfat/msdos_fs.h"
 #include "include/libfat/libfat.h"
-#include "include/libio/io.h"
-
-#include "filesystem.h"
-#include "fs_fat.h"
+#include "include/libfat/fs_fat.h"
 
 /*
  * Macro Definition

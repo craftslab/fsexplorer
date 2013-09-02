@@ -7,6 +7,8 @@ else
 noinst_LTLIBRARIES = libfat.la
 endif
 
+libfat_la_LIBADD = $(top_builddir)/libio/libio.la
+
 libfat_la_CFLAGS  = $(AM_CFLAGS) \
                     -I$(top_srcdir)/include \
                     -I$(top_srcdir)/include/libio \
@@ -19,7 +21,8 @@ libfat_la_LDFLAGS = -version-info \
 libfat_la_SOURCES = super.c \
                     dir.c \
                     file.c \
-                    stat.c
+                    stat.c \
+                    fs_fat.c
 
 if WINDOWS
 libfat_la_SOURCES +=

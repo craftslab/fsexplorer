@@ -1,5 +1,5 @@
 /**
- * filesystem.c - The entry of filesystem.
+ * fs.c - The entry of filesystem.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -45,7 +45,7 @@
 
 #include "include/debug.h"
 
-#include "filesystem.h"
+#include "include/libfs/libfs.h"
 
 /*
  * Macro Definition

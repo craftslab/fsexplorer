@@ -28,6 +28,7 @@ MAINTAINERCLEANFILES=\
 
 SUBDIRS = include \
           libio \
+          libfs \
           libext4 \
           libfat \
           src
@@ -40,10 +41,13 @@ dist-hook:
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
-libs: libio libext4 libfat
+libs: libio libfs libext4 libfat
 
 libio:
 	(cd libio && $(MAKE) libs) || exit 1;
+
+libfs:
+	(cd libfs && $(MAKE) libs) || exit 1;
 
 libext4:
 	(cd libext4 && $(MAKE) libs) || exit 1;

@@ -1,10 +1,9 @@
 MAINTAINERCLEANFILES = $(srcdir)/Makefile.in
 
-headers = libfat.h \
-          fs_fat.h
+headers = libfs.h
 
 if INSTALL_LIBRARY
-libfatinclude_HEADERS = $(headers)
+libfsinclude_HEADERS = $(headers)
 else
 noinst_HEADERS = $(headers)
 endif
