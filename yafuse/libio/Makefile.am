@@ -8,7 +8,7 @@ noinst_LTLIBRARIES = libio.la
 endif
 
 libio_la_CFLAGS  = $(AM_CFLAGS) \
-                   -I$(top_srcdir)/include \
+                   -I$(top_srcdir)/include/base \
                    -I$(top_srcdir)/include/libio
 
 libio_la_LDFLAGS = -version-info \

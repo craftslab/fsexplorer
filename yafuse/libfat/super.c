@@ -46,8 +46,8 @@
 // Add code here
 #endif
 
-#include "include/debug.h"
-#include "include/types.h"
+#include "include/base/debug.h"
+#include "include/base/types.h"
 #include "include/libfat/msdos_fs.h"
 #include "include/libfat/libfat.h"
 #include "include/libio/io.h"

@@ -10,7 +10,7 @@ endif
 libext4_la_LIBADD = $(top_builddir)/libio/libio.la
 
 libext4_la_CFLAGS  = $(AM_CFLAGS) \
-                     -I$(top_srcdir)/include \
+                     -I$(top_srcdir)/include/base \
                      -I$(top_srcdir)/include/libio \
                      -I$(top_srcdir)/include/libext4
 

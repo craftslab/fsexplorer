@@ -58,7 +58,7 @@
 // Add code here
 #endif
 
-#include "include/debug.h"
+#include "include/base/debug.h"
 
 #include "include/libfs/libfs.h"
 #include "include/libext4/fs_ext4.h"

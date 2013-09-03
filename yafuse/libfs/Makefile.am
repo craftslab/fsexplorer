@@ -8,7 +8,7 @@ noinst_LTLIBRARIES = libfs.la
 endif
 
 libfs_la_CFLAGS  = $(AM_CFLAGS) \
-                    -I$(top_srcdir)/include \
+                    -I$(top_srcdir)/include/base \
                     -I$(top_srcdir)/include/libio
 
 libfs_la_LDFLAGS = -version-info \

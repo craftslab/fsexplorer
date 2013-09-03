@@ -43,8 +43,8 @@
 #define DEBUG_LIBEXT4_DIR
 #endif
 
-#include "include/debug.h"
-#include "include/types.h"
+#include "include/base/debug.h"
+#include "include/base/types.h"
 #include "include/libext4/ext4.h"
 #include "include/libext4/ext4_extents.h"
 #include "include/libext4/ext4_jbd2.h"

@@ -11,7 +11,7 @@ yafuse_LDFLAGS = $(AM_LDFLAGS) -all-static
 endif
 
 yafuse_CFLAGS = $(AM_CFLAGS) \
-                -I$(top_srcdir)/include \
+                -I$(top_srcdir)/include/base \
                 -I$(top_srcdir)/include/libfs \
                 -I$(top_srcdir)/include/libext4 \
                 -I$(top_srcdir)/include/libfat \
