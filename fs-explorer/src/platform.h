@@ -1,5 +1,5 @@
 /**
- * platform_unix.h - Header of platform_unix
+ * platform.h - Header of platform
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _PLATFORM_UNIX_H
-#define _PLATFORM_UNIX_H
+#ifndef _PLATFORM_H
+#define _PLATFORM_H
 
 /*
  * Macro Definition
@@ -38,4 +38,4 @@
  * Function Declaration
  */
 
-#endif /* _PLATFORM_UNIX_H */
+#endif /* _PLATFORM_H */

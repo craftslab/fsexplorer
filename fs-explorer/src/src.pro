@@ -5,8 +5,7 @@ RESOURCES = src.qrc
 
 INCLUDEPATH += ../include
 
-unix:HEADERS += platform_unix.h
-win32:HEADERS += platform_win32.h
+HEADERS += platform.h
 HEADERS += explorer.h
 HEADERS += mainwindow.h
 
