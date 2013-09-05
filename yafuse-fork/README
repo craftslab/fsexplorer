@@ -1,0 +1,18 @@
+
+INTRODUCTION
+============
+
+Yafuse, yet another fuse, is developed to support for Ext4 and FAT file system in user space.
+
+
+QUICK INSTALLATION
+==================
+$ sh my-cmake.sh
+$ sh my-build.sh
+
+
+USAGE
+=====
+
+N/A
+
