@@ -22,9 +22,7 @@
 #ifndef _FS_EXT4_H
 #define _FS_EXT4_H
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
