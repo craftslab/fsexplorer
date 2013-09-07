@@ -3,7 +3,12 @@ TEMPLATE = app
 
 RESOURCES = src.qrc
 
-INCLUDEPATH += ../include
+#
+# Import header and lib of fs
+#
+INCLUDEPATH += ../install/include
+unix:LIBS += "-L../install/lib/unix -lext4 -lfat -lfs -lio"
+win32:LIBS += "-L../install/lib/win32"
 
 HEADERS += platform.h
 HEADERS += explorer.h
@@ -17,5 +22,5 @@ SOURCES += main.cpp
 
 release {
 TARGET = fs-explorer
-DESTDIR = ../bin
+DESTDIR = ../install/bin
 }
