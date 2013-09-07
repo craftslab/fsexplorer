@@ -39,16 +39,9 @@ aux_source_directory(. YF_DIR_SRC)
 #
 # Add the executable
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_executable(yafuse
-    ${YF_DIR_SRC}
-    )
-else ()
-  add_executable(yafuse
-    WIN32
-    ${YF_DIR_SRC}
-    )
-endif (CMAKE_COMPILER_IS_GNUCC)
+add_executable(yafuse
+  ${YF_DIR_SRC}
+  )
 
 #
 # Add the dependency
@@ -61,10 +54,8 @@ add_dependencies(yafuse fat)
 #
 # Link the library
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(yafuse readline)
-endif (CMAKE_COMPILER_IS_GNUCC)
-
+target_link_libraries(yafuse ncurses)
+target_link_libraries(yafuse readline)
 target_link_libraries(yafuse io)
 target_link_libraries(yafuse fs)
 target_link_libraries(yafuse ext4)

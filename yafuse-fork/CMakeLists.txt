@@ -35,9 +35,14 @@ set(YF_INCLUDEDIR "\${YF_PREFXI}/include")
 # Options for library supported
 #
 if (CMAKE_COMPILER_IS_GNUCC)
+  set(YF_NCURSES_DIR_INCLUDE "/opt/ncurses-5.9/include")
+  include_directories(${YF_NCURSES_DIR_INCLUDE})
+  link_directories("/opt/ncurses-5.9/lib")
+
   set(YF_READLINE_DIR_INCLUDE "/opt/readline-6.2/include")
+  include_directories(${YF_READLINE_DIR_INCLUDE})
+  link_directories("/opt/readline-6.2/lib")
 endif (CMAKE_COMPILER_IS_GNUCC)
-include_directories(${YF_READLINE_DIR_INCLUDE})
 
 #
 # Options for version selection
@@ -71,4 +76,7 @@ add_subdirectory(libio)
 add_subdirectory(libfs)
 add_subdirectory(libext4)
 add_subdirectory(libfat)
+
+if (CMAKE_COMPILER_IS_GNUCC)
 add_subdirectory(src)
+endif (CMAKE_COMPILER_IS_GNUCC)

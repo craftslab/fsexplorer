@@ -35,4 +35,5 @@ add_library(fat
 #
 # Linke the library
 #
-#target_link_libraries(fat m)
+target_link_libraries(fat m)
+target_link_libraries(fat io)

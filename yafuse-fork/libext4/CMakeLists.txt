@@ -36,3 +36,4 @@ add_library(ext4
 # Linke the library
 #
 target_link_libraries(ext4 m)
+target_link_libraries(ext4 io)
