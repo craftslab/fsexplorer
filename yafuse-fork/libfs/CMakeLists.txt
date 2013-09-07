@@ -36,3 +36,11 @@ add_library(fs
 # Linke the library
 #
 #target_link_libraries(fs m)
+
+#
+# Add the install targets
+#
+install(
+  TARGETS fs
+  LIBRARY DESTINATION ${YF_LIBDIR}
+  )

@@ -37,3 +37,11 @@ add_library(fat
 #
 target_link_libraries(fat m)
 target_link_libraries(fat io)
+
+#
+# Add the install targets
+#
+install(
+  TARGETS fat
+  LIBRARY DESTINATION ${YF_LIBDIR}
+  )

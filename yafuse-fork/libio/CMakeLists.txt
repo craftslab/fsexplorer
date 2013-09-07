@@ -33,3 +33,11 @@ add_library(io
 # Linke the library
 #
 #target_link_libraries(io m)
+
+#
+# Add the install targets
+#
+install(
+  TARGETS io
+  LIBRARY DESTINATION ${YF_LIBDIR}
+  )

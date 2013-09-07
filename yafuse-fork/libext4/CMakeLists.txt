@@ -37,3 +37,11 @@ add_library(ext4
 #
 target_link_libraries(ext4 m)
 target_link_libraries(ext4 io)
+
+#
+# Add the install targets
+#
+install(
+  TARGETS ext4
+  LIBRARY DESTINATION ${YF_LIBDIR}
+  )

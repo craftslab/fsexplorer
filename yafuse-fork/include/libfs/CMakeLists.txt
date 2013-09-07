@@ -24,3 +24,11 @@ aux_source_directory(. YF_DIR_INCLUDE_LIBFS)
 # Link the library
 #
 #target_link_libraries(libfs m)
+
+#
+# Add the install targets
+#
+install(
+  FILES libfs.h
+  DESTINATION ${YF_INCLUDEDIR}
+  )

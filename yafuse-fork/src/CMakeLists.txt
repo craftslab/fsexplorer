@@ -54,8 +54,8 @@ add_dependencies(yafuse fat)
 #
 # Link the library
 #
-target_link_libraries(yafuse ncurses)
 target_link_libraries(yafuse readline)
+target_link_libraries(yafuse ncurses)
 target_link_libraries(yafuse io)
 target_link_libraries(yafuse fs)
 target_link_libraries(yafuse ext4)
@@ -67,5 +67,4 @@ target_link_libraries(yafuse fat)
 install(
   TARGETS yafuse
   RUNTIME DESTINATION ${YF_BINDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
   )
