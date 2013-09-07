@@ -46,6 +46,8 @@ protected:
 private slots:
   void openFile();
   void closeFile();
+  void importDir();
+  void exportDir();
   void about();
   void updateActions();
 
@@ -66,6 +68,8 @@ private:
   QToolBar *fileToolBar;
   QAction *openAction;
   QAction *closeAction;
+  QAction *importAction;
+  QAction *exportAction;
   QAction *exitAction;
   QAction *aboutAction;
   QAction *aboutQtAction;

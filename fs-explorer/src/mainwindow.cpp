@@ -91,6 +91,14 @@ void MainWindow::closeFile()
   setWindowTitle(tr("%1").arg(mainWindowTitle));
 }
 
+void MainWindow::importDir()
+{
+}
+
+void MainWindow::exportDir()
+{
+}
+
 void MainWindow::about()
 {
   QMessageBox::about(this, tr("About FS Explorer"),
@@ -116,6 +124,18 @@ void MainWindow::createActions()
   closeAction->setStatusTip(tr("Close the file"));
   connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
 
+  importAction = new QAction(tr("&Import..."), this);
+  importAction->setIcon(QIcon(":/images/import.png"));
+  importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
+  importAction->setStatusTip(tr("Import an existing directory"));
+  connect(importAction, SIGNAL(triggered()), this, SLOT(importDir()));
+
+  exportAction = new QAction(tr("&Export"), this);
+  exportAction->setIcon(QIcon(":/images/export.png"));
+  exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
+  exportAction->setStatusTip(tr("Export to the directory"));
+  connect(exportAction, SIGNAL(triggered()), this, SLOT(exportDir()));
+
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
@@ -136,6 +156,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(openAction);
   fileMenu->addAction(closeAction);
   fileMenu->addSeparator();
+  fileMenu->addAction(importAction);
+  fileMenu->addAction(exportAction);
+  fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
   menuBar()->addSeparator();
@@ -148,8 +171,16 @@ void MainWindow::createMenus()
 void MainWindow::createToolBars()
 {
   fileToolBar = addToolBar(tr("File"));
+  fileToolBar->setFloatable(false);
+  fileToolBar->setMovable(false);
+
   fileToolBar->addAction(openAction);
-  fileToolBar->addAction(closeAction); 
+  fileToolBar->addAction(closeAction);
+
+  fileToolBar->addSeparator();
+
+  fileToolBar->addAction(importAction);
+  fileToolBar->addAction(exportAction);
 }
 
 void MainWindow::createStatusBar()
