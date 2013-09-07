@@ -84,19 +84,19 @@ void MainWindow::openFile()
   explorer->openFile();
 }
 
-void MainWindow::closeFile()
-{
-  explorer->closeFile();
-
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
-}
-
 void MainWindow::importDir()
 {
 }
 
 void MainWindow::exportDir()
 {
+}
+
+void MainWindow::closeAll()
+{
+  explorer->closeFile();
+
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
 }
 
 void MainWindow::about()
@@ -118,12 +118,6 @@ void MainWindow::createActions()
   openAction->setStatusTip(tr("Open an existing file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
-  closeAction = new QAction(tr("&Close"), this);
-  closeAction->setIcon(QIcon(":/images/close.png"));
-  closeAction->setShortcut(QKeySequence::Close);
-  closeAction->setStatusTip(tr("Close the file"));
-  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
-
   importAction = new QAction(tr("&Import..."), this);
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
@@ -135,6 +129,12 @@ void MainWindow::createActions()
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export to the directory"));
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportDir()));
+
+  closeAction = new QAction(tr("&Close"), this);
+  closeAction->setIcon(QIcon(":/images/close.png"));
+  closeAction->setShortcut(QKeySequence::Close);
+  closeAction->setStatusTip(tr("Close the file"));
+  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeAll()));
 
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
@@ -153,12 +153,17 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
   fileMenu = menuBar()->addMenu(tr("&File"));
+
   fileMenu->addAction(openAction);
-  fileMenu->addAction(closeAction);
-  fileMenu->addSeparator();
   fileMenu->addAction(importAction);
-  fileMenu->addAction(exportAction);
+
   fileMenu->addSeparator();
+
+  fileMenu->addAction(exportAction);
+  fileMenu->addAction(closeAction);
+
+  fileMenu->addSeparator();
+
   fileMenu->addAction(exitAction);
 
   menuBar()->addSeparator();
@@ -175,12 +180,12 @@ void MainWindow::createToolBars()
   fileToolBar->setMovable(false);
 
   fileToolBar->addAction(openAction);
-  fileToolBar->addAction(closeAction);
+  fileToolBar->addAction(importAction);
 
   fileToolBar->addSeparator();
 
-  fileToolBar->addAction(importAction);
   fileToolBar->addAction(exportAction);
+  fileToolBar->addAction(closeAction);
 }
 
 void MainWindow::createStatusBar()
