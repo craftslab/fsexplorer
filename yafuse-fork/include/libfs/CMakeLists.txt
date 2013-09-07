@@ -9,7 +9,7 @@
 # Add source directory
 #
 set(YF_DIR_INCLUDE_BASE "${PROJECT_SOURCE_DIR}/include/base")
-include_directories("${YF_DIR_INCLUDE_BASE}")
+include_directories(${YF_DIR_INCLUDE_BASE})
 
 include_directories(${PROJECT_BINARY_DIR})
 

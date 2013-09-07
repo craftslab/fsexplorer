@@ -9,6 +9,6 @@ if [ ! -d install ]; then
 fi
 
 pushd out
-ccmake -DCMAKE_INSTALL_PREFIX=/home/lemonjia/my-project/fricando/yafuse-fork-test/install ../ 
+ccmake -DCMAKE_INSTALL_PREFIX=../install ../ 
 popd
 

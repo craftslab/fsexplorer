@@ -9,28 +9,28 @@
 # Add source directory
 #
 set(YF_DIR "${PROJECT_SOURCE_DIR}")
-include_directories("${YF_DIR}")
+include_directories(${YF_DIR})
 
 set(YF_DIR_INCLUDE_BASE "${PROJECT_SOURCE_DIR}/include/base")
-include_directories("${YF_DIR_INCLUDE_BASE}")
+include_directories(${YF_DIR_INCLUDE_BASE})
 
 set(YF_DIR_INCLUDE_LIBFS "${PROJECT_SOURCE_DIR}/include/libfs")
-include_directories("${YF_DIR_INCLUDE_LIBFS}")
+include_directories(${YF_DIR_INCLUDE_LIBFS})
 
 set(YF_DIR_INCLUDE_LIBEXT4 "${PROJECT_SOURCE_DIR}/include/libext4")
-include_directories("${YF_DIR_INCLUDE_LIBEXT4}")
+include_directories(${YF_DIR_INCLUDE_LIBEXT4})
 
 set(YF_DIR_INCLUDE_LIBFAT "${PROJECT_SOURCE_DIR}/include/libfat")
-include_directories("${YF_DIR_INCLUDE_LIBFAT}")
+include_directories(${YF_DIR_INCLUDE_LIBFAT})
 
 set(YF_DIR_LIBFS "${PROJECT_SOURCE_DIR}/libfs")
-include_directories("${YF_DIR_LIBFS}")
+include_directories(${YF_DIR_LIBFS})
 
 set(YF_DIR_LIBEXT4 "${PROJECT_SOURCE_DIR}/libext4")
-include_directories("${YF_DIR_LIBEXT4}")
+include_directories(${YF_DIR_LIBEXT4})
 
 set(YF_DIR_LIBFAT "${PROJECT_SOURCE_DIR}/libfat")
-include_directories("${YF_DIR_LIBFAT}")
+include_directories(${YF_DIR_LIBFAT})
 
 include_directories(${PROJECT_BINARY_DIR})
 
@@ -61,7 +61,10 @@ add_dependencies(yafuse fat)
 #
 # Link the library
 #
-target_link_libraries(yafuse readline)
+if (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(yafuse readline)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
 target_link_libraries(yafuse io)
 target_link_libraries(yafuse fs)
 target_link_libraries(yafuse ext4)

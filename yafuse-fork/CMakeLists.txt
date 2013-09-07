@@ -36,10 +36,8 @@ set(YF_INCLUDEDIR "\${YF_PREFXI}/include")
 #
 if (CMAKE_COMPILER_IS_GNUCC)
   set(YF_READLINE_DIR_INCLUDE "/opt/readline-6.2/include")
-else ()
-  set(YF_READLINE_DIR_INCLUDE "/opt/readline-6.2/include")
 endif (CMAKE_COMPILER_IS_GNUCC)
-include_directories("${YF_READLINE_DIR_INCLUDE}")
+include_directories(${YF_READLINE_DIR_INCLUDE})
 
 #
 # Options for version selection
