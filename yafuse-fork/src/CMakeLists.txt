@@ -67,4 +67,5 @@ target_link_libraries(yafuse fat)
 install(
   TARGETS yafuse
   RUNTIME DESTINATION ${YF_BINDIR}
+  LIBRARY DESTINATION ${YF_LIBDIR}
   )
