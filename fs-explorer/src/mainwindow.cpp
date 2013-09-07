@@ -23,9 +23,12 @@
 #include <QSplitter>
 #include <QTreeView>
 #include <QFileSystemModel>
+#include <QFileDialog>
 
 #include "explorer.h"
 #include "mainwindow.h"
+
+const QString mainWindowTitle = "Filesystem Explorer";
 
 MainWindow::MainWindow()
 {
@@ -51,7 +54,7 @@ MainWindow::MainWindow()
   splitter->addWidget(treeView);
 
   setCentralWidget(splitter);
-  setWindowTitle(tr("Filesystem Explorer"));
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
 
   createActions();
   createMenus();
@@ -68,12 +71,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openFile()
 {
+  QString initialName = QDir::homePath();
+
+  QString filter = tr("Filesystem Image (*.img *.ext4 *.fat)");
+  filter += tr(";;All Files (*)");
+
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
+  fileName = QDir::toNativeSeparators(fileName);
+
+  setWindowTitle(tr("%1[*] - %2").arg(fileName).arg(mainWindowTitle));
+
   explorer->openFile();
 }
 
 void MainWindow::closeFile()
 {
   explorer->closeFile();
+
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
 }
 
 void MainWindow::about()
