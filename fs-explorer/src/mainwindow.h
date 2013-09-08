@@ -48,6 +48,7 @@ private slots:
   void importDir();
   void exportDir();
   void closeAll();
+  void console();
   void about();
   void updateActions();
 
@@ -63,14 +64,16 @@ private:
   Explorer *explorer;
 
   QMenu *fileMenu;
-  QMenu *editMenu;
+  QMenu *toolsMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
+  QToolBar *toolsToolBar;
   QAction *openAction;
   QAction *importAction;
   QAction *exportAction;
   QAction *closeAction;
   QAction *exitAction;
+  QAction *consoleAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
 };

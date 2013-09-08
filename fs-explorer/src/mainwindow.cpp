@@ -99,11 +99,15 @@ void MainWindow::closeAll()
   setWindowTitle(tr("%1").arg(mainWindowTitle));
 }
 
+void MainWindow::console()
+{
+}
+
 void MainWindow::about()
 {
-  QMessageBox::about(this, tr("About FS Explorer"),
-                     tr("<h2>Filesystem Explorer 1.0</h2>"
-                        "<p>Copyright &copy; 2013 angersax@gmail.com."));
+  QMessageBox::about(this, tr("FS Explorer"),
+                     tr("<h2>Filesystem Explorer</h2>"
+                        "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
 }
 
 void MainWindow::updateActions()
@@ -141,6 +145,12 @@ void MainWindow::createActions()
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
+  consoleAction = new QAction(tr("Co&nsole"), this);
+  consoleAction->setIcon(QIcon(":/images/console.png"));
+  consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
+  consoleAction->setStatusTip(tr("Run console"));
+  connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
+
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -153,18 +163,17 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
   fileMenu = menuBar()->addMenu(tr("&File"));
-
   fileMenu->addAction(openAction);
   fileMenu->addSeparator();
-
   fileMenu->addAction(importAction);
   fileMenu->addAction(exportAction);
   fileMenu->addSeparator();
-
   fileMenu->addAction(closeAction);
   fileMenu->addSeparator();
-
   fileMenu->addAction(exitAction);
+
+  toolsMenu = menuBar()->addMenu(tr("&Tools"));
+  toolsMenu->addAction(consoleAction);
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
@@ -176,15 +185,18 @@ void MainWindow::createToolBars()
   fileToolBar = addToolBar(tr("File"));
   fileToolBar->setFloatable(false);
   fileToolBar->setMovable(false);
-
   fileToolBar->addAction(openAction);
   fileToolBar->addSeparator();
-
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(exportAction);
   fileToolBar->addSeparator();
-
   fileToolBar->addAction(closeAction);
+
+  toolsToolBar = addToolBar(tr("Tools"));
+  toolsToolBar->setFloatable(false);
+  toolsToolBar->setMovable(false);
+  toolsToolBar->addAction(consoleAction);
+  toolsToolBar->addSeparator();
 }
 
 void MainWindow::createStatusBar()
