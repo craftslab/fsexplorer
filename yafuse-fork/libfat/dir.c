@@ -123,7 +123,7 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -184,7 +184,7 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -229,7 +229,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -291,7 +291,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }

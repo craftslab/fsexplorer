@@ -97,7 +97,7 @@ int32_t ext4_fill_file(const struct ext4_super_block *sb, const struct ext4_exte
 
   offset = (((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo) * blk_sz;
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }

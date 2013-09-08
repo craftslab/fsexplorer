@@ -79,7 +79,7 @@ int32_t fat_fill_file(const struct fat_super_block *sb, int32_t cluster, size_t 
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }

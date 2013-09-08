@@ -114,7 +114,7 @@ int32_t ext4_fill_sb(struct ext4_super_block *sb)
 
   offset = EXT4_GROUP_0_PAD_SZ;
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -181,7 +181,7 @@ int32_t ext4_fill_bg_desc(const struct ext4_super_block *sb, int32_t bg_groups, 
     if (ext4_bg_has_sb(sb, i)) {
       sb_blk = 1;
 
-      ret = io_fseek((start_blk + sb_blk) * blk_sz);
+      ret = io_fseek((long)((start_blk + sb_blk) * blk_sz));
       if (ret != 0) {
         return -1;
       }

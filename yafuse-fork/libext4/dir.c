@@ -85,7 +85,7 @@ static int32_t ext4_fill_dentry_linear(const struct ext4_super_block *sb, const 
 
   offset = (((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo) * blk_sz + (__le64)dentry_offset_rel;
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -110,7 +110,11 @@ static int32_t ext4_fill_dentry_linear(const struct ext4_super_block *sb, const 
   return 0;
 }
 
+#ifdef CMAKE_COMPILER_IS_GNUCC
 static int32_t __attribute__((unused)) ext4_fill_dentry_htree(const struct ext4_super_block *sb, const struct ext4_extent *ext, int32_t root_num, struct dx_root *root)
+#else
+static int32_t ext4_fill_dentry_htree(const struct ext4_super_block *sb, const struct ext4_extent *ext, int32_t root_num, struct dx_root *root)
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 {
   // Add code here
 
@@ -137,7 +141,7 @@ int32_t ext4_fill_dentries(const struct ext4_super_block *sb, const struct ext4_
 
   offset = (((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo) * blk_sz;
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -157,7 +161,7 @@ int32_t ext4_fill_dentries(const struct ext4_super_block *sb, const struct ext4_
 
     offset += (__le64)(dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2));
 
-    ret = io_fseek(offset);
+    ret = io_fseek((long)offset);
     if (ret != 0) {
       return -1;
     }

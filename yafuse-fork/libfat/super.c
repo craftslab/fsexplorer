@@ -39,6 +39,9 @@
 #ifdef HAVE_MATH_H
 #include <math.h>
 #endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 #ifdef DEBUG
 // Add code here
@@ -65,13 +68,13 @@
 /*
  * Function Declaration
  */
-static inline int32_t fat_is_valid_sec_sz(uint8_t *sec_sz, uint32_t len);
-static inline int32_t fat_is_valid_media(uint32_t media);
+static int32_t fat_is_valid_sec_sz(uint8_t *sec_sz, uint32_t len);
+static int32_t fat_is_valid_media(uint32_t media);
 
 /*
  * Function Definition
  */
-static inline int32_t fat_is_valid_sec_sz(uint8_t *sec_sz, uint32_t len)
+static int32_t fat_is_valid_sec_sz(uint8_t *sec_sz, uint32_t len)
 {
   uint32_t val = 0;
 
@@ -84,7 +87,7 @@ static inline int32_t fat_is_valid_sec_sz(uint8_t *sec_sz, uint32_t len)
   return IS_POWER_OF_2(val) && (val >= SECTOR_SIZE) && (val <= SECTOR_SIZE_MAX);
 }
 
-static inline int32_t fat_is_valid_media(uint32_t media)
+static int32_t fat_is_valid_media(uint32_t media)
 {
   return (media >= 0xF8) || (media == 0xF0);
 }
@@ -100,7 +103,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
    * Fill in FAT boot sector
    */
   offset = 0;
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -134,7 +137,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
     offset = FAT16_BSX_OFFSET;
   }
 
-  ret = io_fseek(offset);
+  ret = io_fseek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -152,7 +155,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
      */
     offset = sb->bs.info_sector == 0 ? GET_UNALIGNED_LE16(sb->bs.sector_size) : sb->bs.info_sector * GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-    ret = io_fseek(offset);
+    ret = io_fseek((long)offset);
     if (ret != 0) {
       return -1;
     }

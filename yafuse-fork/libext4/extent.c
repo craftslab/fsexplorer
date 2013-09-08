@@ -78,7 +78,11 @@ static int32_t ext4_fill_extent_header(const struct ext4_inode *inode, struct ex
   return 0;
 }
 
+#ifdef CMAKE_COMPILER_IS_GNUCC
 static int32_t __attribute__((unused)) ext4_fill_extent_idx (const struct ext4_inode *inode, int32_t ext_idx_num, struct ext4_extent_idx *ext_idx)
+#else
+static int32_t ext4_fill_extent_idx (const struct ext4_inode *inode, int32_t ext_idx_num, struct ext4_extent_idx *ext_idx)
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 {
   const uint8_t *ptr = NULL;
   int32_t offset = 0;
@@ -105,7 +109,9 @@ int32_t ext4_fill_extents(const struct ext4_inode *inode, int32_t *extents)
 int32_t ext4_fill_extent(const struct ext4_inode *inode, int32_t extents, struct ext4_extent *extent)
 {
   struct ext4_extent_header ext_hdr;
+#ifdef CMAKE_COMPILER_IS_GNUCC
   struct ext4_extent_idx ext_idx __attribute__((unused));
+#endif /* CMAKE_COMPILER_IS_GNUCC */
   int32_t i = 0;
   const uint8_t *ptr = NULL;
   int32_t offset = 0;
