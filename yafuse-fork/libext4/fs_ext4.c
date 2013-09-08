@@ -146,55 +146,55 @@ fs_opt_t fs_opt_tbl_ext4[FS_OPT_TBL_NUM_MAX] = {
   //[2] =
   {
     fs_do_stats,
-    "stats",
+    FS_OPT_CMD_STATS,
   },
 
   //[3] =
   {
     fs_do_stat,
-    "stat",
+    FS_OPT_CMD_STAT,
   },
 
   //[4] =
   {
     fs_do_pwd,
-    "pwd",
+    FS_OPT_CMD_PWD,
   },
 
   //[5] =
   {
     fs_do_cd,
-    "cd",
+    FS_OPT_CMD_CD,
   },
 
   //[6] =
   {
     fs_do_ls,
-    "ls",
+    FS_OPT_CMD_LS,
   },
 
   //[7] =
   {
     fs_do_mkdir,
-    "mkdir",
+    FS_OPT_CMD_MKDIR,
   },
 
   //[8] =
   {
     fs_do_rm,
-    "rm",
+    FS_OPT_CMD_RM,
   },
 
   //[9] =
   {
     fs_do_cat,
-    "cat",
+    FS_OPT_CMD_CAT,
   },
 
   //[10] =
   {
     fs_do_echo,
-    "echo",
+    FS_OPT_CMD_ECHO,
   },
 
   //[11] =
