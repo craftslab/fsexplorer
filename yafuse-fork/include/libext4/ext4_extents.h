@@ -21,11 +21,20 @@
 #define CHECK_BINSEARCH__
 
 #define EXT_DEBUG__
+
+#ifdef CMAKE_COMPILER_IS_GNUCC
 #ifdef EXT_DEBUG
 #define ext_debug(a...) printk(a)
 #else
 #define ext_debug(a...)
 #endif
+#else
+#ifdef EXT_DEBUG
+#define ext_debug(...) printk(__VA_ARGS__)
+#else
+#define ext_debug(...)
+#endif
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #define EXT_STATS_
 

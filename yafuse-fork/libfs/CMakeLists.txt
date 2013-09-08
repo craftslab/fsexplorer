@@ -42,5 +42,7 @@ add_library(fs
 #
 install(
   TARGETS fs
+  ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
+  COMPONENT library
   )

@@ -35,6 +35,7 @@
 /*
  * Macro Definition
  */
+#ifdef CMAKE_COMPILER_IS_GNUCC
 #ifdef DEBUG
 #define info(fmt, args...) \
   do { \
@@ -66,6 +67,39 @@
     fprintf(stderr, "error: " fmt "\n", ## args); \
   } while (0)
 #endif /* DEBUG */
+#else
+#ifdef DEBUG
+#define info(fmt, ...) \
+  do { \
+    fprintf(stdout, "info: %s: " fmt "\n", __func__, __VA_ARGS__);  \
+  } while (0)
+
+#define warn(fmt, ...) \
+  do { \
+    fprintf(stderr, "warning: %s: " fmt "\n", __func__, __VA_ARGS__); \
+  } while (0)
+
+#define error(fmt, ...) \
+  do { \
+    fprintf(stderr, "error: %s: " fmt "\n", __func__, __VA_ARGS__); \
+  } while (0)
+#else
+#define info(fmt, ...)                      \
+  do { \
+    fprintf(stdout, "info: " fmt "\n", __VA_ARGS__);                  \
+  } while (0)
+
+#define warn(fmt, ...) \
+  do { \
+    fprintf(stderr, "warning: " fmt "\n", __VA_ARGS__); \
+  } while (0)
+
+#define error(fmt, ...) \
+  do { \
+    fprintf(stderr, "error: " fmt "\n", __VA_ARGS__); \
+  } while (0)
+#endif /* DEBUG */
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*
  * Type Definition

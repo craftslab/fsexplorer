@@ -139,7 +139,7 @@ int32_t ext4_fill_sb(struct ext4_super_block *sb)
 
 int32_t ext4_fill_blk_sz(const struct ext4_super_block *sb, int32_t *blk_sz)
 {
-  *blk_sz = pow((double)2, (double)(10 + sb->s_log_block_size));
+  *blk_sz = (int32_t)pow((double)2, (double)(10 + sb->s_log_block_size));
 
   return 0;
 }
@@ -151,7 +151,7 @@ int32_t ext4_fill_bg_groups(const struct ext4_super_block *sb, int32_t *bg_group
 
   blocks_cnt = ((__le64)sb->s_blocks_count_hi << 32) | (__le64)sb->s_blocks_count_lo;
 
-  groups = DIV_ROUND_UP(blocks_cnt - sb->s_first_data_block, sb->s_blocks_per_group);
+  groups = (int32_t)DIV_ROUND_UP(blocks_cnt - sb->s_first_data_block, sb->s_blocks_per_group);
 
   *bg_groups = groups;
 

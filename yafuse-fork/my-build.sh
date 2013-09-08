@@ -2,6 +2,6 @@
 
 pushd out
 make
-sudo make install
+make install
 popd
 

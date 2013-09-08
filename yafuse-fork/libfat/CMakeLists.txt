@@ -43,5 +43,7 @@ target_link_libraries(fat io)
 #
 install(
   TARGETS fat
+  ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
+  COMPONENT library
   )

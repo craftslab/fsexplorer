@@ -21,7 +21,11 @@
 
 #define JBD2_DEFAULT_MAX_COMMIT_AGE 5
 
-#define jbd_debug(f, a...)  
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#define jbd_debug(f, a...)
+#else
+#define jbd_debug(f, ...)
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #define JBD2_MIN_JOURNAL_BLOCKS 1024
 

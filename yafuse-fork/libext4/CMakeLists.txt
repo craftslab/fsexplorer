@@ -43,5 +43,7 @@ target_link_libraries(ext4 io)
 #
 install(
   TARGETS ext4
+  ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
+  COMPONENT library
   )

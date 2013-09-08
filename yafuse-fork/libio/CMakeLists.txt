@@ -39,5 +39,7 @@ add_library(io
 #
 install(
   TARGETS io
+  ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
+  COMPONENT library
   )
