@@ -25,7 +25,7 @@ aux_source_directory(. YF_DIR_LIBIO)
 # Generate the library
 #
 add_library(io
-  SHARED
+  STATIC
   ${YF_DIR_LIBIO}
   )
 
@@ -33,13 +33,3 @@ add_library(io
 # Linke the library
 #
 #target_link_libraries(io m)
-
-#
-# Add the install targets
-#
-install(
-  TARGETS io
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )

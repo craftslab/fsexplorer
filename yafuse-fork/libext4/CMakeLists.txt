@@ -35,7 +35,10 @@ add_library(ext4
 #
 # Linke the library
 #
-target_link_libraries(ext4 m)
+if (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(ext4 m)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
 target_link_libraries(ext4 io)
 
 #
