@@ -1,5 +1,6 @@
 <RCC>
 <qresource>
+    <file>images/logo-16px.ico</file>
     <file>images/open.png</file>
     <file>images/close.png</file>
     <file>images/import.png</file>

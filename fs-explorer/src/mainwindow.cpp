@@ -79,6 +79,7 @@ void MainWindow::openFile()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
   fileName = QDir::toNativeSeparators(fileName);
 
+  setWindowIcon(QIcon("logo-16px.ico"));
   setWindowTitle(tr("%1[*] - %2").arg(fileName).arg(mainWindowTitle));
 
   explorer->openFile();
