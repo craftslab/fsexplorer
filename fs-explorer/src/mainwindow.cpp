@@ -28,7 +28,7 @@
 #include "explorer.h"
 #include "mainwindow.h"
 
-const QString mainWindowTitle = "Filesystem Explorer";
+const QString mainWindowTitle = "FS Explorer";
 
 MainWindow::MainWindow()
 {
@@ -105,9 +105,10 @@ void MainWindow::console()
 
 void MainWindow::about()
 {
-  QMessageBox::about(this, tr("FS Explorer"),
-                     tr("<h2>Filesystem Explorer</h2>"
-                        "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
+  QMessageBox::about(this,
+                    tr("FS Explorer"),
+                    tr("<h3><center>Filesystem Explorer</center></h3>"
+                       "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
 }
 
 void MainWindow::updateActions()
