@@ -45,6 +45,9 @@ MainWindow::MainWindow()
   treeView->setCurrentIndex(index);
 #endif
 
+  setWindowIcon(QPixmap(":/images/icon.png"));
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
+
   treeView->setHeaderHidden(true);
   treeView->setColumnHidden(1, true);
   treeView->setColumnHidden(2, true);
@@ -52,9 +55,7 @@ MainWindow::MainWindow()
 
   splitter = new QSplitter;
   splitter->addWidget(treeView);
-
   setCentralWidget(splitter);
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
 
   createActions();
   createMenus();
@@ -79,7 +80,6 @@ void MainWindow::openFile()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
   fileName = QDir::toNativeSeparators(fileName);
 
-  setWindowIcon(QIcon("logo-16px.ico"));
   setWindowTitle(tr("%1[*] - %2").arg(fileName).arg(mainWindowTitle));
 
   explorer->openFile();
