@@ -46,7 +46,6 @@ add_executable(yafuse
 #
 # Add the dependency
 #
-add_dependencies(yafuse io)
 add_dependencies(yafuse fs)
 add_dependencies(yafuse ext4)
 add_dependencies(yafuse fat)
@@ -56,7 +55,6 @@ add_dependencies(yafuse fat)
 #
 target_link_libraries(yafuse readline)
 target_link_libraries(yafuse ncurses)
-target_link_libraries(yafuse io)
 target_link_libraries(yafuse fs)
 target_link_libraries(yafuse ext4)
 target_link_libraries(yafuse fat)

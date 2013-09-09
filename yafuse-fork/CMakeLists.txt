@@ -54,7 +54,7 @@ option(YF_VER_DEBUG "Debug Version" OFF)
 # The compiling setting
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
