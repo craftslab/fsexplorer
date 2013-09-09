@@ -6,9 +6,9 @@ RESOURCES = src.qrc
 #
 # Import header and lib of fs
 #
-INCLUDEPATH += ../install/include
-unix:LIBS += "-L../install/lib/unix -lext4 -lfat -lfs -lio"
-win32:LIBS += "-L../install/lib/win32"
+INCLUDEPATH += ../include
+unix:LIBS += "-L../install/lib/ -lext4 -lfat -lfs"
+win32:LIBS += "-L../install/lib/"
 
 HEADERS += platform.h
 HEADERS += explorer.h
