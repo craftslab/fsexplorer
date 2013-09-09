@@ -103,13 +103,13 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
    * Fill in FAT boot sector
    */
   offset = 0;
-  ret = io_fseek((long)offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
 
   sz = sizeof(struct fat_boot_sector);
-  ret = io_fread((uint8_t *)&sb->bs, sz);
+  ret = io_read((uint8_t *)&sb->bs, sz);
   if (ret != 0) {
     memset((void *)&sb->bs, 0, sz);
     return -1;
@@ -137,13 +137,13 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
     offset = FAT16_BSX_OFFSET;
   }
 
-  ret = io_fseek((long)offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
 
   sz = sizeof(struct fat_boot_bsx);
-  ret = io_fread((uint8_t *)&sb->bb, sz);
+  ret = io_read((uint8_t *)&sb->bb, sz);
   if (ret != 0) {
     memset((void *)&sb->bb, 0, sz);
     return -1;
@@ -155,13 +155,13 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
      */
     offset = sb->bs.info_sector == 0 ? GET_UNALIGNED_LE16(sb->bs.sector_size) : sb->bs.info_sector * GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-    ret = io_fseek((long)offset);
+    ret = io_seek((long)offset);
     if (ret != 0) {
       return -1;
     }
 
     sz = sizeof(struct fat_boot_fsinfo);
-    ret = io_fread((uint8_t *)&sb->bf, sz);
+    ret = io_read((uint8_t *)&sb->bf, sz);
     if (ret != 0) {
       memset((void *)&sb->bf, 0, sz);
       return -1;

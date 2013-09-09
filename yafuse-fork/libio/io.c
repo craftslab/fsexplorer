@@ -69,21 +69,10 @@ static FILE *io_fd = NULL;
 /*
  * Function Declaration
  */
-static FILE* io_fopen(const char *fs_name);
-static void io_fclose(FILE *fd);
 
 /*
  * Function Definition
  */
-static FILE* io_fopen(const char *fs_name)
-{
-  return fopen(fs_name, "wb+");
-}
-
-static void io_fclose(FILE *fd)
-{
-  (void)fclose(fd);
-}
 
 /*
  * Open IO
@@ -99,7 +88,7 @@ int32_t io_open(const char *fs_name)
     return -1;
   }
 
-  io_fd = io_fopen(fs_name);
+  io_fd = fopen(fs_name, "rb+");
   if (!io_fd) {
     return -1;
   }
@@ -116,7 +105,7 @@ void io_close(void)
     return;
   }
 
-  (void)io_fclose(io_fd);
+  (void)fclose(io_fd);
 
   io_fd = NULL;
 }
@@ -124,7 +113,7 @@ void io_close(void)
 /*
  * Seek IO of file
  */
-int32_t io_fseek(long offset)
+int32_t io_seek(long offset)
 {
   int32_t ret = 0;
 
@@ -148,7 +137,7 @@ int32_t io_fseek(long offset)
 /*
  * Read IO of file
  */
-int32_t io_fread(uint8_t *data, size_t len)
+int32_t io_read(uint8_t *data, size_t len)
 {
   size_t ret = 0;
 
@@ -172,7 +161,7 @@ int32_t io_fread(uint8_t *data, size_t len)
 /*
  * Write IO of file
  */
-int32_t io_fwrite(uint8_t *data, size_t len)
+int32_t io_write(uint8_t *data, size_t len)
 {
   size_t ret = 0;
 

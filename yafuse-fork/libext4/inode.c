@@ -110,12 +110,12 @@ int32_t ext4_fill_inode(const struct ext4_super_block *sb, const struct ext4_gro
     offset = inode_tbl + (inode_num * sb->s_inode_size);
   }
 
-  ret = io_fseek((long)offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
 
-  ret = io_fread((uint8_t *)inode, inode_sz);
+  ret = io_read((uint8_t *)inode, inode_sz);
   if (ret != 0) {
     memset((void *)inode, 0, inode_sz);
     return -1;

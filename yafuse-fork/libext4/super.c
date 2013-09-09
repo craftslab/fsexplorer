@@ -114,7 +114,7 @@ int32_t ext4_fill_sb(struct ext4_super_block *sb)
 
   offset = EXT4_GROUP_0_PAD_SZ;
 
-  ret = io_fseek((long)offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -124,7 +124,7 @@ int32_t ext4_fill_sb(struct ext4_super_block *sb)
    * default size of superblock is 1024 bytes
    */
   sb_sz = sizeof(struct ext4_super_block);
-  ret = io_fread((uint8_t *)sb, sb_sz);
+  ret = io_read((uint8_t *)sb, sb_sz);
   if (ret != 0) {
     memset((void *)sb, 0, sb_sz);
     return -1;
@@ -181,13 +181,13 @@ int32_t ext4_fill_bg_desc(const struct ext4_super_block *sb, int32_t bg_groups, 
     if (ext4_bg_has_sb(sb, i)) {
       sb_blk = 1;
 
-      ret = io_fseek((long)((start_blk + sb_blk) * blk_sz));
+      ret = io_seek((long)((start_blk + sb_blk) * blk_sz));
       if (ret != 0) {
         return -1;
       }
 
       for (j = 0; j < bg_groups; ++j) {
-        ret = io_fread((uint8_t *)&bg_desc[j], (size_t)sb->s_desc_size);
+        ret = io_read((uint8_t *)&bg_desc[j], (size_t)sb->s_desc_size);
         if (ret != 0) {
           memset((void *)&bg_desc[j], 0, sb->s_desc_size);
           return -1;

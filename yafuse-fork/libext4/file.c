@@ -97,12 +97,12 @@ int32_t ext4_fill_file(const struct ext4_super_block *sb, const struct ext4_exte
 
   offset = (((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo) * blk_sz;
 
-  ret = io_fseek((long)offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
 
-  ret = io_fread((uint8_t *)buf, size);
+  ret = io_read((uint8_t *)buf, size);
   if (ret != 0) {
     return -1;
   }
