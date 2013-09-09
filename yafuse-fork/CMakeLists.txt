@@ -47,14 +47,14 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Options for version selection
 #
-option(YF_VER_RELEASE "Release Version" ON)
-option(YF_VER_DEBUG "Debug Version" OFF)
+set(CMAKE_BUILD_TYPE Release)
 
 #
 # The compiling setting
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -g")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
