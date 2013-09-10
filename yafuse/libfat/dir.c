@@ -123,14 +123,14 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
 
   sz = sizeof(struct msdos_dir_entry);
 
-  ret = io_fread((uint8_t *)&dentry, sz);
+  ret = io_read((uint8_t *)&dentry, sz);
   if (ret != 0) {
     return -1;
   }
@@ -139,7 +139,7 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
    * Long File Names (LFN), i.e., dslot, is used
    */
   if (dentry.attr == ATTR_EXT) {
-    ret = io_fread((uint8_t *)&dentry, sz);
+    ret = io_read((uint8_t *)&dentry, sz);
     if (ret != 0) {
       return -1;
     }
@@ -148,7 +148,7 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
   while (dentry.name[0] != '\0') {
     ++i;
 
-    ret = io_fread((uint8_t *)&dentry, sz);
+    ret = io_read((uint8_t *)&dentry, sz);
     if (ret != 0) {
       return -1;
     }
@@ -157,7 +157,7 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
      * Long File Names (LFN), i.e., dslot, is used
      */
     if (dentry.name[0] != '\0' && dentry.attr == ATTR_EXT) {
-      ret = io_fread((uint8_t *)&dentry, sz);
+      ret = io_read((uint8_t *)&dentry, sz);
       if (ret != 0) {
         return -1;
       }
@@ -184,7 +184,7 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -192,7 +192,7 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
   sz = sizeof(struct msdos_dir_entry);
 
   for (i = 0; i < dentries; ++i) {
-    ret = io_fread((uint8_t *)&dslot[i], sz);
+    ret = io_read((uint8_t *)&dslot[i], sz);
     if (ret != 0) {
       break;
     }
@@ -201,7 +201,7 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
      * Long File Names (LFN), i.e., dslot, is used
      */
     if (dslot[i].attr == ATTR_EXT) {
-      ret = io_fread((uint8_t *)&dentry[i], sz);
+      ret = io_read((uint8_t *)&dentry[i], sz);
       if (ret != 0) {
         break;
       }
@@ -229,7 +229,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -239,7 +239,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
   /*
    * Read FAT dentry of '.'
    */
-  ret = io_fread((uint8_t *)&dentry, sz);
+  ret = io_read((uint8_t *)&dentry, sz);
   if (ret != 0) {
     return -1;
   }
@@ -247,7 +247,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
   /*
    * Read FAT dentry of '..'
    */
-  ret = io_fread((uint8_t *)&dentry, sz);
+  ret = io_read((uint8_t *)&dentry, sz);
   if (ret != 0) {
     return -1;
   }
@@ -255,7 +255,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
   while (dentry.name[0] != '\0') {
     ++i;
 
-    ret = io_fread((uint8_t *)&dentry, sz);
+    ret = io_read((uint8_t *)&dentry, sz);
     if (ret != 0) {
       return -1;
     }
@@ -264,7 +264,7 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
      * Long File Names (LFN), i.e., dslot, is used
      */
     if (dentry.attr == ATTR_EXT) {
-      ret = io_fread((uint8_t *)&dentry, sz);
+      ret = io_read((uint8_t *)&dentry, sz);
       if (ret != 0) {
         return -1;
       }
@@ -291,7 +291,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
 
-  ret = io_fseek(offset);
+  ret = io_seek((long)offset);
   if (ret != 0) {
     return -1;
   }
@@ -303,7 +303,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
    */
   memset((void *)&dslot[0], 0, sz);
 
-  ret = io_fread((uint8_t *)&dentry[0], sz);
+  ret = io_read((uint8_t *)&dentry[0], sz);
   if (ret != 0) {
     return -1;
   }
@@ -313,7 +313,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
    */
   memset((void *)&dslot[1], 0, sz);
 
-  ret = io_fread((uint8_t *)&dentry[1], sz);
+  ret = io_read((uint8_t *)&dentry[1], sz);
   if (ret != 0) {
     return -1;
   }
@@ -322,7 +322,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
    * Fill in other dentry
    */
   for (i = 2; i < dentries; ++i) {
-    ret = io_fread((uint8_t *)&dslot[i], sz);
+    ret = io_read((uint8_t *)&dslot[i], sz);
     if (ret != 0) {
       break;
     }
@@ -331,7 +331,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
      * Long File Names (LFN), i.e., dslot, is used
      */
     if (dslot[i].attr == ATTR_EXT) {
-      ret = io_fread((uint8_t *)&dentry[i], sz);
+      ret = io_read((uint8_t *)&dentry[i], sz);
       if (ret != 0) {
         break;
       }

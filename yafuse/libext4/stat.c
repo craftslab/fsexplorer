@@ -92,10 +92,10 @@ static void ext4_show_sb_stat(const struct ext4_super_block *sb)
   fprintf(stdout, "Free inode count               : %u\n", sb->s_free_inodes_count);
   fprintf(stdout, "First data block               : %u\n", sb->s_first_data_block);
 
-  val = pow((double)2, (double)(10 + sb->s_log_block_size));
+  val = (uint32_t)pow((double)2, (double)(10 + sb->s_log_block_size));
   fprintf(stdout, "Block size                     : %u\n", val);
 
-  val = pow((double)2, (double)(10 + sb->s_obso_log_frag_size));
+  val = (uint32_t)pow((double)2, (double)(10 + sb->s_obso_log_frag_size));
   fprintf(stdout, "Fragment size (obsolete)       : %u\n", val);
 
   fprintf(stdout, "Blocks per group               : %u\n", sb->s_blocks_per_group);
@@ -531,7 +531,7 @@ static void ext4_show_sb_stat(const struct ext4_super_block *sb)
     fprintf(stdout, "MMP blocks                       : %llu\n", sb->s_mmp_block);
     fprintf(stdout, "RAID stripe width                : %u\n", sb->s_raid_stripe_width);
 
-    val = pow((double)2, (double)sb->s_log_groups_per_flex);
+    val = (uint32_t)pow((double)2, (double)sb->s_log_groups_per_flex);
     fprintf(stdout, "Flexible block size              : %u\n", val);
     fprintf(stdout, "Reserved char padding 2          : %u\n", sb->s_reserved_char_pad2);
     fprintf(stdout, "Reserved padding                 : %u\n", sb->s_reserved_pad);

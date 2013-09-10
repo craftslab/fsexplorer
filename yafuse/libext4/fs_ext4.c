@@ -132,63 +132,63 @@ static int32_t fs_do_echo(int32_t argc, const char **argv);
  */
 fs_opt_t fs_opt_tbl_ext4[FS_OPT_TBL_NUM_MAX] = {
   [0] = {
-    .opt_hdl = fs_do_mount,
     .opt_cmd = FS_OPT_CMD_MOUNT,
+    .opt_hdl = fs_do_mount,
   },
 
   [1] = {
-    .opt_hdl = fs_do_umount,
     .opt_cmd = FS_OPT_CMD_UMOUNT,
+    .opt_hdl = fs_do_umount,
   },
 
   [2] = {
+    .opt_cmd = FS_OPT_CMD_STATS,
     .opt_hdl = fs_do_stats,
-    .opt_cmd = "stats",
   },
 
   [3] = {
+    .opt_cmd = FS_OPT_CMD_STAT,
     .opt_hdl = fs_do_stat,
-    .opt_cmd = "stat",
   },
 
   [4] = {
+    .opt_cmd = FS_OPT_CMD_PWD,
     .opt_hdl = fs_do_pwd,
-    .opt_cmd = "pwd",
   },
 
   [5] = {
+    .opt_cmd = FS_OPT_CMD_CD,
     .opt_hdl = fs_do_cd,
-    .opt_cmd = "cd",
   },
 
   [6] = {
+    .opt_cmd = FS_OPT_CMD_LS,
     .opt_hdl = fs_do_ls,
-    .opt_cmd = "ls",
   },
 
   [7] = {
+    .opt_cmd = FS_OPT_CMD_MKDIR,
     .opt_hdl = fs_do_mkdir,
-    .opt_cmd = "mkdir",
   },
 
   [8] = {
+    .opt_cmd = FS_OPT_CMD_RM,
     .opt_hdl = fs_do_rm,
-    .opt_cmd = "rm",
   },
 
   [9] = {
+    .opt_cmd = FS_OPT_CMD_CAT,
     .opt_hdl = fs_do_cat,
-    .opt_cmd = "cat",
   },
 
   [10] = {
+    .opt_cmd = FS_OPT_CMD_ECHO,
     .opt_hdl = fs_do_echo,
-    .opt_cmd = "echo",
   },
 
   [11] = {
-    .opt_hdl = NULL,
     .opt_cmd = NULL,
+    .opt_hdl = NULL,
   }
 };
 
@@ -544,36 +544,26 @@ static int32_t fs_output_stdout(const uint8_t *buf, size_t size)
 
 static int32_t fs_output_file(const uint8_t *buf, size_t size, const char *name)
 {
-  int32_t fd = 0;
+  FILE *fd = 0;
   int32_t ret = 0;
 
   if (buf == NULL || size == 0 || name == NULL) {
     return -1;
   }
 
-  ret = access(name, F_OK);
-  if (ret != 0) {
+  fd = fopen(name, "wb");
+  if (!fd) {
     return -1;
   }
 
-  ret = access(name, W_OK);
-  if (ret != 0) {
-    return -1;
-  }
-
-  fd = open(name, O_WRONLY | O_BINARY);
-  if (fd < 0) {
-    return -1;
-  }
-
-  ret = lseek(fd, 0, SEEK_SET);
+  ret = fseek(fd, 0, SEEK_SET);
   if (ret < 0) {
     ret = -1;
     goto fs_output_file_done;
   }
 
-  ret = write(fd, (const void *)buf, size);
-  if (ret < 0) {
+  ret = fwrite((const void *)buf, 1, size, fd);
+  if (ret == 0) {
     ret = -1;
     goto fs_output_file_done;
   }
@@ -582,7 +572,7 @@ static int32_t fs_output_file(const uint8_t *buf, size_t size, const char *name)
 
  fs_output_file_done:
 
-  close(fd);
+  (void)fclose(fd);
 
   return ret;
 }

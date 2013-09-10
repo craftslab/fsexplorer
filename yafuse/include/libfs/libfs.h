@@ -40,8 +40,18 @@
 #define FS_OPT_TBL_NUM_MAX  (20)
 #define FS_OPT_CMD_ARG_NUM_MAX  (10)
 #define FS_OPT_CMD_ARG_DELIM  " "
+
 #define FS_OPT_CMD_MOUNT   "mount"
 #define FS_OPT_CMD_UMOUNT  "umount"
+#define FS_OPT_CMD_STATS   "stats"
+#define FS_OPT_CMD_STAT    "stat"
+#define FS_OPT_CMD_PWD     "pwd"
+#define FS_OPT_CMD_CD      "cd"
+#define FS_OPT_CMD_LS      "ls"
+#define FS_OPT_CMD_MKDIR   "mkdir"
+#define FS_OPT_CMD_RM      "rm"
+#define FS_OPT_CMD_CAT     "cat"
+#define FS_OPT_CMD_ECHO    "echo"
 
 #define FS_CURRENT_PATH  "."
 #define FS_UPPER_PATH    ".."
@@ -54,8 +64,8 @@
 typedef int32_t (*fs_opt_handle_t)(int32_t argc, const char **argv);
 
 typedef struct {
-  fs_opt_handle_t opt_hdl;
   const char *opt_cmd;
+  fs_opt_handle_t opt_hdl;
 } fs_opt_t;
 
 /*

@@ -27,6 +27,9 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 
 #ifdef DEBUG
 // Add code here
@@ -47,13 +50,8 @@
  */
 int32_t io_open(const char *fs_name);
 void io_close(void);
-
-int32_t io_fseek(off_t offset);
-int32_t io_fread(uint8_t *data, size_t len);
-int32_t io_fwrite(uint8_t *data, size_t len);
-
-int32_t io_bseek(size_t count, size_t bs);
-int32_t io_bread(uint8_t *data, size_t count, size_t bs);
-int32_t io_bwrite(uint8_t *data, size_t count, size_t bs);
+int32_t io_seek(long offset);
+int32_t io_read(uint8_t *data, size_t len);
+int32_t io_write(uint8_t *data, size_t len);
 
 #endif /* _IO_H */
