@@ -32,6 +32,8 @@
 // Add code here
 #endif
 
+#include "include/fs.h"
+
 /*
  * Macro Definition
  */
@@ -43,10 +45,10 @@
 /*
  * Global Variable Definition
  */
-extern fs_opt_t fs_opt_tbl_fat[];
 
 /*
  * Function Declaration
  */
+fs_opt_tbl_t* fs_opt_tbl_init(void);
 
 #endif /* _FS_FAT_H */

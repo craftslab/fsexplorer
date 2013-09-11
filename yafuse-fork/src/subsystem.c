@@ -45,6 +45,7 @@
 #endif
 
 #include "include/base/debug.h"
+#include "include/fs.h"
 #include "include/libfs/libfs.h"
 #include "subsystem.h"
 
@@ -87,22 +88,20 @@ static void ss_listen(const char *ss_prompt, const char *fs_name);
 /*
  * Global Variable Definition
  */
-static int32_t fs_type = -1;
-
 static fs_opt_t ss_opt_tbl[SS_OPT_TBL_NUM_MAX] = {
   [0] = {
-    .opt_hdl = ss_do_help,
     .opt_cmd = "help",
+    .opt_hdl = ss_do_help,
   },
 
   [1] = {
-    .opt_hdl = ss_do_history,
     .opt_cmd = "history",
+    .opt_hdl = ss_do_history,
   },
 
   [2] = {
-    .opt_hdl = ss_do_quit,
     .opt_cmd = "quit",
+    .opt_hdl = ss_do_quit,
   },
 
   [3] = {
@@ -121,7 +120,6 @@ static int32_t ss_history_buf_idx;
  */
 static int32_t ss_do_help(int32_t argc, const char **argv)
 {
-  int32_t opt_num = 0;
   const char *opt_cmd = NULL;
   int32_t i = 0;
 
@@ -138,11 +136,13 @@ static int32_t ss_do_help(int32_t argc, const char **argv)
     }
   }
 
-  opt_num = fs_opt_num(fs_type);
+  opt_num = fs_opt_num();
   if (opt_num > 0) {
     for (i = 0; i < opt_num; ++i) {
-      opt_cmd = fs_opt_cmd_enum(fs_type, i);
-      fprintf(stdout, "%s ", opt_cmd);
+      opt_cmd = fs_opt_cmd_enum(i);
+      if (opt_cmd == NULL) {
+        fprintf(stdout, "%s ", opt_cmd);
+      }
     }
   } else {
     fprintf(stdout, "%s %s", FS_OPT_CMD_MOUNT, FS_OPT_CMD_UMOUNT);
@@ -260,7 +260,7 @@ static char* ss_completion_entry(const char *text, int32_t state)
   if (state == 0) {
     ss_opt_tbl_idx = 0;
     fs_opt_tbl_idx = 0;
-    fs_opt_tbl_num = fs_opt_num(fs_type);
+    fs_opt_tbl_num = fs_opt_num();
     mnt_opt_num = 0;
     len_txt = strlen(text);
   }
@@ -281,9 +281,9 @@ static char* ss_completion_entry(const char *text, int32_t state)
 
   if (fs_opt_tbl_num > 0) {
     for (; fs_opt_tbl_idx < fs_opt_tbl_num; ++fs_opt_tbl_idx) {
-      cmd = fs_opt_cmd_enum(fs_type, fs_opt_tbl_idx);
+      cmd = fs_opt_cmd_enum(fs_opt_tbl_idx);
       if (cmd == NULL) {
-        break;
+        continue;
       }
       len_cmd = strlen(cmd);
       if (len_cmd > 0 && len_cmd >= len_txt) {
@@ -446,16 +446,14 @@ static void ss_exec_line(char *line)
   if (len_s1 == len_s2) {
     if (strncmp(argv[0], FS_OPT_CMD_UMOUNT, len_s1) == 0) {
       if (fs_type >= 0 && fs_type < FS_TYPE_NUM_MAX) {
-        fs_umount(fs_type);
-        fs_type = -1;
-
+        fs_umount();
         info("umount filesystem successfully.");
       }
       return;
     }
   }
 
-  handle = fs_opt_hdl_match(fs_type, (const char *)argv[0]);
+  handle = fs_opt_hdl_match((const char *)argv[0]);
   if (handle != NULL) {
     ret = handle(argc, argv);
   }
@@ -473,19 +471,18 @@ ss_exec_line_fail:
 static void ss_listen(const char *ss_prompt, const char *fs_name)
 {
   char *line = NULL;
+  int32_t ret;
 
   /*
    * Mount filesystem
    */
   if (fs_name != NULL) {
-    fs_type = fs_mount(fs_name);
-    if (fs_type >= 0 && fs_type < FS_TYPE_NUM_MAX) {
+    ret = fs_mount(fs_name);
+    if (ret == 0) {
       info("mount filesystem successfully.");
     } else {
       info("failed to mount filesystem.");
     }
-  } else {
-    fs_type = -1;
   }
 
   /*
@@ -571,15 +568,5 @@ void ss_delete(int32_t ss_idx)
   /*
    * Umount filesystem
    */
-  if (fs_type >= 0 && fs_type < FS_TYPE_NUM_MAX) {
-    fs_umount(fs_type);
-    fs_type = -1;
-
-    info("umount filesystem successfully.");
-  }
-
-  /*
-   * Unregister filesystem
-   */
-  fs_unregister();
+  fs_umount();
 }

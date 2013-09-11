@@ -35,48 +35,21 @@
 /*
  * Macro Definition
  */
-#define FS_TYPE_NUM_MAX  (20)
-
-#define FS_OPT_TBL_NUM_MAX  (20)
 #define FS_OPT_CMD_ARG_NUM_MAX  (10)
 #define FS_OPT_CMD_ARG_DELIM  " "
-
-#define FS_OPT_CMD_MOUNT   "mount"
-#define FS_OPT_CMD_UMOUNT  "umount"
-#define FS_OPT_CMD_STATS   "stats"
-#define FS_OPT_CMD_STAT    "stat"
-#define FS_OPT_CMD_PWD     "pwd"
-#define FS_OPT_CMD_CD      "cd"
-#define FS_OPT_CMD_LS      "ls"
-#define FS_OPT_CMD_MKDIR   "mkdir"
-#define FS_OPT_CMD_RM      "rm"
-#define FS_OPT_CMD_CAT     "cat"
-#define FS_OPT_CMD_ECHO    "echo"
-
-#define FS_CURRENT_PATH  "."
-#define FS_UPPER_PATH    ".."
-#define FS_ROOT_PATH  "/"
-#define FS_PATH_DELIM  "/"
 
 /*
  * Type Definition
  */
-typedef int32_t (*fs_opt_handle_t)(int32_t argc, const char **argv);
-
-typedef struct {
-  fs_opt_handle_t opt_hdl;
-  const char *opt_cmd;
-} fs_opt_t;
 
 /*
  * Function Declaration
  */
-int32_t fs_register(fs_opt_t *fs_opt_tbl);
-void fs_unregister(void);
 int32_t fs_mount(const char *fs_name);
-void fs_umount(int32_t fs_type);
-fs_opt_handle_t fs_opt_hdl_match(int32_t fs_type, const char *fs_cmd);
-int32_t fs_opt_num(int32_t fs_type);
-const char* fs_opt_cmd_enum(int32_t fs_type, int32_t opt_idx);
+void fs_umount(void);
+int32_t fs_mounted(void);
+fs_opt_handle_t fs_opt_hdl_match(const char *fs_cmd);
+int32_t fs_opt_num(void);
+const char* fs_opt_cmd_enum(int32_t opt_idx);
 
 #endif /* _LIBFS_H */

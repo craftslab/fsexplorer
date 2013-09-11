@@ -53,7 +53,7 @@
 #include "include/base/debug.h"
 #include "include/base/types.h"
 #include "include/libio/io.h"
-#include "include/libfs/libfs.h"
+#include "include/fs.h"
 #include "include/libfat/msdos_fs.h"
 #include "include/libfat/libfat.h"
 #include "include/libfat/fs_fat.h"
@@ -61,10 +61,6 @@
 /*
  * Macro Definition
  */
-#ifndef O_BINARY
-#define O_BINARY  (0)
-#endif
-
 #define FS_FAT_PATH_LEN_MAX  (255)
 
 #define FS_FAT_REDIRECT_CMD  ">"
@@ -121,78 +117,61 @@ static int32_t fs_do_echo(int32_t argc, const char **argv);
 /*
  * FAT filesystem operation table
  */
-fs_opt_t fs_opt_tbl_fat[FS_OPT_TBL_NUM_MAX] = {
-  //[0] =
-  {
-    fs_do_mount,
-    FS_OPT_CMD_MOUNT,
+static fs_opt_tbl_t fs_opt_tbl = {
+  .opt_mount = {
+    .opt_cmd = FS_OPT_CMD_MOUNT,
+    .opt_hdl = fs_do_mount,
   },
 
-  //[1] =
-  {
-    fs_do_umount,
-    FS_OPT_CMD_UMOUNT,
+  .opt_umount = {
+    .opt_cmd = FS_OPT_CMD_UMOUNT,
+    .opt_hdl = fs_do_umount,
   },
 
-  //[2] =
-  {
-    fs_do_stats,
-    FS_OPT_CMD_STATS,
+  .opt_stats = {
+    .opt_cmd = FS_OPT_CMD_STATS,
+    .opt_hdl = fs_do_stats,
   },
 
-  //[3] =
-  {
-    fs_do_stat,
-    FS_OPT_CMD_STAT,
+  .opt_stat = {
+    .opt_cmd = FS_OPT_CMD_STAT,
+    .opt_hdl = fs_do_stat,
   },
 
-  //[4] =
-  {
-    fs_do_pwd,
-    FS_OPT_CMD_PWD,
+  .opt_pwd = {
+    .opt_cmd = FS_OPT_CMD_PWD,
+    .opt_hdl = fs_do_pwd,
   },
 
-  //[5] =
-  {
-    fs_do_cd,
-    FS_OPT_CMD_CD,
+  .opt_cd = {
+    .opt_cmd = FS_OPT_CMD_CD,
+    .opt_hdl = fs_do_cd,
   },
 
-  //[6] =
-  {
-    fs_do_ls,
-    FS_OPT_CMD_LS,
+  .opt_ls = {
+    .opt_cmd = FS_OPT_CMD_LS,
+    .opt_hdl = fs_do_ls,
   },
 
-  //[7] =
-  {
-    fs_do_mkdir,
-    FS_OPT_CMD_MKDIR,
+  .opt_mkdir = {
+    .opt_cmd = FS_OPT_CMD_MKDIR,
+    .opt_hdl = fs_do_mkdir,
   },
 
-  //[8] =
-  {
-    fs_do_rm,
-    FS_OPT_CMD_RM,
+  .opt_rm = {
+    .opt_cmd = FS_OPT_CMD_RM,
+    .opt_hdl = fs_do_rm,
   },
 
-  //[9] =
-  {
-    fs_do_cat,
-    FS_OPT_CMD_CAT,
+  .opt_cat = {
+    .opt_cmd = FS_OPT_CMD_CAT,
+    .opt_hdl = fs_do_cat,
   },
 
-  //[10] =
-  {
-    fs_do_echo,
-    FS_OPT_CMD_ECHO,
+  .opt_echo = {
+    .opt_cmd = FS_OPT_CMD_ECHO,
+    .opt_hdl = fs_do_echo,
   },
-
-  //[11] =
-  {
-    NULL,
-    NULL,
-  }
 };
 
 static fs_fat_info_t fat_info;
@@ -911,4 +890,9 @@ static int32_t fs_do_echo(int32_t argc, const char **argv)
   argv = argv;
 
   return -1;
+}
+
+fs_opt_tbl_t* fs_opt_tbl_init(void)
+{
+  return &fs_opt_tbl;
 }
