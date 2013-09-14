@@ -54,7 +54,6 @@
 /*
  * Macro Definition
  */
-#define FS_OPT_TBL_INIT_SYM  "fs_opt_tbl_init"
 
 /*
  * Type Definition
@@ -63,23 +62,24 @@
 /*
  * Global Variable Definition
  */
+#if 0
 static void *fs_lib_handle;
-static fs_opt_tbl_t *fs_opt_tbl;
 static int32_t fs_already_mounted;
+#endif
 
 /*
  * Function Declaration
  */
-#ifdef CMAKE_COMPILER_IS_GNUCC
+#if 0
 static void* fs_load_lib(const char *lib_name);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
-#else
-#endif /* CMAKE_COMPILER_IS_GNUCC */
+#endif
 
 /*
  * Function Definition
  */
+#if 0
 /*
  * Load library
  */
@@ -115,161 +115,4 @@ static void fs_unload_lib(void *handle)
   (void)FreeLibrary((HMODULE)handle);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
-
-/*
- * Mount filesystem
- */
-int32_t fs_mount(const char *fs_name)
-{
-  int32_t argc = 0;
-  const char* argv[FS_OPT_CMD_ARG_NUM_MAX] = {NULL};
-  const char* lib_name = NULL;
-  fs_opt_tbl_t* (*fs_opt_tbl_init)(void) = NULL;
-  char *error = NULL;
-  int32_t ret;
-
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  lib_name = "libext4.so";
-#else
-  lib_name = "ext4.dll";
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
-  fs_lib_handle = fs_load_lib(lib_name);
-  if (!fs_load_lib) {
-    fs_already_mounted = 0;
-    return -1;
-  }
-
-  dlerror();
-
-  *(void **)(&fs_opt_tbl_init) = fs_get_sym(fs_lib_handle, FS_OPT_TBL_INIT_SYM);
-  if ((error = dlerror()) != NULL) {
-    ret = -1;
-    goto fs_mount_err;
-  }
-
-  fs_opt_tbl = (fs_opt_tbl_t *)fs_opt_tbl_init();
-  if (!fs_opt_tbl) {
-    ret = -1;
-    goto fs_mount_err;
-  }
-
-  if (!(fs_opt_tbl->opt_mount.opt_hdl)) {
-    ret = -1;
-    goto fs_mount_err;
-  }
-
-  argc = 2;
-  argv[0] = FS_OPT_CMD_MOUNT;
-  argv[1] = fs_name;
-
-  ret = fs_opt_tbl->opt_mount.opt_hdl(argc, argv);
-  if (ret != 0) {
-    ret = -1;
-    goto fs_mount_err;
-  }
-
-  fs_already_mounted = 1;
-
-  return 0;
-
- fs_mount_err:
-
-  fs_already_mounted = 0;
-
-  fs_unload_lib(fs_lib_handle);
-
-  return ret;
-}
-
-/*
- * Umount filesystem
- */
-void fs_umount(void)
-{
-  int32_t argc = 0;
-  const char* argv[FS_OPT_CMD_ARG_NUM_MAX] = {NULL};
-
-  if (!fs_opt_tbl && !(fs_opt_tbl->opt_umount.opt_hdl)) {
-    argc = 2;
-    argv[0] = FS_OPT_CMD_UMOUNT;
-    argv[1] = (const char *)NULL;
-
-    (void)fs_opt_tbl->opt_umount.opt_hdl(argc, argv);
-
-    fs_already_mounted = 0;
-  }
-
-  if (!fs_lib_handle) {
-    fs_unload_lib(fs_lib_handle);
-  }
-}
-
-/*
- * Get status of mount/umount
- */
-int32_t fs_mounted(void)
-{
-  return fs_already_mounted;
-}
-
-/*
- * Match opt handle with opt command
- */
-fs_opt_handle_t fs_opt_hdl_match(const char *fs_cmd)
-{
-  int32_t i = 0;
-  size_t len_opt_cmd = 0, len_fs_cmd = 0;
-  fs_opt_tbl_t *tbl = NULL;
-  fs_opt_handle_t hdl = NULL;
-
-  if (!fs_cmd) {
-    return ((fs_opt_handle_t)NULL);
-  }
-
-  tbl = fs_opt_tbl;
-  len_fs_cmd = strlen(fs_cmd);
-
-  for (i = 0; i < FS_OPT_TBL_LEN; i += FS_OPT_TBL_OFFSET) {
-    if (!tbl[i].opt_cmd || !tbl[i].opt_hdl) {
-      continue;
-    }
-     
-    len_opt_cmd = strlen((const char *)(tbl[i].opt_cmd));
-
-    if (len_opt_cmd > 0 && len_opt_cmd <= len_fs_cmd) {
-      if (strncmp((const char *)(tbl[i].opt_cmd), (const char *)fs_cmd, len_opt_cmd) == 0) {
-        hdl = tbl[i].opt_hdl;
-        break;
-      }
-    }
-  }
-
-  return hdl;
-}
-
-/*
- * Get number of filesystem opt
- */
-int32_t fs_opt_num(void)
-{
-  return FS_OPT_TBL_LEN;
-}
-
-/*
- * Enumerate filesystem opt commond
- */
-const char* fs_opt_cmd_enum(int32_t opt_idx)
-{
-  fs_opt_tbl_t *tbl = NULL;
-
-  if (opt_idx < 0 || opt_idx >= FS_OPT_TBL_LEN) {
-    return ((const char *)NULL);
-  }
-
-  tbl = fs_opt_tbl + (opt_idx * FS_OPT_TBL_OFFSET);
-  if (!tbl->opt_hdl) {
-    return NULL;
-
-  return tbl->opt_cmd;
-}
+#endif
