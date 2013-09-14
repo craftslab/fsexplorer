@@ -1,5 +1,5 @@
 /**
- * fs_fat.c - The entry of FAT filesystem.
+ * fs.c - The entry of FAT filesystem.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *

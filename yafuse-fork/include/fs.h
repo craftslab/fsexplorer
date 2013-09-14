@@ -73,14 +73,14 @@ struct file_system_type {
   const char *name;
   int32_t fs_flags;
   struct dentry *(*mount)(struct file_system_type *type, int32_t flags,
-                           const char *name, void *data);
-  int32_t do_umount(struct mount *mnt, int32_t flags);
+                          const char *name, void *data);
+  int32_t umount(const char *name, int32_t flags);
 };
 
 struct super_block {
   uint8_t                        s_blocksize_bits;
   uint32_t                       s_blocksize;
-  int32_t                       s_maxbytes;
+  int32_t                        s_maxbytes;
   struct file_system_type        *s_type;
   const struct super_operations  *s_op;
   uint32_t                       s_flags;
@@ -109,7 +109,7 @@ struct inode {
   const struct inode_operations *i_op;
   struct super_block            *i_sb;
   uint32_t                      i_ino;
-  int32_t                      i_size;
+  int32_t                       i_size;
   struct timespec               i_atime;
   struct timespec               i_mtime;
   struct timespec               i_ctime;
@@ -126,30 +126,30 @@ struct file_operations {
   ssize_t (*write) (struct file *, const char *, size_t, int32_t *);
   int32_t (*open) (struct inode *, struct file *);
   int32_t (*release) (struct inode *, struct file *);
-  int32_t (*show_fdinfo)(struct seq_file *m, struct file *f);
+  int32_t (*show_fdinfo) (struct seq_file *m, struct file *f);
 };
 
 struct super_operations {
-  struct inode *(*alloc_inode)(struct super_block *sb);
-  void (*destroy_inode)(struct inode *);
+  struct inode *(*alloc_inode) (struct super_block *sb);
+  void (*destroy_inode) (struct inode *);
   int32_t (*write_inode) (struct inode *, struct writeback_control *wbc);
   int32_t (*statfs) (struct dentry *, struct kstatfs *);
-  int32_t (*show_devname)(struct seq_file *, struct dentry *);
-  int32_t (*show_path)(struct seq_file *, struct dentry *);
-  int32_t (*show_stats)(struct seq_file *, struct dentry *);
+  int32_t (*show_devname) (struct seq_file *, struct dentry *);
+  int32_t (*show_path) (struct seq_file *, struct dentry *);
+  int32_t (*show_stats) (struct seq_file *, struct dentry *);
 };
 
 struct dentry_operations {
-  int32_t (*d_hash)(const struct dentry *, unsigned char *);
-  int32_t (*d_delete)(const struct dentry *);
-  char *(*d_dname)(struct dentry *, char *, int32_t);
+  int32_t (*d_hash) (const struct dentry *, unsigned char *);
+  int32_t (*d_delete) (const struct dentry *);
+  char *(*d_dname) (struct dentry *, char *, int32_t);
 };
 
 struct inode_operations {
   struct dentry * (*lookup) (struct inode *, struct dentry *, uint32_t);
   void * (*follow_link) (struct dentry *, struct nameidata *);
   int32_t (*permission) (struct inode *, int32_t);
-  struct posix_acl * (*get_acl)(struct inode *, int32_t);
+  struct posix_acl * (*get_acl) (struct inode *, int32_t);
   int32_t (*readlink) (struct dentry *, char *,int32_t);
   void (*put_link) (struct dentry *, struct nameidata *, void *);
   int32_t (*create) (struct inode *, struct dentry *, uint8_t, bool);
@@ -166,14 +166,15 @@ struct inode_operations {
   ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
   ssize_t (*listxattr) (struct dentry *, char *, size_t);
   int32_t (*removexattr) (struct dentry *, const char *);
-  int32_t (*update_time)(struct inode *, struct timespec *, int32_t);
-  int32_t (*atomic_open)(struct inode *, struct dentry *,
-                         struct file *, uint32_t open_flag,
-                         uint8_t create_mode, int32_t *opened);
+  int32_t (*update_time) (struct inode *, struct timespec *, int32_t);
+  int32_t (*atomic_open) (struct inode *, struct dentry *,
+                          struct file *, uint32_t open_flag,
+                          uint8_t create_mode, int32_t *opened);
 };
 
 /*
  * Function Declaration
  */
+int32_t 
 
 #endif /* _FS_H */

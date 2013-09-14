@@ -1,5 +1,5 @@
 /**
- * fs_ext4.c - The entry of Ext4 filesystem.
+ * fs.c - The entry of Ext4 filesystem.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *

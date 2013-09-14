@@ -28,7 +28,7 @@ aux_source_directory(. YF_DIR_LIBFS)
 # Generate the library
 #
 add_library(fs
-  STATIC
+  SHARED
   ${YF_DIR_LIBFS}
   )
 
