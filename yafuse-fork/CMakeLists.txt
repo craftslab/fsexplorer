@@ -77,6 +77,3 @@ add_subdirectory(libfs)
 add_subdirectory(libext4)
 add_subdirectory(libfat)
 
-if (CMAKE_COMPILER_IS_GNUCC)
-  add_subdirectory(src)
-endif (CMAKE_COMPILER_IS_GNUCC)
