@@ -245,19 +245,19 @@
 /* #undef NO_MINUS_C_MINUS_O */
 
 /* Name of package */
-#define PACKAGE "yafuse"
+#define PACKAGE "libyafuse2"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "angersax@gmail.com"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "yafuse"
+#define PACKAGE_NAME "libyafuse2"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "yafuse 2013.1.12"
+#define PACKAGE_STRING "libyafuse2 2013.1.12"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "yafuse"
+#define PACKAGE_TARNAME "libyafuse2"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""

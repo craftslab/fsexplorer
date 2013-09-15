@@ -1,5 +1,5 @@
 #
-#  CMake file for Yafuse
+#  CMake file for libyafuse2
 #
 #  From the off-tree build directory, invoke:
 #  $ cmake <PATH_TO_HELADO_ROOT>

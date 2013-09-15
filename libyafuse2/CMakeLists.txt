@@ -1,5 +1,5 @@
 #
-#  Root CMake file for Yafuse
+#  Root CMake file for libyafuse2
 #
 #  From the off-tree build directory, invoke:
 #  $ cmake <PATH_TO_HELADO_ROOT>
@@ -13,8 +13,8 @@ cmake_minimum_required(VERSION 2.6)
 #
 # Set name of project
 #
-project(yafuse)
-set(YF_PROJECT_NAME \"Yafuse\")
+project(libyafuse2)
+set(YF_PROJECT_NAME \"libyafuse2\")
 
 #
 # The version number

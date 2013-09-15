@@ -2,13 +2,20 @@
 INTRODUCTION
 ============
 
-Yafuse, yet another fuse, is developed to support for Ext4 and FAT file system in user space.
+libyafuse2, library of yet another fuse 2, is developed to support for file system, e.g., Ext4 and FAT in user space.
 
 
 QUICK INSTALLATION
 ==================
-$ sh my-cmake.sh
-$ sh my-build.sh
+1. Building for Makefile
+   Run my-cmake-unix.sh on platform of UNIX/Linux
+   OR
+   Run my-cmake-win32.sh on platform of Windows
+
+2. Compiling for libyafuse2
+   Run my-build.sh on platform of UNIX/Linux
+   OR
+   Run .sln of Microsoft Visual Studio 2010 or above on platform of Windows.
 
 
 USAGE
