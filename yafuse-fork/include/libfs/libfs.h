@@ -35,8 +35,6 @@
 /*
  * Macro Definition
  */
-#define FS_OPT_CMD_ARG_NUM_MAX  (10)
-#define FS_OPT_CMD_ARG_DELIM  " "
 
 /*
  * Type Definition
@@ -45,11 +43,5 @@
 /*
  * Function Declaration
  */
-int32_t fs_mount(const char *fs_name);
-void fs_umount(void);
-int32_t fs_mounted(void);
-fs_opt_handle_t fs_opt_hdl_match(const char *fs_cmd);
-int32_t fs_opt_num(void);
-const char* fs_opt_cmd_enum(int32_t opt_idx);
 
 #endif /* _LIBFS_H */
