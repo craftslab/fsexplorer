@@ -30,11 +30,3 @@ add_subdirectory(libio)
 add_subdirectory(libfs)
 add_subdirectory(libext4)
 add_subdirectory(libfat)
-
-#
-# Add the install targets
-#
-install(
-  FILES fs.h
-  DESTINATION ${YF_INCLUDEDIR}
-  )

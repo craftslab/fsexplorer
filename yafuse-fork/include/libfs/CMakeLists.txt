@@ -14,3 +14,11 @@ include_directories(${YF_DIR_INCLUDE_BASE})
 include_directories(${PROJECT_BINARY_DIR})
 
 aux_source_directory(. YF_DIR_INCLUDE_LIBFS)
+
+#
+# Add the install targets
+#
+install(
+  FILES libfs.h
+  DESTINATION ${YF_INCLUDEDIR}
+  )

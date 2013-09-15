@@ -39,9 +39,14 @@
 /*
  * Type Definition
  */
+struct fs_opt_t {
+  int32_t (*mount) (const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data);
+  int32_t (*umount) (const char *name, int32_t flags);
+};
 
 /*
  * Function Declaration
  */
+typedef int32_t (*fs_opt_init_t) (struct fs_opt_t *fs_opt);
 
 #endif /* _LIBFS_H */

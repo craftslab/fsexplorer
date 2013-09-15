@@ -1,5 +1,5 @@
 /**
- * fs.c - The entry of filesystem.
+ * main.c - Main entry of test for libfs.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -30,11 +30,26 @@
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
 #endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
+#endif
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
 #endif
 
 #ifdef CMAKE_COMPILER_IS_GNUCC
@@ -48,13 +63,11 @@
 #endif
 
 #include "include/base/debug.h"
-#include "include/fs.h"
 #include "include/libfs/libfs.h"
 
 /*
  * Macro Definition
  */
-#define FS_LIB_NAME_LEN_MAX 16
 
 /*
  * Type Definition
@@ -63,25 +76,20 @@
 /*
  * Global Variable Definition
  */
-static void *fs_lib_handle;
-static int32_t fs_already_mounted;
+static void *lib_handle;
+static fs_opt_init_t opt_handle;
 
 /*
  * Function Declaration
  */
-static void* fs_load_lib(const char *lib_name);
-static void* fs_get_sym(void *handle, const char *symbol);
-static void fs_unload_lib(void *handle);
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data);
-static int32_t fs_umount(const char *name, int32_t flags);
+static void* load_lib(const char *lib_name);
+static void* get_sym(void *handle, const char *symbol);
+static void unload_lib(void *handle);
 
 /*
  * Function Definition
  */
-/*
- * Load library
- */
-static void* fs_load_lib(const char *lib_name)
+static void* load_lib(const char *lib_name)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
   return dlopen(lib_name, RTLD_LAZY);
@@ -90,10 +98,7 @@ static void* fs_load_lib(const char *lib_name)
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 
-/*
- * Get symbol in library
- */
-static void* fs_get_sym(void *handle, const char *symbol)
+static void* get_sym(void *handle, const char *symbol)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
   return dlsym(handle, symbol);
@@ -102,10 +107,7 @@ static void* fs_get_sym(void *handle, const char *symbol)
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 
-/*
- * Unload library
- */
-static void fs_unload_lib(void *handle)
+static void unload_lib(void *handle)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
   (void)dlclose(handle);
@@ -114,64 +116,47 @@ static void fs_unload_lib(void *handle)
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 
-/*
- * Mount filesystem
- */
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data)
+int32_t main(int argc, char *argv[])
 {
-  char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
+  struct fs_opt_t fs_opt;
+  int32_t ret = 0;
 
-  if (!dev_name || !dir_name || !type) {
-    fs_already_mounted = 0;
+  lib_handle = load_lib("libfs.so");
+  if (!lib_handle) {
+    fprintf(stderr, "error: load_lib failed!\n");
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "lib%s.so", type);
-#else
-  (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "%s.dll", type);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
-  fs_lib_handle = fs_load_lib(lib_name);
-  if (!fs_lib_handle) {
-    goto fs_mount_exit;
+  *(void **)(&opt_handle) = get_sym(lib_handle, "fs_opt_init");
+  if (!opt_handle) {
+    fprintf(stderr, "error: get_sym failed!\n");
+    ret = -1;
+    goto main_exit;
   }
 
-  fs_get_sym(fs_lib_handle, "dummy");
-
-  fs_already_mounted = 1;
-
-  return 0;
-
- fs_mount_exit:
-
-  fs_already_mounted = 0;
-  if (fs_lib_handle) fs_unload_lib(fs_lib_handle);
-
-  return -1;
-}
-
-/*
- * Unmount filesystem
- */
-static int32_t fs_umount(const char *name, int32_t flags)
-{
-  fs_already_mounted = 0;
-  if (fs_lib_handle) fs_unload_lib(fs_lib_handle);
-  return 0;
-}
-
-/*
- * Init filesystem operation
- */
-int32_t fs_opt_init(struct fs_opt_t *fs_opt)
-{
-  if (!fs_opt) {
-    return -1;
+  ret = opt_handle(&fs_opt);
+  if (ret != 0) {
+    fprintf(stderr, "error: opt_handle failed!\n");
+    goto main_exit;
   }
 
-  (*fs_opt).mount = fs_mount;
-  (*fs_opt).umount = fs_umount;
+  ret = fs_opt.mount("fs-image.ext4", "mount-point", "ext4", 0, NULL);
+  if (ret != 0) {
+    fprintf(stderr, "error: mount failed!\n");
+    goto main_exit;
+  }
 
-  return 0;
+  ret = fs_opt.umount("mount-point", 0);
+  if (ret != 0) {
+    fprintf(stderr, "error: umount failed!\n");
+    goto main_exit;
+  }
+
+  ret = 0;
+
+ main_exit:
+
+  if (lib_handle) unload_lib(lib_handle);
+
+  return ret;
 }
