@@ -165,7 +165,7 @@ struct dentry {
 };
 
 struct inode {
-  uint16_t                       i_mode;
+  uint16_t                      i_mode;
   uint16_t                      i_opflags;
   uint32_t                      i_uid;
   uint32_t                      i_gid;
