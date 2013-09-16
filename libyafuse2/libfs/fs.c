@@ -64,7 +64,9 @@
  * Global Variable Definition
  */
 static void *fs_lib_handle;
-static int32_t fs_already_mounted;
+
+static struct file_system_type *fs_type = NULL;
+static struct mount fs_mnt;
 
 /*
  * Function Declaration
@@ -126,8 +128,10 @@ static void fs_unload_lib(void *handle)
 static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
+  fs_file_system_type_init_t handle = NULL;
+  struct dentry *root = NULL;
 
-  if (!dev_name || !dir_name || !type) {
+  if (!dev_name || !dir_name || !type || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
@@ -142,13 +146,34 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
     goto fs_mount_exit;
   }
 
-  fs_get_sym(fs_lib_handle, "dummy");
+  *(void **)(&handle) = fs_get_sym(fs_lib_handle, "fs_file_system_type_init");
+  if (!handle) {
+    goto fs_mount_exit;
+  }
 
-  fs_already_mounted = 1;
+  fs_type = handle(dev_name, flags);
+  if (!fs_type) {
+    goto fs_mount_exit;
+  }
+
+  root = fs_type->mount(fs_type, flags, dev_name, NULL);
+  if (!root) {
+    goto fs_mount_exit;
+  }
+
+  memset((void *)&fs_mnt, 0, sizeof(struct mount));
+  fs_mnt.mnt.mnt_root = root;
+  fs_mnt.mnt.mnt_sb = root->d_sb;
+  fs_mnt.mnt.mnt_flags = flags;
+  fs_mnt.mnt_mountpoint = fs_mnt.mnt.mnt_root;
+  fs_mnt.mnt_count = 1;
+  fs_mnt.mnt_devname = dev_name;
 
   return 0;
 
  fs_mount_exit:
+
+  fs_type = NULL;
 
   if (fs_lib_handle) {
     fs_unload_lib(fs_lib_handle);
@@ -163,14 +188,17 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
  */
 static int32_t fs_umount(const char *name, int32_t flags)
 {
-  if (!name || !fs_lib_handle) {
+  if (!name || !fs_lib_handle || fs_mnt.mnt_count == 0) {
     return -1;
   }
+
+  (void)fs_type->umount(name, flags);
+  fs_type = NULL;
 
   fs_unload_lib(fs_lib_handle);
   fs_lib_handle = NULL;
 
-  fs_already_mounted = 0;
+  memset((void *)&fs_mnt, 0, sizeof(struct mount));
 
   return 0;
 }
