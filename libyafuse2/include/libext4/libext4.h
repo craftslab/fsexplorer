@@ -23,10 +23,7 @@
 #define _LIBEXT4_H
 
 #include "config.h"
-
-#ifdef HAVE_STDINT_H
 #include <stdint.h>
-#endif
 
 #ifdef DEBUG
 // Add code here

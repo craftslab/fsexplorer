@@ -23,10 +23,17 @@
 #define _FS_H
 
 #include "config.h"
-
-#ifdef HAVE_STDINT_H
 #include <stdint.h>
-#endif
+
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#include <time.h>
+#else
+struct timespec
+{
+  int32_t tv_sec;
+  int32_t tv_nsec;
+};
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
 // Add code here
