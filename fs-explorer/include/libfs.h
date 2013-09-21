@@ -22,61 +22,76 @@
 #ifndef _LIBFS_H
 #define _LIBFS_H
 
-#include "config.h"
-
-#ifdef HAVE_STDINT_H
 #include <stdint.h>
-#endif
-
-#ifdef DEBUG
-// Add code here
-#endif
+#include <time.h>
 
 /*
  * Macro Definition
  */
-#define FS_TYPE_NUM_MAX  (20)
-
-#define FS_OPT_TBL_NUM_MAX  (20)
-#define FS_OPT_CMD_ARG_NUM_MAX  (10)
-#define FS_OPT_CMD_ARG_DELIM  " "
-
-#define FS_OPT_CMD_MOUNT   "mount"
-#define FS_OPT_CMD_UMOUNT  "umount"
-#define FS_OPT_CMD_STATS   "stats"
-#define FS_OPT_CMD_STAT    "stat"
-#define FS_OPT_CMD_PWD     "pwd"
-#define FS_OPT_CMD_CD      "cd"
-#define FS_OPT_CMD_LS      "ls"
-#define FS_OPT_CMD_MKDIR   "mkdir"
-#define FS_OPT_CMD_RM      "rm"
-#define FS_OPT_CMD_CAT     "cat"
-#define FS_OPT_CMD_ECHO    "echo"
-
-#define FS_CURRENT_PATH  "."
-#define FS_UPPER_PATH    ".."
-#define FS_ROOT_PATH  "/"
-#define FS_PATH_DELIM  "/"
 
 /*
  * Type Definition
  */
-typedef int32_t (*fs_opt_handle_t)(int32_t argc, const char **argv);
+struct libfs_timespec
+{
+  int32_t tv_sec;
+  int32_t tv_nsec;
+};
 
-typedef struct {
-  fs_opt_handle_t opt_hdl;
-  const char *opt_cmd;
-} fs_opt_t;
+struct fs_fsid_t {
+  int32_t val[2];
+};
+
+struct fs_kstatfs {
+  int32_t f_type;
+  int32_t f_bsize;
+  uint32_t f_blocks;
+  uint32_t f_bfree;
+  uint32_t f_bavail;
+  uint32_t f_files;
+  uint32_t f_ffree;
+  struct fs_fsid_t f_fsid;
+  int32_t f_namelen;
+  int32_t f_frsize;
+  int32_t f_flags;
+  int32_t f_spare[4];
+};
+
+struct fs_dirent {
+  uint32_t d_ino;
+  uint32_t d_off;
+  uint16_t d_reclen;
+  uint8_t d_type;
+  char d_name[256];
+};
+
+struct fs_kstat {
+  uint32_t ino;
+  uint16_t mode;
+  uint32_t nlink;
+  uint32_t uid;
+  uint32_t gid;
+  int32_t size;
+  struct libfs_timespec atime;
+  struct libfs_timespec mtime;
+  struct libfs_timespec ctime;
+  uint32_t blksize;
+  uint32_t blocks;
+};
+
+struct fs_opt_t {
+  int32_t (*mount) (const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data);
+  int32_t (*umount) (const char *name, int32_t flags);
+  int32_t (*statfs) (const char *pathname, struct fs_kstatfs *buf);
+  int32_t (*stat) (const char *filename, struct fs_kstat *statbuf);
+  int32_t (*getdents) (uint32_t fd, struct fs_dirent *dirent, uint32_t count);
+  int32_t (*getcwd) (char *buf, uint32_t size);
+  int32_t (*chdir) (const char *filename);
+};
 
 /*
  * Function Declaration
  */
-int32_t fs_register(fs_opt_t *fs_opt_tbl);
-void fs_unregister(void);
-int32_t fs_mount(const char *fs_name);
-void fs_umount(int32_t fs_type);
-fs_opt_handle_t fs_opt_hdl_match(int32_t fs_type, const char *fs_cmd);
-int32_t fs_opt_num(int32_t fs_type);
-const char* fs_opt_cmd_enum(int32_t fs_type, int32_t opt_idx);
+typedef int32_t (*fs_opt_init_t) (struct fs_opt_t *fs_opt);
 
 #endif /* _LIBFS_H */
