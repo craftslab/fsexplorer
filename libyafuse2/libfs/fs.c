@@ -29,7 +29,7 @@
 #ifdef CMAKE_COMPILER_IS_GNUCC
 #include <dlfcn.h>  
 #else
-  // Add code here
+#include <Windows.h>
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
@@ -83,7 +83,7 @@ static void* fs_load_lib(const char *lib_name)
 #ifdef CMAKE_COMPILER_IS_GNUCC
   return dlopen(lib_name, RTLD_LAZY);
 #else
-  return (void *)LoadLibrary(LPCTSTR(lib_name));
+  return (void *)LoadLibrary(lib_name);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 
@@ -127,7 +127,7 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
 #ifdef CMAKE_COMPILER_IS_GNUCC
   (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "lib%s.so", type);
 #else
-  (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "%s.dll", type);
+  (void)_snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "%s.dll", type);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
   fs_lib_handle = fs_load_lib(lib_name);

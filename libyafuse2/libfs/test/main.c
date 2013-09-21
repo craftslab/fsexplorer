@@ -24,17 +24,15 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <limits.h>
 #include <stdint.h>
-#include <getopt.h>
 
 #ifdef CMAKE_COMPILER_IS_GNUCC
 #include <dlfcn.h>  
 #else
-  // Add code here
+#include <Windows.h>
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
@@ -73,7 +71,7 @@ static void* load_lib(const char *lib_name)
 #ifdef CMAKE_COMPILER_IS_GNUCC
   return dlopen(lib_name, RTLD_LAZY);
 #else
-  return (void *)LoadLibrary(LPCTSTR(lib_name));
+  return (void *)LoadLibrary(lib_name);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 

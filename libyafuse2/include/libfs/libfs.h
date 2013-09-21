@@ -23,6 +23,7 @@
 #define _LIBFS_H
 
 #include <stdint.h>
+#include <time.h>
 
 /*
  * Macro Definition
@@ -31,6 +32,12 @@
 /*
  * Type Definition
  */
+struct libfs_timespec
+{
+  int32_t tv_sec;
+  int32_t tv_nsec;
+};
+
 struct fs_fsid_t {
   int32_t val[2];
 };
@@ -65,9 +72,9 @@ struct fs_kstat {
   uint32_t uid;
   uint32_t gid;
   int32_t size;
-  struct timespec atime;
-  struct timespec mtime;
-  struct timespec ctime;
+  struct libfs_timespec atime;
+  struct libfs_timespec mtime;
+  struct libfs_timespec ctime;
   uint32_t blksize;
   uint32_t blocks;
 };

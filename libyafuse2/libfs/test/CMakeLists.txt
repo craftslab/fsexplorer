@@ -32,11 +32,6 @@ add_executable(fs-test
   )
 
 #
-# Linke the library
-#
-target_link_libraries(fs-test dl)
-
-#
 # Add the install targets
 #
 install(

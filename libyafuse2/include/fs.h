@@ -24,20 +24,13 @@
 
 #include "config.h"
 #include <stdint.h>
-
-#ifdef CMAKE_COMPILER_IS_GNUCC
 #include <time.h>
-#else
-struct timespec
-{
-  int32_t tv_sec;
-  int32_t tv_nsec;
-};
-#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
 // Add code here
 #endif
+
+#include "include/base/types.h"
 
 /*
  * Macro Definition
@@ -47,8 +40,7 @@ struct timespec
 /*
  * Type Definition
  */
-typedef uint8_t bool;
-
+struct fs_timespec;
 struct vfsmount;
 struct mount;
 struct fsid_t;
@@ -65,6 +57,12 @@ struct file_operations;
 struct super_operations;
 struct dentry_operations;
 struct inode_operations;
+
+struct fs_timespec
+{
+  int32_t tv_sec;
+  int32_t tv_nsec;
+};
 
 struct vfsmount {
   struct dentry *mnt_root;
@@ -105,9 +103,9 @@ struct kstat {
   uint32_t uid;
   uint32_t gid;
   int32_t size;
-  struct timespec atime;
-  struct timespec mtime;
-  struct timespec ctime;
+  struct fs_timespec atime;
+  struct fs_timespec mtime;
+  struct fs_timespec ctime;
   uint32_t blksize;
   uint32_t blocks;
 };
@@ -134,9 +132,9 @@ struct iattr {
   uint32_t ia_uid;
   uint32_t ia_gid;
   int32_t ia_size;
-  struct timespec ia_atime;
-  struct timespec ia_mtime;
-  struct timespec ia_ctime;
+  struct fs_timespec ia_atime;
+  struct fs_timespec ia_mtime;
+  struct fs_timespec ia_ctime;
   struct file *ia_file;
 };
 
@@ -181,9 +179,9 @@ struct inode {
   struct super_block            *i_sb;
   uint32_t                      i_ino;
   int32_t                       i_size;
-  struct timespec               i_atime;
-  struct timespec               i_mtime;
-  struct timespec               i_ctime;
+  struct fs_timespec            i_atime;
+  struct fs_timespec            i_mtime;
+  struct fs_timespec            i_ctime;
   uint16_t                      i_bytes;
   uint32_t                      i_blkbits;
   uint32_t                      i_blocks;
@@ -219,7 +217,7 @@ struct inode_operations {
   int32_t (*symlink) (struct inode *, struct dentry *, const char *);
   int32_t (*mkdir) (struct inode *, struct dentry *, uint8_t);
   int32_t (*rmdir) (struct inode *, struct dentry *);
-  int32_t (*mknod) (struct inode *, struct dentry *, uint8_t,dev_t);
+  int32_t (*mknod) (struct inode *, struct dentry *, uint8_t, dev_t);
   int32_t (*rename) (struct inode *, struct dentry *, struct inode *, struct dentry *);
   int32_t (*setattr) (struct dentry *, struct iattr *);
   int32_t (*getattr) (struct vfsmount *mnt, struct dentry *, struct kstat *);
@@ -227,7 +225,7 @@ struct inode_operations {
   ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
   ssize_t (*listxattr) (struct dentry *, char *, size_t);
   int32_t (*removexattr) (struct dentry *, const char *);
-  int32_t (*update_time) (struct inode *, struct timespec *, int32_t);
+  int32_t (*update_time) (struct inode *, struct fs_timespec *, int32_t);
 };
 
 /*

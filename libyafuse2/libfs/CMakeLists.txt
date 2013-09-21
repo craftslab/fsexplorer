@@ -35,11 +35,6 @@ add_library(fs
   )
 
 #
-# Linke the library
-#
-target_link_libraries(fs dl)
-
-#
 # Add the install targets
 #
 install(

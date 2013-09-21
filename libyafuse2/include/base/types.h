@@ -56,14 +56,24 @@
 #define __u16 u16
 #define __u8 u8
 
+#ifndef size_t
+#define size_t uint32_t
+#endif
+
+#ifndef ssize_t
+#define ssize_t int32_t
+#endif
+
 /*
  * Type Definition
  */
+typedef uint8_t bool;
 typedef unsigned long long u64;
 typedef signed long long s64;
 typedef unsigned int u32;
 typedef unsigned short int u16;
 typedef unsigned char u8;
+typedef unsigned int dev_t;
 
 /*
  * Function Declaration
