@@ -255,7 +255,11 @@ static int32_t fs_chdir(const char *filename)
 /*
  * Init filesystem operation
  */
+#ifdef CMAKE_COMPILER_IS_GNUCC
 int32_t fs_opt_init(struct fs_opt_t *fs_opt)
+#else
+__declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 {
   if (!fs_opt) {
     return -1;

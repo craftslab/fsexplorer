@@ -45,6 +45,11 @@
 /*
  * Macro Definition
  */
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#define LIB_NAME "libfs.so"
+#else
+#define LIB_NAME "fs.dll"
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*
  * Type Definition
@@ -98,7 +103,7 @@ int32_t main(int argc, char *argv[])
   struct fs_opt_t fs_opt;
   int32_t ret = 0;
 
-  lib_handle = load_lib("libfs.so");
+  lib_handle = load_lib(LIB_NAME);
   if (!lib_handle) {
     fprintf(stderr, "error: load_lib failed!\n");
     return -1;
