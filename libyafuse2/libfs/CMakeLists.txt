@@ -35,6 +35,13 @@ add_library(fs
   )
 
 #
+# Linke the library
+#
+if (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(fs dl)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
 # Add the install targets
 #
 install(

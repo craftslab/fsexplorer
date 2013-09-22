@@ -73,7 +73,9 @@ typedef signed long long s64;
 typedef unsigned int u32;
 typedef unsigned short int u16;
 typedef unsigned char u8;
+#ifndef CMAKE_COMPILER_IS_GNUCC
 typedef unsigned int dev_t;
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*
  * Function Declaration

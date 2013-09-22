@@ -32,6 +32,13 @@ add_executable(fs-test
   )
 
 #
+# Linke the library
+#
+if (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(fs-test dl)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
 # Add the install targets
 #
 install(
