@@ -231,6 +231,6 @@ struct inode_operations {
 /*
  * Function Declaration
  */
-typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *name, int32_t flags);
+typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *type, int32_t flags);
 
 #endif /* _FS_H */
