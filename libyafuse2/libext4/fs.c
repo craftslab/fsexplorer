@@ -72,13 +72,13 @@ static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
 static int32_t fs_umount(const char *name, int32_t flags);
 
 static struct super_operations fs_super_opt = {
-  .statfs = fs_statfs,
+  fs_statfs,
 };
 
 static struct dentry_operations fs_dentry_opt = {
-  .d_hash = fs_d_hash,
-  .d_delete = fs_d_delete,
-  .d_dname = fs_d_dname,
+  fs_d_hash,
+  fs_d_delete,
+  fs_d_dname,
 };
 
 /*
