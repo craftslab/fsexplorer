@@ -60,7 +60,7 @@ static struct super_block fs_sb;
 /*
  * Function Declaration
  */
-static int32_t fs_d_hash(const struct dentry *dentry, unsigned char *hash);
+static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr);
 static int32_t fs_d_delete(const struct dentry *dentry);
 static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen);
 
@@ -87,7 +87,7 @@ static struct dentry_operations fs_dentry_opt = {
 /*
  * Hash dentry
  */
-static int32_t fs_d_hash(const struct dentry *dentry, unsigned char *hash)
+static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr)
 {
   return 0;
 }
@@ -200,6 +200,8 @@ static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
   if (ret != 0) {
     goto fs_mount_fail;
   }
+
+  return NULL;
 
  fs_mount_fail:
 

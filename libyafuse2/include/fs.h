@@ -37,9 +37,12 @@
  */
 #define DNAME_INLINE_LEN 40
 
+#define IS_ROOT(x) ((x) == (x)->d_parent)
+
 /*
  * Type Definition
  */
+struct qstr;
 struct fs_timespec;
 struct vfsmount;
 struct mount;
@@ -57,6 +60,12 @@ struct file_operations;
 struct super_operations;
 struct dentry_operations;
 struct inode_operations;
+
+struct qstr {
+  uint32_t hash;
+  uint32_t len;
+  const unsigned char *name;
+};
 
 struct fs_timespec
 {
@@ -156,17 +165,21 @@ struct super_block {
   uint32_t                       s_magic;
   struct dentry                  *s_root;
   int32_t                        s_count;
+  struct list_head               s_inodes;
   char                           s_id[32];
   uint8_t                        s_uuid[16];
   const struct dentry_operations *s_d_op;
 };
 
 struct dentry {
-  struct dentry       *d_parent;
-  const unsigned char *d_name;
-  struct inode        *d_inode;
-  unsigned char       d_iname[DNAME_INLINE_LEN];
-  struct super_block  *d_sb;
+  struct dentry                  *d_parent;
+  struct qstr                    *d_name;
+  struct inode                   *d_inode;
+  const struct dentry_operations *d_op;
+  struct super_block             *d_sb;
+  struct list_head               d_child;
+  struct list_head               d_subdirs;
+  struct list_head               d_alias;
 };
 
 struct inode {
@@ -178,15 +191,17 @@ struct inode {
   const struct inode_operations *i_op;
   struct super_block            *i_sb;
   uint32_t                      i_ino;
-  int32_t                       i_size;
   struct fs_timespec            i_atime;
   struct fs_timespec            i_mtime;
   struct fs_timespec            i_ctime;
   uint16_t                      i_bytes;
-  uint32_t                      i_blkbits;
   uint32_t                      i_blocks;
-  uint32_t                      i_version;
+  int32_t                       i_size;
+  struct hlist_node             i_hash;
+  struct list_head              i_dentry;
   uint32_t                      i_count;
+  uint32_t                      i_blkbits;
+  uint32_t                      i_version;
   const struct file_operations  *i_fop;
 };
 
@@ -202,7 +217,7 @@ struct super_operations {
 };
 
 struct dentry_operations {
-  int32_t (*d_hash) (const struct dentry *, unsigned char *);
+  int32_t (*d_hash) (const struct dentry *, const struct inode *, struct qstr *);
   int32_t (*d_delete) (const struct dentry *);
   char *(*d_dname) (struct dentry *, char *, int32_t);
 };
