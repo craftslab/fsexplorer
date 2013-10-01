@@ -140,7 +140,7 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
     goto fs_mount_exit;
   }
 
-  fs_type = handle(dev_name, flags);
+  fs_type = handle(type, flags);
   if (!fs_type) {
     goto fs_mount_exit;
   }
