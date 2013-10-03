@@ -67,6 +67,10 @@
 /*
  * Type Definition
  */
+#ifndef CMAKE_COMPILER_IS_GNUCC
+#define inline __inline
+#endif /* CMAKE_COMPILER_IS_GNUCC */
+
 typedef uint8_t bool;
 typedef unsigned long long u64;
 typedef signed long long s64;
