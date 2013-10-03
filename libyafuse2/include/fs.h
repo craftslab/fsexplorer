@@ -213,12 +213,14 @@ struct file_operations {
 };
 
 struct super_operations {
+  struct inode* (*alloc_inode) (struct super_block *);
+  void (*destroy_inode) (struct inode *);
   int32_t (*statfs) (struct dentry *, struct kstatfs *);
 };
 
 struct dentry_operations {
   int32_t (*d_hash) (const struct dentry *, const struct inode *, struct qstr *);
-  int32_t (*d_delete) (const struct dentry *);
+  void (*d_release) (struct dentry *);
   char *(*d_dname) (struct dentry *, char *, int32_t);
 };
 
