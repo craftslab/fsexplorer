@@ -66,11 +66,6 @@ static inline uint32_t partial_name_hash(uint32_t c, uint32_t prevhash);
 static inline uint32_t end_name_hash(uint32_t hash);
 static uint32_t fs_name_hash(const unsigned char *name, uint32_t len);
 
-static struct inode* fs_alloc_inode(struct super_block *sb);
-static void fs_destroy_inode(struct inode *inode);
-static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
-static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino);
-
 static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr);
 static void fs_d_release(struct dentry *dentry);
 static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen);
@@ -78,22 +73,27 @@ static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, struct qstr
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode);
 static struct dentry* fs_make_root(struct super_block *sb, const char *name);
 
+static struct inode* fs_alloc_inode(struct super_block *sb);
+static void fs_destroy_inode(struct inode *inode);
+static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
+static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino);
+
 static int32_t fs_fill_super(struct super_block *sb, const char *name);
 
 static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
                                const char *name, void *data);
 static int32_t fs_umount(const char *name, int32_t flags);
 
-static struct super_operations fs_super_opt = {
-  fs_alloc_inode,
-  fs_destroy_inode,
-  fs_statfs,
-};
-
 static struct dentry_operations fs_dentry_opt = {
   fs_d_hash,
   fs_d_release,
   fs_d_dname,
+};
+
+static struct super_operations fs_super_opt = {
+  fs_alloc_inode,
+  fs_destroy_inode,
+  fs_statfs,
 };
 
 /*
@@ -140,38 +140,6 @@ static uint32_t fs_name_hash(const unsigned char *name, uint32_t len)
   }
 
   return end_name_hash(hash);
-}
-
-/*
- * Allocate inode
- */
-static struct inode* fs_alloc_inode(struct super_block *sb)
-{
-  return NULL;
-}
-
-/*
- * Destroy inode
- */
-static void fs_destroy_inode(struct inode *inode)
-{
-  return;
-}
-
-/*
- * Status of filesystem
- */
-static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
-{
-  return 0;
-}
-
-/*
- * Instantiate inode
- */
-static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
-{
-  return NULL;
 }
 
 /*
@@ -264,6 +232,38 @@ static struct dentry* fs_make_root(struct super_block *sb, const char *name)
 }
 
 /*
+ * Allocate inode
+ */
+static struct inode* fs_alloc_inode(struct super_block *sb)
+{
+  return NULL;
+}
+
+/*
+ * Destroy inode
+ */
+static void fs_destroy_inode(struct inode *inode)
+{
+  return;
+}
+
+/*
+ * Status of filesystem
+ */
+static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
+{
+  return 0;
+}
+
+/*
+ * Instantiate inode
+ */
+static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
+{
+  return NULL;
+}
+
+/*
  * Fill in superblock
  */
 static int32_t fs_fill_super(struct super_block *sb, const char *name)
@@ -336,7 +336,7 @@ static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
     goto fs_mount_fail;
   }
 
-  return NULL;
+  return fs_sb.s_root;
 
  fs_mount_fail:
 

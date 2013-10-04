@@ -54,12 +54,12 @@ struct file;
 struct iattr;
 struct file_system_type;
 struct super_block;
-struct dentry;
 struct inode;
+struct dentry;
 struct file_operations;
 struct super_operations;
-struct dentry_operations;
 struct inode_operations;
+struct dentry_operations;
 
 struct qstr {
   uint32_t hash;
@@ -147,30 +147,6 @@ struct iattr {
   struct file *ia_file;
 };
 
-struct file_system_type {
-  const char *name;
-  int32_t fs_flags;
-  struct dentry* (*mount) (struct file_system_type *type, int32_t flags,
-                           const char *name, void *data);
-  int32_t (*umount) (const char *name, int32_t flags);
-};
-
-struct super_block {
-  uint8_t                        s_blocksize_bits;
-  uint32_t                       s_blocksize;
-  int32_t                        s_maxbytes;
-  struct file_system_type        *s_type;
-  const struct super_operations  *s_op;
-  uint32_t                       s_flags;
-  uint32_t                       s_magic;
-  struct dentry                  *s_root;
-  int32_t                        s_count;
-  struct list_head               s_inodes;
-  char                           s_id[32];
-  uint8_t                        s_uuid[16];
-  const struct dentry_operations *s_d_op;
-};
-
 struct dentry {
   struct dentry                  *d_parent;
   struct qstr                    *d_name;
@@ -205,17 +181,28 @@ struct inode {
   const struct file_operations  *i_fop;
 };
 
-struct file_operations {
-  ssize_t (*read) (struct file *, char *, size_t, int32_t *);
-  ssize_t (*write) (struct file *, const char *, size_t, int32_t *);
-  int32_t (*open) (struct inode *, struct file *);
-  int32_t (*release) (struct inode *, struct file *);
+struct super_block {
+  uint8_t                        s_blocksize_bits;
+  uint32_t                       s_blocksize;
+  int32_t                        s_maxbytes;
+  struct file_system_type        *s_type;
+  const struct super_operations  *s_op;
+  uint32_t                       s_flags;
+  uint32_t                       s_magic;
+  struct dentry                  *s_root;
+  int32_t                        s_count;
+  struct list_head               s_inodes;
+  char                           s_id[32];
+  uint8_t                        s_uuid[16];
+  const struct dentry_operations *s_d_op;
 };
 
-struct super_operations {
-  struct inode* (*alloc_inode) (struct super_block *);
-  void (*destroy_inode) (struct inode *);
-  int32_t (*statfs) (struct dentry *, struct kstatfs *);
+struct file_system_type {
+  const char *name;
+  int32_t fs_flags;
+  struct dentry* (*mount) (struct file_system_type *type, int32_t flags,
+                           const char *name, void *data);
+  int32_t (*umount) (const char *name, int32_t flags);
 };
 
 struct dentry_operations {
@@ -243,6 +230,19 @@ struct inode_operations {
   ssize_t (*listxattr) (struct dentry *, char *, size_t);
   int32_t (*removexattr) (struct dentry *, const char *);
   int32_t (*update_time) (struct inode *, struct fs_timespec *, int32_t);
+};
+
+struct super_operations {
+  struct inode* (*alloc_inode) (struct super_block *);
+  void (*destroy_inode) (struct inode *);
+  int32_t (*statfs) (struct dentry *, struct kstatfs *);
+};
+
+struct file_operations {
+  ssize_t (*read) (struct file *, char *, size_t, int32_t *);
+  ssize_t (*write) (struct file *, const char *, size_t, int32_t *);
+  int32_t (*open) (struct inode *, struct file *);
+  int32_t (*release) (struct inode *, struct file *);
 };
 
 /*
