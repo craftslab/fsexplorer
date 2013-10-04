@@ -52,14 +52,14 @@ struct kstat;
 struct path;
 struct file;
 struct iattr;
-struct file_system_type;
-struct super_block;
-struct inode;
 struct dentry;
-struct file_operations;
-struct super_operations;
-struct inode_operations;
+struct inode;
+struct super_block;
+struct file_system_type;
 struct dentry_operations;
+struct inode_operations;
+struct super_operations;
+struct file_operations;
 
 struct qstr {
   uint32_t hash;
@@ -155,7 +155,6 @@ struct dentry {
   struct super_block             *d_sb;
   struct list_head               d_child;
   struct list_head               d_subdirs;
-  struct list_head               d_alias;
 };
 
 struct inode {
@@ -173,8 +172,7 @@ struct inode {
   uint16_t                      i_bytes;
   uint32_t                      i_blocks;
   int32_t                       i_size;
-  struct hlist_node             i_hash;
-  struct list_head              i_dentry;
+  struct list_head              i_sb_list;
   uint32_t                      i_count;
   uint32_t                      i_blkbits;
   uint32_t                      i_version;

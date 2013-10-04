@@ -69,7 +69,10 @@ static uint32_t fs_name_hash(const unsigned char *name, uint32_t len);
 static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr);
 static void fs_d_release(struct dentry *dentry);
 static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen);
-static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, struct qstr *name);
+static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struct qstr *name);
+#if 0 //suppress compiling error of -Werror=unused-function
+static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *name);
+#endif
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode);
 static struct dentry* fs_make_root(struct super_block *sb, const char *name);
 
@@ -147,6 +150,7 @@ static uint32_t fs_name_hash(const unsigned char *name, uint32_t len)
  */
 static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr)
 {
+  // add code here
   return 0;
 }
 
@@ -155,6 +159,7 @@ static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode,
  */
 static void fs_d_release(struct dentry *dentry)
 {
+  // add code here
   return;
 }
 
@@ -163,22 +168,56 @@ static void fs_d_release(struct dentry *dentry)
  */
 static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen)
 {
+  // add code here
   return 0;
 }
 
 /*
  * Allocate dentry internally
  */
-static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, struct qstr *name)
+static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struct qstr *name)
 {
-  return NULL;
+  struct dentry *dentry = NULL;
+
+  dentry = (struct dentry *)malloc(sizeof(struct dentry));
+  memset((void *)dentry, 0, sizeof(struct dentry));
+
+  dentry->d_parent = dentry;
+  dentry->d_name = (struct qstr *)name;
+  dentry->d_op = sb->s_d_op;
+  dentry->d_sb = sb;
+  list_init(&dentry->d_child);
+  list_init(&dentry->d_subdirs);
+
+  return dentry;
 }
+
+/*
+ * Allocate dentry internally
+ */
+#if 0 //suppress compiling error of -Werror=unused-function
+static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *name)
+{
+  struct dentry *dentry = NULL;
+
+  dentry = fs_alloc_dentry_intern(parent->d_sb, name);
+  if (!dentry) {
+    return NULL;
+  }
+
+  dentry->d_parent = parent;
+  list_add(&dentry->d_child, &parent->d_subdirs);
+
+  return dentry;
+}
+#endif
 
 /*
  * Instantiate dentry
  */
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode)
 {
+  // add code here
   return NULL;
 }
 
@@ -236,7 +275,15 @@ static struct dentry* fs_make_root(struct super_block *sb, const char *name)
  */
 static struct inode* fs_alloc_inode(struct super_block *sb)
 {
-  return NULL;
+  struct inode *inode = NULL;
+
+  inode = (struct inode *)malloc(sizeof(struct inode));
+  memset((void *)inode, 0, sizeof(struct inode));
+
+  inode->i_sb = sb;
+  list_add(&inode->i_sb_list, &inode->i_sb->s_inodes);
+
+  return inode;
 }
 
 /*
@@ -244,7 +291,14 @@ static struct inode* fs_alloc_inode(struct super_block *sb)
  */
 static void fs_destroy_inode(struct inode *inode)
 {
-  return;
+  if (!list_empty(&inode->i_sb_list)) {
+    list_del_init(&inode->i_sb_list);
+  }
+
+  if (inode) {
+    free((void *)inode);
+    inode = NULL;
+  }
 }
 
 /*
@@ -252,6 +306,7 @@ static void fs_destroy_inode(struct inode *inode)
  */
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
+  // add code here
   return 0;
 }
 
@@ -260,6 +315,7 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
  */
 static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
 {
+  // add code here
   return NULL;
 }
 
@@ -301,8 +357,8 @@ static int32_t fs_fill_super(struct super_block *sb, const char *name)
   memcpy((void *)(sb->s_uuid), (const void *)(ext4_sb.s_uuid), len);
 
   sb->s_d_op = (const struct dentry_operations *)&fs_dentry_opt;
+  list_init(&sb->s_inodes);
   sb->s_root = (struct dentry *)fs_make_root(sb, name);
-  //sb->s_inodes = ; // add code here
 
   return 0;
 }
