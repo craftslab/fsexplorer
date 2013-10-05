@@ -397,11 +397,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
   memset((void *)&inode->i_ctime, 0, sizeof(struct fs_timespec));  // NOT used yet
   inode->i_blocks = (uint64_t)(((uint64_t)ext4_inode.osd2.linux2.l_i_blocks_high << 32) | (uint64_t)ext4_inode.i_blocks_lo);
   inode->i_size = (int64_t)(((int64_t)ext4_inode.i_size_high << 32) | (int64_t)ext4_inode.i_size_lo);
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  inode->i_sb_list = (struct list_head)inode->i_sb_list;
-#else
-  inode->i_sb_list = inode->i_sb_list;
-#endif /* CMAKE_COMPILER_IS_GNUCC */
+  memcpy((void *)&inode->i_sb_list, (void *)&inode->i_sb_list, sizeof(struct list_head));
   inode->i_count = (uint32_t)ext4_inode.i_links_count;
   inode->i_version = (uint64_t)(((uint64_t)ext4_inode.i_version_hi << 32) | (uint64_t)ext4_inode.osd1.linux1.l_i_version);
   inode->i_fop = (const struct file_operations *)&fs_file_opt;
