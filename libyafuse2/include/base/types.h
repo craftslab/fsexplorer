@@ -64,6 +64,10 @@
 #define ssize_t int32_t
 #endif
 
+#define offsetof(type, member) ((size_t) &((type *)0)->member)
+#define container_of(ptr, type, member) ({  \
+      (type *)((char *)ptr - offsetof(type, member));})
+
 /*
  * Type Definition
  */

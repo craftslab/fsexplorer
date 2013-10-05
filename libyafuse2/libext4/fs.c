@@ -37,10 +37,6 @@
 #include "include/base/types.h"
 #include "include/libio/io.h"
 #include "include/fs.h"
-#include "include/libext4/ext4.h"
-#include "include/libext4/ext4_extents.h"
-#include "include/libext4/ext4_jbd2.h"
-#include "include/libext4/jbd2.h"
 #include "include/libext4/libext4.h"
 
 /*
@@ -66,9 +62,7 @@ static inline uint32_t partial_name_hash(uint32_t c, uint32_t prevhash);
 static inline uint32_t end_name_hash(uint32_t hash);
 static uint32_t fs_name_hash(const unsigned char *name, uint32_t len);
 
-static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr);
 static void fs_d_release(struct dentry *dentry);
-static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen);
 static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struct qstr *name);
 #if 0 //suppress compiling error of -Werror=unused-function
 static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *name);
@@ -88,15 +82,95 @@ static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
 static int32_t fs_umount(const char *name, int32_t flags);
 
 static struct dentry_operations fs_dentry_opt = {
-  fs_d_hash,
+  //.d_hash =
+  NULL,
+
+  //.d_release =
   fs_d_release,
-  fs_d_dname,
+
+  //.d_dname =
+  NULL,
+};
+
+static struct inode_operations fs_inode_opt = {
+  //.lookup =
+  NULL,
+
+  //.permission =
+  NULL,
+
+  //.get_acl =
+  NULL,
+
+  //.create =
+  NULL,
+
+  //.link =
+  NULL,
+
+  //.unlink =
+  NULL,
+
+  //.symlink =
+  NULL,
+
+  //.mkdir =
+  NULL,
+
+  //.rmdir =
+  NULL,
+
+  //.mknod =
+  NULL,
+
+  //.rename =
+  NULL,
+
+  //.setattr =
+  NULL,
+
+  //.getattr =
+  NULL,
+
+  //.setxattr =
+  NULL,
+
+  //.getxattr =
+  NULL,
+
+  //.listxattr =
+  NULL,
+
+  //.removexattr =
+  NULL,
+
+  //.update_time =
+  NULL,
 };
 
 static struct super_operations fs_super_opt = {
+  //.alloc_inode =
   fs_alloc_inode,
+
+  //.destroy_inode =
   fs_destroy_inode,
+
+  //.statfs =
   fs_statfs,
+};
+
+static struct file_operations fs_file_opt = {
+  //.read =
+  NULL,
+
+  //.write =
+  NULL,
+
+  //.open =
+  NULL,
+
+  //.release =
+  NULL,
 };
 
 /*
@@ -146,30 +220,12 @@ static uint32_t fs_name_hash(const unsigned char *name, uint32_t len)
 }
 
 /*
- * Hash dentry
- */
-static int32_t fs_d_hash(const struct dentry *dentry, const struct inode *inode, struct qstr *qstr)
-{
-  // add code here
-  return 0;
-}
-
-/*
  * Release dentry
  */
 static void fs_d_release(struct dentry *dentry)
 {
   // add code here
   return;
-}
-
-/*
- * Name of dentry
- */
-static char* fs_d_dname(struct dentry *dentry, char *buffer, int32_t buflen)
-{
-  // add code here
-  return 0;
 }
 
 /*
@@ -315,8 +371,38 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
  */
 static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
 {
-  // add code here
-  return NULL;
+  struct ext4_inode ext4_inode;
+  int32_t ret;
+
+  /*
+   * Fill in Ext4 inode
+   */
+  ret = ext4_raw_inode(ino, &ext4_inode);
+  if (ret != 0) {
+    return NULL;
+  }
+
+  /*
+   * Fill in inode
+   */
+  inode->i_mode = (uint16_t)ext4_inode.i_mode;
+  inode->i_uid = (uint32_t)ext4_inode.i_uid;
+  inode->i_gid = (uint32_t)ext4_inode.i_gid;
+  inode->i_flags = (uint32_t)ext4_inode.i_flags;
+  inode->i_op = (const struct inode_operations *)&fs_inode_opt;
+  inode->i_sb = (struct super_block *)inode->i_sb;
+  inode->i_ino = (uint32_t)ino;
+  inode->i_atime = (struct fs_timespec){0};  // NOT used yet
+  inode->i_mtime = (struct fs_timespec){0};  // NOT used yet
+  inode->i_ctime = (struct fs_timespec){0};  // NOT used yet
+  inode->i_blocks = (uint64_t)(((uint64_t)ext4_inode.osd2.linux2.l_i_blocks_high << 32) | (uint64_t)ext4_inode.i_blocks_lo);
+  inode->i_size = (int64_t)(((int64_t)ext4_inode.i_size_high << 32) | (int64_t)ext4_inode.i_size_lo);
+  inode->i_sb_list = (struct list_head)inode->i_sb_list;
+  inode->i_count = (uint32_t)ext4_inode.i_links_count;
+  inode->i_version = (uint64_t)(((uint64_t)ext4_inode.i_version_hi << 32) | (uint64_t)ext4_inode.osd1.linux1.l_i_version);
+  inode->i_fop = (const struct file_operations *)&fs_file_opt;
+
+  return inode;
 }
 
 /*
@@ -332,7 +418,7 @@ static int32_t fs_fill_super(struct super_block *sb, const char *name)
    * Fill in Ext4 superblock
    */
   memset((void *)&ext4_sb, 0, sizeof(struct ext4_super_block));
-  ret = ext4_fill_sb(&ext4_sb);
+  ret = ext4_raw_super(&ext4_sb);
   if (ret != 0) {
     return -1;
   }

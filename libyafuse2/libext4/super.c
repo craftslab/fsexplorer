@@ -34,10 +34,6 @@
 #include "include/base/debug.h"
 #include "include/base/types.h"
 #include "include/libio/io.h"
-#include "include/libext4/ext4.h"
-#include "include/libext4/ext4_extents.h"
-#include "include/libext4/ext4_jbd2.h"
-#include "include/libext4/jbd2.h"
 #include "include/libext4/libext4.h"
 
 /*
@@ -58,12 +54,15 @@
 /*
  * Function Declaration
  */
+#if 0 //suppress compiling error of -Werror=unused-function
 static int32_t ext4_is_power_of(int32_t a, int32_t b);
 static int32_t ext4_bg_has_sb(const struct ext4_super_block *sb, int32_t bg_idx);
+#endif
 
 /*
  * Function Definition
  */
+#if 0 //suppress compiling error of -Werror=unused-function
 static int32_t ext4_is_power_of(int32_t a, int32_t b)
 {
   while (a > b) {
@@ -92,8 +91,9 @@ static int32_t ext4_bg_has_sb(const struct ext4_super_block *sb, int32_t bg_idx)
 
   return 0;
 }
+#endif
 
-int32_t ext4_fill_sb(struct ext4_super_block *sb)
+int32_t ext4_raw_super(struct ext4_super_block *sb)
 {
   int32_t offset = 0;
   size_t sb_sz = 0;
@@ -119,70 +119,6 @@ int32_t ext4_fill_sb(struct ext4_super_block *sb)
 
   if (sb->s_magic != EXT4_SUPER_MAGIC) {
     return -1;
-  }
-
-  return 0;
-}
-
-int32_t ext4_fill_blk_sz(const struct ext4_super_block *sb, int32_t *blk_sz)
-{
-  *blk_sz = (int32_t)pow((double)2, (double)(10 + sb->s_log_block_size));
-
-  return 0;
-}
-
-int32_t ext4_fill_bg_groups(const struct ext4_super_block *sb, int32_t *bg_groups)
-{
-  __le64 blocks_cnt = 0;
-  int32_t groups = 0;
-
-  blocks_cnt = ((__le64)sb->s_blocks_count_hi << 32) | (__le64)sb->s_blocks_count_lo;
-
-  groups = (int32_t)DIV_ROUND_UP(blocks_cnt - sb->s_first_data_block, sb->s_blocks_per_group);
-
-  *bg_groups = groups;
-
-  return 0;
-}
-
-int32_t ext4_fill_bg_desc(const struct ext4_super_block *sb, int32_t bg_groups, struct ext4_group_desc_min *bg_desc)
-{
-  int32_t blk_sz = 0;
-  int32_t start_blk = 0;
-  int32_t sb_blk = 0;
-  int32_t i = 0, j = 0;
-  int32_t ret = 0;
-
-  ret = ext4_fill_blk_sz(sb, &blk_sz);
-  if (ret != 0) {
-    return -1;
-  }
-
-  for (i = 0; i < bg_groups; ++i) {
-    start_blk = sb->s_first_data_block + (i * sb->s_blocks_per_group);
-
-    /*
-     * If group has superblock, then block group descriptor exits.
-     * offset = 1 block (superblock) or 0 block (no superblock)
-     */
-    if (ext4_bg_has_sb(sb, i)) {
-      sb_blk = 1;
-
-      ret = io_seek((long)((start_blk + sb_blk) * blk_sz));
-      if (ret != 0) {
-        return -1;
-      }
-
-      for (j = 0; j < bg_groups; ++j) {
-        ret = io_read((uint8_t *)&bg_desc[j], (size_t)sb->s_desc_size);
-        if (ret != 0) {
-          memset((void *)&bg_desc[j], 0, sb->s_desc_size);
-          return -1;
-        }
-      }
-
-      break;
-    }
   }
 
   return 0;

@@ -159,7 +159,6 @@ struct dentry {
 
 struct inode {
   uint16_t                      i_mode;
-  uint16_t                      i_opflags;
   uint32_t                      i_uid;
   uint32_t                      i_gid;
   uint32_t                      i_flags;
@@ -169,13 +168,11 @@ struct inode {
   struct fs_timespec            i_atime;
   struct fs_timespec            i_mtime;
   struct fs_timespec            i_ctime;
-  uint16_t                      i_bytes;
-  uint32_t                      i_blocks;
-  int32_t                       i_size;
+  uint64_t                      i_blocks;
+  int64_t                       i_size;
   struct list_head              i_sb_list;
   uint32_t                      i_count;
-  uint32_t                      i_blkbits;
-  uint32_t                      i_version;
+  uint64_t                      i_version;
   const struct file_operations  *i_fop;
 };
 

@@ -1,5 +1,5 @@
 /**
- * file.c - file of Ext4.
+ * namei.c - namei of Ext4.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -42,6 +42,45 @@
 /*
  * Type Definition
  */
+/*
+ * Ext4 hash tree directory entry
+ */
+struct fake_dirent
+{
+  __le32 inode;
+  __le16 rec_len;
+  u8 name_len;
+  u8 file_type;
+};
+
+struct dx_entry
+{
+  __le32 hash;
+  __le32 block;
+};
+
+struct dx_root
+{
+  struct fake_dirent dot;
+  char dot_name[4];
+  struct fake_dirent dotdot;
+  char dotdot_name[4];
+  struct dx_root_info
+  {
+    __le32 reserved_zero;
+    u8 hash_version;
+    u8 info_length;  /* 0x8 */
+    u8 indirect_levels;
+    u8 unused_flags;
+  } info;
+  struct dx_entry entries[0];
+};
+
+struct dx_node
+{
+  struct fake_dirent fake;
+  struct dx_entry entries[0];
+};
 
 /*
  * Global Variable Definition

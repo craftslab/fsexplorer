@@ -95,6 +95,7 @@ struct ext4_allocation_request {
  unsigned int flags;
 };
 
+#define EXT4_UNUSED_INO 0  // NOT defined in kernel/fs/ext4/ext4.h
 #define EXT4_BAD_INO 1  
 #define EXT4_ROOT_INO 2  
 #define EXT4_BOOT_LOADER_INO 5  
@@ -112,8 +113,8 @@ struct ext4_allocation_request {
 #define EXT4_BLOCK_SIZE(s) (EXT4_MIN_BLOCK_SIZE << (s)->s_log_block_size)
 #define EXT4_ADDR_PER_BLOCK(s) (EXT4_BLOCK_SIZE(s) / sizeof(__u32))
 #define EXT4_BLOCK_SIZE_BITS(s) ((s)->s_log_block_size + 10)
-#define EXT4_INODE_SIZE(s) (((s)->s_rev_level == EXT4_GOOD_OLD_REV) ?   EXT4_GOOD_OLD_INODE_SIZE :   (s)->s_inode_size)
-#define EXT4_FIRST_INO(s) (((s)->s_rev_level == EXT4_GOOD_OLD_REV) ?   EXT4_GOOD_OLD_FIRST_INO :   (s)->s_first_ino)
+#define EXT4_INODE_SIZE(s) (((s)->s_rev_level == EXT4_GOOD_OLD_REV) ? EXT4_GOOD_OLD_INODE_SIZE : (s)->s_inode_size)
+#define EXT4_FIRST_INO(s) (((s)->s_rev_level == EXT4_GOOD_OLD_REV) ? EXT4_GOOD_OLD_FIRST_INO : (s)->s_first_ino)
 #define EXT4_BLOCK_ALIGN(size, blkbits) ALIGN((size), (1 << (blkbits)))
 
 struct ext4_group_desc
@@ -136,6 +137,22 @@ struct ext4_group_desc
  __le16 bg_used_dirs_count_hi;
  __le16 bg_itable_unused_hi;
  __u32 bg_reserved2[3];
+};
+
+/*
+ * Ext4 block group descriptor if 's_desc_size <= 32' in ext4_super_block
+ * NOT defined in kernel/fs/ext4/ext4.h
+ */
+struct ext4_group_desc_min
+{
+ __le32 bg_block_bitmap_lo;
+ __le32 bg_inode_bitmap_lo;
+ __le32 bg_inode_table_lo;
+ __le16 bg_free_blocks_count_lo;
+ __le16 bg_free_inodes_count_lo;
+ __le16 bg_used_dirs_count_lo;
+ __le16 bg_flags;
+ __u32 bg_reserved[3];
 };
 
 #define EXT4_BG_INODE_UNINIT 0x0001  
@@ -245,6 +262,35 @@ struct ext4_new_group_data {
 #define EXT4_IOC32_SETVERSION_OLD FS_IOC32_SETVERSION
 
 #define EXT4_MAX_BLOCK_FILE_PHYS 0xFFFFFFFF
+
+/*
+ * Ext4 inode mode for file mode
+ * NOT defined in kernel/fs/ext4/ext4.h
+ */
+#define EXT4_INODE_MODE_S_IXOTH   (0x1)
+#define EXT4_INODE_MODE_S_IWOTH   (0x2)
+#define EXT4_INODE_MODE_S_IROTH   (0x4)
+#define EXT4_INODE_MODE_S_IXGRP   (0x8)
+#define EXT4_INODE_MODE_S_IWGRP   (0x10)
+#define EXT4_INODE_MODE_S_IRGRP   (0x20)
+#define EXT4_INODE_MODE_S_IXUSR   (0x40)
+#define EXT4_INODE_MODE_S_IWUSR   (0x80)
+#define EXT4_INODE_MODE_S_IRUSR   (0x100)
+#define EXT4_INODE_MODE_S_ISVTX   (0x200)
+#define EXT4_INODE_MODE_S_ISGID   (0x400)
+#define EXT4_INODE_MODE_S_ISUID   (0x800)
+
+/*
+ * Ext4 inode mode for file type
+ * NOT defined in kernel/fs/ext4/ext4.h
+ */
+#define EXT4_INODE_MODE_S_IFIFO   (0x1000)
+#define EXT4_INODE_MODE_S_IFCHR   (0x2000)
+#define EXT4_INODE_MODE_S_IFDIR   (0x4000)
+#define EXT4_INODE_MODE_S_IFBLK   (0x6000)
+#define EXT4_INODE_MODE_S_IFREG   (0x8000)
+#define EXT4_INODE_MODE_S_IFLNK   (0xA000)
+#define EXT4_INODE_MODE_S_IFSOCK  (0xC000)
 
 struct ext4_inode {
  __le16 i_mode;
