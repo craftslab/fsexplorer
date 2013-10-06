@@ -512,6 +512,21 @@ struct ext4_super_block {
  __u32 s_reserved[160];
 };
 
+/*
+ * Incomplete definition from kernel/fs/ext4/ext4.h
+ */
+struct ext4_sb_info {
+  __le32 s_desc_size;
+  __le32 s_inodes_per_block;
+  __le32 s_blocks_per_group;
+  __le32 s_inodes_per_group;
+  __le32 s_itb_per_group;
+  __le32 s_desc_per_block;
+  ext4_group_t s_groups_count;
+  struct ext4_super_block *s_es;
+  struct ext4_group_desc *s_group_desc;
+};
+
 #define EXT4_SB(sb) (sb)
 
 #define NEXT_ORPHAN(inode) EXT4_I(inode)->i_dtime

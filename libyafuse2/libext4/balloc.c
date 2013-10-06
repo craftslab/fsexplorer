@@ -1,5 +1,5 @@
 /**
- * inode.c - inode of Ext4.
+ * balloc.c - allocation of block group of Ext4.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -50,25 +50,52 @@
 /*
  * Function Declaration
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint32_t ino);
+static inline int32_t test_root(ext4_group_t a, int32_t b);
+static int32_t ext4_group_sparse(ext4_group_t bg);
 
 /*
  * Function Definition
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint32_t ino)
+static inline int32_t test_root(ext4_group_t a, int32_t b)
 {
-  return (ino == EXT4_ROOT_INO
-          || ino == EXT4_JOURNAL_INO
-          || ino == EXT4_RESIZE_INO
-          || (ino >= es->s_first_ino && ino <= es->s_inodes_count));
+  int32_t num = b;
+
+  while (a > num) {
+    num *= b;
+  }
+
+  return num == a;
 }
 
-int32_t ext4_raw_inode(struct super_block *sb, uint32_t ino, struct ext4_inode *inode)
+static int32_t ext4_group_sparse(ext4_group_t bg)
+{
+  if (bg <= 1) {
+    return 1;
+  }
+
+  if (!(bg & 1)) {
+    return 0;
+  }
+
+  return (test_root(bg, 7) || test_root(bg, 5) || test_root(bg, 3));
+}
+
+int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg)
+{
+  if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER)
+      && !ext4_group_sparse(bg)) {
+    return 0;
+  }
+
+  return 1;
+}
+
+int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp)
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
-  struct ext4_super_block *es = info->s_es;
+  ext4_group_t ngroups = info->s_groups_count;
 
-  if (!ext4_valid_inum(es, ino)) {
+  if (bg >= ngroups) {
     return -1;
   }
 

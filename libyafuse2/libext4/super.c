@@ -54,44 +54,49 @@
 /*
  * Function Declaration
  */
-#if 0 //suppress compiling error of -Werror=unused-function
-static int32_t ext4_is_power_of(int32_t a, int32_t b);
-static int32_t ext4_bg_has_sb(const struct ext4_super_block *sb, int32_t bg_idx);
-#endif
 
 /*
  * Function Definition
  */
-#if 0 //suppress compiling error of -Werror=unused-function
-static int32_t ext4_is_power_of(int32_t a, int32_t b)
+int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es, struct ext4_sb_info *info)
 {
-  while (a > b) {
-    if (a % b) {
-      return 0;
+  uint32_t block_size = sb->s_blocksize;
+  uint64_t blocks_count = (uint64_t)es->s_blocks_count_hi << 32 | (uint64_t)es->s_blocks_count_lo;
+  ext4_group_t i;
+  int32_t ret;
+
+  info->s_desc_size = es->s_desc_size;  
+  info->s_inodes_per_block = block_size / es->s_inode_size;
+  info->s_blocks_per_group = es->s_blocks_per_group;
+  info->s_inodes_per_group = es->s_inodes_per_group;
+  info->s_itb_per_group = info->s_inodes_per_group / info->s_inodes_per_block;
+  info->s_groups_count = (blocks_count - es->s_first_data_block + es->s_blocks_per_group - 1) / es->s_blocks_per_group;
+  info->s_desc_per_block = block_size / info->s_desc_size;
+  info->s_es = es;
+
+  info->s_group_desc = (struct ext4_group_desc *)malloc(info->s_groups_count * sizeof(struct ext4_group_desc));
+  if (!info->s_group_desc) {
+    return -1;
+  }
+
+  for (i = 0; i < info->s_groups_count; ++i) {
+    ret = ext4_raw_group_desc(sb, i, &info->s_group_desc[i]);
+    if (ret != 0) {
+      goto ext4_fill_super_info_fail;
     }
-    a /= b;
-  }
-
-  return (a == b) ? 1 : 0;
-}
-
-static int32_t ext4_bg_has_sb(const struct ext4_super_block *sb, int32_t bg_idx)
-{
-  if (!(sb->s_feature_ro_compat & EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER)) {
-    return 1;
-  }
-
-  if (bg_idx == 0 || bg_idx == 1) {
-    return 1;
-  }
-
-  if (ext4_is_power_of(bg_idx, 3) || ext4_is_power_of(bg_idx, 5) || ext4_is_power_of(bg_idx, 7)) {
-    return 1;
   }
 
   return 0;
+
+ ext4_fill_super_info_fail:
+
+  if (info->s_group_desc) {
+    free(info->s_group_desc);
+    info->s_group_desc = NULL;
+  }
+
+  return ret;
 }
-#endif
 
 int32_t ext4_raw_super(struct ext4_super_block *sb)
 {

@@ -189,6 +189,7 @@ struct super_block {
   struct list_head               s_inodes;
   char                           s_id[32];
   uint8_t                        s_uuid[16];
+  void                           *s_fs_info;
   const struct dentry_operations *s_d_op;
 };
 

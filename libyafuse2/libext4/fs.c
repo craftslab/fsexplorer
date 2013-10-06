@@ -68,14 +68,14 @@ static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struc
 static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *name);
 #endif
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode);
-static struct dentry* fs_make_root(struct super_block *sb, const char *name);
+static struct dentry* fs_make_root(struct super_block *sb);
 
 static struct inode* fs_alloc_inode(struct super_block *sb);
 static void fs_destroy_inode(struct inode *inode);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino);
 
-static int32_t fs_fill_super(struct super_block *sb, const char *name);
+static int32_t fs_fill_super(struct super_block *sb);
 
 static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
                                const char *name, void *data);
@@ -236,6 +236,9 @@ static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struc
   struct dentry *dentry = NULL;
 
   dentry = (struct dentry *)malloc(sizeof(struct dentry));
+  if (!dentry) {
+    return NULL;
+  }
   memset((void *)dentry, 0, sizeof(struct dentry));
 
   dentry->d_parent = dentry;
@@ -280,7 +283,7 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
 /*
  * Make dentry of root
  */
-static struct dentry* fs_make_root(struct super_block *sb, const char *name)
+static struct dentry* fs_make_root(struct super_block *sb)
 {
   struct inode *root_inode = NULL;
   struct qstr q_name;
@@ -297,7 +300,7 @@ static struct dentry* fs_make_root(struct super_block *sb, const char *name)
   }
 
   memset((void *)&q_name, 0, sizeof(struct qstr));
-  q_name.name = (const unsigned char *)name;
+  q_name.name = (const unsigned char *)"/";
   q_name.len = strlen((const char *)(q_name.name));
   q_name.hash = fs_name_hash(q_name.name, q_name.len);
 
@@ -334,6 +337,9 @@ static struct inode* fs_alloc_inode(struct super_block *sb)
   struct inode *inode = NULL;
 
   inode = (struct inode *)malloc(sizeof(struct inode));
+  if (!inode) {
+    return NULL;
+  }
   memset((void *)inode, 0, sizeof(struct inode));
 
   inode->i_sb = sb;
@@ -371,13 +377,14 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
  */
 static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
 {
+  struct super_block *sb = inode->i_sb;
   struct ext4_inode ext4_inode;
   int32_t ret;
 
   /*
    * Fill in Ext4 inode
    */
-  ret = ext4_raw_inode(ino, &ext4_inode);
+  ret = ext4_raw_inode(sb, ino, &ext4_inode);
   if (ret != 0) {
     return NULL;
   }
@@ -390,7 +397,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
   inode->i_gid = (uint32_t)ext4_inode.i_gid;
   inode->i_flags = (uint32_t)ext4_inode.i_flags;
   inode->i_op = (const struct inode_operations *)&fs_inode_opt;
-  inode->i_sb = (struct super_block *)inode->i_sb;
+  inode->i_sb = (struct super_block *)sb;
   inode->i_ino = (uint32_t)ino;
   memset((void *)&inode->i_atime, 0, sizeof(struct fs_timespec));  // NOT used yet
   memset((void *)&inode->i_mtime, 0, sizeof(struct fs_timespec));  // NOT used yet
@@ -408,7 +415,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
 /*
  * Fill in superblock
  */
-static int32_t fs_fill_super(struct super_block *sb, const char *name)
+static int32_t fs_fill_super(struct super_block *sb)
 {
   struct ext4_super_block ext4_sb;
   uint32_t len;
@@ -442,11 +449,31 @@ static int32_t fs_fill_super(struct super_block *sb, const char *name)
   len = (uint32_t)(sizeof(sb->s_uuid) >= sizeof(ext4_sb.s_uuid) ? sizeof(ext4_sb.s_uuid) : sizeof(sb->s_uuid));
   memcpy((void *)(sb->s_uuid), (const void *)(ext4_sb.s_uuid), len);
 
+  sb->s_fs_info = (void *)malloc(sizeof(struct ext4_sb_info));
+  if (!sb->s_fs_info) {
+    return -1;
+  }
+  memset((void *)sb->s_fs_info, 0, sizeof(struct ext4_sb_info));
+  ret = ext4_fill_super_info(sb, &ext4_sb, (struct ext4_sb_info *)sb->s_fs_info);
+  if (ret != 0) {
+    goto fs_fill_super_fail;
+  }
+
   sb->s_d_op = (const struct dentry_operations *)&fs_dentry_opt;
+
   list_init(&sb->s_inodes);
-  sb->s_root = (struct dentry *)fs_make_root(sb, name);
+  sb->s_root = (struct dentry *)fs_make_root(sb);
 
   return 0;
+
+ fs_fill_super_fail:
+
+  if (sb->s_fs_info) {
+    free(sb->s_fs_info);
+    sb->s_fs_info = NULL;
+  }
+
+  return ret;
 }
 
 /*
@@ -473,7 +500,7 @@ static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
    * Fill in superblock
    */
   memset((void *)&fs_sb, 0, sizeof(struct super_block));
-  ret = fs_fill_super(&fs_sb, name);
+  ret = fs_fill_super(&fs_sb);
   if (ret != 0) {
     goto fs_mount_fail;
   }
@@ -507,6 +534,14 @@ static int32_t fs_umount(const char *name, int32_t flags)
    * Free list of inode
    */
   // add code here
+
+  if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc) {
+    free(((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc);
+  }
+
+  if (fs_sb.s_fs_info) {
+    free(fs_sb.s_fs_info);
+  }
 
   memset((void *)&fs_sb, 0, sizeof(struct super_block));
 
