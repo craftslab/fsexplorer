@@ -58,8 +58,8 @@ static struct super_block fs_sb;
  * Function Declaration
  */
 static int32_t fs_max_size(uint8_t blocksize_bits);
-static inline uint32_t partial_name_hash(uint32_t c, uint32_t prevhash);
-static inline uint32_t end_name_hash(uint32_t hash);
+static inline uint64_t partial_name_hash(uint64_t c, uint64_t prevhash);
+static inline uint64_t end_name_hash(uint64_t hash);
 static uint32_t fs_name_hash(const unsigned char *name, uint32_t len);
 
 static void fs_d_release(struct dentry *dentry);
@@ -73,12 +73,11 @@ static struct dentry* fs_make_root(struct super_block *sb);
 static struct inode* fs_alloc_inode(struct super_block *sb);
 static void fs_destroy_inode(struct inode *inode);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
-static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino);
+static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino);
 
 static int32_t fs_fill_super(struct super_block *sb);
 
-static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
-                               const char *name, void *data);
+static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, const char *name, void *data);
 static int32_t fs_umount(const char *name, int32_t flags);
 
 static struct dentry_operations fs_dentry_opt = {
@@ -192,7 +191,7 @@ static int32_t fs_max_size(uint8_t blocksize_bits)
 /*
  * Hash partial name
  */
-static inline uint32_t partial_name_hash(uint32_t c, uint32_t prevhash)
+static inline uint64_t partial_name_hash(uint64_t c, uint64_t prevhash)
 {
   return (prevhash + (c << 4) + (c >> 4)) * 11;
 }
@@ -200,7 +199,7 @@ static inline uint32_t partial_name_hash(uint32_t c, uint32_t prevhash)
 /*
  * Hash end name
  */
-static inline uint32_t end_name_hash(uint32_t hash)
+static inline uint64_t end_name_hash(uint64_t hash)
 {
   return hash;
 }
@@ -375,7 +374,7 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 /*
  * Instantiate inode
  */
-static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
+static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
 {
   struct super_block *sb = inode->i_sb;
   struct ext4_inode ext4_inode;
@@ -398,7 +397,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint32_t ino)
   inode->i_flags = (uint32_t)ext4_inode.i_flags;
   inode->i_op = (const struct inode_operations *)&fs_inode_opt;
   inode->i_sb = (struct super_block *)sb;
-  inode->i_ino = (uint32_t)ino;
+  inode->i_ino = (uint64_t)ino;
   memset((void *)&inode->i_atime, 0, sizeof(struct fs_timespec));  // NOT used yet
   memset((void *)&inode->i_mtime, 0, sizeof(struct fs_timespec));  // NOT used yet
   memset((void *)&inode->i_ctime, 0, sizeof(struct fs_timespec));  // NOT used yet
@@ -434,12 +433,12 @@ static int32_t fs_fill_super(struct super_block *sb)
    * Fill in superblock
    */
   sb->s_blocksize_bits = (uint8_t)ext4_sb.s_log_block_size;
-  sb->s_blocksize = (uint32_t)pow((double)2, (double)(10 + ext4_sb.s_log_block_size));
-  sb->s_maxbytes = (int32_t)fs_max_size(sb->s_blocksize_bits);
+  sb->s_blocksize = (uint64_t)pow((double)2, (double)(10 + ext4_sb.s_log_block_size));
+  sb->s_maxbytes = (int64_t)fs_max_size(sb->s_blocksize_bits);
   sb->s_type = (struct file_system_type *)&fs_file_type;
   sb->s_op = (const struct super_operations *)&fs_super_opt;
-  sb->s_flags = (uint32_t)ext4_sb.s_flags;
-  sb->s_magic = (uint32_t)ext4_sb.s_magic;
+  sb->s_flags = (uint64_t)ext4_sb.s_flags;
+  sb->s_magic = (uint64_t)ext4_sb.s_magic;
   sb->s_count = (int32_t)1;
 
   len = (uint32_t)(sizeof(sb->s_id) >= (strlen(fs_file_type.name) + 1) ? strlen(fs_file_type.name) + 1 : sizeof(sb->s_id));
@@ -479,8 +478,7 @@ static int32_t fs_fill_super(struct super_block *sb)
 /*
  * Mount filesystem
  */
-static struct dentry* fs_mount(struct file_system_type *type, int32_t flags,
-                               const char *name, void *data)
+static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, const char *name, void *data)
 {
   int32_t ret;
 

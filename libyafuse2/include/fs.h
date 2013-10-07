@@ -69,8 +69,8 @@ struct qstr {
 
 struct fs_timespec
 {
-  int32_t tv_sec;
-  int32_t tv_nsec;
+  int64_t tv_sec;
+  int64_t tv_nsec;
 };
 
 struct vfsmount {
@@ -91,32 +91,32 @@ struct fsid_t {
 };
 
 struct kstatfs {
-  int32_t f_type;
-  int32_t f_bsize;
-  uint32_t f_blocks;
-  uint32_t f_bfree;
-  uint32_t f_bavail;
-  uint32_t f_files;
-  uint32_t f_ffree;
+  int64_t f_type;
+  int64_t f_bsize;
+  uint64_t f_blocks;
+  uint64_t f_bfree;
+  uint64_t f_bavail;
+  uint64_t f_files;
+  uint64_t f_ffree;
   struct fsid_t f_fsid;
-  int32_t f_namelen;
-  int32_t f_frsize;
-  int32_t f_flags;
-  int32_t f_spare[4];
+  int64_t f_namelen;
+  int64_t f_frsize;
+  int64_t f_flags;
+  int64_t f_spare[4];
 };
 
 struct kstat {
-  uint32_t ino;
+  uint64_t ino;
   uint16_t mode;
   uint32_t nlink;
   uint32_t uid;
   uint32_t gid;
-  int32_t size;
+  int64_t size;
   struct fs_timespec atime;
   struct fs_timespec mtime;
   struct fs_timespec ctime;
-  uint32_t blksize;
-  uint32_t blocks;
+  uint64_t blksize;
+  uint64_t blocks;
 };
 
 struct path {
@@ -131,8 +131,8 @@ struct file {
   const struct file_operations *f_op;
   uint32_t f_flags;
   uint32_t f_mode;
-  int32_t f_pos;
-  uint32_t f_version;
+  int64_t f_pos;
+  uint64_t f_version;
 };
 
 struct iattr {
@@ -140,7 +140,7 @@ struct iattr {
   uint16_t ia_mode;
   uint32_t ia_uid;
   uint32_t ia_gid;
-  int32_t ia_size;
+  int64_t ia_size;
   struct fs_timespec ia_atime;
   struct fs_timespec ia_mtime;
   struct fs_timespec ia_ctime;
@@ -164,7 +164,7 @@ struct inode {
   uint32_t                      i_flags;
   const struct inode_operations *i_op;
   struct super_block            *i_sb;
-  uint32_t                      i_ino;
+  uint64_t                      i_ino;
   struct fs_timespec            i_atime;
   struct fs_timespec            i_mtime;
   struct fs_timespec            i_ctime;
@@ -178,12 +178,12 @@ struct inode {
 
 struct super_block {
   uint8_t                        s_blocksize_bits;
-  uint32_t                       s_blocksize;
-  int32_t                        s_maxbytes;
+  uint64_t                       s_blocksize;
+  int64_t                        s_maxbytes;
   struct file_system_type        *s_type;
   const struct super_operations  *s_op;
-  uint32_t                       s_flags;
-  uint32_t                       s_magic;
+  uint64_t                       s_flags;
+  uint64_t                       s_magic;
   struct dentry                  *s_root;
   int32_t                        s_count;
   struct list_head               s_inodes;
@@ -196,8 +196,7 @@ struct super_block {
 struct file_system_type {
   const char *name;
   int32_t fs_flags;
-  struct dentry* (*mount) (struct file_system_type *type, int32_t flags,
-                           const char *name, void *data);
+  struct dentry* (*mount) (struct file_system_type *type, uint64_t flags, const char *name, void *data);
   int32_t (*umount) (const char *name, int32_t flags);
 };
 
@@ -235,8 +234,8 @@ struct super_operations {
 };
 
 struct file_operations {
-  ssize_t (*read) (struct file *, char *, size_t, int32_t *);
-  ssize_t (*write) (struct file *, const char *, size_t, int32_t *);
+  ssize_t (*read) (struct file *, char *, size_t, int64_t *);
+  ssize_t (*write) (struct file *, const char *, size_t, int64_t *);
   int32_t (*open) (struct inode *, struct file *);
   int32_t (*release) (struct inode *, struct file *);
 };

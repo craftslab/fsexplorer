@@ -49,7 +49,7 @@
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg);
 int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp);
 
-int32_t ext4_raw_inode(struct super_block *sb, uint32_t ino, struct ext4_inode *inode);
+int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode);
 
 int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es, struct ext4_sb_info *info);
 int32_t ext4_raw_super(struct ext4_super_block *es);

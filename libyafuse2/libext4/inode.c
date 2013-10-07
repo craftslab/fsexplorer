@@ -50,12 +50,12 @@
 /*
  * Function Declaration
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint32_t ino);
+static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint64_t ino);
 
 /*
  * Function Definition
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint32_t ino)
+static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint64_t ino)
 {
   return (ino == EXT4_ROOT_INO
           || ino == EXT4_JOURNAL_INO
@@ -63,7 +63,7 @@ static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint32_t ino)
           || (ino >= es->s_first_ino && ino <= es->s_inodes_count));
 }
 
-int32_t ext4_raw_inode(struct super_block *sb, uint32_t ino, struct ext4_inode *inode)
+int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode)
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
   struct ext4_super_block *es = info->s_es;

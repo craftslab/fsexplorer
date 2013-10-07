@@ -64,12 +64,12 @@ static void* fs_load_lib(const char *lib_name);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
 
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data);
+static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint64_t flags, void *data);
 static int32_t fs_umount(const char *name, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf);
 static int32_t fs_getdents(uint32_t fd, struct fs_dirent *dirent, uint32_t count);
-static int32_t fs_getcwd(char *buf, uint32_t size);
+static int32_t fs_getcwd(char *buf, uint64_t size);
 static int32_t fs_chdir(const char *filename);
 
 /*
@@ -114,7 +114,7 @@ static void fs_unload_lib(void *handle)
 /*
  * Mount filesystem
  */
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint32_t flags, void *data)
+static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint64_t flags, void *data)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
@@ -231,7 +231,7 @@ static int32_t fs_getdents(uint32_t fd, struct fs_dirent *dirent, uint32_t count
 /*
  * Get current working directory
  */
-static int32_t fs_getcwd(char *buf, uint32_t size)
+static int32_t fs_getcwd(char *buf, uint64_t size)
 {
   if (!buf) {
     return -1;
