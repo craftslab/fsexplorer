@@ -51,6 +51,7 @@
  * Function Declaration
  */
 static inline int32_t test_root(ext4_group_t a, int32_t b);
+static inline uint64_t ext4_group_first_block_no(struct super_block *sb, ext4_group_t bg);
 static int32_t ext4_group_sparse(ext4_group_t bg);
 
 /*
@@ -65,6 +66,14 @@ static inline int32_t test_root(ext4_group_t a, int32_t b)
   }
 
   return num == a;
+}
+
+static inline uint64_t ext4_group_first_block_no(struct super_block *sb, ext4_group_t bg)
+{
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+
+  return (uint64_t)(bg * es->s_blocks_per_group + es->s_first_data_block);
 }
 
 static int32_t ext4_group_sparse(ext4_group_t bg)
@@ -82,7 +91,10 @@ static int32_t ext4_group_sparse(ext4_group_t bg)
 
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg)
 {
-  if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER)
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+
+  if (((es->s_feature_ro_compat & EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER) != 0)
       && !ext4_group_sparse(bg)) {
     return 0;
   }
@@ -93,13 +105,32 @@ int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg)
 int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp)
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
-  ext4_group_t ngroups = info->s_groups_count;
+  struct ext4_super_block *es = info->s_es;
+  uint64_t has_super, offset;
+  int32_t ret;
 
-  if (bg >= ngroups) {
+  /*
+   * Ignore the feature of EXT4_FEATURE_INCOMPAT_META_BG
+   * (ext4_super_block: s_first_meta_bg)
+   */
+  // add code here
+
+  if (ext4_bg_has_super(sb, bg)) {
+    has_super = 1;
+  } else {
+    has_super = 0;
+  }
+
+  offset = has_super + ext4_group_first_block_no(sb, bg);
+  ret = io_seek((long)(offset * sb->s_blocksize));
+  if (ret != 0) {
     return -1;
   }
 
-  // add code here
-
+  ret = io_read((uint8_t *)gdp, (size_t)es->s_desc_size);
+  if (ret != 0) {
+    return -1;
+  }
+  
   return 0;
 }

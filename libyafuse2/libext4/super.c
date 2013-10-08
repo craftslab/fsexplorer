@@ -65,7 +65,7 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   ext4_group_t i;
   int32_t ret;
 
-  info->s_desc_size = (__le64)es->s_desc_size;  
+  info->s_desc_size = (__le64)es->s_desc_size;
   info->s_inodes_per_block = (__le64)(block_size / es->s_inode_size);
   info->s_blocks_per_group = (__le64)es->s_blocks_per_group;
   info->s_inodes_per_group = (__le64)es->s_inodes_per_group;
