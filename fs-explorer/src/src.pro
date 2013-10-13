@@ -1,7 +1,8 @@
 CONFIG += qt warn_on release
 TEMPLATE = app
 
-RESOURCES = src.qrc
+RESOURCES += src.qrc
+RC_FILE += src.rc
 
 #
 # Import header and lib of fs
