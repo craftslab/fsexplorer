@@ -50,29 +50,67 @@
 /*
  * Function Declaration
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint64_t ino);
+static inline int32_t ext4_valid_inum(struct super_block *sb, uint64_t ino);
+static inline uint64_t ext4_inode_table(struct super_block *sb, struct ext4_group_desc *gdp);
 
 /*
  * Function Definition
  */
-static inline int32_t ext4_valid_inum(struct ext4_super_block *es, uint64_t ino)
+static inline int32_t ext4_valid_inum(struct super_block *sb, uint64_t ino)
 {
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+
   return (ino == EXT4_ROOT_INO
           || ino == EXT4_JOURNAL_INO
           || ino == EXT4_RESIZE_INO
           || (ino >= es->s_first_ino && ino <= es->s_inodes_count));
 }
 
-int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode)
+static inline uint64_t ext4_inode_table(struct super_block *sb, struct ext4_group_desc *gdp)
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
   struct ext4_super_block *es = info->s_es;
 
-  if (!ext4_valid_inum(es, ino)) {
+  /*
+   * Use 'struct ext4_group_desc_min' instead of 'struct ext4_group_desc' here
+   */
+  return gdp->bg_inode_table_lo
+    | (es->s_desc_size >= EXT4_MIN_DESC_SIZE_64BIT ? (uint64_t)(gdp->bg_inode_table_hi) << 32 : 0);
+}
+
+int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode)
+{
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+  struct ext4_group_desc *gdp = NULL;
+  ext4_group_t bg;
+  int32_t inodes_per_block, inode_offset;
+  uint64_t start, offset;
+  int32_t ret;
+
+  if (!ext4_valid_inum(sb, ino)) {
     return -1;
   }
 
-  // add code here
+  bg = (ext4_group_t)((ino - 1) / info->s_inodes_per_group);
+  gdp = &info->s_group_desc[bg];
+
+  inodes_per_block = info->s_inodes_per_block;
+  inode_offset = (ino - 1) % info->s_inodes_per_group;
+
+  start = (ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block)) * sb->s_blocksize;
+  offset = (inode_offset % inodes_per_block) * es->s_inode_size;
+
+  ret = io_seek((long)(start + offset));
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = io_read((uint8_t *)inode, es->s_inode_size);
+  if (ret != 0) {
+    return -1;
+  }
 
   return 0;
 }

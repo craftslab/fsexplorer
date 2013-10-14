@@ -74,10 +74,11 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   info->s_desc_per_block = (__le64)(block_size / info->s_desc_size);
   info->s_es = (struct ext4_super_block *)es;
 
-  info->s_group_desc = (struct ext4_group_desc *)malloc(info->s_groups_count * sizeof(struct ext4_group_desc));
+  info->s_group_desc = (struct ext4_group_desc *)malloc(info->s_groups_count * info->s_desc_size);
   if (!info->s_group_desc) {
     return -1;
   }
+  memset((void *)info->s_group_desc, 0, info->s_groups_count * info->s_desc_size);
 
   for (i = 0; i < info->s_groups_count; ++i) {
     ret = ext4_raw_group_desc(sb, i, &info->s_group_desc[i]);
