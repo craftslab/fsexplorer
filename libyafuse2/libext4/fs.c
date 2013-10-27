@@ -233,6 +233,7 @@ static void fs_d_release(struct dentry *dentry)
 static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struct qstr *name)
 {
   struct dentry *dentry = NULL;
+  struct qstr *q_name = NULL;
 
   dentry = (struct dentry *)malloc(sizeof(struct dentry));
   if (!dentry) {
@@ -240,18 +241,33 @@ static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struc
   }
   memset((void *)dentry, 0, sizeof(struct dentry));
 
+  q_name = (struct qstr *)malloc(sizeof(struct qstr));
+  if (!q_name) {
+    goto fs_alloc_dentry_intern_fail;
+  }
+  memcpy((void *)q_name, (const void *)name, sizeof(struct qstr));
+
   dentry->d_parent = dentry;
-  dentry->d_name = (struct qstr *)name;
+  dentry->d_name = (struct qstr *)q_name;
   dentry->d_op = sb->s_d_op;
   dentry->d_sb = sb;
   list_init(&dentry->d_child);
   list_init(&dentry->d_subdirs);
 
   return dentry;
+
+ fs_alloc_dentry_intern_fail:
+
+  if (dentry) {
+    free(dentry);
+    dentry = NULL;
+  }
+
+  return NULL;
 }
 
 /*
- * Allocate dentry internally
+ * Allocate dentry
  */
 #if 0 //suppress compiling error of -Werror=unused-function
 static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *name)
@@ -275,57 +291,31 @@ static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *
  */
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode)
 {
-  // add code here
-  return NULL;
-}
+  struct ext4_dir_entry_2 ext4_dentry;
+  int32_t ret;
 
-/*
- * Make dentry of root
- */
-static struct dentry* fs_make_root(struct super_block *sb)
-{
-  struct inode *root_inode = NULL;
-  struct qstr q_name;
-  struct dentry *root_dentry = NULL;
-
-  root_inode = sb->s_op->alloc_inode(sb);
-  if (!root_inode) {
+  /*
+   * Fill in Ext4 dentry
+   */
+  ret = ext4_raw_dentry(inode, &ext4_dentry);
+  if (ret != 0) {
     return NULL;
   }
 
-  root_inode = fs_instantiate_inode(root_inode, EXT4_ROOT_INO);
-  if (!root_inode) {
-    goto fs_make_root_fail;
-  }
+  /*
+   * Fill in dentry
+   */
+  dentry->d_parent = (struct dentry *)dentry->d_parent;
+  dentry->d_name->name = (const unsigned char *)ext4_dentry.name;
+  dentry->d_name->len = (uint32_t)ext4_dentry.name_len;
+  dentry->d_name->hash = (uint32_t)fs_name_hash(dentry->d_name->name, dentry->d_name->len);
+  dentry->d_inode = (struct inode *)inode;
+  dentry->d_op = (const struct dentry_operations *)dentry->d_op;
+  dentry->d_sb = (struct super_block *)dentry->d_sb;
+  dentry->d_child = (struct list_head)dentry->d_child;
+  dentry->d_subdirs = (struct list_head)dentry->d_subdirs;
 
-  memset((void *)&q_name, 0, sizeof(struct qstr));
-  q_name.name = (const unsigned char *)"/";
-  q_name.len = strlen((const char *)(q_name.name));
-  q_name.hash = fs_name_hash(q_name.name, q_name.len);
-
-  root_dentry = fs_alloc_dentry_intern(root_inode->i_sb, &q_name);
-  if (!root_dentry) {
-    goto fs_make_root_fail;
-  }
-
-  root_dentry = fs_instantiate_dentry(root_dentry, root_inode);
-  if (!root_dentry) {
-    goto fs_make_root_fail;
-  }
-
-  return root_dentry;
-
- fs_make_root_fail:
-
-  if (root_dentry) {
-    sb->s_d_op->d_release(root_dentry);
-  }
-
-  if (root_inode) {
-    sb->s_op->destroy_inode(root_inode);
-  }
-
-  return NULL;
+  return dentry;
 }
 
 /*
@@ -409,6 +399,55 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   inode->i_fop = (const struct file_operations *)&fs_file_opt;
 
   return inode;
+}
+
+/*
+ * Make dentry of root
+ */
+static struct dentry* fs_make_root(struct super_block *sb)
+{
+  struct inode *root_inode = NULL;
+  struct qstr q_name;
+  struct dentry *root_dentry = NULL;
+
+  root_inode = sb->s_op->alloc_inode(sb);
+  if (!root_inode) {
+    return NULL;
+  }
+
+  root_inode = fs_instantiate_inode(root_inode, EXT4_ROOT_INO);
+  if (!root_inode) {
+    goto fs_make_root_fail;
+  }
+
+  memset((void *)&q_name, 0, sizeof(struct qstr));
+  q_name.name = (const unsigned char *)"/";
+  q_name.len = strlen((const char *)(q_name.name));
+  q_name.hash = fs_name_hash(q_name.name, q_name.len);
+
+  root_dentry = fs_alloc_dentry_intern(root_inode->i_sb, &q_name);
+  if (!root_dentry) {
+    goto fs_make_root_fail;
+  }
+
+  root_dentry = fs_instantiate_dentry(root_dentry, root_inode);
+  if (!root_dentry) {
+    goto fs_make_root_fail;
+  }
+
+  return root_dentry;
+
+ fs_make_root_fail:
+
+  if (root_dentry) {
+    sb->s_d_op->d_release(root_dentry);
+  }
+
+  if (root_inode) {
+    sb->s_op->destroy_inode(root_inode);
+  }
+
+  return NULL;
 }
 
 /*

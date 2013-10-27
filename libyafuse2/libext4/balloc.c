@@ -50,14 +50,14 @@
 /*
  * Function Declaration
  */
-static inline int32_t test_root(ext4_group_t a, int32_t b);
+static inline int32_t ext4_test_root(ext4_group_t a, int32_t b);
 static inline uint64_t ext4_group_first_block_no(struct super_block *sb, ext4_group_t bg);
 static int32_t ext4_group_sparse(ext4_group_t bg);
 
 /*
  * Function Definition
  */
-static inline int32_t test_root(ext4_group_t a, int32_t b)
+static inline int32_t ext4_test_root(ext4_group_t a, int32_t b)
 {
   int32_t num = b;
 
@@ -86,7 +86,7 @@ static int32_t ext4_group_sparse(ext4_group_t bg)
     return 0;
   }
 
-  return (test_root(bg, 7) || test_root(bg, 5) || test_root(bg, 3));
+  return (ext4_test_root(bg, 7) || ext4_test_root(bg, 5) || ext4_test_root(bg, 3));
 }
 
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg)
