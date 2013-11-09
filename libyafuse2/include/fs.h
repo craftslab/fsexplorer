@@ -174,6 +174,12 @@ struct inode {
   uint32_t                      i_count;
   uint64_t                      i_version;
   const struct file_operations  *i_fop;
+
+  /*
+   * New added
+   * Refer to type of 'ext4_inode' in kernel/fs/ext4/ext4.h
+   */
+  uint32_t                      *i_block;
 };
 
 struct super_block {

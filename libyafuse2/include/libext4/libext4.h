@@ -48,6 +48,10 @@
  */
 int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry);
 
+int32_t ext4_ext_depth(struct inode *inode, uint16_t *depth);
+int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ext_path *path);
+
+int32_t ext4_inode_hdr(struct inode *inode, struct ext4_extent_header *eh);
 int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode);
 
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg);

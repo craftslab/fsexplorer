@@ -54,3 +54,46 @@
 /*
  * Function Definition
  */
+int32_t ext4_ext_depth(struct inode *inode, uint16_t *depth)
+{
+  struct ext4_extent_header eh;
+  int32_t ret;
+
+  ret = ext4_inode_hdr(inode, &eh);
+  if (ret != 0) {
+    return ret;
+  }
+
+  *depth = eh.eh_depth;
+
+  return 0;
+}
+
+int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ext_path *path)
+{
+  struct ext4_extent_header eh;
+  uint8_t *ee = NULL;
+  int32_t ret;
+
+  /*
+   * depth > 1 is NOT supported yet, and
+   * 'p_idx' is NOT supported yet
+   */
+  if (depth > 1) {
+    return -1;
+  }
+
+  ret = ext4_inode_hdr(inode, &eh);
+  if (ret != 0) {
+    return ret;
+  }
+  memcpy((void *)path[0].p_hdr, (const void *)&eh, sizeof(struct ext4_extent_header));
+
+  path[0].p_depth = (__u16)0;
+  path[0].p_idx = NULL;
+
+  ee = (uint8_t *)(inode->i_block + sizeof(struct ext4_extent_header));
+  memcpy((void *)path[0].p_ext, (const void *)ee, sizeof(struct ext4_extent));
+
+  return 0;
+}

@@ -62,13 +62,14 @@ struct ext4_extent_header {
 
 #define EXT4_EXT_MAGIC 0xf30a
 
+/*
+ * Incomplete definition from kernel/fs/ext4/ext4_extents.h
+ */
 struct ext4_ext_path {
- ext4_fsblk_t p_block;
  __u16 p_depth;
  struct ext4_extent *p_ext;
  struct ext4_extent_idx *p_idx;
  struct ext4_extent_header *p_hdr;
- struct buffer_head *p_bh;
 };
 
 #define EXT4_EXT_CACHE_NO 0
@@ -93,5 +94,4 @@ struct ext4_ext_path {
 #define EXT_MAX_INDEX(__hdr__)   (EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
 
 #endif
-
 

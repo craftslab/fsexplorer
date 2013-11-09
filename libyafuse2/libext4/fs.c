@@ -347,6 +347,11 @@ static void fs_destroy_inode(struct inode *inode)
   }
 
   if (inode) {
+    if (inode->i_block) {
+      free(inode->i_block);
+      inode->i_block = NULL;
+    }
+
     free((void *)inode);
     inode = NULL;
   }
@@ -397,6 +402,9 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   inode->i_count = (uint32_t)ext4_inode.i_links_count;
   inode->i_version = (uint64_t)(((uint64_t)ext4_inode.i_version_hi << 32) | (uint64_t)ext4_inode.osd1.linux1.l_i_version);
   inode->i_fop = (const struct file_operations *)&fs_file_opt;
+
+  inode->i_block = (uint32_t *)malloc(EXT4_N_BLOCKS * sizeof(uint32_t));
+  memcpy((void *)inode->i_block, (const void *)ext4_inode.i_block, EXT4_N_BLOCKS * sizeof(uint32_t));
 
   return inode;
 }
