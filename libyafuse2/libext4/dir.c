@@ -50,6 +50,11 @@
 /*
  * Function Declaration
  */
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, struct ext4_dir_entry_2 *dentry);
+
+/*
+ * Function Definition
+ */
 static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, struct ext4_dir_entry_2 *dentry)
 {
   struct ext4_extent *ext = path->p_ext;
@@ -84,9 +89,6 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   return 0;
 }
 
-/*
- * Function Definition
- */
 int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
 {
   struct super_block *sb = inode->i_sb;
