@@ -223,7 +223,32 @@ static uint32_t fs_name_hash(const unsigned char *name, uint32_t len)
  */
 static void fs_d_release(struct dentry *dentry)
 {
-  // add code here
+  struct dentry *child = NULL;
+
+  if (!dentry) {
+    return;
+  }
+
+  if (!list_empty(&dentry->d_subdirs)) {
+    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
+      fs_d_release(child);
+    }
+
+    list_del_init(&dentry->d_subdirs);
+  }
+
+  if (!list_empty(&dentry->d_child)) {
+    list_del_init(&dentry->d_child);
+  }
+
+  if (dentry->d_name) {
+    free(dentry->d_name);
+    dentry->d_name = NULL;
+  }
+
+  free(dentry);
+  dentry = NULL;
+
   return;
 }
 
@@ -259,6 +284,11 @@ static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struc
  fs_alloc_dentry_intern_fail:
 
   if (dentry) {
+    if (dentry->d_name) {
+      free(dentry->d_name);
+      dentry->d_name = NULL;
+    }
+
     free(dentry);
     dentry = NULL;
   }
@@ -342,19 +372,21 @@ static struct inode* fs_alloc_inode(struct super_block *sb)
  */
 static void fs_destroy_inode(struct inode *inode)
 {
+  if (!inode) {
+    return;
+  }
+
   if (!list_empty(&inode->i_sb_list)) {
     list_del_init(&inode->i_sb_list);
   }
 
-  if (inode) {
-    if (inode->i_block) {
-      free(inode->i_block);
-      inode->i_block = NULL;
-    }
-
-    free((void *)inode);
-    inode = NULL;
+  if (inode->i_block) {
+    free(inode->i_block);
+    inode->i_block = NULL;
   }
+
+  free((void *)inode);
+  inode = NULL;
 }
 
 /*
@@ -404,6 +436,9 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   inode->i_fop = (const struct file_operations *)&fs_file_opt;
 
   inode->i_block = (uint32_t *)malloc(EXT4_N_BLOCKS * sizeof(uint32_t));
+  if (!inode->i_block) {
+    return NULL;
+  }
   memcpy((void *)inode->i_block, (const void *)ext4_inode.i_block, EXT4_N_BLOCKS * sizeof(uint32_t));
 
   return inode;

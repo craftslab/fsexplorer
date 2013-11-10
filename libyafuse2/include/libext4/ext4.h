@@ -527,7 +527,15 @@ struct ext4_sb_info {
   struct ext4_group_desc *s_group_desc;
 };
 
+/*
+ * Modified from kernel/fs/ext4/ext4.h
+ */
+#if 0
 #define EXT4_SB(sb) (sb)
+#else
+#define EXT4_SB(sb) ((struct ext4_sb_info *)((sb)->s_fs_info))
+#define EXT4_I(dir) (dir)
+#endif
 
 #define NEXT_ORPHAN(inode) EXT4_I(inode)->i_dtime
 
@@ -643,7 +651,7 @@ struct ext4_dir_entry_2 {
 #define EXT4_DIR_REC_LEN(name_len) (((name_len) + 8 + EXT4_DIR_ROUND) &   ~EXT4_DIR_ROUND)
 #define EXT4_MAX_REC_LEN ((1<<16)-1)
 
-#define is_dx(dir) (EXT4_HAS_COMPAT_FEATURE(dir->i_sb,   EXT4_FEATURE_COMPAT_DIR_INDEX) &&   (EXT4_I(dir)->i_flags & EXT4_INDEX_FL))
+#define is_dx(dir) (EXT4_HAS_COMPAT_FEATURE(dir->i_sb, EXT4_FEATURE_COMPAT_DIR_INDEX) && (EXT4_I(dir)->i_flags & EXT4_INDEX_FL))
 #define EXT4_DIR_LINK_MAX(dir) (!is_dx(dir) && (dir)->i_nlink >= EXT4_LINK_MAX)
 #define EXT4_DIR_LINK_EMPTY(dir) ((dir)->i_nlink == 2 || (dir)->i_nlink == 1)
 

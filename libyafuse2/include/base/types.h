@@ -32,17 +32,6 @@
 /*
  * Macro Definition
  */
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
-#define DIV_ROUND_UP(x, y) (((x) + (y) - 1)/(y))
-#define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
-
-#define IS_POWER_OF_2(n) (n != 0 && ((n & (n - 1)) == 0))
-
-#define GET_UNALIGNED_LE16(p) (((uint16_t)p[1] << 8) | ((uint16_t)p[0]))
-
 #define __le64 u64
 #define __le32 u32
 #define __le16 u16
@@ -64,9 +53,35 @@
 #define ssize_t int32_t
 #endif
 
-#define offsetof(type, member) ((size_t) &((type *)0)->member)
+#define cpu_to_le32(x) ((uint32_t)(x))
+
+#ifndef min
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+#define DIV_ROUND_UP(x, y) (((x) + (y) - 1)/(y))
+#define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
+
+#define IS_POWER_OF_2(n) (n != 0 && ((n & (n - 1)) == 0))
+
+#define GET_UNALIGNED_LE16(p) (((uint16_t)p[1] << 8) | ((uint16_t)p[0]))
+
+#define offsetof(type, member) ((char *) &((type *)0)->member)
 #define container_of(ptr, type, member) ({  \
       (type *)((char *)ptr - offsetof(type, member));})
+
+#define list_entry(ptr, type, member) \
+  container_of(ptr, type, member)
+
+#define list_for_each_entry(pos, head, member) \
+  for (pos = list_entry((head)->next, typeof(*pos), member); \
+       &pos->member != (head); \
+       pos = list_entry(pos->member.next, typeof(*pos), member))
+
+#define list_for_each_entry_reverse(pos, head, member) \
+  for (pos = list_entry((head)->prev, typeof(*pos), member); \
+       &pos->member != (head); \
+       pos = list_entry(pos->member.prev, typeof(*pos), member))
 
 /*
  * Type Definition

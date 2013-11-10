@@ -50,11 +50,87 @@
 /*
  * Function Declaration
  */
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, struct ext4_dir_entry_2 *dentry)
+{
+  struct ext4_extent *ext = path->p_ext;
+  uint64_t offset;
+  uint32_t len;
+  int32_t ret;
+
+  offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize;
+
+  ret = io_seek((long)offset);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = io_read((uint8_t *)&dentry->inode, sizeof(dentry->inode));
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = io_read((uint8_t *)&dentry->rec_len, sizeof(dentry->rec_len));
+  if (ret != 0) {
+    return -1;
+  }
+
+  len = dentry->rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry->rec_len : sizeof(struct ext4_dir_entry_2);
+
+  ret = io_read((uint8_t *)dentry + sizeof(dentry->inode) + sizeof(dentry->rec_len), len - sizeof(dentry->inode) - sizeof(dentry->rec_len));
+  if (ret != 0) {
+    return -1;
+  }
+
+  return 0;
+}
 
 /*
  * Function Definition
  */
 int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
 {
+  struct super_block *sb = inode->i_sb;
+  struct ext4_extent_header eh;
+  struct ext4_extent_idx ei;
+  struct ext4_extent ext;
+  struct ext4_ext_path path;
+  uint16_t depth;
+  int32_t ret;
+
+  /*
+   * Hash tree directories is NOT supported yet
+   */
+  if (is_dx(inode)) {
+    return -1;
+  }
+
+  ret = ext4_ext_depth(inode, &depth);
+  if (ret != 0) {
+    return -1;
+  }
+
+  /*
+   * In type of 'ext4_ext_path',
+   * 'p_depth' > 1 is NOT supported yet, and
+   * 'p_idx' is NOT supported yet
+   */
+  if (depth > 1) {
+    return -1;
+  }
+
+  path.p_depth = 0;
+  path.p_hdr = (struct ext4_extent_header *)&eh;
+  path.p_idx = (struct ext4_extent_idx *)&ei;
+  path.p_ext = (struct ext4_extent *)&ext;
+  ret = ext4_ext_find_extent(inode, depth, &path);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = ext4_find_dentry(sb, &path, dentry);
+  if (ret != 0) {
+    return -1;
+  }
+
   return 0;
 }

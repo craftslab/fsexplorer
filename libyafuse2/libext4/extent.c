@@ -76,7 +76,8 @@ int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ex
   int32_t ret;
 
   /*
-   * depth > 1 is NOT supported yet, and
+   * In type of 'ext4_ext_path',
+   * 'p_depth' > 1 is NOT supported yet, and
    * 'p_idx' is NOT supported yet
    */
   if (depth > 1) {
