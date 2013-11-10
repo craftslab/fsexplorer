@@ -64,6 +64,8 @@ static fs_opt_init_t opt_handle;
 /*
  * Function Declaration
  */
+static void show_banner(void);
+static void show_usage(void);
 static void* load_lib(const char *lib_name);
 static void* get_sym(void *handle, const char *symbol);
 static void unload_lib(void *handle);
@@ -71,6 +73,31 @@ static void unload_lib(void *handle);
 /*
  * Function Definition
  */
+static void show_banner(void)
+{
+  fprintf(stdout, "  __      _                     _           \n");
+  fprintf(stdout, " / _|_ __(_) ___ __ _ _ __   __| | ___      \n");
+  fprintf(stdout, "| |_| '__| |/ __/ _` | '_ \\ / _` |/ _ \\   \n");
+  fprintf(stdout, "|  _| |  | | (_| (_| | | | | (_| | (_) |    \n");
+  fprintf(stdout, "|_| |_|  |_|\\___\\__,_|_| |_|\\__,_|\\___/ \n");
+}
+
+static void show_usage(void)
+{
+  fprintf(stdout, "\n");
+  fprintf(stdout, "Usage:  fs-test <type> <image> <directory>\n");
+  fprintf(stdout, "\n");
+  fprintf(stdout, "Detail:\n");
+  fprintf(stdout, "  <type>       fs type. e.g., ext4 or fat\n");
+  fprintf(stdout, "  <image>      fs image, e.g., fs-image.ext4,\n");
+  fprintf(stdout, "               or fs-image.fat\n");
+  fprintf(stdout, "  <directory>  fs mount point\n");
+  fprintf(stdout, "\n");
+  fprintf(stdout, "Example:\n");
+  fprintf(stdout, "  fs-test ext4 fs-image.ext4 fs-mount\n");
+  fprintf(stdout, "\n");
+}
+
 static void* load_lib(const char *lib_name)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
@@ -100,13 +127,26 @@ static void unload_lib(void *handle)
 
 int32_t main(int argc, char *argv[])
 {
+  const char *fs_type = NULL, *fs_img = NULL, *fs_mnt = NULL;
   struct fs_opt_t fs_opt;
   int32_t ret = 0;
+
+  show_banner();
+
+  if (argc != 4) {
+    show_usage();
+    return 0;
+  }
+
+  fs_type = argv[1];
+  fs_img = argv[2];
+  fs_mnt = argv[3];
 
   lib_handle = load_lib(LIB_NAME);
   if (!lib_handle) {
     fprintf(stderr, "error: load_lib failed!\n");
-    return -1;
+    ret = -1;
+    goto main_exit;
   }
 
   *(void **)(&opt_handle) = get_sym(lib_handle, "fs_opt_init");
@@ -122,7 +162,7 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  ret = fs_opt.mount("fs-image.ext4", "mount-point", "ext4", 0, NULL);
+  ret = fs_opt.mount(fs_img, fs_mnt, fs_type, 0, NULL);
   if (ret != 0) {
     fprintf(stderr, "error: mount failed!\n");
     goto main_exit;
