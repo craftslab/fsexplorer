@@ -29,7 +29,7 @@
 #include <sys/types.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_LIBIO_IO
 #endif
 
 #include "include/base/debug.h"

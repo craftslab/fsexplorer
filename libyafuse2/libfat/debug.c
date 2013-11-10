@@ -1,5 +1,5 @@
 /**
- * stat.c - Show status of FAT.
+ * debug.c - Debugging FAT.
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -28,13 +28,12 @@
 #include <math.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_LIBFAT_DEBUG
 #endif
 
 #include "include/base/debug.h"
 #include "include/base/types.h"
 #include "include/libio/io.h"
-#include "include/libfat/msdos_fs.h"
 #include "include/libfat/libfat.h"
 
 /*

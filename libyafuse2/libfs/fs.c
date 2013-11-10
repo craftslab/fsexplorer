@@ -33,7 +33,7 @@
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_LIBFS_FS
 #endif
 
 #include "include/base/debug.h"

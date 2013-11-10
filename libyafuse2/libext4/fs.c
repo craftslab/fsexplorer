@@ -30,7 +30,7 @@
 #include <math.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_LIBEXT4_FS
 #endif
 
 #include "include/base/debug.h"

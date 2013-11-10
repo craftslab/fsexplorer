@@ -27,7 +27,7 @@
 #include <string.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_LIBEXT4_FILE
 #endif
 
 #include "include/base/debug.h"

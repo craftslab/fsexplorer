@@ -80,6 +80,7 @@ static void show_banner(void)
   fprintf(stdout, "| |_| '__| |/ __/ _` | '_ \\ / _` |/ _ \\   \n");
   fprintf(stdout, "|  _| |  | | (_| (_| | | | | (_| | (_) |    \n");
   fprintf(stdout, "|_| |_|  |_|\\___\\__,_|_| |_|\\__,_|\\___/ \n");
+  fprintf(stdout, "\n");
 }
 
 static void show_usage(void)
