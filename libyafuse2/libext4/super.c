@@ -117,7 +117,7 @@ int32_t ext4_raw_super(struct ext4_super_block *sb)
    * default size of superblock is 1024 bytes
    */
   sb_sz = sizeof(struct ext4_super_block);
-  ret = io_read((uint8_t *)sb, sb_sz);
+  ret = io_read((uint8_t *)sb, (size_t)sb_sz);
   if (ret != 0) {
     memset((void *)sb, 0, sb_sz);
     return -1;

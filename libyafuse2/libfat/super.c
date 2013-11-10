@@ -93,7 +93,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
   }
 
   sz = sizeof(struct fat_boot_sector);
-  ret = io_read((uint8_t *)&sb->bs, sz);
+  ret = io_read((uint8_t *)&sb->bs, (size_t)sz);
   if (ret != 0) {
     memset((void *)&sb->bs, 0, sz);
     return -1;
@@ -127,7 +127,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
   }
 
   sz = sizeof(struct fat_boot_bsx);
-  ret = io_read((uint8_t *)&sb->bb, sz);
+  ret = io_read((uint8_t *)&sb->bb, (size_t)sz);
   if (ret != 0) {
     memset((void *)&sb->bb, 0, sz);
     return -1;
@@ -145,7 +145,7 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
     }
 
     sz = sizeof(struct fat_boot_fsinfo);
-    ret = io_read((uint8_t *)&sb->bf, sz);
+    ret = io_read((uint8_t *)&sb->bf, (size_t)sz);
     if (ret != 0) {
       memset((void *)&sb->bf, 0, sz);
       return -1;

@@ -114,7 +114,7 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
     return -1;
   }
 
-  ret = io_read((uint8_t *)inode, es->s_inode_size);
+  ret = io_read((uint8_t *)inode, sizeof(struct ext4_inode));
   if (ret != 0) {
     return -1;
   }

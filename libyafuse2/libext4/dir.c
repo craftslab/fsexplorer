@@ -59,7 +59,7 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
 {
   struct ext4_extent *ext = path->p_ext;
   uint64_t offset;
-  uint32_t len;
+  size_t len;
   int32_t ret;
 
   offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize;
@@ -79,9 +79,9 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
     return -1;
   }
 
-  len = dentry->rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry->rec_len : sizeof(struct ext4_dir_entry_2);
+  len = (size_t)(dentry->rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry->rec_len : sizeof(struct ext4_dir_entry_2));
 
-  ret = io_read((uint8_t *)dentry + sizeof(dentry->inode) + sizeof(dentry->rec_len), len - sizeof(dentry->inode) - sizeof(dentry->rec_len));
+  ret = io_read((uint8_t *)dentry + sizeof(dentry->inode) + sizeof(dentry->rec_len), (size_t)(len - sizeof(dentry->inode) - sizeof(dentry->rec_len)));
   if (ret != 0) {
     return -1;
   }

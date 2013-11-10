@@ -72,7 +72,7 @@ int32_t fat_fill_file(const struct fat_super_block *sb, int32_t cluster, size_t 
     return -1;
   }
 
-  ret = io_read(buf, size);
+  ret = io_read(buf, (size_t)size);
   if (ret != 0) {
     return -1;
   }
