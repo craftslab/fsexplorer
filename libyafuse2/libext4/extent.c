@@ -93,7 +93,7 @@ int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ex
   path[0].p_depth = (__u16)0;
   path[0].p_idx = NULL;
 
-  ee = (uint8_t *)(inode->i_block + sizeof(struct ext4_extent_header));
+  ee = (uint8_t *)((uint8_t *)(inode->i_block) + sizeof(struct ext4_extent_header));
   memcpy((void *)path[0].p_ext, (const void *)ee, sizeof(struct ext4_extent));
 
 #ifdef DEBUG_LIBEXT4_EXTENT
