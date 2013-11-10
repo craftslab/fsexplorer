@@ -169,7 +169,7 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  ret = fs_opt.umount("mount-point", 0);
+  ret = fs_opt.umount(fs_mnt, 0);
   if (ret != 0) {
     fprintf(stderr, "error: umount failed!\n");
     goto main_exit;
