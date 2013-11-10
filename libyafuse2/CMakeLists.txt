@@ -57,8 +57,8 @@ endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 # The compiling setting
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g2")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC -g0")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
