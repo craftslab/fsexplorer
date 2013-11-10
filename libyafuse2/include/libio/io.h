@@ -27,7 +27,7 @@
 #include <sys/types.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_INCLUDE_LIBIO_IO
 #endif
 
 #include "include/base/types.h"

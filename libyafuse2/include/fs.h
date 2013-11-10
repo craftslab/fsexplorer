@@ -27,7 +27,7 @@
 #include <time.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_INCLUDE_FS
 #endif
 
 #include "include/base/types.h"

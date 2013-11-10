@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 #ifdef DEBUG
-// Add code here
+#define DEBUG_INCLUDE_LIBFAT_LIBFAT
 #endif
 
 #include "include/libfat/msdos_fs.h"

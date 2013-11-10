@@ -22,8 +22,13 @@
 #ifndef _LIBFS_H
 #define _LIBFS_H
 
+#include "config.h"
 #include <stdint.h>
 #include <time.h>
+
+#ifdef DEBUG
+#define DEBUG_INCLUDE_LIBFS_LIBFS
+#endif
 
 /*
  * Macro Definition

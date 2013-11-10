@@ -52,13 +52,11 @@
 /*
  * Function Declaration
  */
-static void ext4_show_sb_stat(const struct ext4_super_block *sb);
-static void ext4_show_bg_desc_stat(const struct ext4_super_block *sb, int32_t bg_groups, const struct ext4_group_desc_min *bg_desc);
 
 /*
  * Function Definition
  */
-static void ext4_show_sb_stat(const struct ext4_super_block *sb)
+void ext4_show_sb_stat(struct ext4_super_block *sb)
 {
   int32_t i = 0;
   uint32_t val = 0;
@@ -519,10 +517,8 @@ static void ext4_show_sb_stat(const struct ext4_super_block *sb)
   }
 }
 
-static void ext4_show_bg_desc_stat(const struct ext4_super_block *sb, int32_t bg_groups, const struct ext4_group_desc_min *bg_desc)
+void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp)
 {
-  int32_t i = 0;
-
   if (sb->s_feature_incompat & EXT4_FEATURE_INCOMPAT_64BIT
       && sb->s_desc_size > EXT4_MIN_DESC_SIZE) {
     /*
@@ -530,54 +526,45 @@ static void ext4_show_bg_desc_stat(const struct ext4_super_block *sb, int32_t bg
      * instead of 'struct ext4_group_desc'
      */
 #if 0
-    for (i = 0; i < bg_groups; ++i) {
-      fprintf(stdout, "Group %2d: ", i);
-      fprintf(stdout, "block bitmap at %llu, ", ((__le64)bg_desc[i].bg_block_bitmap_hi << 32) | (__le64)bg_desc[i].bg_block_bitmap_lo);
-      fprintf(stdout, "inode bitmap at %llu, ", ((__le64)bg_desc[i].bg_inode_bitmap_hi << 32) | (__le64)bg_desc[i].bg_inode_bitmap_lo);
-      fprintf(stdout, "inode table at %llu, ", ((__le64)bg_desc[i].bg_inode_table_hi << 32) | (__le64)bg_desc[i].bg_inode_table_lo);
+    fprintf(stdout, "Group %2d: ", bg);
+    fprintf(stdout, "block bitmap at %llu, ", ((__le64)gdp->bg_block_bitmap_hi << 32) | (__le64)gdp->bg_block_bitmap_lo);
+    fprintf(stdout, "inode bitmap at %llu, ", ((__le64)gdp->bg_inode_bitmap_hi << 32) | (__le64)gdp->bg_inode_bitmap_lo);
+    fprintf(stdout, "inode table at %llu, ", ((__le64)gdp->bg_inode_table_hi << 32) | (__le64)gdp->bg_inode_table_lo);
 
-      fprintf(stdout, "\n          ");
+    fprintf(stdout, "\n          ");
 
-      fprintf(stdout, "%llu free blocks, ", ((__le64)bg_desc[i].bg_free_blocks_count_hi << 32) | (__le64)bg_desc[i].bg_free_blocks_count_lo);
-      fprintf(stdout, "%llu free inodes, ", ((__le64)bg_desc[i].bg_free_inodes_count_hi << 32) | (__le64)bg_desc[i].bg_free_inodes_count_lo);
-      fprintf(stdout, "%llu used directories", ((__le64)bg_desc[i].bg_used_dirs_count_hi << 32) | (__le64)bg_desc[i].bg_used_dirs_count_lo);
+    fprintf(stdout, "%llu free blocks, ", ((__le64)gdp->bg_free_blocks_count_hi << 32) | (__le64)gdp->bg_free_blocks_count_lo);
+    fprintf(stdout, "%llu free inodes, ", ((__le64)gdp->bg_free_inodes_count_hi << 32) | (__le64)gdp->bg_free_inodes_count_lo);
+    fprintf(stdout, "%llu used directories", ((__le64)gdp->bg_used_dirs_count_hi << 32) | (__le64)gdp->bg_used_dirs_count_lo);
 
-      fprintf(stdout, "\n");
-    }
+    fprintf(stdout, "\n");
 #endif
   } else {
-    for (i = 0; i < bg_groups; ++i) {
-      fprintf(stdout, "Group %2d: ", i);
-      fprintf(stdout, "block bitmap at %u, ", (__le32)bg_desc[i].bg_block_bitmap_lo);
-      fprintf(stdout, "inode bitmap at %u, ", (__le32)bg_desc[i].bg_inode_bitmap_lo);
-      fprintf(stdout, "inode table at %u, ", (__le32)bg_desc[i].bg_inode_table_lo);
+    fprintf(stdout, "Group %2d: ", bg);
+    fprintf(stdout, "block bitmap at %u, ", (__le32)gdp->bg_block_bitmap_lo);
+    fprintf(stdout, "inode bitmap at %u, ", (__le32)gdp->bg_inode_bitmap_lo);
+    fprintf(stdout, "inode table at %u, ", (__le32)gdp->bg_inode_table_lo);
 
-      fprintf(stdout, "\n          ");
+    fprintf(stdout, "\n          ");
 
-      fprintf(stdout, "%u free blocks, ", (__le16)bg_desc[i].bg_free_blocks_count_lo);
-      fprintf(stdout, "%u free inodes, ", (__le16)bg_desc[i].bg_free_inodes_count_lo);
-      fprintf(stdout, "%u used directories", (__le16)bg_desc[i].bg_used_dirs_count_lo);
+    fprintf(stdout, "%u free blocks, ", (__le16)gdp->bg_free_blocks_count_lo);
+    fprintf(stdout, "%u free inodes, ", (__le16)gdp->bg_free_inodes_count_lo);
+    fprintf(stdout, "%u used directories", (__le16)gdp->bg_used_dirs_count_lo);
 
-      fprintf(stdout, "\n");
-    }
+    fprintf(stdout, "\n");
   }
 }
 
-void ext4_show_stats(const struct ext4_super_block *sb, int32_t bg_groups, const struct ext4_group_desc_min *bg_desc)
-{
-  ext4_show_sb_stat(sb);
-
-  fprintf(stdout, "\n");
-
-  ext4_show_bg_desc_stat(sb, bg_groups, bg_desc);
-}
-
-void ext4_show_inode_stat(const struct ext4_super_block *sb, int32_t inode_num, const struct ext4_inode *inode)
+void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode)
 {
   const char *str = NULL;
   time_t tm = 0;
 
-  fprintf(stdout, "Inode %5d: ", inode_num);
+  /*
+   * TODO:
+   * data type is converted from 'uint64_t' to 'uint32_t' here
+   */
+  fprintf(stdout, "Inode %5d: ", (uint32_t)ino);
 
   str = NULL;
   fprintf(stdout, "type: ");
@@ -776,39 +763,39 @@ void ext4_show_inode_stat(const struct ext4_super_block *sb, int32_t inode_num, 
   fprintf(stdout, "\n");
 }
 
-void ext4_show_extent_header(const struct ext4_extent_header *ext_hdr)
+void ext4_show_extent_header(struct ext4_extent_header *eh)
 {
   fprintf(stdout, "Extent header: ");
 
-  fprintf(stdout, "magic: 0x%X  ", ext_hdr->eh_magic);
+  fprintf(stdout, "magic: 0x%X  ", eh->eh_magic);
 
   fprintf(stdout, "\n               ");
 
-  fprintf(stdout, "valid entries: %u  ", ext_hdr->eh_entries);
-  fprintf(stdout, "max entries: %u", ext_hdr->eh_max);
+  fprintf(stdout, "valid entries: %u  ", eh->eh_entries);
+  fprintf(stdout, "max entries: %u", eh->eh_max);
 
   fprintf(stdout, "\n               ");
 
-  fprintf(stdout, "depth: %u", ext_hdr->eh_depth);
+  fprintf(stdout, "depth: %u", eh->eh_depth);
 
   fprintf(stdout, "\n               ");
 
-  fprintf(stdout, "generation: %u", ext_hdr->eh_generation);
+  fprintf(stdout, "generation: %u", eh->eh_generation);
 
   fprintf(stdout, "\n");
 }
 
-void ext4_show_extent_idx(const struct ext4_extent_idx *ext_idx)
+void ext4_show_extent_idx(struct ext4_extent_idx *ei)
 {
   fprintf(stdout, "Extent internal node: ");
 
-  fprintf(stdout, "file blocks covered: %u  ", ext_idx->ei_block);
-  fprintf(stdout, "block pointed to: %llu", ((__le64)ext_idx->ei_leaf_hi << 32) | (__le64)ext_idx->ei_leaf_lo);
+  fprintf(stdout, "file blocks covered: %u  ", ei->ei_block);
+  fprintf(stdout, "block pointed to: %llu", ((__le64)ei->ei_leaf_hi << 32) | (__le64)ei->ei_leaf_lo);
 
   fprintf(stdout, "\n");
 }
 
-void ext4_show_extent(const struct ext4_extent *ext)
+void ext4_show_extent(struct ext4_extent *ext)
 {
   fprintf(stdout, "Extent leaf node: ");
 
@@ -825,7 +812,7 @@ void ext4_show_extent(const struct ext4_extent *ext)
   fprintf(stdout, "\n");
 }
 
-void ext4_show_dentry_linear(const struct ext4_dir_entry_2 *dentry)
+void ext4_show_dentry(struct ext4_dir_entry_2 *dentry)
 {
   int32_t i = 0;
   const char *str = NULL;
