@@ -93,7 +93,7 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
   struct ext4_group_desc *gdp = NULL;
   ext4_group_t bg;
   int32_t inodes_per_block, inode_offset;
-  uint64_t start, offset;
+  int64_t start, offset;
   int32_t ret;
 
   if (!ext4_valid_inum(sb, ino)) {
@@ -106,10 +106,10 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
   inodes_per_block = info->s_inodes_per_block;
   inode_offset = (ino - 1) % info->s_inodes_per_group;
 
-  start = (ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block)) * sb->s_blocksize;
-  offset = (inode_offset % inodes_per_block) * es->s_inode_size;
+  start = (int64_t)((ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block)) * sb->s_blocksize);
+  offset = (int64_t)((inode_offset % inodes_per_block) * es->s_inode_size);
 
-  ret = io_seek((long)(start + offset));
+  ret = io_seek(start + offset);
   if (ret != 0) {
     return -1;
   }

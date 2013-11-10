@@ -95,7 +95,7 @@ void io_close(void)
 /*
  * Seek IO of file
  */
-int32_t io_seek(long offset)
+int32_t io_seek(int64_t offset)
 {
   int32_t ret = 0;
 
@@ -119,7 +119,7 @@ int32_t io_seek(long offset)
 /*
  * Read IO of file
  */
-int32_t io_read(uint8_t *data, size_t len)
+int32_t io_read(uint8_t *data, int64_t len)
 {
   size_t ret = 0;
 
@@ -143,7 +143,7 @@ int32_t io_read(uint8_t *data, size_t len)
 /*
  * Write IO of file
  */
-int32_t io_write(uint8_t *data, size_t len)
+int32_t io_write(uint8_t *data, int64_t len)
 {
   size_t ret = 0;
 

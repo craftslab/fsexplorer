@@ -106,7 +106,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
   struct ext4_super_block *es = info->s_es;
-  uint64_t has_super, offset;
+  int64_t has_super, offset;
   int32_t ret;
 
   /*
@@ -121,13 +121,13 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
     has_super = 0;
   }
 
-  offset = has_super + ext4_group_first_block_no(sb, bg);
-  ret = io_seek((long)(offset * sb->s_blocksize));
+  offset = has_super + (int64_t)(ext4_group_first_block_no(sb, bg));
+  ret = io_seek((int64_t)(offset * sb->s_blocksize));
   if (ret != 0) {
     return -1;
   }
 
-  ret = io_read((uint8_t *)gdp, (size_t)es->s_desc_size);
+  ret = io_read((uint8_t *)gdp, (int64_t)es->s_desc_size);
   if (ret != 0) {
     return -1;
   }
