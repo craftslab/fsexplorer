@@ -145,35 +145,37 @@ int32_t main(int argc, char *argv[])
 
   lib_handle = load_lib(LIB_NAME);
   if (!lib_handle) {
-    fprintf(stderr, "error: load_lib failed!\n");
+    error("load_lib failed!");
     ret = -1;
     goto main_exit;
   }
 
   *(void **)(&opt_handle) = get_sym(lib_handle, "fs_opt_init");
   if (!opt_handle) {
-    fprintf(stderr, "error: get_sym failed!\n");
+    error("get_sym failed!");
     ret = -1;
     goto main_exit;
   }
 
   ret = opt_handle(&fs_opt);
   if (ret != 0) {
-    fprintf(stderr, "error: opt_handle failed!\n");
+    error("opt_handle failed!");
     goto main_exit;
   }
 
   ret = fs_opt.mount(fs_img, fs_mnt, fs_type, 0, NULL);
   if (ret != 0) {
-    fprintf(stderr, "error: mount failed!\n");
+    error("mount failed!");
     goto main_exit;
   }
+  info("mount filesystem successfully.");
 
   ret = fs_opt.umount(fs_mnt, 0);
   if (ret != 0) {
-    fprintf(stderr, "error: umount failed!\n");
+    error("umount failed!");
     goto main_exit;
   }
+  info("unmount filesystem successfully.");
 
   ret = 0;
 
