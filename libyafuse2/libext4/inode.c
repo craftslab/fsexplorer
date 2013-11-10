@@ -119,5 +119,9 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
     return -1;
   }
 
+#ifdef DEBUG_LIBEXT4_INODE
+  ext4_show_inode_stat(es, ino, inode);
+#endif
+
   return 0;
 }

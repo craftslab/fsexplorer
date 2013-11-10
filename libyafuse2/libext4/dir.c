@@ -132,5 +132,9 @@ int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
     return -1;
   }
 
+#ifdef DEBUG_LIBEXT4_DIR
+  ext4_show_dentry(dentry);
+#endif
+
   return 0;
 }

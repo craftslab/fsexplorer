@@ -7,4 +7,4 @@
 #define YF_VERSION_FULL "@YF_VERSION_FULL@"
 
 #cmakedefine CMAKE_COMPILER_IS_GNUCC
-
+#cmakedefine DEBUG

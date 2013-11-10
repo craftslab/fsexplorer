@@ -47,13 +47,17 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Options for version selection
 #
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build.")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(DEBUG 1)
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 #
 # The compiling setting
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -g")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
@@ -76,4 +80,3 @@ add_subdirectory(libio)
 add_subdirectory(libfs)
 add_subdirectory(libext4)
 add_subdirectory(libfat)
-

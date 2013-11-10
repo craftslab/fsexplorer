@@ -131,6 +131,10 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
   if (ret != 0) {
     return -1;
   }
-  
+
+#ifdef DEBUG_LIBEXT4_BALLOC
+  ext4_show_gdp_stat(es, bg, gdp);
+#endif
+
   return 0;
 }

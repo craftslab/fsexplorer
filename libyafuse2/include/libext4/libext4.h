@@ -46,7 +46,7 @@
 /*
  * Function Declaration
  */
-#ifdef DEBUG_INCLUDE_LIBEXT4
+#ifdef DEBUG_INCLUDE_LIBEXT4_LIBEXT4
 void ext4_show_dentry(struct ext4_dir_entry_2 *dentry);
 void ext4_show_extent(struct ext4_extent *ext);
 void ext4_show_extent_idx(struct ext4_extent_idx *ei);

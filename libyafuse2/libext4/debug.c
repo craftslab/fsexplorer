@@ -560,11 +560,7 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   const char *str = NULL;
   time_t tm = 0;
 
-  /*
-   * TODO:
-   * data type is converted from 'uint64_t' to 'uint32_t' here
-   */
-  fprintf(stdout, "Inode %5d: ", (uint32_t)ino);
+  fprintf(stdout, "Inode %lu: ", ino);
 
   str = NULL;
   fprintf(stdout, "type: ");

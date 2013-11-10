@@ -127,5 +127,9 @@ int32_t ext4_raw_super(struct ext4_super_block *sb)
     return -1;
   }
 
+#ifdef DEBUG_LIBEXT4_SUPER
+  ext4_show_sb_stat(sb);
+#endif
+
   return 0;
 }
