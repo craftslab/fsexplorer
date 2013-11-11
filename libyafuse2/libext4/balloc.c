@@ -61,7 +61,7 @@ static inline int32_t ext4_test_root(ext4_group_t a, int32_t b)
 {
   int32_t num = b;
 
-  while (a > num) {
+  while (a > (ext4_group_t)num) {
     num *= b;
   }
 

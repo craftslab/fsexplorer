@@ -114,7 +114,7 @@ static void fs_unload_lib(void *handle)
 /*
  * Mount filesystem
  */
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint64_t flags, void *data)
+static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, int32_t flags, void *data)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;

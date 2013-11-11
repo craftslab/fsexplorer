@@ -108,7 +108,7 @@ int32_t io_seek(int64_t offset)
     return -1;
   }    
 
-  ret = fseek(io_fd, offset, SEEK_SET);
+  ret = fseek(io_fd, (long)offset, SEEK_SET);
   if (ret < 0) {
     return -1;
   }
@@ -132,7 +132,7 @@ int32_t io_read(uint8_t *data, int64_t len)
     return -1;
   }    
 
-  ret = fread((void *)data, 1, len, io_fd);
+  ret = fread((void *)data, 1, (size_t)len, io_fd);
   if (ret == 0) {
     return -1;
   }
@@ -156,7 +156,7 @@ int32_t io_write(uint8_t *data, int64_t len)
     return -1;
   }
 
-  ret = fwrite((const void *)data, 1, len, io_fd);
+  ret = fwrite((const void *)data, 1, (size_t)len, io_fd);
   if (ret == 0) {
     return -1;
   }

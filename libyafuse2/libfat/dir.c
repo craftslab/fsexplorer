@@ -194,7 +194,7 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
         break;
       }
     } else {
-      memcpy((void *)&dentry[i], (const void *)&dslot[i], sz);
+      memcpy((void *)&dentry[i], (const void *)&dslot[i], (size_t)sz);
     }
   }
 
@@ -289,7 +289,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
   /*
    * Fill in dentry of '.'
    */
-  memset((void *)&dslot[0], 0, sz);
+  memset((void *)&dslot[0], 0, (size_t)sz);
 
   ret = io_read((uint8_t *)&dentry[0], sz);
   if (ret != 0) {
@@ -299,7 +299,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
   /*
    * Fill in dentry of '..'
    */
-  memset((void *)&dslot[1], 0, sz);
+  memset((void *)&dslot[1], 0, (size_t)sz);
 
   ret = io_read((uint8_t *)&dentry[1], sz);
   if (ret != 0) {
@@ -324,7 +324,7 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
         break;
       }
     } else {
-      memcpy((void *)&dentry[i], (const void *)&dslot[i], sz);
+      memcpy((void *)&dentry[i], (const void *)&dslot[i], (size_t)sz);
     }
   }
 

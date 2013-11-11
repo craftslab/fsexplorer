@@ -60,7 +60,7 @@
  */
 int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es, struct ext4_sb_info *info)
 {
-  uint32_t block_size = sb->s_blocksize;
+  uint64_t block_size = sb->s_blocksize;
   uint64_t blocks_count = (uint64_t)es->s_blocks_count_hi << 32 | (uint64_t)es->s_blocks_count_lo;
   ext4_group_t i;
   int32_t ret;
@@ -74,11 +74,11 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   info->s_desc_per_block = (__le64)(block_size / info->s_desc_size);
   info->s_es = (struct ext4_super_block *)es;
 
-  info->s_group_desc = (struct ext4_group_desc *)malloc(info->s_groups_count * info->s_desc_size);
+  info->s_group_desc = (struct ext4_group_desc *)malloc((size_t)(info->s_groups_count * info->s_desc_size));
   if (!info->s_group_desc) {
     return -1;
   }
-  memset((void *)info->s_group_desc, 0, info->s_groups_count * info->s_desc_size);
+  memset((void *)info->s_group_desc, 0, (size_t)(info->s_groups_count * info->s_desc_size));
 
   for (i = 0; i < info->s_groups_count; ++i) {
     ret = ext4_raw_group_desc(sb, i, &info->s_group_desc[i]);
@@ -119,7 +119,7 @@ int32_t ext4_raw_super(struct ext4_super_block *sb)
   sb_sz = sizeof(struct ext4_super_block);
   ret = io_read((uint8_t *)sb, sb_sz);
   if (ret != 0) {
-    memset((void *)sb, 0, sb_sz);
+    memset((void *)sb, 0, (size_t)sb_sz);
     return -1;
   }
 

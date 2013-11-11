@@ -103,8 +103,8 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
   bg = (ext4_group_t)((ino - 1) / info->s_inodes_per_group);
   gdp = &info->s_group_desc[bg];
 
-  inodes_per_block = info->s_inodes_per_block;
-  inode_offset = (ino - 1) % info->s_inodes_per_group;
+  inodes_per_block = (int32_t)info->s_inodes_per_block;
+  inode_offset = (int32_t)((ino - 1) % info->s_inodes_per_group);
 
   start = (int64_t)((ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block)) * sb->s_blocksize);
   offset = (int64_t)((inode_offset % inodes_per_block) * es->s_inode_size);

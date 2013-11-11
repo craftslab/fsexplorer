@@ -85,7 +85,7 @@ struct fs_kstat {
 };
 
 struct fs_opt_t {
-  int32_t (*mount) (const char *dev_name, const char *dir_name, const char *type, uint64_t flags, void *data);
+  int32_t (*mount) (const char *dev_name, const char *dir_name, const char *type, int32_t flags, void *data);
   int32_t (*umount) (const char *name, int32_t flags);
   int32_t (*statfs) (const char *pathname, struct fs_kstatfs *buf);
   int32_t (*stat) (const char *filename, struct fs_kstat *statbuf);

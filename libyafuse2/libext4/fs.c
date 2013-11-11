@@ -60,7 +60,7 @@ static struct super_block fs_sb;
 static int32_t fs_max_size(uint8_t blocksize_bits);
 static inline uint64_t partial_name_hash(uint64_t c, uint64_t prevhash);
 static inline uint64_t end_name_hash(uint64_t hash);
-static uint32_t fs_name_hash(const unsigned char *name, uint32_t len);
+static uint64_t fs_name_hash(const unsigned char *name, uint32_t len);
 
 static void fs_d_release(struct dentry *dentry);
 static struct dentry* fs_alloc_dentry_intern(struct super_block *sb, const struct qstr *name);
@@ -207,9 +207,9 @@ static inline uint64_t end_name_hash(uint64_t hash)
 /*
  * Hash name
  */
-static uint32_t fs_name_hash(const unsigned char *name, uint32_t len)
+static uint64_t fs_name_hash(const unsigned char *name, uint32_t len)
 {
-  uint32_t hash = init_name_hash();
+  uint64_t hash = init_name_hash();
 
   while (len--) {
     hash = partial_name_hash(*name++, hash);
@@ -246,8 +246,8 @@ static void fs_d_release(struct dentry *dentry)
     dentry->d_name = NULL;
   }
 
-  free(dentry);
-  dentry = NULL;
+  free((void *)dentry);
+  dentry = (struct dentry *)NULL;
 
   return;
 }
@@ -342,8 +342,8 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
   dentry->d_inode = (struct inode *)inode;
   dentry->d_op = (const struct dentry_operations *)dentry->d_op;
   dentry->d_sb = (struct super_block *)dentry->d_sb;
-  dentry->d_child = (struct list_head)dentry->d_child;
-  dentry->d_subdirs = (struct list_head)dentry->d_subdirs;
+  memcpy((void *)&dentry->d_child, (const void *)&dentry->d_child, sizeof(struct list_head));
+  memcpy((void *)&dentry->d_subdirs, (const void *)&dentry->d_subdirs, sizeof(struct list_head));
 
   return dentry;
 }
@@ -466,7 +466,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
   memset((void *)&q_name, 0, sizeof(struct qstr));
   q_name.name = (const unsigned char *)"/";
   q_name.len = strlen((const char *)(q_name.name));
-  q_name.hash = fs_name_hash(q_name.name, q_name.len);
+  q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
   root_dentry = fs_alloc_dentry_intern(root_inode->i_sb, &q_name);
   if (!root_dentry) {
