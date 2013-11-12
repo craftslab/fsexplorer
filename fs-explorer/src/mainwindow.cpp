@@ -128,18 +128,21 @@ void MainWindow::createActions()
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
   importAction->setStatusTip(tr("Import an existing directory"));
+  importAction->setEnabled(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(importDir()));
 
   exportAction = new QAction(tr("&Export to directory"), this);
   exportAction->setIcon(QIcon(":/images/export.png"));
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export to the directory"));
+  exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportDir()));
 
   closeAction = new QAction(tr("&Close"), this);
   closeAction->setIcon(QIcon(":/images/close.png"));
   closeAction->setShortcut(QKeySequence::Close);
   closeAction->setStatusTip(tr("Close the file or directory"));
+  closeAction->setEnabled(false);
   connect(closeAction, SIGNAL(triggered()), this, SLOT(closeAll()));
 
   exitAction = new QAction(tr("E&xit"), this);
@@ -151,6 +154,7 @@ void MainWindow::createActions()
   consoleAction->setIcon(QIcon(":/images/console.png"));
   consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
   consoleAction->setStatusTip(tr("Run console"));
+  consoleAction->setEnabled(false);
   connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
   aboutAction = new QAction(tr("&About"), this);
