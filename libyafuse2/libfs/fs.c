@@ -64,7 +64,7 @@ static void* fs_load_lib(const char *lib_name);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
 
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, uint64_t flags, void *data);
+static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, int32_t flags, void *data);
 static int32_t fs_umount(const char *name, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf);
