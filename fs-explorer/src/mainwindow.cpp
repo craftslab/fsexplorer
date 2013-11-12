@@ -157,9 +157,11 @@ void MainWindow::createActions()
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
+#if 0
   aboutQtAction = new QAction(tr("About &Qt"), this);
   aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
   connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+#endif
 }
 
 void MainWindow::createMenus()
@@ -179,7 +181,10 @@ void MainWindow::createMenus()
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
+
+#if 0
   helpMenu->addAction(aboutQtAction);
+#endif
 }
 
 void MainWindow::createToolBars()
