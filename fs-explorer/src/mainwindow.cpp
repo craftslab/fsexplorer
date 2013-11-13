@@ -61,6 +61,7 @@ MainWindow::MainWindow()
   createMenus();
   createToolBars();
   createStatusBar();
+  createConnections();
 
   explorer = new Explorer;
 }
@@ -81,8 +82,8 @@ void MainWindow::openFile()
   fileName = QDir::toNativeSeparators(fileName);
 
   setWindowTitle(tr("%1[*] - %2").arg(fileName).arg(mainWindowTitle));
-
   explorer->openFile();
+  emit mounted(true);
 }
 
 void MainWindow::importDir()
@@ -95,9 +96,9 @@ void MainWindow::exportDir()
 
 void MainWindow::closeAll()
 {
-  explorer->closeFile();
-
   setWindowTitle(tr("%1").arg(mainWindowTitle));
+  explorer->closeFile();
+  emit mounted(false);
 }
 
 void MainWindow::console()
@@ -110,10 +111,6 @@ void MainWindow::about()
                     tr("FS Explorer"),
                     tr("<h3><center>Filesystem Explorer</center></h3>"
                        "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
-}
-
-void MainWindow::updateActions()
-{
 }
 
 void MainWindow::createActions()
@@ -214,4 +211,10 @@ void MainWindow::createStatusBar()
 {
   readyLabel = new QLabel(tr(" Ready"));
   statusBar()->addWidget(readyLabel, 1);
+}
+
+void MainWindow::createConnections()
+{
+  connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
 }

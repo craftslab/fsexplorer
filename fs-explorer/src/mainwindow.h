@@ -40,6 +40,9 @@ class MainWindow : public QMainWindow
 public:
   MainWindow();
 
+signals:
+  void mounted(bool);
+
 protected:
   void closeEvent(QCloseEvent *event);
 
@@ -50,13 +53,13 @@ private slots:
   void closeAll();
   void console();
   void about();
-  void updateActions();
 
 private:
   void createActions();
   void createMenus();
   void createToolBars();
   void createStatusBar();
+  void createConnections();
 
   QTreeView *treeView;
   QSplitter *splitter;
