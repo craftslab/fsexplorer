@@ -31,7 +31,8 @@ class Explorer : public QObject
 public:
   Explorer(QWidget *parent = 0);
 
-  bool openFile();
+  bool openFile(QString &name);
   bool closeFile();
+  QString getFileType();
 };
 #endif

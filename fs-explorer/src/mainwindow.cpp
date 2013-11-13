@@ -68,6 +68,7 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+  explorer->closeFile();
   event->accept();
 }
 
@@ -81,9 +82,7 @@ void MainWindow::openFile()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
   fileName = QDir::toNativeSeparators(fileName);
 
-  setWindowTitle(tr("%1[*] - %2").arg(fileName).arg(mainWindowTitle));
-  explorer->openFile();
-  emit mounted(true);
+  emit load(fileName);
 }
 
 void MainWindow::importDir()
@@ -94,10 +93,10 @@ void MainWindow::exportDir()
 {
 }
 
-void MainWindow::closeAll()
+void MainWindow::closeFile()
 {
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
   explorer->closeFile();
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
 }
 
@@ -111,6 +110,21 @@ void MainWindow::about()
                     tr("FS Explorer"),
                     tr("<h3><center>Filesystem Explorer</center></h3>"
                        "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
+}
+
+void MainWindow::loadFile(QString &name)
+{
+  bool ret;
+
+  ret = explorer->openFile(name);
+  if (ret) {
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(explorer->getFileType()));
+    emit mounted(true);
+  } else {
+    explorer->closeFile();
+    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
+    emit mounted(false);
+  }
 }
 
 void MainWindow::createActions()
@@ -140,7 +154,7 @@ void MainWindow::createActions()
   closeAction->setShortcut(QKeySequence::Close);
   closeAction->setStatusTip(tr("Close the file or directory"));
   closeAction->setEnabled(false);
-  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeAll()));
+  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
 
   exitAction = new QAction(tr("E&xit"), this);
   exitAction->setShortcut(tr("Ctrl+Q"));
@@ -215,6 +229,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createConnections()
 {
+  connect(this, SIGNAL(load(QString&)), this, SLOT(loadFile(QString&)));
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
 }

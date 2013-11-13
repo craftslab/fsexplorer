@@ -41,7 +41,8 @@ public:
   MainWindow();
 
 signals:
-  void mounted(bool);
+  void load(QString &name);
+  void mounted(bool status);
 
 protected:
   void closeEvent(QCloseEvent *event);
@@ -50,9 +51,11 @@ private slots:
   void openFile();
   void importDir();
   void exportDir();
-  void closeAll();
+  void closeFile();
   void console();
   void about();
+
+  void loadFile(QString &name);
 
 private:
   void createActions();
