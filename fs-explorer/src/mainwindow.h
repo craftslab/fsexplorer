@@ -53,6 +53,7 @@ private slots:
   void exportDir();
   void closeFile();
   void console();
+  void stats();
   void about();
 
   void loadFile(QString &name);
@@ -70,16 +71,19 @@ private:
   Explorer *explorer;
 
   QMenu *fileMenu;
-  QMenu *toolsMenu;
+  QMenu *optionsMenu;
   QMenu *helpMenu;
+
   QToolBar *fileToolBar;
-  QToolBar *toolsToolBar;
+  QToolBar *optionsToolBar;
+
   QAction *openAction;
   QAction *importAction;
   QAction *exportAction;
   QAction *closeAction;
   QAction *exitAction;
   QAction *consoleAction;
+  QAction *statsAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
 };

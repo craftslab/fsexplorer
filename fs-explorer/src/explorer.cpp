@@ -26,11 +26,14 @@
 Explorer::Explorer(QWidget *parent)
 {
   parent = parent;
+
+  fileName = QString();
+  fileType = QString();
 }
 
 bool Explorer::openFile(QString &name)
 {
-  name = name;
+  fileName = name;
   return true;
 }
 
@@ -41,5 +44,10 @@ bool Explorer::closeFile()
 
 QString Explorer::getFileType()
 {
-  return QString(tr("Ext4"));
+  return fileType;
+}
+
+void Explorer::dumpInfo()
+{
+  qDebug() << fileName;
 }

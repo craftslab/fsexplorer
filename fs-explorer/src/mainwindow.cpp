@@ -80,6 +80,9 @@ void MainWindow::openFile()
   filter += tr(";;All Files (*)");
 
   QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
+  if (fileName.isEmpty()) {
+    return;
+  }
   fileName = QDir::toNativeSeparators(fileName);
 
   emit load(fileName);
@@ -104,6 +107,11 @@ void MainWindow::console()
 {
 }
 
+void MainWindow::stats()
+{
+  explorer->dumpInfo();
+}
+
 void MainWindow::about()
 {
   QMessageBox::about(this,
@@ -115,16 +123,19 @@ void MainWindow::about()
 void MainWindow::loadFile(QString &name)
 {
   bool ret;
+  bool status;
 
   ret = explorer->openFile(name);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(explorer->getFileType()));
-    emit mounted(true);
+    status = true;
   } else {
     explorer->closeFile();
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
-    emit mounted(false);
+    status = false;
   }
+
+  emit mounted(status);
 }
 
 void MainWindow::createActions()
@@ -168,6 +179,13 @@ void MainWindow::createActions()
   consoleAction->setEnabled(false);
   connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
+  statsAction = new QAction(tr("&Stats"), this);
+  statsAction->setIcon(QIcon(":/images/stats.png"));
+  statsAction->setShortcut(QKeySequence(tr("Ctrl+S")));
+  statsAction->setStatusTip(tr("FS Stats"));
+  statsAction->setEnabled(false);
+  connect(statsAction, SIGNAL(triggered()), this, SLOT(stats()));
+
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -191,8 +209,9 @@ void MainWindow::createMenus()
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
-  toolsMenu = menuBar()->addMenu(tr("&Tools"));
-  toolsMenu->addAction(consoleAction);
+  optionsMenu = menuBar()->addMenu(tr("&Options"));
+  optionsMenu->addAction(consoleAction);
+  optionsMenu->addAction(statsAction);
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
@@ -208,17 +227,16 @@ void MainWindow::createToolBars()
   fileToolBar->setFloatable(false);
   fileToolBar->setMovable(false);
   fileToolBar->addAction(openAction);
-  fileToolBar->addSeparator();
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(exportAction);
-  fileToolBar->addSeparator();
   fileToolBar->addAction(closeAction);
 
-  toolsToolBar = addToolBar(tr("Tools"));
-  toolsToolBar->setFloatable(false);
-  toolsToolBar->setMovable(false);
-  toolsToolBar->addAction(consoleAction);
-  toolsToolBar->addSeparator();
+  optionsToolBar = addToolBar(tr("Options"));
+  optionsToolBar->setFloatable(false);
+  optionsToolBar->setMovable(false);
+  optionsToolBar->addAction(consoleAction);
+  optionsToolBar->addAction(statsAction);
+  optionsToolBar->addSeparator();
 }
 
 void MainWindow::createStatusBar()
@@ -230,6 +248,8 @@ void MainWindow::createStatusBar()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(load(QString&)), this, SLOT(loadFile(QString&)));
+
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
 }

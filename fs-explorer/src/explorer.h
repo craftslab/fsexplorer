@@ -34,5 +34,10 @@ public:
   bool openFile(QString &name);
   bool closeFile();
   QString getFileType();
+  void dumpInfo();
+
+private:
+  QString fileName;
+  QString fileType;
 };
 #endif

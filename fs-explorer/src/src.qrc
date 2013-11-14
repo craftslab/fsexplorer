@@ -6,5 +6,6 @@
     <file>images/import.png</file>
     <file>images/export.png</file>
     <file>images/console.png</file>
+    <file>images/stats.png</file>
 </qresource>
 </RCC>

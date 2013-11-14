@@ -8,8 +8,8 @@ RC_FILE += src.rc
 # Import header and lib of fs
 #
 INCLUDEPATH += ../include
-#unix:LIBS += "-L../install/lib/ -lext4 -lfat"
-#win32:LIBS += "-L../install/lib/"
+unix:LIBS += "-L../install/lib/ -lext4"
+win32:LIBS += "-L../install/lib/"
 
 HEADERS += platform.h
 HEADERS += explorer.h
