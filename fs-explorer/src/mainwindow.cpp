@@ -151,6 +151,7 @@ void MainWindow::createActions()
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
   importAction->setStatusTip(tr("Import an existing directory"));
   importAction->setEnabled(false);
+  importAction->setVisible(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(importDir()));
 
   exportAction = new QAction(tr("&Export to directory"), this);
@@ -158,6 +159,7 @@ void MainWindow::createActions()
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export to the directory"));
   exportAction->setEnabled(false);
+  exportAction->setVisible(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportDir()));
 
   closeAction = new QAction(tr("&Close"), this);

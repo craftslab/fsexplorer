@@ -22,6 +22,8 @@
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
 
+#include "libfs.h"
+
 /*
  * Macro Definition
  */
@@ -37,5 +39,7 @@
 /*
  * Function Declaration
  */
+bool initOpt(fs_opt_t *opt);
+void deinitOpt();
 
 #endif /* _PLATFORM_H */

@@ -19,11 +19,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <Windows.h>
+
 #include "platform.h"
 
 /*
  * Macro Definition
  */
+#define LIB_NAME "fs.dll"
+#define LIB_SYMBOL "fs_opt_init"
 
 /*
  * Type Definition
@@ -32,6 +36,7 @@
 /*
  * Global Variable Definition
  */
+static void *libHandle;
 
 /*
  * Function Declaration
@@ -40,3 +45,38 @@
 /*
  * Function Definition
  */
+bool initOpt(fs_opt_t *opt)
+{
+  fs_opt_init_t optHandle;
+
+  libHandle = LoadLibrary(LIB_NAME);
+  if (!libHandle) {
+    goto initOpt_exit;
+  }
+
+  *(void **)(&optHandle) = GetProcAddress((HMODULE)libHandle, (LPCSTR)LIB_SYMBOL);
+  if (!optHandle) {
+    goto initOpt_exit;
+  }
+
+  if (optHandle(opt) != 0) {
+    goto initOpt_exit;
+  }
+
+  return true;
+
+ initOpt_exit:
+
+  if (libHandle) {
+    (void)FreeLibrary((HMODULE)libHandle);
+  }
+
+  return false;
+}
+
+void deinitOpt()
+{
+  if (libHandle) {
+    (void)FreeLibrary((HMODULE)libHandle);
+  }
+}

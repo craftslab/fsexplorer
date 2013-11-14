@@ -21,6 +21,7 @@
 
 #include <QtGui>
 
+#include "platform.h"
 #include "explorer.h"
 
 Explorer::Explorer(QWidget *parent)
