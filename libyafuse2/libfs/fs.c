@@ -62,10 +62,8 @@ static struct mount fs_mnt;
 static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
-static int32_t fs_mount_helper(const char *devname, const char *dirname, const char *type, int32_t flags, void *data);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data);
-static int32_t fs_mountall(const char *devname, const char *dirname, int32_t flags, void *data);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf);
@@ -113,13 +111,17 @@ static void fs_unload_lib(void *handle)
 }
 
 /*
- * Helper to mount filesystem
+ * Mount filesystem
  */
-static int32_t fs_mount_helper(const char *devname, const char *dirname, const char *type, int32_t flags, void *data)
+static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
   struct dentry *root = NULL;
+
+  if (!devname || !dirname || !type || fs_mnt.mnt_count != 0) {
+    return -1;
+  }
 
 #ifdef CMAKE_COMPILER_IS_GNUCC
   (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "lib%s.so", type);
@@ -167,47 +169,6 @@ fs_mount_helper_exit:
   }
 
   return -1;
-}
-
-/*
- * Mount filesystem
- */
-static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data)
-{
-  int32_t ret;
-
-  if (!devname || !dirname || !type || fs_mnt.mnt_count != 0) {
-    return -1;
-  }
-
-  ret = fs_mount_helper(devname, dirname, type, flags, data);
-  if (ret != 0) {
-    return -1;
-  }
-
-  return 0;
-}
-
-/*
- * Mount all filesystem
- */
-static int32_t fs_mountall(const char *devname, const char *dirname, int32_t flags, void *data)
-{
-#if 0
-  const char *type = NULL;
-  int32_t ret;
-
-  if (!devname || !dirname || fs_mnt.mnt_count != 0) {
-    return -1;
-  }
-
-  ret = fs_mount_helper(devname, dirname, type, flags, data);
-  if (ret != 0) {
-    return -1;
-  }
-#endif
-
-  return 0;
 }
 
 /*
@@ -304,7 +265,6 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   }
 
   (*fs_opt).mount = fs_mount;
-  (*fs_opt).mountall = fs_mountall;
   (*fs_opt).umount = fs_umount;
   (*fs_opt).statfs = fs_statfs;
   (*fs_opt).stat = fs_stat;
