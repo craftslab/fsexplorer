@@ -23,6 +23,11 @@
 
 #include "explorer.h"
 
+static const char* fileTypeList[] = {
+  FS_TYPE_EXT4,
+  FS_TYPE_FAT,
+};
+
 Explorer::Explorer(QWidget *parent)
 {
   parent = parent;
@@ -36,6 +41,7 @@ Explorer::Explorer(QWidget *parent)
 bool Explorer::openFile(QString &name)
 {
   const char *dev = NULL, *dir = NULL, *type = NULL;
+  int32_t i, len;
   int32_t ret;
 
   if (!initOpt(&fileOpt)) {
@@ -48,9 +54,16 @@ bool Explorer::openFile(QString &name)
 
   dev = (const char*)name.data();
   dir = (const char*)"foo";
-  type = (const char*)"ext4";
+  len = sizeof(fileTypeList) / sizeof(const char*);
 
-  ret = fileOpt.mount(dev, dir, type, 0, NULL);
+  for (i = 0; i < len; ++i) {
+    type = fileTypeList[i];
+    ret = fileOpt.mount(dev, dir, type, 0, NULL);
+    if (ret == 0) {
+      break;
+    }
+  }
+
   if (ret != 0) {
     goto openFileFail;
   }
