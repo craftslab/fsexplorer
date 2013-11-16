@@ -28,6 +28,8 @@
 /*
  * Macro Definition
  */
+#define FS_TYPE_EXT4 "ext4"
+#define FS_TYPE_FAT  "fat"
 
 /*
  * Type Definition
