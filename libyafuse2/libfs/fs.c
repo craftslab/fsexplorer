@@ -60,12 +60,12 @@ static struct mount fs_mnt;
 /*
  * Function Declaration
  */
-static void* fs_load_lib(const char *lib_name);
+static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
 
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, int32_t flags, void *data);
-static int32_t fs_umount(const char *name, int32_t flags);
+static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data);
+static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf);
 static int32_t fs_getdents(uint32_t fd, struct fs_dirent *dirent, uint32_t count);
@@ -78,12 +78,12 @@ static int32_t fs_chdir(const char *filename);
 /*
  * Load library
  */
-static void* fs_load_lib(const char *lib_name)
+static void* fs_load_lib(const char *libname)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
-  return dlopen(lib_name, RTLD_LAZY);
+  return dlopen(libname, RTLD_LAZY);
 #else
-  return (void *)LoadLibrary(lib_name);
+  return (void *)LoadLibrary(libname);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 }
 
@@ -114,13 +114,13 @@ static void fs_unload_lib(void *handle)
 /*
  * Mount filesystem
  */
-static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *type, int32_t flags, void *data)
+static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
   struct dentry *root = NULL;
 
-  if (!dev_name || !dir_name || !type || fs_mnt.mnt_count != 0) {
+  if (!devname || !dirname || !type || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
@@ -145,7 +145,7 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
     goto fs_mount_exit;
   }
 
-  root = fs_type->mount(fs_type, flags, dev_name, NULL);
+  root = fs_type->mount(fs_type, flags, devname, NULL);
   if (!root) {
     goto fs_mount_exit;
   }
@@ -156,7 +156,7 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
   fs_mnt.mnt.mnt_flags = flags;
   fs_mnt.mnt_mountpoint = fs_mnt.mnt.mnt_root;
   fs_mnt.mnt_count = 1;
-  fs_mnt.mnt_devname = dev_name;
+  fs_mnt.mnt_devname = devname;
 
   return 0;
 
@@ -175,13 +175,13 @@ static int32_t fs_mount(const char *dev_name, const char *dir_name, const char *
 /*
  * Unmount filesystem
  */
-static int32_t fs_umount(const char *name, int32_t flags)
+static int32_t fs_umount(const char *dirname, int32_t flags)
 {
-  if (!name || !fs_lib_handle || fs_mnt.mnt_count == 0) {
+  if (!dirname || !fs_lib_handle || fs_mnt.mnt_count == 0) {
     return -1;
   }
 
-  (void)fs_type->umount(name, flags);
+  (void)fs_type->umount(dirname, flags);
   fs_type = NULL;
 
   fs_unload_lib(fs_lib_handle);
