@@ -23,8 +23,9 @@
 #define EXPLORER_H
 
 #include <QObject>
+#include <QLibrary>  
 
-#include "platform.h"
+#include "libfs.h"
 
 class Explorer : public QObject
 {
@@ -39,9 +40,13 @@ public:
   void dumpInfo();
 
 private:
-  QString fileName;
-  QString fileMount;
-  QString fileType;
-  fs_opt_t fileOpt;
+  bool loadLibrary();
+  void unloadLibrary();
+
+  QLibrary *fileLib;
+  fs_opt_t *fileOpt;
+  QString *fileName;
+  QString *fileMount;
+  QString *fileType;
 };
 #endif

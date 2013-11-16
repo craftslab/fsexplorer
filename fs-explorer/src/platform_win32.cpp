@@ -26,8 +26,6 @@
 /*
  * Macro Definition
  */
-#define LIB_NAME "fs.dll"
-#define LIB_SYMBOL "fs_opt_init"
 
 /*
  * Type Definition
@@ -36,7 +34,6 @@
 /*
  * Global Variable Definition
  */
-static void *libHandle;
 
 /*
  * Function Declaration
@@ -45,38 +42,3 @@ static void *libHandle;
 /*
  * Function Definition
  */
-bool initOpt(fs_opt_t *opt)
-{
-  fs_opt_init_t optHandle;
-
-  libHandle = LoadLibrary((LPCWSTR)LIB_NAME);
-  if (!libHandle) {
-    goto initOpt_exit;
-  }
-
-  *(void **)(&optHandle) = GetProcAddress((HMODULE)libHandle, (LPCSTR)LIB_SYMBOL);
-  if (!optHandle) {
-    goto initOpt_exit;
-  }
-
-  if (optHandle(opt) != 0) {
-    goto initOpt_exit;
-  }
-
-  return true;
-
- initOpt_exit:
-
-  if (libHandle) {
-    (void)FreeLibrary((HMODULE)libHandle);
-  }
-
-  return false;
-}
-
-void deinitOpt()
-{
-  if (libHandle) {
-    (void)FreeLibrary((HMODULE)libHandle);
-  }
-}

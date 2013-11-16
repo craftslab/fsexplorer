@@ -19,15 +19,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <dlfcn.h>  
-
 #include "platform.h"
 
 /*
  * Macro Definition
  */
-#define LIB_NAME "libfs.so"
-#define LIB_SYMBOL "fs_opt_init"
 
 /*
  * Type Definition
@@ -36,7 +32,6 @@
 /*
  * Global Variable Definition
  */
-static void *libHandle;
 
 /*
  * Function Declaration
@@ -45,38 +40,3 @@ static void *libHandle;
 /*
  * Function Definition
  */
-bool initOpt(fs_opt_t *opt)
-{
-  fs_opt_init_t optHandle;
-
-  libHandle = dlopen(LIB_NAME, RTLD_LAZY);
-  if (!libHandle) {
-    goto initOpt_exit;
-  }
-
-  *(void **)(&optHandle) = dlsym(libHandle, LIB_SYMBOL);
-  if (!optHandle) {
-    goto initOpt_exit;
-  }
-
-  if (optHandle(opt) != 0) {
-    goto initOpt_exit;
-  }
-
-  return true;
-
- initOpt_exit:
-
-  if (libHandle) {
-    (void)dlclose(libHandle);
-  }
-
-  return false;
-}
-
-void deinitOpt()
-{
-  if (libHandle) {
-    (void)dlclose(libHandle);
-  }
-}

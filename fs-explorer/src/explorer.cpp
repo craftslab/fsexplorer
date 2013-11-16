@@ -19,9 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <QLibrary>  
 #include <QtGui>
 
 #include "explorer.h"
+
+#define LIB_NAME "libfs"
+#define LIB_SYMBOL "fs_opt_init"
 
 static const char* fileTypeList[] = {
   FS_TYPE_EXT4,
@@ -32,10 +36,11 @@ Explorer::Explorer(QWidget *parent)
 {
   parent = parent;
 
-  fileName = QString();
-  fileMount = QString();
-  fileType = QString();
-  memset((void *)&fileOpt, 0, sizeof(fs_opt_t));
+  fileLib = NULL;
+  fileOpt = NULL;
+  fileName = NULL;
+  fileMount = NULL;
+  fileType = NULL;
 }
 
 bool Explorer::openFile(QString &name)
@@ -44,11 +49,11 @@ bool Explorer::openFile(QString &name)
   int32_t i, len;
   int32_t ret;
 
-  if (!initOpt(&fileOpt)) {
+  if (!loadLibrary()) {
     goto openFileFail;
   }
 
-  if (!fileOpt.mount || !fileOpt.umount) {
+  if (!fileOpt->mount || !fileOpt->umount) {
     goto openFileFail;
   }
 
@@ -58,7 +63,7 @@ bool Explorer::openFile(QString &name)
 
   for (i = 0; i < len; ++i) {
     type = fileTypeList[i];
-    ret = fileOpt.mount(dev, dir, type, 0, NULL);
+    ret = fileOpt->mount(dev, dir, type, 0, NULL);
     if (ret == 0) {
       break;
     }
@@ -68,42 +73,91 @@ bool Explorer::openFile(QString &name)
     goto openFileFail;
   }
 
-  fileName = name;
-  fileMount = QString(dir);
-  fileType = QString(type);
+  fileName = new QString(name);
+  fileMount = new QString(dir);
+  fileType = new QString(type);
 
   return true;
 
 openFileFail:
 
-  if (fileOpt.umount) {
-    (void)fileOpt.umount(dir, 0);
-  }
-
-  deinitOpt();
+  closeFile();
 
   return false;
 }
 
 bool Explorer::closeFile()
 {
-  if (fileOpt.umount) {
-    (void)fileOpt.umount((const char *)fileMount.data(), 0);
+  if (fileType) {
+    delete fileType;
+    fileType = NULL;
   }
 
-  deinitOpt();
+  if (fileMount) {
+    delete fileMount;
+    fileMount = NULL;
+  }
+
+  if (fileName) {
+    delete fileName;
+    fileName = NULL;
+  }
+
+  if (fileOpt->umount) {
+    (void)fileOpt->umount((const char *)fileMount->data(), 0);
+  }
+
+  unloadLibrary();
 
   return true;
 }
 
 QString Explorer::getFileType()
 {
-  return fileType;
+  return *fileType;
 }
 
 void Explorer::dumpInfo()
 {
-  qDebug() << fileName;
-  qDebug() << fileMount;
-  qDebug() << fileType;
+  qDebug() << *fileName;
+  qDebug() << *fileMount;
+  qDebug() << *fileType;
+}
+
+bool Explorer::loadLibrary()
+{
+  fs_opt_init_t optHandle;
+
+  fileLib = new QLibrary(LIB_NAME);
+
+  optHandle = (fs_opt_init_t)fileLib->resolve(LIB_SYMBOL);
+  if (!optHandle) {
+    goto loadLibraryExit;
+  }
+
+  fileOpt = new fs_opt_t;
+  if (optHandle(fileOpt) != 0) {
+    goto loadLibraryExit;
+  }
+
+  return true;
+
+ loadLibraryExit:
+
+  unloadLibrary();
+
+  return false;
+}
+
+void Explorer::unloadLibrary()
+{
+  if (fileOpt) {
+    delete fileOpt;
+    fileOpt  = NULL;
+  }
+
+  if (fileLib) {
+    delete fileLib;
+    fileLib = NULL;
+  }
 }
