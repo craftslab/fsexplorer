@@ -49,7 +49,7 @@ bool initOpt(fs_opt_t *opt)
 {
   fs_opt_init_t optHandle;
 
-  libHandle = LoadLibrary(LIB_NAME);
+  libHandle = LoadLibrary((LPCWSTR)LIB_NAME);
   if (!libHandle) {
     goto initOpt_exit;
   }

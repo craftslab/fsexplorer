@@ -184,7 +184,7 @@ void MainWindow::createActions()
   statsAction = new QAction(tr("&Stats"), this);
   statsAction->setIcon(QIcon(":/images/stats.png"));
   statsAction->setShortcut(QKeySequence(tr("Ctrl+S")));
-  statsAction->setStatusTip(tr("FS Stats"));
+  statsAction->setStatusTip(tr("Show stats"));
   statsAction->setEnabled(false);
   connect(statsAction, SIGNAL(triggered()), this, SLOT(stats()));
 
