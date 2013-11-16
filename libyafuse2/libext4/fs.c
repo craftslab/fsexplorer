@@ -230,9 +230,17 @@ static void fs_d_release(struct dentry *dentry)
   }
 
   if (!list_empty(&dentry->d_subdirs)) {
+#ifdef CMAKE_COMPILER_IS_GNUCC
     list_for_each_entry(child, &dentry->d_subdirs, d_child) {
       fs_d_release(child);
     }
+#else
+    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
+        &child->d_child != (&dentry->d_subdirs);
+        child = list_entry(child->d_child.next, struct dentry, d_child)) {
+        fs_d_release(child);
+    }
+#endif
 
     list_del_init(&dentry->d_subdirs);
   }

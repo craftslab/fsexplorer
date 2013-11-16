@@ -67,12 +67,19 @@
 #define GET_UNALIGNED_LE16(p) (((uint16_t)p[1] << 8) | ((uint16_t)p[0]))
 
 #define offsetof(type, member) ((char *) &((type *)0)->member)
-#define container_of(ptr, type, member) ({  \
+
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#define container_of(ptr, type, member) ({ \
       (type *)((char *)ptr - offsetof(type, member));})
+#else
+#define container_of(ptr, type, member) ( \
+      (type *)((char *)ptr - offsetof(type, member)))
+#endif
 
 #define list_entry(ptr, type, member) \
   container_of(ptr, type, member)
 
+#ifdef CMAKE_COMPILER_IS_GNUCC
 #define list_for_each_entry(pos, head, member) \
   for (pos = list_entry((head)->next, typeof(*pos), member); \
        &pos->member != (head); \
@@ -82,6 +89,7 @@
   for (pos = list_entry((head)->prev, typeof(*pos), member); \
        &pos->member != (head); \
        pos = list_entry(pos->member.prev, typeof(*pos), member))
+#endif
 
 /*
  * Type Definition
