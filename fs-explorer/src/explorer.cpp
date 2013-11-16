@@ -21,7 +21,6 @@
 
 #include <QtGui>
 
-#include "platform.h"
 #include "explorer.h"
 
 Explorer::Explorer(QWidget *parent)
@@ -29,17 +28,58 @@ Explorer::Explorer(QWidget *parent)
   parent = parent;
 
   fileName = QString();
+  fileMount = QString();
   fileType = QString();
+  memset((void *)&fileOpt, 0, sizeof(fs_opt_t));
 }
 
 bool Explorer::openFile(QString &name)
 {
+  const char *dev = NULL, *dir = NULL, *type = NULL;
+  int32_t ret;
+
+  if (!initOpt(&fileOpt)) {
+    goto openFileFail;
+  }
+
+  if (!fileOpt.mount || !fileOpt.umount) {
+    goto openFileFail;
+  }
+
+  dev = (const char*)name.data();
+  dir = (const char*)"foo";
+  type = (const char*)"ext4";
+
+  ret = fileOpt.mount(dev, dir, type, 0, NULL);
+  if (ret != 0) {
+    goto openFileFail;
+  }
+
   fileName = name;
+  fileMount = QString(dir);
+  fileType = QString(type);
+
   return true;
+
+openFileFail:
+
+  if (fileOpt.umount) {
+    (void)fileOpt.umount(dir, 0);
+  }
+
+  deinitOpt();
+
+  return false;
 }
 
 bool Explorer::closeFile()
 {
+  if (fileOpt.umount) {
+    (void)fileOpt.umount((const char *)fileMount.data(), 0);
+  }
+
+  deinitOpt();
+
   return true;
 }
 
@@ -51,4 +91,6 @@ QString Explorer::getFileType()
 void Explorer::dumpInfo()
 {
   qDebug() << fileName;
+  qDebug() << fileMount;
+  qDebug() << fileType;
 }

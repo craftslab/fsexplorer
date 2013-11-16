@@ -24,6 +24,8 @@
 
 #include <QObject>
 
+#include "platform.h"
+
 class Explorer : public QObject
 {
   Q_OBJECT
@@ -38,6 +40,8 @@ public:
 
 private:
   QString fileName;
+  QString fileMount;
   QString fileType;
+  fs_opt_t fileOpt;
 };
 #endif
