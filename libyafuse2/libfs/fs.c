@@ -176,15 +176,19 @@ fs_mount_helper_exit:
  */
 static int32_t fs_umount(const char *dirname, int32_t flags)
 {
-  if (!dirname || !fs_lib_handle || fs_mnt.mnt_count == 0) {
+  if (!dirname || fs_mnt.mnt_count == 0) {
     return -1;
   }
 
-  (void)fs_type->umount(dirname, flags);
-  fs_type = NULL;
+  if (fs_type) {
+    (void)fs_type->umount(dirname, flags);
+    fs_type = NULL;
+  }
 
-  fs_unload_lib(fs_lib_handle);
-  fs_lib_handle = NULL;
+  if (fs_lib_handle) {
+    fs_unload_lib(fs_lib_handle);
+    fs_lib_handle = NULL;
+  }
 
   memset((void *)&fs_mnt, 0, sizeof(struct mount));
 
