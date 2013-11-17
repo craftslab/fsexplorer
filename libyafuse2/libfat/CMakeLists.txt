@@ -27,19 +27,27 @@ aux_source_directory(. YF_DIR_LIBFAT)
 #
 # Generate the library
 #
+if (CMAKE_COMPILER_IS_GNUCC)
 add_library(fat
   SHARED
   ${YF_DIR_LIBFAT}
   )
+else (CMAKE_COMPILER_IS_GNUCC)
+add_library(libfat
+  SHARED
+  ${YF_DIR_LIBFAT}
+  )
+endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
 # Linke the library
 #
 if (CMAKE_COMPILER_IS_GNUCC)
   target_link_libraries(fat m)
+  target_link_libraries(fat io)
+else (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(libfat io)
 endif (CMAKE_COMPILER_IS_GNUCC)
-
-target_link_libraries(fat io)
 
 #
 # Add the install targets

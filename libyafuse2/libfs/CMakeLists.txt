@@ -29,10 +29,17 @@ add_subdirectory(test)
 #
 # Generate the library
 #
+if (CMAKE_COMPILER_IS_GNUCC)
 add_library(fs
   SHARED
   ${YF_DIR_LIBFS}
   )
+else (CMAKE_COMPILER_IS_GNUCC)
+add_library(libfs
+  SHARED
+  ${YF_DIR_LIBFS}
+  )
+endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
 # Linke the library
@@ -59,4 +66,3 @@ install(
   COMPONENT library
   )
 endif (CMAKE_COMPILER_IS_GNUCC)
-
