@@ -57,7 +57,7 @@ bool Explorer::openFile(QString &name)
     goto openFileFail;
   }
 
-  dev = (const char*)name.data();
+  dev = (const char*)name.toLatin1().data();
   dir = (const char*)"foo";
   len = sizeof(fileTypeList) / sizeof(const char*);
 
@@ -88,6 +88,12 @@ openFileFail:
 
 bool Explorer::closeFile()
 {
+  if (fileOpt->umount) {
+    (void)fileOpt->umount((const char *)fileMount->toLatin1().data(), 0);
+  }
+
+  unloadLibrary();
+
   if (fileType) {
     delete fileType;
     fileType = NULL;
@@ -102,12 +108,6 @@ bool Explorer::closeFile()
     delete fileName;
     fileName = NULL;
   }
-
-  if (fileOpt->umount) {
-    (void)fileOpt->umount((const char *)fileMount->data(), 0);
-  }
-
-  unloadLibrary();
 
   return true;
 }
