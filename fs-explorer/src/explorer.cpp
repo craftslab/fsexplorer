@@ -88,7 +88,7 @@ openFileFail:
 
 bool Explorer::closeFile()
 {
-  if (fileOpt->umount) {
+  if (fileOpt->umount && fileMount) {
     (void)fileOpt->umount((const char *)fileMount->toLatin1().data(), 0);
   }
 
