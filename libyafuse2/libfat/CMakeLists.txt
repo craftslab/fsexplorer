@@ -44,9 +44,18 @@ target_link_libraries(fat io)
 #
 # Add the install targets
 #
+if (CMAKE_COMPILER_IS_GNUCC)
 install(
   TARGETS fat
   ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
   COMPONENT library
   )
+else (CMAKE_COMPILER_IS_GNUCC)
+install(
+  TARGETS libfat
+  ARCHIVE DESTINATION ${YF_LIBDIR}
+  LIBRARY DESTINATION ${YF_LIBDIR}
+  COMPONENT library
+  )
+endif (CMAKE_COMPILER_IS_GNUCC)
