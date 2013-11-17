@@ -123,11 +123,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
   (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "lib%s.so", type);
-#else
-  (void)_snprintf(lib_name, FS_LIB_NAME_LEN_MAX, "%s.dll", type);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
 
   fs_lib_handle = fs_load_lib(lib_name);
   if (!fs_lib_handle) {
