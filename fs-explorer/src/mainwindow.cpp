@@ -130,7 +130,6 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(explorer->getFileType()));
     status = true;
   } else {
-    explorer->closeFile();
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
     status = false;
   }
