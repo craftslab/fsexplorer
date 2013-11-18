@@ -46,6 +46,7 @@ Explorer::Explorer(QWidget *parent)
 bool Explorer::openFile(QString &name)
 {
   const char *dev = NULL, *dir = NULL, *type = NULL;
+  QByteArray ba;
   int32_t i, len;
   int32_t ret;
 
@@ -57,7 +58,13 @@ bool Explorer::openFile(QString &name)
     goto openFileFail;
   }
 
-  dev = (const char*)name.toLatin1().data();
+  /*
+   * Invalid character will be appended to string
+   * if 'name.toLatin1.data()' is used instead.
+   */
+  ba = name.toLatin1();
+  dev = (const char*)ba.data();
+
   dir = (const char*)"foo";
   len = sizeof(fileTypeList) / sizeof(const char*);
 
