@@ -64,6 +64,7 @@ MainWindow::MainWindow()
   createConnections();
 
   explorer = new Explorer;
+  filePath = QString(QDir::homePath());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -74,16 +75,16 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openFile()
 {
-  QString initialName = QDir::homePath();
-
   QString filter = tr("Filesystem Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), initialName, filter);
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, filter);
   if (fileName.isEmpty()) {
     return;
   }
+
   fileName = QDir::toNativeSeparators(fileName);
+  filePath = fileName;
 
   emit load(fileName);
 }

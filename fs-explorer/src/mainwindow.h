@@ -68,7 +68,6 @@ private:
   QTreeView *treeView;
   QSplitter *splitter;
   QLabel *readyLabel;
-  Explorer *explorer;
 
   QMenu *fileMenu;
   QMenu *optionsMenu;
@@ -86,5 +85,8 @@ private:
   QAction *statsAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
+
+  Explorer *explorer;
+  QString filePath;
 };
 #endif
