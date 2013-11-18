@@ -53,7 +53,7 @@ bool Explorer::openFile(QString &name)
     goto openFileFail;
   }
 
-  if (!fileOpt->mount || !fileOpt->umount) {
+  if (!fileOpt || !fileOpt->mount || !fileOpt->umount) {
     goto openFileFail;
   }
 
@@ -76,6 +76,9 @@ bool Explorer::openFile(QString &name)
   fileName = new QString(name);
   fileMount = new QString(dir);
   fileType = new QString(type);
+  if (!fileName || !fileMount || !fileType) {
+    goto openFileFail;
+  }
 
   return true;
 
@@ -129,6 +132,9 @@ bool Explorer::loadLibrary()
   fs_opt_init_t optHandle;
 
   fileLib = new QLibrary(LIB_NAME);
+  if (!fileLib) {
+    goto loadLibraryExit;
+  }
 
   optHandle = (fs_opt_init_t)fileLib->resolve(LIB_SYMBOL);
   if (!optHandle) {
@@ -136,6 +142,10 @@ bool Explorer::loadLibrary()
   }
 
   fileOpt = new fs_opt_t;
+  if (!fileOpt) {
+    goto loadLibraryExit;
+  }
+
   if (optHandle(fileOpt) != 0) {
     goto loadLibraryExit;
   }
