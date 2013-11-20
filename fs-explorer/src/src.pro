@@ -21,6 +21,21 @@ SOURCES += explorer.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
+unix{
+  inst.files += ../lib/unix/libfs.so
+  inst.files += ../lib/unix/libext4.so
+  inst.files += ../lib/unix/libfat.so
+}
+win32{
+  inst.files += ../lib/win32/libfs.dll
+  inst.files += ../lib/win32/libext4.dll
+  inst.files += ../lib/win32/libfat.dll
+  inst.files += ../lib/win32/QtCore4.dll
+  inst.files += ../lib/win32/QtGui4.dll
+}
+inst.path = ../install/bin
+INSTALLS += inst
+
 release {
 TARGET = fs-explorer
 DESTDIR = ../install/bin
