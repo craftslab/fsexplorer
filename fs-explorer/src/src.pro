@@ -8,8 +8,8 @@ RC_FILE += src.rc
 # Import header and lib of fs
 #
 INCLUDEPATH += ../include
-unix:LIBS += "-L../install/lib/ -lext4"
-win32:LIBS += "-L../install/lib/"
+#unix:LIBS += "-L../install/lib/ -lext4 -lfat"
+#win32:LIBS += "-L../install/lib/"
 
 HEADERS += explorer.h
 HEADERS += mainwindow.h
@@ -22,6 +22,8 @@ unix{
   inst.files += ../lib/unix/libfs.so
   inst.files += ../lib/unix/libext4.so
   inst.files += ../lib/unix/libfat.so
+  inst.files += ../lib/unix/libQtCore.so.4
+  inst.files += ../lib/unix/libQtGui.so.4
 }
 win32{
   inst.files += ../lib/win32/libfs.dll
