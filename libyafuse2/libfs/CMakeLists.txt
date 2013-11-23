@@ -49,6 +49,13 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
+# Strip the library
+#
+if (DEFINED CMAKE_STRIP)
+  execute_process(COMMAND ${CMAKE_STRIP} ${CMAKE_BINARY_DIR}/libfs/libfs.so)
+endif (DEFINED CMAKE_STRIP)
+
+#
 # Add the install targets
 #
 if (CMAKE_COMPILER_IS_GNUCC)
