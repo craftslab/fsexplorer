@@ -61,14 +61,15 @@ private slots:
   void about();
 
   void loadFile(QString &name);
+  void showWidgets(bool show);
 
 private:
-  void showWidget(bool show);
   void createActions();
   void createMenus();
   void createToolBars();
   void createStatusBar();
   void createConnections();
+  void createWidgets();
 
   QTreeView *treeView;
   QListView *listView;
@@ -76,6 +77,7 @@ private:
   QSplitter *vertSplitter;
   QSplitter *horiSplitter;
   QTabWidget *tabWidget;
+  QLabel *bgLabel;
   QLabel *readyLabel;
 
   QMenu *fileMenu;

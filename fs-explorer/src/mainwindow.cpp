@@ -31,6 +31,7 @@
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = "FS Explorer";
+static const QString bgLabelText = "Filesystem Explorer";
 
 MainWindow::MainWindow()
 {
@@ -43,13 +44,8 @@ MainWindow::MainWindow()
   createStatusBar();
   createConnections();
 
-  treeView = NULL;
-  listView = NULL;
-  outputView = NULL;
-  vertSplitter = NULL;
   horiSplitter = NULL;
-  tabWidget = NULL;
-  showWidget(false);
+  showWidgets(false);
 
   fsEngine = new FsEngine;
 
@@ -89,7 +85,6 @@ void MainWindow::exportDir()
 void MainWindow::closeFile()
 {
   fsEngine->closeFile();
-  showWidget(false);
   setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
 }
@@ -125,99 +120,30 @@ void MainWindow::loadFile(QString &name)
     status = false;
   }
 
-  showWidget(status);
-
   emit mounted(status);
 }
 
-void MainWindow::showWidget(bool show)
+void MainWindow::showWidgets(bool show)
 {
-  if (!show) {
-    if (treeView) {
-      delete treeView;
-      treeView = NULL;
+  if (show) {
+    if (bgLabel) {
+      bgLabel->close();
+      bgLabel = NULL;
     }
 
-    if (listView) {
-      delete listView;
-      listView = NULL;
-    }
-
-    if (outputView) {
-      delete outputView;
-      outputView = NULL;
-    }
-
-    if (vertSplitter) {
-      delete vertSplitter;
-      vertSplitter = NULL;
-    }
-
+    createWidgets();
+    setCentralWidget(horiSplitter);
+  } else {
     if (horiSplitter) {
-      delete horiSplitter;
+      horiSplitter->close();
       horiSplitter = NULL;
     }
 
-    if (tabWidget) {
-      delete tabWidget;
-      tabWidget = NULL;
-    }
+    bgLabel = new QLabel(bgLabelText);
+    bgLabel->setTextFormat(Qt::RichText);
 
-    return;
+    setCentralWidget(bgLabel);
   }
-
-  vertSplitter = new QSplitter(Qt::Vertical);
-  horiSplitter = new QSplitter(Qt::Horizontal);
-  tabWidget = new QTabWidget;
-  tabWidget->setTabPosition(QTabWidget::South);
-
-  treeView = new QTreeView();
-  listView = new QListView();
-
-  outputView = new QTextEdit();
-  outputView->setReadOnly(true);
-  tabWidget->addTab(outputView, tr("Output"));
-
-#if 1 // test only
-  QFileSystemModel *model = new QFileSystemModel;
-  QModelIndex index = model->index(QDir::homePath());
-  model->setRootPath(QDir::homePath());
-
-  treeView->setModel(model);
-  treeView->scrollTo(index);
-  treeView->expand(index);
-  treeView->setCurrentIndex(index);
-
-  listView->setModel(model);
-  listView->setCurrentIndex(index);
-#endif
-
-  treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(1, true);
-  treeView->setColumnHidden(2, true);
-  treeView->setColumnHidden(3, true);
-
-  vertSplitter->addWidget(listView);
-  vertSplitter->addWidget(tabWidget);
-  vertSplitter->setStretchFactor(1, 1);
-
-  QList<int> vertList = vertSplitter->sizes();
-  vertList[0] = vertSplitter->widget(0)->sizeHint().width();
-  vertList[0] += vertList[0] / 2;
-  vertList[1] = vertSplitter->widget(1)->sizeHint().width();
-  vertSplitter->setSizes(vertList);
-
-  horiSplitter->addWidget(treeView);
-  horiSplitter->addWidget(vertSplitter);
-  horiSplitter->setStretchFactor(1, 1);
-
-  QList<int> horiList = horiSplitter->sizes();
-  horiList[0] = horiSplitter->widget(0)->sizeHint().width();
-  horiList[0] -= horiList[0] / 4;
-  horiList[1] = horiSplitter->widget(1)->sizeHint().width();
-  horiSplitter->setSizes(horiList);
-
-  setCentralWidget(horiSplitter);
 }
 
 void MainWindow::createActions()
@@ -336,4 +262,59 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
+}
+
+void MainWindow::createWidgets()
+{
+  vertSplitter = new QSplitter(Qt::Vertical);
+  horiSplitter = new QSplitter(Qt::Horizontal);
+  tabWidget = new QTabWidget;
+  tabWidget->setTabPosition(QTabWidget::South);
+
+  treeView = new QTreeView();
+  listView = new QListView();
+
+  outputView = new QTextEdit();
+  outputView->setReadOnly(true);
+  tabWidget->addTab(outputView, tr("Output"));
+
+#if 1 // test only
+  QFileSystemModel *model = new QFileSystemModel;
+  QModelIndex index = model->index(QDir::homePath());
+  model->setRootPath(QDir::homePath());
+
+  treeView->setModel(model);
+  treeView->scrollTo(index);
+  treeView->expand(index);
+  treeView->setCurrentIndex(index);
+
+  listView->setModel(model);
+  listView->setCurrentIndex(index);
+#endif
+
+  treeView->setHeaderHidden(true);
+  treeView->setColumnHidden(1, true);
+  treeView->setColumnHidden(2, true);
+  treeView->setColumnHidden(3, true);
+
+  vertSplitter->addWidget(listView);
+  vertSplitter->addWidget(tabWidget);
+  vertSplitter->setStretchFactor(1, 1);
+
+  QList<int> vertList = vertSplitter->sizes();
+  vertList[0] = vertSplitter->widget(0)->sizeHint().width();
+  vertList[0] += vertList[0] / 2;
+  vertList[1] = vertSplitter->widget(1)->sizeHint().width();
+  vertSplitter->setSizes(vertList);
+
+  horiSplitter->addWidget(treeView);
+  horiSplitter->addWidget(vertSplitter);
+  horiSplitter->setStretchFactor(1, 1);
+
+  QList<int> horiList = horiSplitter->sizes();
+  horiList[0] = horiSplitter->widget(0)->sizeHint().width();
+  horiList[0] -= horiList[0] / 4;
+  horiList[1] = horiSplitter->widget(1)->sizeHint().width();
+  horiSplitter->setSizes(horiList);
 }
