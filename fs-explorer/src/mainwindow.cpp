@@ -37,9 +37,138 @@ MainWindow::MainWindow()
   setWindowIcon(QPixmap(":/images/icon.png"));
   setWindowTitle(tr("%1").arg(mainWindowTitle));
 
-  QSplitter *vertSplitter = new QSplitter(Qt::Vertical);
-  QSplitter *horiSplitter = new QSplitter(Qt::Horizontal);
-  QTabWidget *tabWidget = new QTabWidget;
+  createActions();
+  createMenus();
+  createToolBars();
+  createStatusBar();
+  createConnections();
+
+  treeView = NULL;
+  listView = NULL;
+  outputView = NULL;
+  vertSplitter = NULL;
+  horiSplitter = NULL;
+  tabWidget = NULL;
+  showWidget(false);
+
+  fsEngine = new FsEngine;
+
+  filePath = QString(QDir::homePath());
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  closeFile();
+  event->accept();
+}
+
+void MainWindow::openFile()
+{
+  QString filter = tr("Filesystem Image (*.img *.ext4 *.fat)");
+  filter += tr(";;All Files (*)");
+
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, filter);
+  if (fileName.isEmpty()) {
+    return;
+  }
+
+  fileName = QDir::toNativeSeparators(fileName);
+  filePath = fileName;
+
+  emit load(fileName);
+}
+
+void MainWindow::importDir()
+{
+}
+
+void MainWindow::exportDir()
+{
+}
+
+void MainWindow::closeFile()
+{
+  fsEngine->closeFile();
+  showWidget(false);
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
+  emit mounted(false);
+}
+
+void MainWindow::console()
+{
+}
+
+void MainWindow::stats()
+{
+  fsEngine->dumpInfo();
+}
+
+void MainWindow::about()
+{
+  QMessageBox::about(this,
+                    tr("FS Explorer"),
+                    tr("<h3><center>Filesystem Explorer</center></h3>"
+                       "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
+}
+
+void MainWindow::loadFile(QString &name)
+{
+  bool ret;
+  bool status;
+
+  ret = fsEngine->openFile(name);
+  if (ret) {
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
+    status = true;
+  } else {
+    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
+    status = false;
+  }
+
+  showWidget(status);
+
+  emit mounted(status);
+}
+
+void MainWindow::showWidget(bool show)
+{
+  if (!show) {
+    if (treeView) {
+      delete treeView;
+      treeView = NULL;
+    }
+
+    if (listView) {
+      delete listView;
+      listView = NULL;
+    }
+
+    if (outputView) {
+      delete outputView;
+      outputView = NULL;
+    }
+
+    if (vertSplitter) {
+      delete vertSplitter;
+      vertSplitter = NULL;
+    }
+
+    if (horiSplitter) {
+      delete horiSplitter;
+      horiSplitter = NULL;
+    }
+
+    if (tabWidget) {
+      delete tabWidget;
+      tabWidget = NULL;
+    }
+
+    return;
+  }
+
+  vertSplitter = new QSplitter(Qt::Vertical);
+  horiSplitter = new QSplitter(Qt::Horizontal);
+  tabWidget = new QTabWidget;
   tabWidget->setTabPosition(QTabWidget::South);
 
   treeView = new QTreeView();
@@ -89,87 +218,6 @@ MainWindow::MainWindow()
   horiSplitter->setSizes(horiList);
 
   setCentralWidget(horiSplitter);
-
-  createActions();
-  createMenus();
-  createToolBars();
-  createStatusBar();
-  createConnections();
-
-  fsEngine = new FsEngine;
-
-  filePath = QString(QDir::homePath());
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-  fsEngine->closeFile();
-  event->accept();
-}
-
-void MainWindow::openFile()
-{
-  QString filter = tr("Filesystem Image (*.img *.ext4 *.fat)");
-  filter += tr(";;All Files (*)");
-
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, filter);
-  if (fileName.isEmpty()) {
-    return;
-  }
-
-  fileName = QDir::toNativeSeparators(fileName);
-  filePath = fileName;
-
-  emit load(fileName);
-}
-
-void MainWindow::importDir()
-{
-}
-
-void MainWindow::exportDir()
-{
-}
-
-void MainWindow::closeFile()
-{
-  fsEngine->closeFile();
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
-  emit mounted(false);
-}
-
-void MainWindow::console()
-{
-}
-
-void MainWindow::stats()
-{
-  fsEngine->dumpInfo();
-}
-
-void MainWindow::about()
-{
-  QMessageBox::about(this,
-                    tr("FS Explorer"),
-                    tr("<h3><center>Filesystem Explorer</center></h3>"
-                       "<p>Copyright &copy; 2013 angersax@gmail.com</p>"));
-}
-
-void MainWindow::loadFile(QString &name)
-{
-  bool ret;
-  bool status;
-
-  ret = fsEngine->openFile(name);
-  if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
-    status = true;
-  } else {
-    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
-    status = false;
-  }
-
-  emit mounted(status);
 }
 
 void MainWindow::createActions()

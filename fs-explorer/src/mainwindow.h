@@ -32,6 +32,8 @@ class QToolBar;
 class QTreeView;
 class QListView;
 class QTextEdit;
+class QSplitter;
+class QTabWidget;
 
 class FsEngine;
 
@@ -61,6 +63,7 @@ private slots:
   void loadFile(QString &name);
 
 private:
+  void showWidget(bool show);
   void createActions();
   void createMenus();
   void createToolBars();
@@ -70,6 +73,9 @@ private:
   QTreeView *treeView;
   QListView *listView;
   QTextEdit *outputView;
+  QSplitter *vertSplitter;
+  QSplitter *horiSplitter;
+  QTabWidget *tabWidget;
   QLabel *readyLabel;
 
   QMenu *fileMenu;
