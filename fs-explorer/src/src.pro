@@ -4,19 +4,16 @@ TEMPLATE = app
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
-#
-# Import header and lib of fs
-#
-INCLUDEPATH += ../include
-#unix:LIBS += "-L../install/lib/ -lext4 -lfat"
-#win32:LIBS += "-L../install/lib/"
-
 HEADERS += explorer.h
 HEADERS += mainwindow.h
 
 SOURCES += explorer.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
+
+INCLUDEPATH += ../include
+#unix:LIBS += "-L../install/lib/ -lext4 -lfat"
+#win32:LIBS += "-L../install/lib/"
 
 unix{
   inst.files += ../lib/unix/libfs.so
