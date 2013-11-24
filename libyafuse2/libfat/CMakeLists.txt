@@ -52,9 +52,11 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Strip the library
 #
-if (DEFINED CMAKE_STRIP)
-  execute_process(COMMAND ${CMAKE_STRIP} ${CMAKE_BINARY_DIR}/libfat/libfat.so)
-endif (DEFINED CMAKE_STRIP)
+if (CMAKE_COMPILER_IS_GNUCC)
+  if (DEFINED CMAKE_STRIP)
+    execute_process(COMMAND ${CMAKE_STRIP} ${CMAKE_BINARY_DIR}/libfat/libfat.so)
+  endif (DEFINED CMAKE_STRIP)
+endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
 # Add the install targets
