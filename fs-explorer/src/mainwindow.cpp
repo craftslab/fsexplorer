@@ -22,6 +22,7 @@
 #include <QtGui>
 #include <QSplitter>
 #include <QTreeView>
+#include <QListView>
 #include <QFileSystemModel>
 #include <QFileDialog>
 
@@ -32,29 +33,34 @@ const QString mainWindowTitle = "FS Explorer";
 
 MainWindow::MainWindow()
 {
-  treeView = new QTreeView;
+  setWindowIcon(QPixmap(":/images/icon.png"));
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
+
+  splitter = new QSplitter;
+  treeView = new QTreeView();
+  listView = new QListView();
 
 #if 1 // test only
   QFileSystemModel *model = new QFileSystemModel;
-  model->setRootPath(QDir::homePath());
-  treeView->setModel(model);
-
   QModelIndex index = model->index(QDir::homePath());
+  model->setRootPath(QDir::homePath());
+
+  treeView->setModel(model);
   treeView->scrollTo(index);
   treeView->expand(index);
   treeView->setCurrentIndex(index);
-#endif
 
-  setWindowIcon(QPixmap(":/images/icon.png"));
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
+  listView->setModel(model);
+  listView->setCurrentIndex(index);
+#endif
 
   treeView->setHeaderHidden(true);
   treeView->setColumnHidden(1, true);
   treeView->setColumnHidden(2, true);
   treeView->setColumnHidden(3, true);
 
-  splitter = new QSplitter;
   splitter->addWidget(treeView);
+  splitter->addWidget(listView);
   setCentralWidget(splitter);
 
   createActions();
@@ -64,6 +70,7 @@ MainWindow::MainWindow()
   createConnections();
 
   fsEngine = new FsEngine;
+
   filePath = QString(QDir::homePath());
 }
 

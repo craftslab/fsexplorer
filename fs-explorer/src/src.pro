@@ -5,9 +5,11 @@ RESOURCES += src.qrc
 RC_FILE += src.rc
 
 HEADERS += fsengine.h
+HEADERS += fsmodel.h
 HEADERS += mainwindow.h
 
 SOURCES += fsengine.cpp
+SOURCES += fsmodel.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 

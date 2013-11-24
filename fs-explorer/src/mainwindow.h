@@ -31,6 +31,8 @@ class QMenu;
 class QToolBar;
 class QSplitter;
 class QTreeView;
+class QListView;
+
 class FsEngine;
 
 class MainWindow : public QMainWindow
@@ -67,6 +69,7 @@ private:
 
   QTreeView *treeView;
   QSplitter *splitter;
+  QListView *listView;
   QLabel *readyLabel;
 
   QMenu *fileMenu;
