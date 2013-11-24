@@ -1,5 +1,5 @@
 /**
- * explorer.h - Header of explorer
+ * fsengine.h - Header of fsengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,20 +19,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef EXPLORER_H
-#define EXPLORER_H
+#ifndef FSENGINE_H
+#define FSENGINE_H
 
 #include <QObject>
 #include <QLibrary>  
 
 #include "libfs.h"
 
-class Explorer : public QObject
+class FsEngine : public QObject
 {
   Q_OBJECT
 
 public:
-  Explorer(QWidget *parent = 0);
+  FsEngine(QWidget *parent = 0);
 
   bool openFile(QString &name);
   bool closeFile();

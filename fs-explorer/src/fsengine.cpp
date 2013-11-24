@@ -1,5 +1,5 @@
 /**
- * explorer.cpp - The entry of explorer
+ * fsengine.cpp - The entry of fsengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -22,7 +22,7 @@
 #include <QLibrary>  
 #include <QtGui>
 
-#include "explorer.h"
+#include "fsengine.h"
 
 #define LIB_NAME "libfs"
 #define LIB_SYMBOL "fs_opt_init"
@@ -32,7 +32,7 @@ static const char* fileTypeList[] = {
   FS_TYPE_FAT,
 };
 
-Explorer::Explorer(QWidget *parent)
+FsEngine::FsEngine(QWidget *parent)
 {
   parent = parent;
 
@@ -43,7 +43,7 @@ Explorer::Explorer(QWidget *parent)
   fileType = NULL;
 }
 
-bool Explorer::openFile(QString &name)
+bool FsEngine::openFile(QString &name)
 {
   const char *dev = NULL, *dir = NULL, *type = NULL;
   QByteArray ba;
@@ -96,7 +96,7 @@ openFileFail:
   return false;
 }
 
-bool Explorer::closeFile()
+bool FsEngine::closeFile()
 {
   if (fileOpt && fileOpt->umount && fileMount) {
     (void)fileOpt->umount((const char *)fileMount->toLatin1().data(), 0);
@@ -122,19 +122,19 @@ bool Explorer::closeFile()
   return true;
 }
 
-QString Explorer::getFileType()
+QString FsEngine::getFileType()
 {
   return *fileType;
 }
 
-void Explorer::dumpInfo()
+void FsEngine::dumpInfo()
 {
   qDebug() << *fileName;
   qDebug() << *fileMount;
   qDebug() << *fileType;
 }
 
-bool Explorer::loadLibrary()
+bool FsEngine::loadLibrary()
 {
   fs_opt_init_t optHandle;
 
@@ -166,7 +166,7 @@ bool Explorer::loadLibrary()
   return false;
 }
 
-void Explorer::unloadLibrary()
+void FsEngine::unloadLibrary()
 {
   if (fileOpt) {
     delete fileOpt;

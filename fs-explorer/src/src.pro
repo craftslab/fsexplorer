@@ -4,10 +4,10 @@ TEMPLATE = app
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
-HEADERS += explorer.h
+HEADERS += fsengine.h
 HEADERS += mainwindow.h
 
-SOURCES += explorer.cpp
+SOURCES += fsengine.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 

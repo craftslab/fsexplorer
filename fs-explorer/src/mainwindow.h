@@ -31,7 +31,7 @@ class QMenu;
 class QToolBar;
 class QSplitter;
 class QTreeView;
-class Explorer;
+class FsEngine;
 
 class MainWindow : public QMainWindow
 {
@@ -86,7 +86,7 @@ private:
   QAction *aboutAction;
   QAction *aboutQtAction;
 
-  Explorer *explorer;
+  FsEngine *fsEngine;
   QString filePath;
 };
 #endif

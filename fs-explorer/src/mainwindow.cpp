@@ -25,7 +25,7 @@
 #include <QFileSystemModel>
 #include <QFileDialog>
 
-#include "explorer.h"
+#include "fsengine.h"
 #include "mainwindow.h"
 
 const QString mainWindowTitle = "FS Explorer";
@@ -63,13 +63,13 @@ MainWindow::MainWindow()
   createStatusBar();
   createConnections();
 
-  explorer = new Explorer;
+  fsEngine = new FsEngine;
   filePath = QString(QDir::homePath());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  explorer->closeFile();
+  fsEngine->closeFile();
   event->accept();
 }
 
@@ -99,7 +99,7 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
-  explorer->closeFile();
+  fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
 }
@@ -110,7 +110,7 @@ void MainWindow::console()
 
 void MainWindow::stats()
 {
-  explorer->dumpInfo();
+  fsEngine->dumpInfo();
 }
 
 void MainWindow::about()
@@ -126,9 +126,9 @@ void MainWindow::loadFile(QString &name)
   bool ret;
   bool status;
 
-  ret = explorer->openFile(name);
+  ret = fsEngine->openFile(name);
   if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(explorer->getFileType()));
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
     status = true;
   } else {
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
