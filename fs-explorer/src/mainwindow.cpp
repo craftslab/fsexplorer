@@ -23,22 +23,26 @@
 #include <QSplitter>
 #include <QTreeView>
 #include <QListView>
+#include <QTextEdit>
 #include <QFileSystemModel>
 #include <QFileDialog>
 
 #include "fsengine.h"
 #include "mainwindow.h"
 
-const QString mainWindowTitle = "FS Explorer";
+static const QString mainWindowTitle = "FS Explorer";
 
 MainWindow::MainWindow()
 {
   setWindowIcon(QPixmap(":/images/icon.png"));
   setWindowTitle(tr("%1").arg(mainWindowTitle));
 
-  splitter = new QSplitter;
+  QSplitter *vertSplitter = new QSplitter(Qt::Vertical);
+  QSplitter *horiSplitter = new QSplitter(Qt::Horizontal);
+
   treeView = new QTreeView();
   listView = new QListView();
+  outputView = new QTextEdit();
 
 #if 1 // test only
   QFileSystemModel *model = new QFileSystemModel;
@@ -59,9 +63,27 @@ MainWindow::MainWindow()
   treeView->setColumnHidden(2, true);
   treeView->setColumnHidden(3, true);
 
-  splitter->addWidget(treeView);
-  splitter->addWidget(listView);
-  setCentralWidget(splitter);
+  vertSplitter->addWidget(listView);
+  vertSplitter->addWidget(outputView);
+  vertSplitter->setStretchFactor(1, 1);
+
+  QList<int> vertList = vertSplitter->sizes();
+  vertList[0] = vertSplitter->widget(0)->sizeHint().width();
+  vertList[0] += vertList[0] / 2;
+  vertList[1] = vertSplitter->widget(1)->sizeHint().width();
+  vertSplitter->setSizes(vertList);
+
+  horiSplitter->addWidget(treeView);
+  horiSplitter->addWidget(vertSplitter);
+  horiSplitter->setStretchFactor(1, 1);
+
+  QList<int> horiList = horiSplitter->sizes();
+  horiList[0] = horiSplitter->widget(0)->sizeHint().width();
+  horiList[0] -= horiList[0] / 4;
+  horiList[1] = horiSplitter->widget(1)->sizeHint().width();
+  horiSplitter->setSizes(horiList);
+
+  setCentralWidget(horiSplitter);
 
   createActions();
   createMenus();

@@ -29,9 +29,9 @@ class QActionGroup;
 class QLabel;
 class QMenu;
 class QToolBar;
-class QSplitter;
 class QTreeView;
 class QListView;
+class QTextEdit;
 
 class FsEngine;
 
@@ -68,8 +68,8 @@ private:
   void createConnections();
 
   QTreeView *treeView;
-  QSplitter *splitter;
   QListView *listView;
+  QTextEdit *outputView;
   QLabel *readyLabel;
 
   QMenu *fileMenu;
