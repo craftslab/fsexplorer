@@ -39,10 +39,15 @@ MainWindow::MainWindow()
 
   QSplitter *vertSplitter = new QSplitter(Qt::Vertical);
   QSplitter *horiSplitter = new QSplitter(Qt::Horizontal);
+  QTabWidget *tabWidget = new QTabWidget;
+  tabWidget->setTabPosition(QTabWidget::South);
 
   treeView = new QTreeView();
   listView = new QListView();
+
   outputView = new QTextEdit();
+  outputView->setReadOnly(true);
+  tabWidget->addTab(outputView, tr("Output"));
 
 #if 1 // test only
   QFileSystemModel *model = new QFileSystemModel;
@@ -64,7 +69,7 @@ MainWindow::MainWindow()
   treeView->setColumnHidden(3, true);
 
   vertSplitter->addWidget(listView);
-  vertSplitter->addWidget(outputView);
+  vertSplitter->addWidget(tabWidget);
   vertSplitter->setStretchFactor(1, 1);
 
   QList<int> vertList = vertSplitter->sizes();
