@@ -33,7 +33,7 @@ class QTreeView;
 class QListView;
 class QTextEdit;
 class QSplitter;
-class QTabWidget;
+class QHBoxLayout;
 
 class FsEngine;
 
@@ -71,12 +71,13 @@ private:
   void createConnections();
   void createWidgets();
 
+  QWidget *layoutWidget;
+  QHBoxLayout *hBoxLayout;
   QTreeView *treeView;
   QListView *listView;
   QTextEdit *outputView;
   QSplitter *vertSplitter;
   QSplitter *horiSplitter;
-  QTabWidget *tabWidget;
   QLabel *bgLabel;
   QLabel *readyLabel;
 

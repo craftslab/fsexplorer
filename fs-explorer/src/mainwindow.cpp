@@ -20,10 +20,11 @@
  */
 
 #include <QtGui>
-#include <QSplitter>
 #include <QTreeView>
 #include <QListView>
 #include <QTextEdit>
+#include <QSplitter>
+#include <QHBoxLayout>
 #include <QFileSystemModel>
 #include <QFileDialog>
 
@@ -43,8 +44,8 @@ MainWindow::MainWindow()
   createToolBars();
   createStatusBar();
   createConnections();
+  createWidgets();
 
-  horiSplitter = NULL;
   showWidgets(false);
 
   fsEngine = new FsEngine;
@@ -126,23 +127,11 @@ void MainWindow::loadFile(QString &name)
 void MainWindow::showWidgets(bool show)
 {
   if (show) {
-    if (bgLabel) {
-      bgLabel->close();
-      bgLabel = NULL;
-    }
-
-    createWidgets();
-    setCentralWidget(horiSplitter);
+    horiSplitter->setVisible(true);
+    bgLabel->setVisible(false);
   } else {
-    if (horiSplitter) {
-      horiSplitter->close();
-      horiSplitter = NULL;
-    }
-
-    bgLabel = new QLabel(bgLabelText);
-    bgLabel->setTextFormat(Qt::RichText);
-
-    setCentralWidget(bgLabel);
+    horiSplitter->setVisible(false);
+    bgLabel->setVisible(true);
   }
 }
 
@@ -267,17 +256,14 @@ void MainWindow::createConnections()
 
 void MainWindow::createWidgets()
 {
-  vertSplitter = new QSplitter(Qt::Vertical);
   horiSplitter = new QSplitter(Qt::Horizontal);
-  tabWidget = new QTabWidget;
-  tabWidget->setTabPosition(QTabWidget::South);
+  vertSplitter = new QSplitter(Qt::Vertical);
 
   treeView = new QTreeView();
   listView = new QListView();
 
   outputView = new QTextEdit();
   outputView->setReadOnly(true);
-  tabWidget->addTab(outputView, tr("Output"));
 
 #if 1 // test only
   QFileSystemModel *model = new QFileSystemModel;
@@ -299,7 +285,7 @@ void MainWindow::createWidgets()
   treeView->setColumnHidden(3, true);
 
   vertSplitter->addWidget(listView);
-  vertSplitter->addWidget(tabWidget);
+  vertSplitter->addWidget(outputView);
   vertSplitter->setStretchFactor(1, 1);
 
   QList<int> vertList = vertSplitter->sizes();
@@ -317,4 +303,16 @@ void MainWindow::createWidgets()
   horiList[0] -= horiList[0] / 4;
   horiList[1] = horiSplitter->widget(1)->sizeHint().width();
   horiSplitter->setSizes(horiList);
+
+  bgLabel = new QLabel(bgLabelText);
+  bgLabel->setTextFormat(Qt::RichText);
+
+  hBoxLayout = new QHBoxLayout();
+  hBoxLayout->addWidget(horiSplitter);
+  hBoxLayout->addWidget(bgLabel);
+
+  layoutWidget = new QWidget();
+  layoutWidget->setLayout(hBoxLayout);
+
+  setCentralWidget(layoutWidget);
 }
