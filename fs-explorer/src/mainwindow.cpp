@@ -294,6 +294,7 @@ void MainWindow::createWidgets()
   horiSplitter->addWidget(treeView);
   horiSplitter->addWidget(listView);
   horiSplitter->setStretchFactor(1, 1);
+  horiSplitter->setHandleWidth(1);
 
   QList<int> horiList = horiSplitter->sizes();
   horiList[0] = horiSplitter->widget(0)->sizeHint().width();
@@ -304,6 +305,7 @@ void MainWindow::createWidgets()
   vertSplitter->addWidget(horiSplitter);
   vertSplitter->addWidget(outputView);
   vertSplitter->setStretchFactor(1, 1);
+  vertSplitter->setHandleWidth(1);
 
   QList<int> vertList = vertSplitter->sizes();
   vertList[0] = vertSplitter->widget(0)->sizeHint().width();
