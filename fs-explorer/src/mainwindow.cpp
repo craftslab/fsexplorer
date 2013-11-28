@@ -43,8 +43,8 @@ MainWindow::MainWindow()
   createMenus();
   createToolBars();
   createStatusBar();
-  createConnections();
   createWidgets();
+  createConnections();
 
   showWidgets(false);
 
@@ -126,6 +126,10 @@ void MainWindow::loadFile(QString &name)
 
 void MainWindow::showWidgets(bool show)
 {
+  if (!vertSplitter || !bgLabel) {
+    return;
+  }
+
   if (show) {
     vertSplitter->setVisible(true);
     bgLabel->setVisible(false);
@@ -244,16 +248,6 @@ void MainWindow::createStatusBar()
   statusBar()->addWidget(readyLabel, 1);
 }
 
-void MainWindow::createConnections()
-{
-  connect(this, SIGNAL(load(QString&)), this, SLOT(loadFile(QString&)));
-
-  connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
-}
-
 void MainWindow::createWidgets()
 {
   horiSplitter = new QSplitter(Qt::Horizontal);
@@ -319,4 +313,14 @@ void MainWindow::createWidgets()
   layoutWidget->setLayout(hBoxLayout);
 
   setCentralWidget(layoutWidget);
+}
+
+void MainWindow::createConnections()
+{
+  connect(this, SIGNAL(load(QString&)), this, SLOT(loadFile(QString&)));
+
+  connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 }
