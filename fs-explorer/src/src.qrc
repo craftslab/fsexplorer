@@ -7,5 +7,6 @@
     <file>images/export.png</file>
     <file>images/console.png</file>
     <file>images/stats.png</file>
+    <file>images/label.png</file>
 </qresource>
 </RCC>

@@ -32,7 +32,8 @@
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = "FS Explorer";
-static const QString bgLabelText = "Filesystem Explorer";
+
+static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt; font-weight:600;\">" "Filesystem Explorer" "</span></p>" "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Courier'; font-size:11pt; font-weight:600;\">" "<img src="":/images/label.png""</img>" "</span></p>");
 
 MainWindow::MainWindow()
 {
@@ -303,7 +304,7 @@ void MainWindow::createWidgets()
 
   QList<int> vertList = vertSplitter->sizes();
   vertList[0] = vertSplitter->widget(0)->sizeHint().width();
-  vertList[0] += vertList[0] / 2;
+  vertList[0] += vertList[0] / 24;
   vertList[1] = vertSplitter->widget(1)->sizeHint().width();
   vertSplitter->setSizes(vertList);
 
