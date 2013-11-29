@@ -124,6 +124,10 @@ bool FsEngine::closeFile()
 
 QString FsEngine::getFileType()
 {
+  if (!fileType) {
+    return QString("N/A");
+  }
+
   return *fileType;
 }
 

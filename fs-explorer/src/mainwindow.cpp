@@ -267,7 +267,7 @@ void MainWindow::createWidgets()
 
   layoutWidget = new QWidget();
 
-#if 1 // test only
+#if 0 // test only
   QFileSystemModel *model = new QFileSystemModel;
   QModelIndex index = model->index(QDir::homePath());
   model->setRootPath(QDir::homePath());
