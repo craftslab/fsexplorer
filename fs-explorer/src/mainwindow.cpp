@@ -33,7 +33,7 @@
 
 static const QString mainWindowTitle = "FS Explorer";
 
-static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:20pt; font-weight:600;\">" "Filesystem Explorer" "</span></p>" "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Courier'; font-size:11pt; font-weight:600;\">" "<img src="":/images/label.png""</img>" "</span></p>");
+static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "Filesystem Explorer" "</span></p>");
 
 MainWindow::MainWindow()
 {
