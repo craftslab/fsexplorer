@@ -33,6 +33,7 @@ class FsEngine : public QObject
 
 public:
   FsEngine(QWidget *parent = 0);
+  ~FsEngine();
 
   bool openFile(QString &name);
   bool closeFile();

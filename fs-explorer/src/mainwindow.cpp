@@ -56,7 +56,13 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  fsEngine->closeFile();
+  if (fsEngine) {
+    fsEngine->closeFile();
+  }
+
+  delete fsEngine;
+  fsEngine = NULL;
+
   event->accept();
 }
 

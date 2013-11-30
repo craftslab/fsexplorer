@@ -43,6 +43,11 @@ FsEngine::FsEngine(QWidget *parent)
   fileType = NULL;
 }
 
+FsEngine::~FsEngine()
+{
+  closeFile();
+}
+
 bool FsEngine::openFile(QString &name)
 {
   const char *dev = NULL, *dir = NULL, *type = NULL;
