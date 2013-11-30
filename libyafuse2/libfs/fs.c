@@ -140,7 +140,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   }
 
   fs_type = handle(type, flags);
-  if (!fs_type) {
+  if (!fs_type || !fs_type->mount) {
     goto fs_mount_helper_exit;
   }
 
@@ -180,7 +180,7 @@ static int32_t fs_umount(const char *dirname, int32_t flags)
     return -1;
   }
 
-  if (fs_type) {
+  if (fs_type && fs_type->umount) {
     (void)fs_type->umount(dirname, flags);
     fs_type = NULL;
   }
