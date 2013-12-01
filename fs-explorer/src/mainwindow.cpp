@@ -51,8 +51,6 @@ MainWindow::MainWindow()
   createWidgets();
   createConnections();
 
-  showWidgets(false);
-
   fsEngine = new FsEngine;
 
   filePath = QString(QDir::homePath());
@@ -261,21 +259,8 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createWidgets()
 {
-  horiSplitter = new QSplitter(Qt::Horizontal);
-  vertSplitter = new QSplitter(Qt::Vertical);
-
   treeView = new QTreeView();
   listView = new QListView();
-
-  outputView = new QTextEdit();
-  outputView->setReadOnly(true);
-
-  bgLabel = new QLabel(bgLabelText);
-  bgLabel->setTextFormat(Qt::RichText);
-
-  hBoxLayout = new QHBoxLayout();
-
-  layoutWidget = new QWidget();
 
 #if 0 // test only
   QFileSystemModel *model = new QFileSystemModel;
@@ -296,6 +281,7 @@ void MainWindow::createWidgets()
   treeView->setColumnHidden(2, true);
   treeView->setColumnHidden(3, true);
 
+  horiSplitter = new QSplitter(Qt::Horizontal);
   horiSplitter->addWidget(treeView);
   horiSplitter->addWidget(listView);
   horiSplitter->setStretchFactor(1, 1);
@@ -307,6 +293,11 @@ void MainWindow::createWidgets()
   horiList[1] = horiSplitter->widget(1)->sizeHint().width();
   horiSplitter->setSizes(horiList);
 
+  outputView = new QTextEdit();
+  outputView->setReadOnly(true);
+
+  vertSplitter = new QSplitter(Qt::Vertical);
+  vertSplitter->setVisible(false);
   vertSplitter->addWidget(horiSplitter);
   vertSplitter->addWidget(outputView);
   vertSplitter->setStretchFactor(1, 1);
@@ -318,9 +309,15 @@ void MainWindow::createWidgets()
   vertList[1] = vertSplitter->widget(1)->sizeHint().width();
   vertSplitter->setSizes(vertList);
 
+  bgLabel = new QLabel(bgLabelText);
+  bgLabel->setVisible(true);
+  bgLabel->setTextFormat(Qt::RichText);
+
+  hBoxLayout = new QHBoxLayout();
   hBoxLayout->addWidget(vertSplitter);
   hBoxLayout->addWidget(bgLabel);
 
+  layoutWidget = new QWidget();
   layoutWidget->setLayout(hBoxLayout);
 
   setCentralWidget(layoutWidget);
