@@ -20,6 +20,7 @@
  */
 
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include "mainwindow.h"
 
@@ -46,7 +47,14 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
   MainWindow mainWin;
-  mainWin.resize(800, 480);
+
+  QDesktopWidget* desktopWidget = QApplication::desktop();
+  QRect deskRect = desktopWidget->availableGeometry();
+  QRect screenRect = desktopWidget->screenGeometry();
+
+  mainWin.move(screenRect.width() / 8, screenRect.height() / 8);
+  mainWin.resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
   mainWin.show();
+
   return app.exec();
 }
