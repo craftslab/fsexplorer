@@ -52,8 +52,23 @@ int main(int argc, char *argv[])
   QRect deskRect = desktopWidget->availableGeometry();
   QRect screenRect = desktopWidget->screenGeometry();
 
-  mainWin.move(screenRect.width() / 8, screenRect.height() / 8);
-  mainWin.resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
+  int width, height;
+  if (((screenRect.width() / 16) == 0) && ((screenRect.height() / 10) == 0)) {
+    width = 640;
+    height = 400;
+  } else if (((screenRect.width() / 16) == 0) && ((screenRect.height() / 9) == 0)) {
+    width = 640;
+    height = 360;
+  } else if (((screenRect.width() / 4) == 0) && ((screenRect.height() / 3) == 0)) {
+    width = 640;
+    height = 480;
+  } else {
+    width = 640;
+    height = 480;
+  }
+
+  mainWin.move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  mainWin.resize(width, height);
   mainWin.show();
 
   return app.exec();
