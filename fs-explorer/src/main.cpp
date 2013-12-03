@@ -49,17 +49,17 @@ int main(int argc, char *argv[])
   MainWindow mainWin;
 
   QDesktopWidget* desktopWidget = QApplication::desktop();
-  QRect deskRect = desktopWidget->availableGeometry();
+  //QRect deskRect = desktopWidget->availableGeometry();
   QRect screenRect = desktopWidget->screenGeometry();
 
   int width, height;
-  if (((screenRect.width() / 16) == 0) && ((screenRect.height() / 10) == 0)) {
+  if (((screenRect.width() % 16) == 0) && ((screenRect.height() % 10) == 0)) {
     width = 640;
     height = 400;
-  } else if (((screenRect.width() / 16) == 0) && ((screenRect.height() / 9) == 0)) {
+  } else if (((screenRect.width() % 16) == 0) && ((screenRect.height() % 9) == 0)) {
     width = 640;
     height = 360;
-  } else if (((screenRect.width() / 4) == 0) && ((screenRect.height() / 3) == 0)) {
+  } else if (((screenRect.width() % 4) == 0) && ((screenRect.height() % 3) == 0)) {
     width = 640;
     height = 480;
   } else {
