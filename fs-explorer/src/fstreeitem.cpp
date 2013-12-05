@@ -23,7 +23,7 @@
 
 #include "fstreeitem.h"
 
-FsTreeItem::FsTreeItem(const QList<QVariant> &data, FsTreeItem *parent)
+FsTreeItem::FsTreeItem(const QVector<QVariant> &data, FsTreeItem *parent)
 {
   parentItem = parent;
   itemData = data;
@@ -34,19 +34,23 @@ FsTreeItem::~FsTreeItem()
   qDeleteAll(childItems);
 }
 
-void FsTreeItem::appendChild(FsTreeItem *item)
+FsTreeItem *FsTreeItem::child(int number)
 {
-  childItems.append(item);
-}
-
-FsTreeItem *FsTreeItem::child(int row)
-{
-  return childItems.value(row);
+  return childItems.value(number);
 }
 
 int FsTreeItem::childCount() const
 {
   return childItems.count();
+}
+
+int FsTreeItem::childNumber() const
+{
+  if (parentItem) {
+    return parentItem->childItems.indexOf(const_cast<FsTreeItem*>(this));
+  }
+
+  return 0;
 }
 
 int FsTreeItem::columnCount() const
@@ -59,16 +63,80 @@ QVariant FsTreeItem::data(int column) const
   return itemData.value(column);
 }
 
+bool FsTreeItem::insertChildren(int position, int count, int columns)
+{
+  if (position < 0 || position > childItems.size()) {
+    return false;
+  }
+
+  for (int row = 0; row < count; ++row) {
+    QVector<QVariant> data(columns);
+    FsTreeItem *item = new FsTreeItem(data, this);
+    childItems.insert(position, item);
+  }
+
+  return true;
+}
+
+bool FsTreeItem::insertColumns(int position, int columns)
+{
+  if (position < 0 || position > itemData.size()) {
+    return false;
+  }
+
+  for (int column = 0; column < columns; ++column) {
+    itemData.insert(position, QVariant());
+  }
+
+  foreach (FsTreeItem *child, childItems) {
+    child->insertColumns(position, columns);
+  }
+
+  return true;
+}
+
 FsTreeItem *FsTreeItem::parent()
 {
   return parentItem;
 }
 
-int FsTreeItem::row() const
+bool FsTreeItem::removeChildren(int position, int count)
 {
-  if (parentItem) {
-    return parentItem->childItems.indexOf(const_cast<FsTreeItem*>(this));
+  if (position < 0 || position + count > childItems.size()) {
+    return false;
   }
 
-  return 0;
+  for (int row = 0; row < count; ++row) {
+    delete childItems.takeAt(position);
+  }
+
+  return true;
+}
+
+bool FsTreeItem::removeColumns(int position, int columns)
+{
+  if (position < 0 || position + columns > itemData.size()) {
+    return false;
+  }
+
+  for (int column = 0; column < columns; ++column) {
+    itemData.remove(position);
+  }
+
+  foreach (FsTreeItem *child, childItems) {
+    child->removeColumns(position, columns);
+  }
+
+  return true;
+}
+
+bool FsTreeItem::setData(int column, const QVariant &value)
+{
+  if (column < 0 || column >= itemData.size()) {
+    return false;
+  }
+
+  itemData[column] = value;
+
+  return true;
 }

@@ -24,11 +24,15 @@
 #include "fstreeitem.h"
 #include "fstreemodel.h"
 
-FsTreeModel::FsTreeModel(const QString &data, QObject *parent)
+FsTreeModel::FsTreeModel(const QStringList &headers, const QString &data,
+                         QObject *parent)
   : QAbstractItemModel(parent)
 {
-  QList<QVariant> rootData;
-  rootData << "Title" << "Summary";
+  QVector<QVariant> rootData;
+  foreach (QString header, headers) {
+    rootData << header;
+  }
+
   rootItem = new FsTreeItem(rootData);
   setupModelData(data.split(QString("\n")), rootItem);
 }
@@ -38,13 +42,9 @@ FsTreeModel::~FsTreeModel()
   delete rootItem;
 }
 
-int FsTreeModel::columnCount(const QModelIndex &parent) const
+int FsTreeModel::columnCount(const QModelIndex & /* parent */) const
 {
-  if (parent.isValid()) {
-    return static_cast<FsTreeItem*>(parent.internalPointer())->columnCount();
-  } else {
-    return rootItem->columnCount();
-  }
+  return rootItem->columnCount();
 }
 
 QVariant FsTreeModel::data(const QModelIndex &index, int role) const
@@ -53,11 +53,11 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
   }
 
-  if (role != Qt::DisplayRole) {
+  if (role != Qt::DisplayRole && role != Qt::EditRole) {
     return QVariant();
   }
 
-  FsTreeItem *item = static_cast<FsTreeItem*>(index.internalPointer());
+  FsTreeItem *item = getItem(index);
 
   return item->data(index.column());
 }
@@ -68,10 +68,21 @@ Qt::ItemFlags FsTreeModel::flags(const QModelIndex &index) const
     return 0;
   }
 
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant FsTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+FsTreeItem *FsTreeModel::getItem(const QModelIndex &index) const
+{
+  if (index.isValid()) {
+    FsTreeItem *item = static_cast<FsTreeItem*>(index.internalPointer());
+    if (item) return item;
+  }
+
+  return rootItem;
+}
+
+QVariant FsTreeModel::headerData(int section, Qt::Orientation orientation,
+                                 int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     return rootItem->data(section);
@@ -82,17 +93,11 @@ QVariant FsTreeModel::headerData(int section, Qt::Orientation orientation, int r
 
 QModelIndex FsTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-  if (!hasIndex(row, column, parent)) {
+  if (parent.isValid() && parent.column() != 0) {
     return QModelIndex();
   }
 
-  FsTreeItem *parentItem;
-
-  if (!parent.isValid()) {
-    parentItem = rootItem;
-  } else {
-    parentItem = static_cast<FsTreeItem*>(parent.internalPointer());
-  }
+  FsTreeItem *parentItem = getItem(parent);
 
   FsTreeItem *childItem = parentItem->child(row);
   if (childItem) {
@@ -102,36 +107,109 @@ QModelIndex FsTreeModel::index(int row, int column, const QModelIndex &parent) c
   }
 }
 
+bool FsTreeModel::insertColumns(int position, int columns, const QModelIndex &parent)
+{
+  bool success;
+
+  beginInsertColumns(parent, position, position + columns - 1);
+  success = rootItem->insertColumns(position, columns);
+  endInsertColumns();
+
+  return success;
+}
+
+bool FsTreeModel::insertRows(int position, int rows, const QModelIndex &parent)
+{
+  FsTreeItem *parentItem = getItem(parent);
+  bool success;
+
+  beginInsertRows(parent, position, position + rows - 1);
+  success = parentItem->insertChildren(position, rows, rootItem->columnCount());
+  endInsertRows();
+
+  return success;
+}
+
 QModelIndex FsTreeModel::parent(const QModelIndex &index) const
 {
   if (!index.isValid()) {
     return QModelIndex();
   }
 
-  FsTreeItem *childItem = static_cast<FsTreeItem*>(index.internalPointer());
+  FsTreeItem *childItem = getItem(index);
   FsTreeItem *parentItem = childItem->parent();
 
   if (parentItem == rootItem) {
     return QModelIndex();
   }
 
-  return createIndex(parentItem->row(), 0, parentItem);
+  return createIndex(parentItem->childNumber(), 0, parentItem);
+}
+
+bool FsTreeModel::removeColumns(int position, int columns, const QModelIndex &parent)
+{
+  bool success;
+
+  beginRemoveColumns(parent, position, position + columns - 1);
+  success = rootItem->removeColumns(position, columns);
+  endRemoveColumns();
+
+  if (rootItem->columnCount() == 0) {
+    removeRows(0, rowCount());
+  }
+
+  return success;
+}
+
+bool FsTreeModel::removeRows(int position, int rows, const QModelIndex &parent)
+{
+  FsTreeItem *parentItem = getItem(parent);
+  bool success = true;
+
+  beginRemoveRows(parent, position, position + rows - 1);
+  success = parentItem->removeChildren(position, rows);
+  endRemoveRows();
+
+  return success;
 }
 
 int FsTreeModel::rowCount(const QModelIndex &parent) const
 {
-  FsTreeItem *parentItem;
-  if (parent.column() > 0) {
-    return 0;
-  }
-
-  if (!parent.isValid()) {
-    parentItem = rootItem;
-  } else {
-    parentItem = static_cast<FsTreeItem*>(parent.internalPointer());
-  }
+  FsTreeItem *parentItem = getItem(parent);
 
   return parentItem->childCount();
+}
+
+bool FsTreeModel::setData(const QModelIndex &index, const QVariant &value,
+                          int role)
+{
+  if (role != Qt::EditRole) {
+    return false;
+  }
+
+  FsTreeItem *item = getItem(index);
+  bool result = item->setData(index.column(), value);
+
+  if (result) {
+    emit dataChanged(index, index);
+  }
+
+  return result;
+}
+
+bool FsTreeModel::setHeaderData(int section, Qt::Orientation orientation,
+                                const QVariant &value, int role)
+{
+  if (role != Qt::EditRole || orientation != Qt::Horizontal) {
+    return false;
+  }
+
+  bool result = rootItem->setData(section, value);
+  if (result) {
+    emit headerDataChanged(orientation, section, section);
+  }
+
+  return result;
 }
 
 void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
@@ -146,8 +224,9 @@ void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
   while (number < lines.count()) {
     int position = 0;
     while (position < lines[number].length()) {
-      if (lines[number].mid(position, 1) != " ")
+      if (lines[number].mid(position, 1) != " ") {
         break;
+      }
       position++;
     }
 
@@ -155,7 +234,7 @@ void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
 
     if (!lineData.isEmpty()) {
       QStringList columnStrings = lineData.split("\t", QString::SkipEmptyParts);
-      QList<QVariant> columnData;
+      QVector<QVariant> columnData;
       for (int column = 0; column < columnStrings.count(); ++column) {
         columnData << columnStrings[column];
       }
@@ -172,7 +251,11 @@ void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
         }
       }
 
-      parents.last()->appendChild(new FsTreeItem(columnData, parents.last()));
+      FsTreeItem *parent = parents.last();
+      parent->insertChildren(parent->childCount(), 1, rootItem->columnCount());
+      for (int column = 0; column < columnData.size(); ++column) {
+        parent->child(parent->childCount() - 1)->setData(column, columnData[column]);
+      }
     }
 
     number++;

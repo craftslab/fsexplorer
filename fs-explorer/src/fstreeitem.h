@@ -24,26 +24,29 @@
 
 #include <QList>
 #include <QVariant>
+#include <QVector>
 
 class FsTreeItem
 {
 public:
-  FsTreeItem(const QList<QVariant> &data, FsTreeItem *parent = 0);
+  FsTreeItem(const QVector<QVariant> &data, FsTreeItem *parent = 0);
   ~FsTreeItem();
 
-  void appendChild(FsTreeItem *child);
-
-  FsTreeItem *child(int row);
+  FsTreeItem *child(int number);
   int childCount() const;
   int columnCount() const;
   QVariant data(int column) const;
-  int row() const;
+  bool insertChildren(int position, int count, int columns);
+  bool insertColumns(int position, int columns);
   FsTreeItem *parent();
+  bool removeChildren(int position, int count);
+  bool removeColumns(int position, int columns);
+  int childNumber() const;
+  bool setData(int column, const QVariant &value);
 
 private:
   QList<FsTreeItem*> childItems;
-  QList<QVariant> itemData;
-
+  QVector<QVariant> itemData;
   FsTreeItem *parentItem;
 };
 #endif
