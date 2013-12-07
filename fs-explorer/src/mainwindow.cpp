@@ -32,13 +32,15 @@
 #include "fstreemodel.h"
 #include "mainwindow.h"
 
-static const QString mainWindowTitle = "FS Explorer";
+static const QString mainWindowTitle = QObject::tr("FS Explorer");
 
 #if 0
 static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
 #else
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
+
+static const QString treeRootPath = QObject::tr("/");
 
 MainWindow::MainWindow()
 {
@@ -132,7 +134,7 @@ void MainWindow::loadFile(QString &name)
   }
 
 #if 1 //test only
-  insertTreeRow(QString(tr("[No data]")));
+  removeTreeRowsAll();
   insertTreeChild(QString(tr("[No data]")));
 #endif
 
@@ -259,7 +261,7 @@ void MainWindow::createWidgets()
   headers << tr("name") << tr("ino") << tr("type");
 
   QStringList data;
-  data << tr("/");
+  data << treeRootPath;
 
   treeModel = new FsTreeModel(headers, data);
 
@@ -370,4 +372,11 @@ void MainWindow::insertTreeChild(const QString &item)
     treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
                                             QItemSelectionModel::ClearAndSelect);
   }
+}
+
+void MainWindow::removeTreeRowsAll()
+{
+  QModelIndex index = treeModel->index(0, 0);
+  QAbstractItemModel *model = treeView->model();
+  model->removeRows(0, model->rowCount(), index);
 }

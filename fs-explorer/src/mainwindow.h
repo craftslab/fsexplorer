@@ -73,6 +73,7 @@ private:
   void createConnections();
   void insertTreeRow(const QString &item);
   void insertTreeChild(const QString &item);
+  void removeTreeRowsAll();
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
