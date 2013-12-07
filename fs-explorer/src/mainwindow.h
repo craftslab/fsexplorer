@@ -46,7 +46,6 @@ public:
   MainWindow();
 
 signals:
-  void load(QString &name);
   void mounted(bool status);
 
 protected:
@@ -60,8 +59,6 @@ private slots:
   void console();
   void stats();
   void about();
-
-  void loadFile(QString &name);
   void showWidgets(bool show);
 
 private:
@@ -71,6 +68,7 @@ private:
   void createStatusBar();
   void createWidgets();
   void createConnections();
+  void loadFile(QString &name);
   void insertTreeRow(const QString &item);
   void insertTreeChild(const QString &item);
   void removeTreeRowsAll();

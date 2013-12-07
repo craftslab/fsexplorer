@@ -84,7 +84,7 @@ void MainWindow::openFile()
   fileName = QDir::toNativeSeparators(fileName);
   filePath = fileName;
 
-  emit load(fileName);
+  loadFile(fileName);
 }
 
 void MainWindow::importDir()
@@ -117,28 +117,6 @@ void MainWindow::about()
                     tr("FS Explorer"),
                     tr("<h3><center>FS Explorer</center></h3>"
                        "<p>Copyright &copy; 2014 angersax@gmail.com</p>"));
-}
-
-void MainWindow::loadFile(QString &name)
-{
-  bool ret;
-  bool status;
-
-  ret = fsEngine->openFile(name);
-  if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
-    status = true;
-  } else {
-    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
-    status = false;
-  }
-
-#if 1 //test only
-  removeTreeRowsAll();
-  insertTreeChild(QString(tr("[No data]")));
-#endif
-
-  emit mounted(status);
 }
 
 void MainWindow::showWidgets(bool show)
@@ -258,7 +236,7 @@ void MainWindow::createStatusBar()
 void MainWindow::createWidgets()
 {
   QStringList headers;
-  headers << tr("name") << tr("ino") << tr("type");
+  headers << tr("name") << tr("ino");
 
   QStringList data;
   data << treeRootPath;
@@ -324,12 +302,32 @@ void MainWindow::createWidgets()
 
 void MainWindow::createConnections()
 {
-  connect(this, SIGNAL(load(QString&)), this, SLOT(loadFile(QString&)));
-
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
+}
+
+void MainWindow::loadFile(QString &name)
+{
+  bool ret;
+  bool status;
+
+  ret = fsEngine->openFile(name);
+  if (ret) {
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
+    status = true;
+  } else {
+    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
+    status = false;
+  }
+
+#if 1 //test only
+  removeTreeRowsAll();
+  insertTreeChild(QString(tr("[No data]")));
+#endif
+
+  emit mounted(status);
 }
 
 void MainWindow::insertTreeRow(const QString &item)
