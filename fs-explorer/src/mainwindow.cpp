@@ -132,8 +132,8 @@ void MainWindow::loadFile(QString &name)
   }
 
 #if 1 //test only
-  insertTreeRow();
-  insertTreeChild();
+  insertTreeRow(QString(tr("[No data]")));
+  insertTreeChild(QString(tr("[No data]")));
 #endif
 
   emit mounted(status);
@@ -330,7 +330,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 }
 
-void MainWindow::insertTreeRow()
+void MainWindow::insertTreeRow(const QString &item)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
@@ -341,11 +341,11 @@ void MainWindow::insertTreeRow()
 
   for (int column = 0; column < model->columnCount(index.parent()); ++column) {
     QModelIndex child = model->index(index.row()+1, column, index.parent());
-    model->setData(child, QVariant("[No data]"), Qt::EditRole);
+    model->setData(child, QVariant(item), Qt::EditRole);
   }
 }
 
-void MainWindow::insertTreeChild()
+void MainWindow::insertTreeChild(const QString &item)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
@@ -362,7 +362,7 @@ void MainWindow::insertTreeChild()
 
   for (int column = 0; column < model->columnCount(index); ++column) {
     QModelIndex child = model->index(0, column, index);
-    model->setData(child, QVariant("[No data]"), Qt::EditRole);
+    model->setData(child, QVariant(item), Qt::EditRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
     }

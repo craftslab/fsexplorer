@@ -71,8 +71,8 @@ private:
   void createStatusBar();
   void createWidgets();
   void createConnections();
-  void insertTreeRow();
-  void insertTreeChild();
+  void insertTreeRow(const QString &item);
+  void insertTreeChild(const QString &item);
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
