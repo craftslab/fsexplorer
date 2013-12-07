@@ -36,6 +36,7 @@ class QSplitter;
 class QHBoxLayout;
 
 class FsEngine;
+class FsTreeModel;
 
 class MainWindow : public QMainWindow
 {
@@ -73,6 +74,7 @@ private:
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
+  FsTreeModel *treeModel;
   QTreeView *treeView;
   QListView *listView;
   QTextEdit *outputView;

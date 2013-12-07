@@ -29,6 +29,7 @@
 #include <QFileDialog>
 
 #include "fsengine.h"
+#include "fstreemodel.h"
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = "FS Explorer";
@@ -249,27 +250,26 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createWidgets()
 {
+  QStringList headers;
+  headers << tr("name") << tr("ino") << tr("type");
+
+  QStringList data;
+  data << tr("");
+
+  treeModel = new FsTreeModel(headers, data);
+
   treeView = new QTreeView();
-  listView = new QListView();
-
-#if 0 // test only
-  QFileSystemModel *model = new QFileSystemModel;
-  QModelIndex index = model->index(QDir::homePath());
-  model->setRootPath(QDir::homePath());
-
-  treeView->setModel(model);
-  treeView->scrollTo(index);
-  treeView->expand(index);
-  treeView->setCurrentIndex(index);
-
-  listView->setModel(model);
-  listView->setCurrentIndex(index);
-#endif
-
+  treeView->setModel(treeModel);
   treeView->setHeaderHidden(true);
   treeView->setColumnHidden(1, true);
   treeView->setColumnHidden(2, true);
   treeView->setColumnHidden(3, true);
+
+  for (int column = 0; column < treeModel->columnCount(); ++column) {
+    treeView->resizeColumnToContents(column);
+  }
+
+  listView = new QListView();
 
   horiSplitter = new QSplitter(Qt::Horizontal);
   horiSplitter->addWidget(treeView);

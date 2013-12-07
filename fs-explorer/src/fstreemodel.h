@@ -33,7 +33,7 @@ class FsTreeModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
-  FsTreeModel(const QStringList &headers, const QString &data,
+  FsTreeModel(const QStringList &headers, const QStringList &data,
               QObject *parent = 0);
   ~FsTreeModel();
 

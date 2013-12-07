@@ -24,7 +24,7 @@
 #include "fstreeitem.h"
 #include "fstreemodel.h"
 
-FsTreeModel::FsTreeModel(const QStringList &headers, const QString &data,
+FsTreeModel::FsTreeModel(const QStringList &headers, const QStringList &data,
                          QObject *parent)
   : QAbstractItemModel(parent)
 {
@@ -34,7 +34,7 @@ FsTreeModel::FsTreeModel(const QStringList &headers, const QString &data,
   }
 
   rootItem = new FsTreeItem(rootData);
-  setupModelData(data.split(QString("\n")), rootItem);
+  setupModelData(data, rootItem);
 }
 
 FsTreeModel::~FsTreeModel()
