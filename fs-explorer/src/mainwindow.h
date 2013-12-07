@@ -69,8 +69,10 @@ private:
   void createMenus();
   void createToolBars();
   void createStatusBar();
-  void createConnections();
   void createWidgets();
+  void createConnections();
+  void insertTreeRow();
+  void insertTreeChild();
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;

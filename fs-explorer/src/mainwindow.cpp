@@ -131,6 +131,11 @@ void MainWindow::loadFile(QString &name)
     status = false;
   }
 
+#if 1 //test only
+  insertTreeRow();
+  insertTreeChild();
+#endif
+
   emit mounted(status);
 }
 
@@ -254,16 +259,18 @@ void MainWindow::createWidgets()
   headers << tr("name") << tr("ino") << tr("type");
 
   QStringList data;
-  data << tr("");
+  data << tr("/");
 
   treeModel = new FsTreeModel(headers, data);
 
   treeView = new QTreeView();
   treeView->setModel(treeModel);
-  treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(1, true);
-  treeView->setColumnHidden(2, true);
-  treeView->setColumnHidden(3, true);
+  QModelIndex index = treeModel->index(0, 0);
+  treeView->setCurrentIndex(index);
+  treeView->setHeaderHidden(false);
+  treeView->setColumnHidden(1, false);
+  treeView->setColumnHidden(2, false);
+  treeView->setColumnHidden(3, false);
 
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
@@ -321,4 +328,46 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
+}
+
+void MainWindow::insertTreeRow()
+{
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+  QAbstractItemModel *model = treeView->model();
+
+  if (!model->insertRow(index.row()+1, index.parent())) {
+    return;
+  }
+
+  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+    QModelIndex child = model->index(index.row()+1, column, index.parent());
+    model->setData(child, QVariant("[No data]"), Qt::EditRole);
+  }
+}
+
+void MainWindow::insertTreeChild()
+{
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+  QAbstractItemModel *model = treeView->model();
+
+  if (model->columnCount(index) == 0) {
+    if (!model->insertColumn(0, index)) {
+      return;
+    }
+  }
+
+  if (!model->insertRow(0, index)) {
+    return;
+  }
+
+  for (int column = 0; column < model->columnCount(index); ++column) {
+    QModelIndex child = model->index(0, column, index);
+    model->setData(child, QVariant("[No data]"), Qt::EditRole);
+    if (!model->headerData(column, Qt::Horizontal).isValid()) {
+      model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
+    }
+
+    treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
+                                            QItemSelectionModel::ClearAndSelect);
+  }
 }
