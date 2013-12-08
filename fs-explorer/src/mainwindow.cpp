@@ -27,6 +27,7 @@
 #include <QHBoxLayout>
 #include <QFileSystemModel>
 #include <QFileDialog>
+#include <QStyle>
 
 #include "fsengine.h"
 #include "fstreemodel.h"
@@ -135,7 +136,12 @@ void MainWindow::showWidgets(bool show)
 void MainWindow::createActions()
 {
   openAction = new QAction(tr("&Open file..."), this);
+#if 0
+  QStyle *appStyle = QApplication::style();
+  openAction->setIcon(appStyle->standardIcon(QStyle::SP_DirOpenIcon));
+#else
   openAction->setIcon(QIcon(":/images/open.png"));
+#endif
   openAction->setShortcut(QKeySequence::Open);
   openAction->setStatusTip(tr("Open an existing file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
