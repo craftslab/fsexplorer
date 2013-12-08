@@ -95,10 +95,7 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
-#if 0  // commented here due to exception
   fsEngine->closeFile();
-#endif
-
   setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
 }
@@ -314,7 +311,6 @@ void MainWindow::loadFile(QString &name)
 {
   bool status;
 
-#if 0  // commented here due to exception
   bool ret = fsEngine->openFile(name);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
@@ -323,9 +319,6 @@ void MainWindow::loadFile(QString &name)
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
     status = false;
   }
-#else
-  status = true;
-#endif
 
 #if 1 //test only
   removeTreeRowsAll();
