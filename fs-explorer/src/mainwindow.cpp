@@ -332,13 +332,17 @@ void MainWindow::loadFile(QString &name)
 
 #if 1 //test only
   removeTreeRowsAll();
-  insertTreeChild(QString(tr("foo")), QString(tr("-1")), QString(tr("test")));
+
+  QStringList data;
+  data << tr("foo") << tr("-1") << tr("");
+
+  insertTreeChild(data);
 #endif
 
   emit mounted(status);
 }
 
-void MainWindow::insertTreeRow(const QString &name, const QString &ino, const QString &status)
+void MainWindow::insertTreeRow(const QStringList &data)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
@@ -347,25 +351,13 @@ void MainWindow::insertTreeRow(const QString &name, const QString &ino, const QS
     return;
   }
 
-#if 0
   for (int column = 0; column < model->columnCount(index.parent()); ++column) {
     QModelIndex child = model->index(index.row()+1, column, index.parent());
-    model->setData(child, QVariant(item), Qt::EditRole);
+    model->setData(child, QVariant(data[column]), Qt::EditRole);
   }
-#else
-  QModelIndex child;
-  child = model->index(index.row()+1, 0, index.parent());
-  model->setData(child, QVariant(name), Qt::EditRole);
-
-  child = model->index(index.row()+1, 1, index.parent());
-  model->setData(child, QVariant(ino), Qt::EditRole);
-
-  child = model->index(index.row()+1, 2, index.parent());
-  model->setData(child, QVariant(status), Qt::EditRole);
-#endif
 }
 
-void MainWindow::insertTreeChild(const QString &name, const QString &ino, const QString &status)
+void MainWindow::insertTreeChild(const QStringList &data)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
@@ -380,10 +372,9 @@ void MainWindow::insertTreeChild(const QString &name, const QString &ino, const 
     return;
   }
 
-#if 0
   for (int column = 0; column < model->columnCount(index); ++column) {
     QModelIndex child = model->index(0, column, index);
-    model->setData(child, QVariant(item), Qt::EditRole);
+    model->setData(child, QVariant(data[column]), Qt::EditRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
     }
@@ -391,33 +382,6 @@ void MainWindow::insertTreeChild(const QString &name, const QString &ino, const 
     treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
                                             QItemSelectionModel::ClearAndSelect);
   }
-#else
-  QModelIndex child;
-
-  child = model->index(0, 0, index);
-  model->setData(child, QVariant(name), Qt::EditRole);
-  if (!model->headerData(0, Qt::Horizontal).isValid()) {
-    model->setHeaderData(0, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
-  }
-  treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                              QItemSelectionModel::ClearAndSelect);
-
-  child = model->index(0, 1, index);
-  model->setData(child, QVariant(ino), Qt::EditRole);
-  if (!model->headerData(1, Qt::Horizontal).isValid()) {
-    model->setHeaderData(1, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
-  }
-  treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                              QItemSelectionModel::ClearAndSelect);
-
-  child = model->index(0, 2, index);
-  model->setData(child, QVariant(status), Qt::EditRole);
-  if (!model->headerData(2, Qt::Horizontal).isValid()) {
-    model->setHeaderData(2, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
-  }
-  treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                              QItemSelectionModel::ClearAndSelect);
-#endif
 }
 
 void MainWindow::removeTreeRowsAll()

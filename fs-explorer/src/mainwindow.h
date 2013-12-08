@@ -69,8 +69,8 @@ private:
   void createWidgets();
   void createConnections();
   void loadFile(QString &name);
-  void insertTreeRow(const QString &name, const QString &ino, const QString &status);
-  void insertTreeChild(const QString &name, const QString &ino, const QString &status);
+  void insertTreeRow(const QStringList &data);
+  void insertTreeChild(const QStringList &data);
   void removeTreeRowsAll();
 
   QWidget *layoutWidget;
