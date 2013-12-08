@@ -40,8 +40,6 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" mar
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
 
-static const QString treeRootPath = QObject::tr("/");
-
 MainWindow::MainWindow()
 {
   setWindowIcon(QPixmap(":/images/icon.png"));
@@ -242,7 +240,7 @@ void MainWindow::createWidgets()
   headers << tr("name") << tr("ino") << tr("status");
 
   QStringList data;
-  data << treeRootPath;
+  data << tr("/") << tr("") << tr("");
 
   treeModel = new FsTreeModel(headers, data);
 
@@ -314,11 +312,10 @@ void MainWindow::createConnections()
 
 void MainWindow::loadFile(QString &name)
 {
-  bool ret;
   bool status;
 
 #if 0  // commented here due to exception
-  ret = fsEngine->openFile(name);
+  bool ret = fsEngine->openFile(name);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
     status = true;
@@ -333,8 +330,12 @@ void MainWindow::loadFile(QString &name)
 #if 1 //test only
   removeTreeRowsAll();
 
+  QStringList root;
+  root << tr("/") << tr("0") << tr("expanded");
+  updateTreeItem(0, root);
+
   QStringList data;
-  data << tr("foo") << tr("-1") << tr("");
+  data << tr("foo") << tr("") << tr("");
 
   insertTreeChild(data);
 #endif
@@ -389,4 +390,15 @@ void MainWindow::removeTreeRowsAll()
   QModelIndex index = treeModel->index(0, 0);
   QAbstractItemModel *model = treeView->model();
   model->removeRows(0, model->rowCount(), index);
+}
+
+void MainWindow::updateTreeItem(int row, const QStringList &data)
+{
+  QModelIndex index = treeModel->index(0, 0);
+  QAbstractItemModel *model = treeView->model();
+
+  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+    QModelIndex child = model->index(row, column, index.parent());
+    model->setData(child, QVariant(data[column]), Qt::EditRole);
+  }
 }

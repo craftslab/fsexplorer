@@ -72,6 +72,7 @@ private:
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data);
   void removeTreeRowsAll();
+  void updateTreeItem(int row, const QStringList &data);
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;

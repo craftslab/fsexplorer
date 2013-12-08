@@ -214,6 +214,7 @@ bool FsTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
 {
+#if 0
   QList<FsTreeItem*> parents;
   QList<int> indentations;
   parents << parent;
@@ -260,4 +261,16 @@ void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
 
     number++;
   }
+#else
+  QVector<QVariant> columnData;
+
+  for (int column = 0; column < lines.count(); ++column) {
+    columnData << lines[column];
+  }
+
+  parent->insertChildren(parent->childCount(), 1, rootItem->columnCount());
+  for (int column = 0; column < columnData.size(); ++column) {
+    parent->child(parent->childCount() - 1)->setData(column, columnData[column]);
+  }
+#endif
 }
