@@ -71,5 +71,7 @@ int main(int argc, char *argv[])
   mainWin.resize(width, height);
   mainWin.show();
 
-  return app.exec();
+  app.exec();
+
+  return 0;
 }
