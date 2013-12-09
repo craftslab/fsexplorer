@@ -250,7 +250,11 @@ static void fs_d_release(struct dentry *dentry)
   }
 
   if (dentry->d_name) {
-    free(dentry->d_name);
+    if (dentry->d_name->name) {
+      free((void *)dentry->d_name->name);
+      dentry->d_name->name = NULL;
+    }
+    free((void *)dentry->d_name);
     dentry->d_name = NULL;
   }
 
@@ -343,9 +347,13 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
   /*
    * Fill in dentry
    */
-  dentry->d_parent = (struct dentry *)dentry->d_parent;
-  dentry->d_name->name = (const unsigned char *)ext4_dentry.name;
+  dentry->d_parent = (struct dentry *)dentry->d_parent;  
   dentry->d_name->len = (uint32_t)ext4_dentry.name_len;
+  dentry->d_name->name = (const unsigned char *)malloc(dentry->d_name->len);
+  if (!dentry->d_name->name) {
+    return NULL;
+  }
+  memcpy((void *)dentry->d_name->name, (void *)ext4_dentry.name, ext4_dentry.name_len);
   dentry->d_name->hash = (uint32_t)fs_name_hash(dentry->d_name->name, dentry->d_name->len);
   dentry->d_inode = (struct inode *)inode;
   dentry->d_op = (const struct dentry_operations *)dentry->d_op;

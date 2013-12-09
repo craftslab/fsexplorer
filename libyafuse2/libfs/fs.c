@@ -63,13 +63,11 @@ static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static void fs_unload_lib(void *handle);
 
-static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data);
+static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
-static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf);
-static int32_t fs_getdents(uint32_t fd, struct fs_dirent *dirent, uint32_t count);
-static int32_t fs_getcwd(char *buf, uint64_t size);
-static int32_t fs_chdir(const char *filename);
+static int32_t fs_stat(uint64_t ino, struct fs_kstat *statbuf);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count);
 
 /*
  * Function Definition
@@ -113,13 +111,15 @@ static void fs_unload_lib(void *handle)
 /*
  * Mount filesystem
  */
-static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, void *data)
+static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent)
 {
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
   struct dentry *root = NULL;
+  int32_t len;
 
-  if (!devname || !dirname || !type || fs_mnt.mnt_count != 0) {
+  if (!devname || !dirname || !type || !dirent
+      || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
@@ -156,6 +156,15 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   fs_mnt.mnt_mountpoint = fs_mnt.mnt.mnt_root;
   fs_mnt.mnt_count = 1;
   fs_mnt.mnt_devname = devname;
+
+  memset((void *)dirent, 0, sizeof(struct fs_dirent));
+  dirent->d_ino = (uint64_t)fs_mnt.mnt_mountpoint->d_inode->i_ino;
+  dirent->d_off = (int64_t)-1;
+  dirent->d_reclen = (uint16_t)0;
+  dirent->d_type = (enum libfs_ftype)FT_DIR;
+  len = (int32_t)fs_mnt.mnt_mountpoint->d_name->len;
+  len = len >= 255 ? 255 : len;
+  memcpy((void *)dirent->d_name, fs_mnt.mnt_mountpoint->d_name->name, len);
 
   return 0;
 
@@ -210,9 +219,9 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 /*
  * Show status of file
  */
-static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf)
+static int32_t fs_stat(uint64_t ino, struct fs_kstat *statbuf)
 {
-  if (!filename || !statbuf) {
+  if (!statbuf) {
     return -1;
   }
 
@@ -222,33 +231,9 @@ static int32_t fs_stat(const char *filename, struct fs_kstat *statbuf)
 /*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint32_t fd, struct fs_dirent *dirent, uint32_t count)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count)
 {
   if (!dirent) {
-    return -1;
-  }
-
-  return 0;
-}
-
-/*
- * Get current working directory
- */
-static int32_t fs_getcwd(char *buf, uint64_t size)
-{
-  if (!buf) {
-    return -1;
-  }
-
-  return 0;
-}
-
-/*
- * Change working directory
- */
-static int32_t fs_chdir(const char *filename)
-{
-  if (!filename) {
     return -1;
   }
 
@@ -273,8 +258,6 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   (*fs_opt).statfs = fs_statfs;
   (*fs_opt).stat = fs_stat;
   (*fs_opt).getdents = fs_getdents;
-  (*fs_opt).getcwd = fs_getcwd;
-  (*fs_opt).chdir = fs_chdir;
 
   return 0;
 }

@@ -95,7 +95,7 @@ static void show_usage(void)
   fprintf(stdout, "  <directory>  fs mount point\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "Example:\n");
-  fprintf(stdout, "  fs-test ext4 fs-image.ext4 fs-mount\n");
+  fprintf(stdout, "  fs-test ext4 fs-image.ext4 fs-mnt\n");
   fprintf(stdout, "\n");
 }
 
@@ -130,6 +130,7 @@ int32_t main(int argc, char *argv[])
 {
   const char *fs_type = NULL, *fs_img = NULL, *fs_mnt = NULL;
   struct fs_opt_t fs_opt;
+  struct fs_dirent fs_root;
   int32_t ret = 0;
 
   show_banner();
@@ -163,12 +164,16 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  ret = fs_opt.mount(fs_img, fs_mnt, fs_type, 0, NULL);
+  memset((void *)&fs_root, 0, sizeof(struct fs_dirent));
+  ret = fs_opt.mount(fs_img, fs_mnt, fs_type, 0, &fs_root);
   if (ret != 0) {
     error("mount failed!");
     goto main_exit;
   }
   info("mount filesystem successfully.");
+
+  info("root dentry: ino %ld, type %d, name %s",
+       fs_root.d_ino, fs_root.d_type, fs_root.d_name);
 
   ret = fs_opt.umount(fs_mnt, 0);
   if (ret != 0) {
