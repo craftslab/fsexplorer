@@ -34,6 +34,41 @@
 /*
  * Type Definition
  */
+enum libfs_ftype {
+  FT_UNKNOWN  = 0,
+  FT_REG_FILE = 1,
+  FT_DIR      = 2,
+  FT_CHRDEV   = 3,
+  FT_BLKDEV   = 4,
+  FT_FIFO     = 5,
+  FT_SOCK     = 6,
+  FT_SYMLINK  = 7,
+  FT_MAX      = 8
+};
+
+enum libfs_imode {
+  IXOTH  = 0x1,
+  IWOTH  = 0x2,
+  IROTH  = 0x4,
+  IXGRP  = 0x8,
+  IWGRP  = 0x10,
+  IRGRP  = 0x20,
+  IXUSR  = 0x40,
+  IWUSR  = 0x80,
+  IRUSR  = 0x100,
+  ISVTX  = 0x200,
+  ISGID  = 0x400,
+  ISUID  = 0x800,
+  IFIFO  = 0x1000,
+  IFCHR  = 0x2000,
+  IFDIR  = 0x4000,
+  IFBLK  = 0x6000,
+  IFREG  = 0x8000,
+  IFLNK  = 0xA000,
+  IFSOCK = 0xC000,
+  IFMAX  = 0xFFFF
+};
+
 struct libfs_timespec
 {
   int64_t tv_sec;
@@ -45,7 +80,7 @@ struct fs_fsid_t {
 };
 
 struct fs_kstatfs {
-  int64_t f_type;
+  enum libfs_ftype f_type;
   int64_t f_bsize;
   uint64_t f_blocks;
   uint64_t f_bfree;
@@ -63,13 +98,13 @@ struct fs_dirent {
   uint64_t d_ino;
   int64_t d_off;
   uint16_t d_reclen;
-  uint8_t d_type;
+  enum libfs_ftype d_type;
   char d_name[256];
 };
 
 struct fs_kstat {
   uint64_t ino;
-  uint16_t mode;
+  enum libfs_imode mode;
   uint32_t nlink;
   uint32_t uid;
   uint32_t gid;
@@ -82,13 +117,11 @@ struct fs_kstat {
 };
 
 struct fs_opt_t {
-  int32_t (*mount) (const char *devname, const char *dirname, const char *type, int32_t flags, void *data);
+  int32_t (*mount) (const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
   int32_t (*umount) (const char *dirname, int32_t flags);
   int32_t (*statfs) (const char *pathname, struct fs_kstatfs *buf);
-  int32_t (*stat) (const char *filename, struct fs_kstat *statbuf);
-  int32_t (*getdents) (uint32_t fd, struct fs_dirent *dirent, uint32_t count);
-  int32_t (*getcwd) (char *buf, uint64_t size);
-  int32_t (*chdir) (const char *filename);
+  int32_t (*stat) (uint64_t ino, struct fs_kstat *statbuf);
+  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirent, uint32_t count);
 };
 
 /*
