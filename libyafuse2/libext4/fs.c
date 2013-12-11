@@ -624,7 +624,10 @@ static int32_t fs_umount(const char *name, int32_t flags)
   /*
    * Free list of dentry
    */
-  // add code here
+  if (fs_sb.s_d_op && (const struct dentry_operations *)(fs_sb.s_d_op)->d_release && fs_sb.s_root) {
+    fs_sb.s_d_op->d_release(fs_sb.s_root);
+    fs_sb.s_root = NULL;
+  }
 
   /*
    * Free list of inode
@@ -638,6 +641,13 @@ static int32_t fs_umount(const char *name, int32_t flags)
   if (fs_sb.s_fs_info) {
     free(fs_sb.s_fs_info);
   }
+
+  /*
+   * No malloc here
+   */
+  fs_sb.s_type = NULL;
+  fs_sb.s_op = NULL;
+  fs_sb.s_d_op = NULL;
 
   memset((void *)&fs_sb, 0, sizeof(struct super_block));
 
