@@ -49,5 +49,6 @@ private:
   QString *fileName;
   QString *fileMount;
   QString *fileType;
+  struct fs_dirent *fileRoot;
 };
 #endif

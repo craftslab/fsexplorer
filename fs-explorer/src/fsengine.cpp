@@ -41,6 +41,7 @@ FsEngine::FsEngine(QWidget *parent)
   fileName = NULL;
   fileMount = NULL;
   fileType = NULL;
+  fileRoot = NULL;
 }
 
 FsEngine::~FsEngine()
@@ -70,12 +71,17 @@ bool FsEngine::openFile(QString &name)
   ba = name.toLatin1();
   dev = (const char*)ba.data();
 
-  dir = (const char*)"foo";
+  dir = (const char*)"/";
   len = sizeof(fileTypeList) / sizeof(const char*);
+
+  fileRoot = (struct fs_dirent *)malloc(sizeof(struct fs_dirent));
+  if (!fileRoot) {
+    goto openFileFail;
+  }
 
   for (i = 0; i < len; ++i) {
     type = fileTypeList[i];
-    ret = fileOpt->mount(dev, dir, type, 0, NULL);
+    ret = fileOpt->mount(dev, dir, type, 0, fileRoot);
     if (ret == 0) {
       break;
     }
@@ -103,15 +109,18 @@ openFileFail:
 
 bool FsEngine::closeFile()
 {
-  if (fileOpt && fileOpt->umount && fileMount) {
-    (void)fileOpt->umount((const char *)fileMount->toLatin1().data(), 0);
-  }
-
-  unloadLibrary();
-
   if (fileType) {
     delete fileType;
     fileType = NULL;
+  }
+
+  if (fileName) {
+    delete fileName;
+    fileName = NULL;
+  }
+
+  if (fileOpt && fileOpt->umount && fileMount) {
+    (void)fileOpt->umount((const char *)fileMount->toLatin1().data(), 0);
   }
 
   if (fileMount) {
@@ -119,10 +128,12 @@ bool FsEngine::closeFile()
     fileMount = NULL;
   }
 
-  if (fileName) {
-    delete fileName;
-    fileName = NULL;
+  if (fileRoot) {
+    free(fileRoot);
+    fileRoot = NULL;
   }
+
+  unloadLibrary();
 
   return true;
 }
