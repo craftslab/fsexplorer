@@ -347,7 +347,7 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
   /*
    * Fill in dentry
    */
-  dentry->d_parent = (struct dentry *)dentry->d_parent;  
+  dentry->d_parent = (struct dentry *)dentry->d_parent;
   dentry->d_name->len = (uint32_t)ext4_dentry.name_len;
   dentry->d_name->name = (const unsigned char *)malloc(dentry->d_name->len);
   if (!dentry->d_name->name) {
