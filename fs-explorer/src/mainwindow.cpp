@@ -20,6 +20,7 @@
  */
 
 #include <QtGui>
+#include <QDateTime>
 #include <QTreeView>
 #include <QListView>
 #include <QTextEdit>
@@ -107,7 +108,6 @@ void MainWindow::console()
 
 void MainWindow::stats()
 {
-  fsEngine->dumpInfo();
 }
 
 void MainWindow::about()
@@ -320,6 +320,14 @@ void MainWindow::loadFile(QString &name)
   bool ret = fsEngine->openFile(name);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
+
+    QDateTime dt = QDateTime::currentDateTime();
+    QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
+    text.append(tr("Mount filesystem successfully.\n\n"));
+    text.append(tr("Image: %1\n").arg(name));
+    text.append(tr("Type: %1\n").arg(fsEngine->getFileType()));
+    setOutput(text);
+
     status = true;
   } else {
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
@@ -335,11 +343,21 @@ void MainWindow::loadFile(QString &name)
 
   QStringList data;
   data << tr("foo") << tr("") << tr("");
-
   insertTreeChild(data);
+
+  QModelIndex index = treeModel->index(0, 0);
+  treeView->setCurrentIndex(index);
 #endif
 
   emit mounted(status);
+}
+
+void MainWindow::setOutput(const QString &text)
+{
+  if (outputView) {
+    outputView->clear();
+    outputView->setText(text);
+  }
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)

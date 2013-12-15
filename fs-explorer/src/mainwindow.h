@@ -69,6 +69,7 @@ private:
   void createWidgets();
   void createConnections();
   void loadFile(QString &name);
+  void setOutput(const QString &text);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data);
   void removeTreeRowsAll();

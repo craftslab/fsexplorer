@@ -138,7 +138,7 @@ bool FsEngine::closeFile()
   return true;
 }
 
-QString FsEngine::getFileType()
+QString FsEngine::getFileType() const
 {
   if (!fileType) {
     return QString("N/A");
@@ -147,11 +147,16 @@ QString FsEngine::getFileType()
   return *fileType;
 }
 
-void FsEngine::dumpInfo()
+struct fs_dirent FsEngine::getFileRoot() const
 {
-  qDebug() << *fileName;
-  qDebug() << *fileMount;
-  qDebug() << *fileType;
+  struct fs_dirent dent;
+
+  memset((void *)&dent, 0, sizeof(struct fs_dirent));
+  if (fileRoot) {
+    dent = *fileRoot;
+  }
+
+  return dent;
 }
 
 bool FsEngine::loadLibrary()

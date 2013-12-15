@@ -37,8 +37,8 @@ public:
 
   bool openFile(QString &name);
   bool closeFile();
-  QString getFileType();
-  void dumpInfo();
+  QString getFileType() const;
+  struct fs_dirent getFileRoot() const;
 
 private:
   bool loadLibrary();
