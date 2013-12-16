@@ -323,9 +323,9 @@ void MainWindow::loadFile(QString &name)
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
-    text.append(tr("Mount filesystem successfully.\n\n"));
-    text.append(tr("Image: %1\n").arg(name));
-    text.append(tr("Type: %1\n").arg(fsEngine->getFileType()));
+    text.append(tr("mount filesystem successfully.\n\n"));
+    text.append(tr("name: %1\n").arg(name));
+    text.append(tr("type: %1\n").arg(fsEngine->getFileType()));
     setOutput(text);
 
     status = true;
@@ -337,8 +337,10 @@ void MainWindow::loadFile(QString &name)
 #if 1 //test only
   removeTreeRowsAll();
 
+  struct fs_dirent fileRoot = fsEngine->getFileRoot();
+
   QStringList root;
-  root << tr("/") << tr("0") << tr("expanded");
+  root << tr("/") << tr("%1").arg(fileRoot.d_ino) << tr("expanded");
   updateTreeItem(0, root);
 
   QStringList data;
