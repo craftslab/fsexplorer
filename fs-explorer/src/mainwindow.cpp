@@ -73,7 +73,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openFile()
 {
-  QString filter = tr("Filesystem Image (*.img *.ext4 *.fat)");
+  QString filter = tr("FS Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
   QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, filter);
