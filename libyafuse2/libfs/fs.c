@@ -66,7 +66,7 @@ static void fs_unload_lib(void *handle);
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
-static int32_t fs_stat(uint64_t ino, struct fs_kstat *statbuf);
+static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count);
 
 /*
@@ -209,9 +209,29 @@ static int32_t fs_umount(const char *dirname, int32_t flags)
  */
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 {
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  struct kstatfs rootbuf;
+  int32_t ret;
+
   if (!pathname || !buf) {
     return -1;
   }
+
+  if (!fs_mnt.mnt.mnt_sb || !fs_mnt.mnt.mnt_sb->s_op || !fs_mnt.mnt.mnt_sb->s_op->statfs) {
+    return -1;
+  }
+
+  if (sizeof(struct fs_kstatfs) != sizeof(struct kstatfs)) {
+    return -1;
+  }
+
+  memset((void *)&rootbuf, 0, sizeof(struct kstatfs));
+  ret = fs_mnt.mnt.mnt_sb->s_op->statfs(root, &rootbuf);
+  if (ret != 0) {
+    return -1;
+  }
+
+  memcpy((void *)buf, (void *)&rootbuf, sizeof(struct fs_kstatfs));
 
   return 0;
 }
@@ -219,9 +239,9 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 /*
  * Show status of file
  */
-static int32_t fs_stat(uint64_t ino, struct fs_kstat *statbuf)
+static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 {
-  if (!statbuf) {
+  if (!buf) {
     return -1;
   }
 
