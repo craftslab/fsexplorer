@@ -253,7 +253,7 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
  */
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count)
 {
-  if (!dirent) {
+  if (!dirent || count == 0) {
     return -1;
   }
 
