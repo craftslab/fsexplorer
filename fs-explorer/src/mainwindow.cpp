@@ -53,9 +53,9 @@ MainWindow::MainWindow()
   createStatusBar();
   createWidgets();
   createConnections();
+  showWidgets(false);
 
   fsEngine = new FsEngine;
-
   filePath = QString(QDir::homePath());
 }
 
@@ -292,7 +292,7 @@ void MainWindow::createWidgets()
   vertSplitter->setSizes(vertList);
 
   bgLabel = new QLabel(bgLabelText);
-  bgLabel->setVisible(true);
+  bgLabel->setVisible(false);
   bgLabel->setTextFormat(Qt::RichText);
 
   hBoxLayout = new QHBoxLayout();
