@@ -102,11 +102,18 @@ void MainWindow::closeFile()
   emit mounted(false);
 }
 
-void MainWindow::console()
+void MainWindow::stats()
 {
+#if 0
+  Ui::StatsFrame uiStatsFrame;
+  uiStatsFrame.setupUi(&statsFrame);
+  statsFrame.setWindowFlags(statsFrame.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
+  statsFrame.setAttribute(Qt::WA_QuitOnClose);
+  statsFrame.show();
+#endif
 }
 
-void MainWindow::stats()
+void MainWindow::console()
 {
 }
 
@@ -174,19 +181,19 @@ void MainWindow::createActions()
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-  consoleAction = new QAction(tr("Co&nsole"), this);
-  consoleAction->setIcon(QIcon(":/images/console.png"));
-  consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
-  consoleAction->setStatusTip(tr("Run console"));
-  consoleAction->setEnabled(false);
-  connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
-
   statsAction = new QAction(tr("&Stats"), this);
   statsAction->setIcon(QIcon(":/images/stats.png"));
   statsAction->setShortcut(QKeySequence(tr("Ctrl+S")));
   statsAction->setStatusTip(tr("Show stats"));
   statsAction->setEnabled(false);
   connect(statsAction, SIGNAL(triggered()), this, SLOT(stats()));
+
+  consoleAction = new QAction(tr("Co&nsole"), this);
+  consoleAction->setIcon(QIcon(":/images/console.png"));
+  consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
+  consoleAction->setStatusTip(tr("Run console"));
+  consoleAction->setEnabled(false);
+  connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
@@ -206,8 +213,8 @@ void MainWindow::createMenus()
   fileMenu->addAction(exitAction);
 
   optionsMenu = menuBar()->addMenu(tr("&Options"));
-  optionsMenu->addAction(consoleAction);
   optionsMenu->addAction(statsAction);
+  optionsMenu->addAction(consoleAction);
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
@@ -226,8 +233,8 @@ void MainWindow::createToolBars()
   optionsToolBar = addToolBar(tr("Options"));
   optionsToolBar->setFloatable(false);
   optionsToolBar->setMovable(false);
-  optionsToolBar->addAction(consoleAction);
   optionsToolBar->addAction(statsAction);
+  optionsToolBar->addAction(consoleAction);
   optionsToolBar->addSeparator();
 }
 

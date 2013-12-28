@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StatsWidget</class>
- <widget class="QFrame" name="StatsWidget">
+ <class>StatsFrame</class>
+ <widget class="QFrame" name="StatsFrame">
   <property name="geometry">
    <rect>
     <x>0</x>

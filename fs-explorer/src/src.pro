@@ -4,8 +4,7 @@ TEMPLATE = app
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
-FORMS += statswidget.ui
-FORMS += consolewidget.ui
+#FORMS += statsframe.ui
 
 HEADERS += fsengine.h
 HEADERS += fstreeitem.h
