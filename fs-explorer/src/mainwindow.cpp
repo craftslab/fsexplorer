@@ -32,6 +32,8 @@
 
 #include "fsengine.h"
 #include "fstreemodel.h"
+#include "statswindow.h"
+#include "consolewindow.h"
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
@@ -105,16 +107,41 @@ void MainWindow::closeFile()
 void MainWindow::stats()
 {
 #if 0
-  Ui::StatsFrame uiStatsFrame;
-  uiStatsFrame.setupUi(&statsFrame);
-  statsFrame.setWindowFlags(statsFrame.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
-  statsFrame.setAttribute(Qt::WA_QuitOnClose);
-  statsFrame.show();
+  Ui::StatsWindow uiStatsWindow;
+  uiStatsWindow.setupUi(&statsWindow);
+  statsWindow.setWindowFlags(statsWindow.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
+  statsWindow.setAttribute(Qt::WA_QuitOnClose);
+  statWindow.show();
 #endif
+
+  statsWindow = new StatsWindow(this);
+
+  QPoint pos = statsWindow->pos();
+  if (pos.x() < 0) {
+    pos.setX(0);
+  }
+  if (pos.y() < 0) {
+    pos.setY(0);
+  }
+  statsWindow->move(pos);
+  statsWindow->resize(480, 640);
+  statsWindow->show();
 }
 
 void MainWindow::console()
 {
+  consoleWindow = new ConsoleWindow(this);
+
+  QPoint pos = consoleWindow->pos();
+  if (pos.x() < 0) {
+    pos.setX(0);
+  }
+  if (pos.y() < 0) {
+    pos.setY(0);
+  }
+  consoleWindow->move(pos);
+  consoleWindow->resize(640, 480);
+  consoleWindow->show();
 }
 
 void MainWindow::about()
@@ -284,6 +311,7 @@ void MainWindow::createWidgets()
 
   outputView = new QTextEdit();
   outputView->setReadOnly(true);
+  outputView->setLineWrapMode(QTextEdit::NoWrap);
 
   vertSplitter = new QSplitter(Qt::Vertical);
   vertSplitter->setVisible(false);
@@ -365,7 +393,7 @@ void MainWindow::setOutput(const QString &text)
 {
   if (outputView) {
     outputView->clear();
-    outputView->setText(text);
+    outputView->setPlainText(text);
   }
 }
 

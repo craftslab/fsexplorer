@@ -37,6 +37,8 @@ class QHBoxLayout;
 
 class FsEngine;
 class FsTreeModel;
+class StatsWindow;
+class ConsoleWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -102,6 +104,9 @@ private:
   QAction *statsAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
+
+  StatsWindow *statsWindow;
+  ConsoleWindow *consoleWindow;
 
   FsEngine *fsEngine;
   QString filePath;

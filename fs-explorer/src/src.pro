@@ -4,16 +4,20 @@ TEMPLATE = app
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
-#FORMS += statsframe.ui
+#FORMS += statswindow.ui
 
 HEADERS += fsengine.h
 HEADERS += fstreeitem.h
 HEADERS += fstreemodel.h
+HEADERS += statswindow.h
+HEADERS += consolewindow.h
 HEADERS += mainwindow.h
 
 SOURCES += fsengine.cpp
 SOURCES += fstreeitem.cpp
 SOURCES += fstreemodel.cpp
+SOURCES += statswindow.cpp
+SOURCES += consolewindow.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
