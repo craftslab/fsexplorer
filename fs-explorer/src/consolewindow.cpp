@@ -29,6 +29,8 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   textEdit = new QTextEdit;
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
+  textEdit->setTextColor(QColor(0, 255, 0));
+  textEdit->setStyleSheet("background-color: black");
 
   layout = new QVBoxLayout;
   layout->addWidget(textEdit);
