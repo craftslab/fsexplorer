@@ -67,7 +67,11 @@ int main(int argc, char *argv[])
     height = 480;
   }
 
-  mainWin.move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
+    mainWin.move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  } else {
+    mainWin.move(0, 0);
+  }
   mainWin.resize(width, height);
   mainWin.show();
 

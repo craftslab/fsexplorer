@@ -127,7 +127,11 @@ void MainWindow::stats()
   QRect screenRect = desktopWidget->screenGeometry();
 
   statsWindow = new StatsWindow(this);
-  statsWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
+    statsWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  } else {
+    statsWindow->move(0, 0);
+  }
   statsWindow->resize(width, height);
   statsWindow->show();
 }
@@ -141,7 +145,11 @@ void MainWindow::console()
   QRect screenRect = desktopWidget->screenGeometry();
 
   consoleWindow = new ConsoleWindow(this);
-  consoleWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
+    consoleWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  } else {
+    consoleWindow->move(0, 0);
+  }
   consoleWindow->resize(width, height);
   consoleWindow->show();
 }
