@@ -100,6 +100,12 @@ void MainWindow::exportDir()
 void MainWindow::closeFile()
 {
   fsEngine->closeFile();
+  if (statsWindow) {
+    statsWindow->close();
+  }
+  if (consoleWindow) {
+    consoleWindow->close();
+  }
   setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
 }
@@ -114,33 +120,29 @@ void MainWindow::stats()
   statWindow.show();
 #endif
 
-  statsWindow = new StatsWindow(this);
+  int width = 480;
+  int height = 640;
 
-  QPoint pos = statsWindow->pos();
-  if (pos.x() < 0) {
-    pos.setX(0);
-  }
-  if (pos.y() < 0) {
-    pos.setY(0);
-  }
-  statsWindow->move(pos);
-  statsWindow->resize(480, 640);
+  QDesktopWidget* desktopWidget = QApplication::desktop();
+  QRect screenRect = desktopWidget->screenGeometry();
+
+  statsWindow = new StatsWindow(this);
+  statsWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  statsWindow->resize(width, height);
   statsWindow->show();
 }
 
 void MainWindow::console()
 {
-  consoleWindow = new ConsoleWindow(this);
+  int width = 640;
+  int height = 480;
 
-  QPoint pos = consoleWindow->pos();
-  if (pos.x() < 0) {
-    pos.setX(0);
-  }
-  if (pos.y() < 0) {
-    pos.setY(0);
-  }
-  consoleWindow->move(pos);
-  consoleWindow->resize(640, 480);
+  QDesktopWidget* desktopWidget = QApplication::desktop();
+  QRect screenRect = desktopWidget->screenGeometry();
+
+  consoleWindow = new ConsoleWindow(this);
+  consoleWindow->move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  consoleWindow->resize(width, height);
   consoleWindow->show();
 }
 
