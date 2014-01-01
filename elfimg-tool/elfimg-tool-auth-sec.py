@@ -22,7 +22,12 @@
 Example:
 
 To generate ELF with signature and certificate chain according to directory:
-python elfimg-tool-auth-sec.py -d /path/to/dir-of-sample -s /path/to/dir-of-signature-tool -b kmod_auth_sec -i
+python elfimg-tool-auth-sec.py -d /path/to/kmod/dir -s /path/to/signature/tool/dir
+
+OR:
+
+To generate ELF with signature and certificate chain according to file of kmod:
+python elfimg-tool-auth-sec.py -f /path/to/kmod.ko -s /path/to/signature/tool/dir
 '''
 
 import os, sys
@@ -30,8 +35,10 @@ import getopt
 import struct
 import hashlib
 import subprocess
+import shutil
 from stat import *
 from zipfile import ZipFile
+from datetime import datetime
 
 '''
 Global Variable Definition
@@ -43,6 +50,18 @@ banner = '''
 |  _| |  | | (_| (_| | | | | (_| | (_) |
 |_| |_|  |_|\___\__,_|_| |_|\__,_|\___/ 
 '''
+
+signattrs = [
+  ['hash_alg',             'SHA256'],
+  ['total_num_root_certs', '1'],
+  ['model_id',             '0x0000'],
+  ['sw_id',                '0x00000000000000FE'],
+  ['exponent',             '3'],
+  ['msm_part',             '0x007B80E1'],
+  ['oem_id',               '0x0004'],
+  ['debug',                '0x0000000000000002'],
+  ['certchainsize',        '3']
+]
 
 class FileType:
   KMODULE = 0
@@ -145,15 +164,40 @@ PT_LOPROC  = 0x70000000
 PT_HIPROC  = 0x7FFFFFFF
 
 '''
+Mask for bits 20-27 to parse program header p_flags
+'''
+MI_PBT_FLAGS_MASK = 0x0FF00000
+
+'''
 Helper defines to help parse ELF program headers
 '''
-MI_PROG_BOOT_DIGEST_SIZE = 20
+MI_PROG_BOOT_DIGEST_SIZE       = 20
+MI_PBT_FLAG_SEGMENT_TYPE_MASK  = 0x07000000
+MI_PBT_FLAG_SEGMENT_TYPE_SHIFT = 0x18
+MI_PBT_FLAG_PAGE_MODE_MASK     = 0x00100000
+MI_PBT_FLAG_PAGE_MODE_SHIFT    = 0x14
+MI_PBT_FLAG_ACCESS_TYPE_MASK   = 0x00E00000
+MI_PBT_FLAG_ACCESS_TYPE_SHIFT  = 0x15
+MI_PBT_FLAG_POOL_INDEX_MASK    = 0x08000000
+MI_PBT_FLAG_POOL_INDEX_SHIFT   = 0x1B
 
 '''
 Segment Type
 '''
-MI_PBT_HASH_SEGMENT = 0x2
-MI_PBT_PHDR_SEGMENT = 0x7
+MI_PBT_L4_SEGMENT        = 0x0
+MI_PBT_AMSS_SEGMENT      = 0x1
+MI_PBT_HASH_SEGMENT      = 0x2
+MI_PBT_BOOT_SEGMENT      = 0x3
+MI_PBT_L4BSP_SEGMENT     = 0x4
+MI_PBT_SWAPPED_SEGMENT   = 0x5
+MI_PBT_SWAP_POOL_SEGMENT = 0x6
+MI_PBT_PHDR_SEGMENT      = 0x7
+
+'''
+Page/Non-Page Type
+'''
+MI_PBT_NON_PAGED_SEGMENT = 0x0
+MI_PBT_PAGED_SEGMENT     = 0x1
 
 '''
 Access Type
@@ -167,22 +211,92 @@ MI_PBT_SHARED_SEGMENT  = 0x4
 '''
 ELF Segment Flag Definitions
 '''
+MI_PBT_ELF_AMSS_NON_PAGED_RO_SEGMENT = 0x01200000
+MI_PBT_ELF_AMSS_PAGED_RO_SEGMENT = 0x01300000 
+MI_PBT_ELF_SWAP_POOL_NON_PAGED_ZI_SEGMENT_INDEX0 = 0x06400000
+MI_PBT_ELF_SWAPPED_PAGED_RO_SEGMENT_INDEX0 = 0x05300000 
+MI_PBT_ELF_SWAP_POOL_NON_PAGED_ZI_SEGMENT_INDEX1 = 0x0E400000
+MI_PBT_ELF_SWAPPED_PAGED_RO_SEGMENT_INDEX1 = 0x0D300000 
+MI_PBT_ELF_AMSS_NON_PAGED_ZI_SEGMENT = 0x01400000
+MI_PBT_ELF_AMSS_PAGED_ZI_SEGMENT = 0x01500000
+MI_PBT_ELF_AMSS_NON_PAGED_RW_SEGMENT = 0x01000000
+MI_PBT_ELF_AMSS_PAGED_RW_SEGMENT = 0x01100000
+MI_PBT_ELF_AMSS_NON_PAGED_NOTUSED_SEGMENT = 0x01600000
+MI_PBT_ELF_AMSS_PAGED_NOTUSED_SEGMENT = 0x01700000
+MI_PBT_ELF_AMSS_NON_PAGED_SHARED_SEGMENT = 0x01800000
+MI_PBT_ELF_AMSS_PAGED_SHARED_SEGMENT = 0x01900000
 MI_PBT_ELF_HASH_SEGMENT = 0x02200000 
+MI_PBT_ELF_BOOT_SEGMENT = 0x03200000 
 MI_PBT_ELF_PHDR_SEGMENT = 0x07000000 
+MI_PBT_ELF_NON_PAGED_L4BSP_SEGMENT = 0x04000000 
+MI_PBT_ELF_PAGED_L4BSP_SEGMENT = 0x04100000 
+
+'''
+Class of OS Type ID
+'''
+class OSType: 	  	 
+  BMP_BOOT_OS     = 0
+  WM_BOOT_OS      = 1
+  ANDROID_BOOT_OS = 2
+  CHROME_BOOT_OS  = 3
+  SYMBIAN_BOOT_OS = 4
+  LINUX_BOOT_OS   = 5
 
 '''
 Class of Image Type ID
 '''
 class ImageType:
-  NONE_IMG = 0
-  HASH_IMG = 4
+  NONE_IMG         = 0
+  OEM_SBL_IMG      = 1
+  AMSS_IMG         = 2
+  QCSBL_IMG        = 3
+  HASH_IMG         = 4
+  APPSBL_IMG       = 5
+  APPS_IMG         = 6
+  HOSTDL_IMG       = 7
+  DSP1_IMG         = 8 
+  FSBL_IMG         = 9
+  DBL_IMG          = 10
+  OSBL_IMG         = 11
+  DSP2_IMG         = 12
+  EHOSTDL_IMG      = 13
+  NANDPRG_IMG      = 14
+  NORPRG_IMG       = 15
+  RAMFS1_IMG       = 16
+  RAMFS2_IMG       = 17
+  ADSP_Q5_IMG      = 18
+  APPS_KERNEL_IMG  = 19
+  BACKUP_RAMFS_IMG = 20
+  SBL1_IMG         = 21
+  SBL2_IMG         = 22
+  RPM_IMG          = 23
+  SBL3_IMG         = 24
+  TZ_IMG           = 25
 
 '''
 Image Type Table
 '''
 image_id_table = {
-  'hash': [ImageType.HASH_IMG, 'HASH_IMG', 'bin'],
-} 
+  'appsbl': [ImageType.APPSBL_IMG, 'APPSBL_IMG', 'bin'],
+  'dbl': [ImageType.DBL_IMG, 'DBL_IMG', 'bin'],
+  'osbl': [ImageType.OSBL_IMG, 'OSBL_IMG', 'bin'],
+  'amss': [ImageType.AMSS_IMG, 'AMSS_IMG', 'elf'],
+  'amss_mbn': [ImageType.HASH_IMG, 'HASH_IMG', 'elf'],
+  'apps': [ImageType.APPS_IMG, 'APPS_IMG', 'bin'],
+  'hostdl': [ImageType.HOSTDL_IMG, 'HOSTDL_IMG', 'bin'],
+  'ehostdl': [ImageType.EHOSTDL_IMG, 'EHOSTDL_IMG', 'bin'],
+  'emmcbld': [ImageType.EHOSTDL_IMG, 'EMMCBLD_IMG', 'bin'],
+  'qdsp6fw': [ImageType.DSP1_IMG, 'DSP1_IMG', 'elf'],
+  'qdsp6sw': [ImageType.DSP2_IMG, 'DSP2_IMG', 'elf'],
+  'qdsp5': [ImageType.ADSP_Q5_IMG, 'ADSP_Q5_IMG', 'bin'],
+  'tz': [ImageType.TZ_IMG, 'TZ_IMG', 'bin'],
+  'rpm': [ImageType.RPM_IMG, 'RPM_IMG', 'bin'],
+  'sbl1': [ImageType.SBL1_IMG, 'SBL1_IMG', 'bin'],
+  'sbl2': [ImageType.SBL2_IMG, 'SBL2_IMG', 'bin'],
+  'sbl3': [ImageType.SBL3_IMG, 'SBL3_IMG', 'bin'],
+  'efs1': [ImageType.RAMFS1_IMG, 'RAMFS1_IMG', 'bin'],
+  'efs2': [ImageType.RAMFS2_IMG, 'RAMFS2_IMG', 'bin']
+}
 
 '''
 Class of ELF Header
@@ -367,7 +481,7 @@ class Boot_Hdr:
 Class of ELF Builder
 '''
 class ElfBuilder(object):
-  def __init__(self, srcname, dstname, signtool = None, namebase = None):
+  def __init__(self, srcname, dstname, signtool = None, cleanup = False):
     self.ehdr = Elf32_Ehdr('\0' * ELF_HDR_SIZE)
     self.phdr = Elf32_Phdr('\0' * ELF_PHDR_SIZE)
     self.bhdr = Boot_Hdr(int('0x0', 16))
@@ -375,7 +489,7 @@ class ElfBuilder(object):
     self.src_sz = os.stat(srcname).st_size
     self.dst_fp = -1
     self.signtool = signtool
-    self.namebase = namebase
+    self.cleanup = cleanup
 
     self.initialize(srcname, dstname)
 
@@ -529,9 +643,10 @@ class ElfBuilder(object):
     vaddr
     '''
     '''
-    'offset = ELF_BLOCK_ALIGN' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    offset = ELF_BLOCK_ALIGN
 
     vaddr  = 0
     paddr  = vaddr
@@ -551,9 +666,10 @@ class ElfBuilder(object):
     Check if segment size is block aligned
     '''
     '''
-    'if (hash_tbl_size > ELF_BLOCK_ALIGN)' disused due to customized definition
-    '''
     size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hash_tbl_size
+    disused due to customized definition
+    '''
+    size = ELF_BLOCK_ALIGN + hash_tbl_size
     if (size > ELF_BLOCK_ALIGN):
       off = size & (ELF_BLOCK_ALIGN - 1)
       if (int(off) != 0):
@@ -561,10 +677,6 @@ class ElfBuilder(object):
     else:
       pad = ELF_BLOCK_ALIGN - size
 
-    '''
-    'offset = ELF_BLOCK_ALIGN + hash_tbl_size + pad'
-    disused due to customized definition
-    '''
     offset = size + pad
 
     vaddr  = 0
@@ -738,10 +850,10 @@ class ElfBuilder(object):
     hashtbl_phdr = Elf32_Phdr(self.dst_fp.read(ehdr.e_phentsize))
 
     '''
-    'if (hashtbl_phdr.p_filesz > ELF_BLOCK_ALIGN)'
+    'size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hashtbl_phdr.p_filesz'
     disused due to customized definition
     '''
-    size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hashtbl_phdr.p_filesz
+    size = ELF_BLOCK_ALIGN + hashtbl_phdr.p_filesz
     if (size > ELF_BLOCK_ALIGN):
       off = size & (ELF_BLOCK_ALIGN - 1)
       if (int(off) != 0):
@@ -791,9 +903,10 @@ class ElfBuilder(object):
     packed_values = Boot_Hdr.s_part.pack(*values)
 
     '''
-    'offset = ELF_BLOCK_ALIGN' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    offset = ELF_BLOCK_ALIGN
 
     self.dst_fp.seek(offset, os.SEEK_SET)
     self.dst_fp.write(packed_values)
@@ -827,9 +940,10 @@ class ElfBuilder(object):
     Write hash to file as hash segment
     '''
     '''
-    'offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE
+    offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
     self.dst_fp.write(hash)
@@ -854,9 +968,10 @@ class ElfBuilder(object):
     Write hash to file as hash segment
     '''
     '''
-    'offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE
+    offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
     self.dst_fp.write(hash)
@@ -893,9 +1008,10 @@ class ElfBuilder(object):
     Write hash to file as hash segment
     '''
     '''
-    'offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)
+    offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)
 
     self.dst_fp.seek(offset, os.SEEK_SET)
     self.dst_fp.write(hash)
@@ -934,9 +1050,10 @@ class ElfBuilder(object):
     for signature and certificate
     '''
     '''
-    'offset = ELF_BLOCK_ALIGN' disused due to customized definition
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
+    disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    offset = ELF_BLOCK_ALIGN
 
     self.dst_fp.seek(offset, os.SEEK_SET)
 
@@ -947,17 +1064,18 @@ class ElfBuilder(object):
     Create a temporary file and write data to it
     '''
     ''' disused due to the failure of access to temporary file
-    ftemp = tempfile.NamedTemporaryFile()
-    ftemp.write(buf)
+    ftmp = tempfile.NamedTemporaryFile()
+    ftmp.write(buf)
     '''
-    ftemp_name = self.namebase + '.bin'
+    time = str(datetime.now()).replace(':', '-').replace(' ', '-').replace('.', '-')
+    ftmppath = os.path.sep.join((self.signtool, time + '.bin'))
     try:
-      ftemp = open(os.path.sep.join((self.signtool, ftemp_name)), 'wb+')
+      ftmp = open(ftmppath, 'wb+')
     except IOError, err:
       print >> sys.stderr, str(err)
       return -1
-    ftemp.write(buf)
-    ftemp.close()
+    ftmp.write(buf)
+    ftmp.close()
 
     '''
     Run external signature tool, and the following files are generated:
@@ -968,10 +1086,11 @@ class ElfBuilder(object):
     *-attestation_ca_cert.cer
     *-root_cert.cer
     '''
-    sign_tool = os.path.sep.join((self.signtool, 'QDST.py'))
-    hashseg_file = 'image=' + ftemp_name
-    config_file = 'xml=' + 'QDST_' + self.namebase + '.xml'
-    cmd = ['python', sign_tool, hashseg_file, config_file]
+    tool = os.path.sep.join((self.signtool, 'zpsa', 'qpsa.py'))
+    image = ftmppath
+    cmd = ['python', tool, 'image=' + image]
+    for attr in signattrs:
+        cmd.append("%s=%s" % (attr[0], attr[1]))
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     out = proc.communicate()[0]
 
@@ -991,32 +1110,43 @@ class ElfBuilder(object):
     *-root_cert.cer
     '''
     try:
-      zipname = 'cert/' + 'QDST_Qualcomm_' + self.namebase + '.zip'
-      dirname = 'cert'
-      self.unzip(os.path.sep.join((self.signtool, zipname)), os.path.sep.join((self.signtool, dirname)))
-    except err:
+      zippath = os.path.sep.join((self.signtool, 'cert'))
+      zipname = os.path.sep.join((zippath, '.zip'))
+      unzippath = zippath
+      for root, dirs, files in os.walk(zippath):
+        for name in files:
+          if '.zip' in name:
+            zipname = os.path.sep.join((zippath, name))
+            index = name.rfind('.zip', 0)
+            unzippath = os.path.sep.join((zippath, name[0:index]))
+            os.makedirs(unzippath)
+            self.unzip(zipname, unzippath)
+            break;
+    except IOError, err:
       print >> sys.stderr, str(err)
       return -1
 
     '''
-    'offset = ELF_BLOCK_ALIGN + hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE'
+    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + \
+        hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE'
     disused due to customized definition
     '''
-    offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + \
-        hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE
+    offset = ELF_BLOCK_ALIGN + hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
 
-    for root, dirs, files in os.walk(os.path.sep.join((self.signtool, dirname))):
+    len_certchain = 0
+
+    for root, dirs, files in os.walk(unzippath):
       for name in files:
-        if name == 'QDST_Qualcomm_' + self.namebase + '-signature.bin':
+        if '-signature.bin' in name:
           try:
-            fp_read = open(os.path.sep.join((self.signtool, dirname, name)), 'rb')
+            fp_read = open(os.path.sep.join((unzippath, name)), 'rb')
           except IOError, err:
             print >> sys.stderr, str(err)
             return -1
 
-          length = os.stat(os.path.sep.join((self.signtool, dirname, name))).st_size
+          length = os.stat(os.path.sep.join((unzippath, name))).st_size
 
           buf = fp_read.read(length)
           self.dst_fp.write(str(buf))
@@ -1037,17 +1167,15 @@ class ElfBuilder(object):
 
           break
 
-      len_certchain = 0
-
       for name in files:
-        if name == 'QDST_Qualcomm_' + self.namebase + '-attestation_cert.cer':
+        if '-attestation_cert.cer' in name:
           try:
-            fp_read = open(os.path.sep.join((self.signtool, dirname, name)), 'rb')
+            fp_read = open(os.path.sep.join((unzippath, name)), 'rb')
           except IOError, err:
             print >> sys.stderr, str(err)
             return -1
 
-          length = os.stat(os.path.sep.join((self.signtool, dirname, name))).st_size
+          length = os.stat(os.path.sep.join((unzippath, name))).st_size
 
           buf = fp_read.read(length)
           self.dst_fp.write(str(buf))
@@ -1058,14 +1186,14 @@ class ElfBuilder(object):
           break
 
       for name in files:
-        if name == 'QDST_Qualcomm_' + self.namebase + '-attestation_ca_cert.cer':
+        if '-attestation_ca_cert.cer' in name:
           try:
-            fp_read = open(os.path.sep.join((self.signtool, dirname, name)), 'rb')
+            fp_read = open(os.path.sep.join((unzippath, name)), 'rb')
           except IOError, err:
             print >> sys.stderr, str(err)
             return -1
 
-          length = os.stat(os.path.sep.join((self.signtool, dirname, name))).st_size
+          length = os.stat(os.path.sep.join((unzippath, name))).st_size
 
           buf = fp_read.read(length)
           self.dst_fp.write(str(buf))
@@ -1075,14 +1203,14 @@ class ElfBuilder(object):
           break
 
       for name in files:
-        if name == 'QDST_Qualcomm_' + self.namebase + '-root_cert.cer':
+        if '-root_cert.cer' in name:
           try:
-            fp_read = open(os.path.sep.join((self.signtool, dirname, name)), 'rb')
+            fp_read = open(os.path.sep.join((unzippath, name)), 'rb')
           except IOError, err:
             print >> sys.stderr, str(err)
             return -1
 
-          length = os.stat(os.path.sep.join((self.signtool, dirname, name))).st_size
+          length = os.stat(os.path.sep.join((unzippath, name))).st_size
 
           buf = fp_read.read(length)
           self.dst_fp.write(str(buf))
@@ -1116,9 +1244,20 @@ class ElfBuilder(object):
     *-root_cert.cer
     temporary file
     '''
-    '''
-    Add code here
-    '''
+    if self.cleanup is True:
+      try:
+        shutil.rmtree(unzippath)
+        shutil.rmtree(zippath)
+        os.remove(ftmppath)
+        os.remove(os.path.sep.join((os.getcwd(), 'qpsa_log.txt')))
+      except OSError, err:
+        '''
+        Ignore error
+        '''
+        '''print >> sys.stderr, str(err).replace('Errno', 'Warning')'''
+        pass
+
+      print >> sys.stdout, 'cleanup finished.'
 
     return 0
 
@@ -1224,29 +1363,62 @@ class ElfBuilder(object):
       raise os.error, "failed to write hash table!"
 
 '''
-Build Auth-Sec ELF
+Build Auth-Sec ELF From Directory
 '''
-def build_auth_sec_elf(directory, signtool = None, namebase = None, inplace = False):
+def build_auth_sec_elf_from_dir(directory, signtool = None, inplace = False, cleanup = False):
   ft = filetype_table['ko'][1]
 
   for dir, dirs, files in os.walk(directory):
     for f in files:
       try:
-        if f.rfind(ft) != -1 and f[f.rfind(ft):] == ft:
-          fname = os.path.sep.join((dir, f))
-          if S_ISREG(os.stat(fname).st_mode):
-            ElfBuilder(fname, fname + '.sec', signtool, namebase)
-            '''
-            Remove original file if 'inplace' is True
-            '''
-            if inplace is True:
-              os.remove(fname)
-              os.rename(fname + '.sec', fname)
+        if f.rfind(ft) == -1 or f[f.rfind(ft):] != ft:
+          raise os.error, "invalid file name!"
+
+        fname = os.path.sep.join((dir, f))
+
+        if not S_ISREG(os.stat(fname).st_mode):
+          raise os.error, "failed to stat file!"
+
+        ElfBuilder(fname, fname + '.sec', signtool, cleanup)
+        '''
+        Remove original file if 'inplace' is True
+        '''
+        if inplace is True:
+          os.remove(fname)
+          os.rename(fname + '.sec', fname)
       except os.error, err:
         '''
         Ignore error due to unrecognized file
         '''
         print >> sys.stderr, str(err).replace('Errno', 'Warning')
+
+  return 0
+
+'''
+Build Auth-Sec ELF From File
+'''
+def build_auth_sec_elf_from_file(filename, signtool = None, inplace = False, cleanup = False):
+  ft = filetype_table['ko'][1]
+
+  try:
+    if filename.rfind(ft) == -1 or filename[filename.rfind(ft):] != ft:
+      raise os.error, "invalid file name!"
+
+    if not S_ISREG(os.stat(filename).st_mode):
+      raise os.error, "failed to stat file!"
+
+    ElfBuilder(filename, filename + '.sec', signtool, cleanup)
+    '''
+    Remove original file if 'inplace' is True
+    '''
+    if inplace is True:
+      os.remove(filename)
+      os.rename(filename + '.sec', filename)
+  except os.error, err:
+    '''
+    Ignore error due to unrecognized file
+    '''
+    print >> sys.stderr, str(err).replace('Errno', 'Warning')
 
   return 0
 
@@ -1257,11 +1429,11 @@ def print_usage():
     print >> sys.stdout, 'USAGE: python elfimg-tool.py [OPTION...]'
     print >> sys.stdout, ''
     print >> sys.stdout, 'OPTIONS:'
-    print >> sys.stdout, '  -d, --dir        Directory to generate ELF file'
-    print >> sys.stdout, '  -s, --sign       Directory of signature tool to sign ELF file'
-    print >> sys.stdout, '  -b, --base       Base name of signature and certificate chain'
-    print >> sys.stdout, '  -i, --inplace    Modify ELF file in place'
-    print >> sys.stdout, '  -h, --help       Display help message'
+    print >> sys.stdout, '  -d|-f, --dir|--file  Directory or file to generate ELF file'
+    print >> sys.stdout, '  -s, --sign           Directory of signature tool to sign ELF file'
+    print >> sys.stdout, '  -i, --inplace        Modify ELF file in place'
+    print >> sys.stdout, '  -c, --clean          Cleanup temporary data'
+    print >> sys.stdout, '  -h, --help           Display help message'
     print >> sys.stdout, ''
 
 '''
@@ -1269,21 +1441,17 @@ Main Entry
 '''
 def main():
   directory = ''
+  filename = ''
   signtool = ''
-  basename = ''
   inplace = False
+  cleanup = False
   ret = 0
-
-  '''
-  Display banner
-  '''
-  print(banner)
 
   '''
   Get args list
   '''
   try:
-    opts, args = getopt.getopt(sys.argv[1:], 'd:s:b:ih', ['dir', 'sign', 'base', 'inplace', 'help'])
+    opts, args = getopt.getopt(sys.argv[1:], 'd:f:s:ich', ['dir', 'file', 'sign', 'inplace', 'cleanup', 'help'])
   except getopt.GetoptError, err:
     print >> sys.stderr, err
     print_usage()
@@ -1292,12 +1460,14 @@ def main():
   for o, a in opts:
     if o in ('-d', '--dir'):
       directory = a
+    if o in ('-f', '--file'):
+      filename = a
     elif o in ('-s', '--sign'):
-      signtool = a
-    elif o in ('-b', '--base'):
-      basename = a
+      signtool = os.path.join(os.getcwd(), a)
     elif o in ('-i', '--inplace'):
       inplace = True
+    elif o in ('-c', '--cleanup'):
+      cleanup = True
     elif o in ('-h', '--help'):
       print_usage()
       sys.exit(0)
@@ -1307,25 +1477,28 @@ def main():
   '''
   Sanity check
   '''
-  if len(directory) == 0 or os.access(directory, os.F_OK | os.R_OK) is False:
-    print >> sys.stderr, 'error: failed to open directory!'
-    exit(1)
+  if (len(directory) == 0 and len(filename) == 0) \
+        or (os.access(directory, os.F_OK | os.R_OK) is False and os.access(filename, os.F_OK | os.R_OK) is False):
+    print >> sys.stderr, 'error: failed to open directory or file!'
+    sys.exit(1)
 
   if len(signtool) == 0 or os.access(signtool, os.F_OK | os.R_OK | os.X_OK) is False:
     print >> sys.stderr, 'error: failed to access signature tool!'
-    exit(1)
-
-  if len(basename) == 0:
-    print >> sys.stderr, 'error: invalid base name!'
-    exit(1)
+    sys.exit(1)
 
   '''
   Build auth-sec ELF with signature and certificate chain
   '''
-  ret = build_auth_sec_elf(directory, signtool, basename, inplace)
+  if len(directory) != 0:
+    ret = build_auth_sec_elf_from_dir(directory, signtool, inplace, cleanup)
+  elif len(filename) != 0:
+    ret = build_auth_sec_elf_from_file(filename, signtool, inplace, cleanup)
+  else:
+    ret = -1
+
   if ret != 0:
     print >> sys.stderr, 'error: failed to build auth-sec ELF file!'
-    exit(1)
+    sys.exit(1)
 
   print >> sys.stdout, 'done.'
 
