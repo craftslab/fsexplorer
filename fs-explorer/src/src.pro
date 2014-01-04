@@ -1,6 +1,9 @@
 CONFIG += qt warn_on release
 TEMPLATE = app
 
+QT += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
