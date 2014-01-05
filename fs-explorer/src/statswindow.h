@@ -37,6 +37,9 @@ class StatsWindow : public QWidget
 public:
   StatsWindow(QWidget *parent = 0);
 
+protected:
+  void closeEvent(QCloseEvent *event);
+
 private:
   QTextEdit *textEdit;
   QFrame *frameHLine;

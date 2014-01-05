@@ -34,6 +34,9 @@ class ConsoleWindow : public QWidget
 public:
   ConsoleWindow(QWidget *parent = 0);
 
+protected:
+  void closeEvent(QCloseEvent *event);
+
 private:
   QTextEdit *textEdit;
   QVBoxLayout *layout;

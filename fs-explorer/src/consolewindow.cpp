@@ -44,3 +44,8 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
 
   setWindowTitle(tr("FS Console"));
 }
+
+void ConsoleWindow::closeEvent(QCloseEvent *event)
+{
+  event->accept();
+}

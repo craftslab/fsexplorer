@@ -61,3 +61,8 @@ StatsWindow::StatsWindow(QWidget *parent)
 
   setWindowTitle(tr("FS Stats"));
 }
+
+void StatsWindow::closeEvent(QCloseEvent *event)
+{
+  event->accept();
+}
