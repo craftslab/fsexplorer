@@ -56,6 +56,11 @@ StatsWindow::StatsWindow(QWidget *parent)
   vLayout->addWidget(hLayoutWidget);
   setLayout(vLayout);
 
+  setWindowTitle(tr("FS Stats"));
+  Qt::WindowFlags flags = Qt::Window | Qt::WindowStaysOnTopHint;
+  setWindowFlags(flags);
+  setAttribute(Qt::WA_DeleteOnClose, true);
+
   int width = 480;
   int height = 640;
   QDesktopWidget *desktopWidget = QApplication::desktop();
@@ -66,11 +71,6 @@ StatsWindow::StatsWindow(QWidget *parent)
     move(0, 0);
   }
   resize(width, height);
-
-  setWindowTitle(tr("FS Stats"));
-  Qt::WindowFlags flags = Qt::Window | Qt::WindowStaysOnTopHint;
-  setWindowFlags(flags);
-  setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void StatsWindow::closeEvent(QCloseEvent *event)
