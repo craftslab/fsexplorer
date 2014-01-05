@@ -20,7 +20,6 @@
  */
 
 #include <QLibrary>
-#include <QtGui>
 
 #include "fsengine.h"
 

@@ -24,6 +24,7 @@
 #include <QtWidgets>
 #endif
 
+#include "consolethread.h"
 #include "consolewindow.h"
 
 ConsoleWindow::ConsoleWindow(QWidget *parent)
@@ -39,13 +40,37 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   layout->addWidget(textEdit);
   setLayout(layout);
 
-  Qt::WindowFlags flags = Qt::Window;
-  setWindowFlags(flags);
-
   setWindowTitle(tr("FS Console"));
+  Qt::WindowFlags flags = Qt::Window | Qt::WindowStaysOnTopHint;
+  setWindowFlags(flags);
+  setAttribute(Qt::WA_DeleteOnClose, true);
+
+  int width = 640;
+  int height = 480;
+  QDesktopWidget *desktopWidget = QApplication::desktop();
+  QRect screenRect = desktopWidget->screenGeometry();
+  if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
+    move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+  } else {
+    move(0, 0);
+  }
+  resize(width, height);
+
+  consoleThread = NULL;
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
+  if (consoleThread) {
+    consoleThread->quitConsole();
+  }
+
   event->accept();
+}
+
+void ConsoleWindow::startConsoleThread()
+{
+  consoleThread = new ConsoleThread(this);
+  connect(consoleThread, SIGNAL(finished()), consoleThread, SLOT(deleteLater()));
+  consoleThread->start();
 }

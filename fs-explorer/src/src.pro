@@ -13,6 +13,7 @@ HEADERS += fsengine.h
 HEADERS += fstreeitem.h
 HEADERS += fstreemodel.h
 HEADERS += statswindow.h
+HEADERS += consolethread.h
 HEADERS += consolewindow.h
 HEADERS += mainwindow.h
 
@@ -20,6 +21,7 @@ SOURCES += fsengine.cpp
 SOURCES += fstreeitem.cpp
 SOURCES += fstreemodel.cpp
 SOURCES += statswindow.cpp
+SOURCES += consolethread.cpp
 SOURCES += consolewindow.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp

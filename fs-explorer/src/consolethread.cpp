@@ -1,5 +1,5 @@
 /**
- * consolewindow.h - Header of consolewindow
+ * consolethread.cpp - The entry of consolethread
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,31 +19,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef CONSOLEWINDOW_H
-#define CONSOLEWINDOW_H
+#include <QThread>
 
-#include <QWidget>
+#include "consolethread.h"
 
-class QTextEdit;
-class QVBoxLayout;
-class ConsoleThread;
-
-class ConsoleWindow : public QWidget
+ConsoleThread::ConsoleThread(QObject *parent)
+    : QThread(parent)
 {
-  Q_OBJECT
+  quit = false;
+}
 
-public:
-  ConsoleWindow(QWidget *parent = 0);
+ConsoleThread::~ConsoleThread()
+{
+  mutex.lock();
+  quit = true;
+  mutex.unlock();
+  wait();
+}
 
-protected:
-  void closeEvent(QCloseEvent *event);
+void ConsoleThread::quitConsole()
+{
+  mutex.lock();
+  quit = true;
+  mutex.unlock();
+}
 
-private:
-  void startConsoleThread();
-
-  QTextEdit *textEdit;
-  QVBoxLayout *layout;
-
-  ConsoleThread *consoleThread;
-};
-#endif
+void ConsoleThread::run()
+{
+  while (!quit) {
+  }
+}
