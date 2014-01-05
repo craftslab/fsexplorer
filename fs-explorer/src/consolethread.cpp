@@ -20,6 +20,7 @@
  */
 
 #include <QThread>
+#include <QtGui>
 
 #include "consolethread.h"
 
@@ -47,5 +48,6 @@ void ConsoleThread::quitConsole()
 void ConsoleThread::run()
 {
   while (!quit) {
+    qDebug() << "run";
   }
 }

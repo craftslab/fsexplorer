@@ -57,6 +57,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   resize(width, height);
 
   consoleThread = NULL;
+  startConsoleThread();
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
