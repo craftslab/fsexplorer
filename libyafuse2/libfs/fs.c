@@ -61,7 +61,8 @@ static struct mount fs_mnt;
  */
 static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
-static void fs_unload_lib(void *handle);
+static int32_t fs_unload_lib(void *handle);
+static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
@@ -99,13 +100,39 @@ static void* fs_get_sym(void *handle, const char *symbol)
 /*
  * Unload library
  */
-static void fs_unload_lib(void *handle)
+static int32_t fs_unload_lib(void *handle)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
   (void)dlclose(handle);
 #else
   (void)FreeLibrary((HMODULE)handle);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
+
+  return 0;
+}
+
+/*
+ * Fill in stats of file
+ */
+static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat)
+{
+  if (sizeof(struct libfs_timespec) != sizeof(struct fs_timespec)) {
+    return -1;
+  }
+
+  stat->ino = (uint64_t)inode->i_ino;
+  stat->mode = (enum libfs_imode)inode->i_mode;
+  stat->nlink = (uint32_t)inode->i_count;
+  stat->uid = (uint32_t)inode->i_uid;
+  stat->gid = (uint32_t)inode->i_gid;
+  stat->size = (int64_t)inode->i_size;
+  memcpy((void *)&stat->atime, (const void*)&inode->i_atime, sizeof(struct libfs_timespec));
+  memcpy((void *)&stat->mtime, (const void*)&inode->i_mtime, sizeof(struct libfs_timespec));
+  memcpy((void *)&stat->ctime, (const void*)&inode->i_ctime, sizeof(struct libfs_timespec));
+  stat->blksize = (uint64_t)sb->s_blocksize;
+  stat->blocks = (uint64_t)inode->i_blocks;
+
+  return 0;
 }
 
 /*
@@ -118,8 +145,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   struct dentry *root = NULL;
   int32_t len;
 
-  if (!devname || !dirname || !type || !dirent
-      || fs_mnt.mnt_count != 0) {
+  if (!devname || !dirname || !type || !dirent || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
@@ -131,22 +157,22 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 
   fs_lib_handle = fs_load_lib(lib_name);
   if (!fs_lib_handle) {
-    goto fs_mount_helper_exit;
+    goto fs_mount_exit;
   }
 
   *(void **)(&handle) = fs_get_sym(fs_lib_handle, "fs_file_system_type_init");
   if (!handle) {
-    goto fs_mount_helper_exit;
+    goto fs_mount_exit;
   }
 
   fs_type = handle(type, flags);
   if (!fs_type || !fs_type->mount) {
-    goto fs_mount_helper_exit;
+    goto fs_mount_exit;
   }
 
   root = fs_type->mount(fs_type, flags, devname, NULL);
   if (!root) {
-    goto fs_mount_helper_exit;
+    goto fs_mount_exit;
   }
 
   memset((void *)&fs_mnt, 0, sizeof(struct mount));
@@ -168,12 +194,12 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 
   return 0;
 
-fs_mount_helper_exit:
+fs_mount_exit:
 
   fs_type = NULL;
 
   if (fs_lib_handle) {
-    fs_unload_lib(fs_lib_handle);
+    (void)fs_unload_lib(fs_lib_handle);
     fs_lib_handle = NULL;
   }
 
@@ -195,7 +221,7 @@ static int32_t fs_umount(const char *dirname, int32_t flags)
   }
 
   if (fs_lib_handle) {
-    fs_unload_lib(fs_lib_handle);
+    (void)fs_unload_lib(fs_lib_handle);
     fs_lib_handle = NULL;
   }
 
@@ -205,10 +231,11 @@ static int32_t fs_umount(const char *dirname, int32_t flags)
 }
 
 /*
- * Show stats of filesytem
+ * Show stats of filesystem
  */
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 {
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
   struct dentry *root = fs_mnt.mnt.mnt_root;
   struct kstatfs rootbuf;
   int32_t ret;
@@ -217,33 +244,63 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
     return -1;
   }
 
-  if (!fs_mnt.mnt.mnt_sb || !fs_mnt.mnt.mnt_sb->s_op || !fs_mnt.mnt.mnt_sb->s_op->statfs) {
-    return -1;
-  }
-
-  if (sizeof(struct fs_kstatfs) != sizeof(struct kstatfs)) {
+  if (!sb || !sb->s_op || !sb->s_op->statfs) {
     return -1;
   }
 
   memset((void *)&rootbuf, 0, sizeof(struct kstatfs));
-  ret = fs_mnt.mnt.mnt_sb->s_op->statfs(root, &rootbuf);
+  ret = sb->s_op->statfs(root, &rootbuf);
   if (ret != 0) {
     return -1;
   }
 
-  memcpy((void *)buf, (void *)&rootbuf, sizeof(struct fs_kstatfs));
+  buf->f_type = (enum libfs_ftype)rootbuf.f_type;
+  buf->f_bsize = (int64_t)rootbuf.f_bsize;
+  buf->f_blocks = (uint64_t)rootbuf.f_blocks;
+  buf->f_bfree = (uint64_t)rootbuf.f_bfree;
+  buf->f_bavail = (uint64_t)rootbuf.f_bavail;
+  buf->f_files = (uint64_t)rootbuf.f_files;
+  buf->f_ffree = (uint64_t)rootbuf.f_ffree;
+  memcpy((void *)&buf->f_fsid, (const void *)&rootbuf.f_fsid, sizeof(struct fs_fsid_t));
+  buf->f_namelen = (int64_t)rootbuf.f_namelen;
+  buf->f_frsize = (int64_t)rootbuf.f_frsize;
+  buf->f_flags = (int64_t)rootbuf.f_flags;
+  memcpy((void *)buf->f_spare, (const void *)rootbuf.f_spare, sizeof(int64_t) * 4);
 
   return 0;
 }
 
 /*
- * Show status of file
+ * Show stats of file
  */
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 {
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct inode *child = NULL;
+
   if (!buf) {
     return -1;
   }
+
+  if (!sb || list_empty(&sb->s_inodes)) {
+    return -1;
+  }
+
+#ifdef CMAKE_COMPILER_IS_GNUCC
+  list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
+    if (child->i_ino == ino) {
+      (void)fs_stat_helper(sb, child, buf);
+    }
+  }
+#else
+  for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
+       &child->i_sb_list != (&sb->s_inodes);
+       child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+    if (child->i_ino == ino) {
+      (void)fs_stat_helper(sb, child, buf);
+    }
+  }
+#endif
 
   return 0;
 }

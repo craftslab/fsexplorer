@@ -406,11 +406,14 @@ static void fs_destroy_inode(struct inode *inode)
 }
 
 /*
- * Status of filesystem
+ * Show stats of filesystem
  */
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
-  // add code here
+  if (!dentry || !buf) {
+    return -1;
+  }
+
   return 0;
 }
 
