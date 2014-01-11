@@ -30,24 +30,41 @@ INCLUDEPATH += ../include
 #unix:LIBS += "-L../install/lib/ -lext4 -lfat"
 #win32:LIBS += "-L../install/lib/"
 
-unix{
-  inst.files += ../lib/unix/libfs.so
-  inst.files += ../lib/unix/libext4.so
-  inst.files += ../lib/unix/libfat.so
-  inst.files += ../lib/unix/libQtCore.so.4
-  inst.files += ../lib/unix/libQtGui.so.4
+MACH = 64
+message(building $$MACH bit)
+
+contains(MACH, 32) {
+  QMAKE_CFLAGS += -m32
+  QMAKE_CXXFLAGS += -m32
+  QMAKE_LFLAGS += -m32
 }
-win32{
-  inst.files += ../lib/win32/libfs.dll
-  inst.files += ../lib/win32/libext4.dll
-  inst.files += ../lib/win32/libfat.dll
-  inst.files += ../lib/win32/Qt5Core.dll
-  inst.files += ../lib/win32/Qt5Gui.dll
+
+contains(MACH, 64) {
+  QMAKE_CFLAGS += -m64
+  QMAKE_CXXFLAGS += -m64
+  QMAKE_LFLAGS += -m64
 }
+
+unix {
+  inst.files += ../lib$$MACH/unix/libfs.so
+  inst.files += ../lib$$MACH/unix/libext4.so
+  inst.files += ../lib$$MACH/unix/libfat.so
+  inst.files += ../lib$$MACH/unix/libQtCore.so.4
+  inst.files += ../lib$$MACH/unix/libQtGui.so.4
+}
+
+win32 {
+  inst.files += ../lib$$MACH/win/libfs.dll
+  inst.files += ../lib$$MACH/win/libext4.dll
+  inst.files += ../lib$$MACH/win/libfat.dll
+  inst.files += ../lib$$MACH/win/Qt5Core.dll
+  inst.files += ../lib$$MACH/win/Qt5Gui.dll
+}
+
 inst.path = ../install/bin
 INSTALLS += inst
 
 release {
-TARGET = fs-explorer
-DESTDIR = ../install/bin
+  TARGET = fs-explorer
+  DESTDIR = ../install/bin
 }
