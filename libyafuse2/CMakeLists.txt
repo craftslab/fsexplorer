@@ -54,11 +54,22 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 #
+# Options for selection of 32-bit/64-bit machine
+#
+set(YF_MACH_TYPE 64 CACHE STRING "Choose the type of machine.")
+
+if (YF_MACH_TYPE STREQUAL "32")
+  set(MACH "-m32")
+else (YF_MACH_TYPE STREQUAL "64")
+  set(MACH "-m64")
+endif (YF_MACH_TYPE STREQUAL "32")
+
+#
 # The compiling setting
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g2")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC -g0")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g2 ${MACH}")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -Wall -Werror -fPIC -g0 ${MACH}")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
