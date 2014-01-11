@@ -49,8 +49,8 @@ unix {
   inst.files += ../lib$$MACH/unix/libfs.so
   inst.files += ../lib$$MACH/unix/libext4.so
   inst.files += ../lib$$MACH/unix/libfat.so
-  inst.files += ../lib$$MACH/unix/libQtCore.so.4
-  inst.files += ../lib$$MACH/unix/libQtGui.so.4
+  inst.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
+  inst.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
 }
 
 win32 {
