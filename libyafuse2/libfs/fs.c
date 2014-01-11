@@ -63,6 +63,7 @@ static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
 static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
+static int32_t fs_get_dentry(struct dentry *root, uint64_t ino, struct dentry *dentry);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
@@ -135,6 +136,37 @@ static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *
       *inode = *child;
       ret = 0;
       break;
+    }
+  }
+
+  return ret;
+}
+
+/*
+ * Get dentry from ino of filesystem
+ */
+static int32_t fs_get_dentry(struct dentry *root, uint64_t ino, struct dentry *dentry)
+{
+  struct dentry *child = NULL;
+  int32_t ret = -1;
+
+  if (root->d_inode->i_ino == ino) {
+    *dentry = *root;
+    return 0;
+  }
+
+  if (!list_empty(&root->d_subdirs)) {
+#ifdef CMAKE_COMPILER_IS_GNUCC
+    list_for_each_entry(child, &root->d_subdirs, d_child) {
+#else
+    for (child = list_entry((&root->d_subdirs)->next, struct dentry, d_child);
+         &child->d_child != (&root->d_subdirs);
+         child = list_entry(child->d_child.next, struct dentry, d_child)) {
+#endif
+      ret = fs_get_dentry(child, ino, dentry);
+      if (ret == 0) {
+        break;
+      }
     }
   }
 
@@ -333,19 +365,21 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
  */
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count)
 {
-  struct super_block *sb = fs_mnt.mnt.mnt_sb;
-  struct inode inode;
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  struct dentry dentry;
   int32_t ret;
 
   if (!dirent || count == 0) {
     return -1;
   }
 
-  memset((void *)&inode, 0, sizeof(struct inode));
-  ret = fs_get_inode(sb, ino, &inode);
+  memset((void *)&dentry, 0, sizeof(struct dentry));
+  ret = fs_get_dentry(root, ino, &dentry);
   if (ret != 0) {
     return -1;
   }
+
+  // add code here
 
   return 0;
 }

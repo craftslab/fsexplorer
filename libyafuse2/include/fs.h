@@ -213,7 +213,7 @@ struct dentry_operations {
 };
 
 struct inode_operations {
-  struct dentry * (*lookup) (struct inode *, struct dentry *, uint32_t);
+  struct dentry * (*lookup) (struct inode *, struct dentry *, void *);
   int32_t (*permission) (struct inode *, int32_t);
   struct posix_acl * (*get_acl) (struct inode *, int32_t);
   int32_t (*create) (struct inode *, struct dentry *, uint8_t, bool);
