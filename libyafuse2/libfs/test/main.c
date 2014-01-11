@@ -165,6 +165,7 @@ int32_t main(int argc, char *argv[])
   fs_type = argv[1];
   fs_img = argv[2];
   fs_mnt = argv[3];
+  memset((void *)&fs_opt, 0, sizeof(struct fs_opt_t));
 
   /*
    * Load fs library
@@ -251,15 +252,17 @@ int32_t main(int argc, char *argv[])
 
 main_exit:
 
-  /*
-   * Umount fs image
-   */
-  (void)fs_opt.umount(fs_mnt, 0);
-  info("unmount filesystem successfully.");
-
   if (fs_dirent_list) {
     free(fs_dirent_list);
     fs_dirent_list = NULL;
+  }
+
+  /*
+   * Umount fs image
+   */
+  if (fs_opt.umount) {
+    (void)fs_opt.umount(fs_mnt, 0);
+    info("unmount filesystem successfully.");
   }
 
   if (lib_handle) unload_lib(lib_handle);
