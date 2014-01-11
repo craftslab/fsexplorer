@@ -41,8 +41,8 @@ win32{
   inst.files += ../lib/win32/libfs.dll
   inst.files += ../lib/win32/libext4.dll
   inst.files += ../lib/win32/libfat.dll
-  inst.files += ../lib/win32/QtCore4.dll
-  inst.files += ../lib/win32/QtGui4.dll
+  inst.files += ../lib/win32/Qt5Core.dll
+  inst.files += ../lib/win32/Qt5Gui.dll
 }
 inst.path = ../install/bin
 INSTALLS += inst
