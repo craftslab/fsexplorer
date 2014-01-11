@@ -72,6 +72,7 @@ static struct dentry* fs_make_root(struct super_block *sb);
 
 static struct inode* fs_alloc_inode(struct super_block *sb);
 static void fs_destroy_inode(struct inode *inode);
+static void fs_destroy_inodes(struct super_block *sb);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino);
 
@@ -258,8 +259,10 @@ static void fs_d_release(struct dentry *dentry)
     dentry->d_name = NULL;
   }
 
-  free((void *)dentry);
-  dentry = (struct dentry *)NULL;
+  if (dentry) {
+    free((void *)dentry);
+    dentry = (struct dentry *)NULL;
+  }
 
   return;
 }
@@ -401,8 +404,42 @@ static void fs_destroy_inode(struct inode *inode)
     inode->i_block = NULL;
   }
 
-  free((void *)inode);
-  inode = NULL;
+  if (inode) {
+    free((void *)inode);
+    inode = NULL;
+  }
+}
+
+/*
+ * Destroy all inodes
+ */
+static void fs_destroy_inodes(struct super_block *sb)
+{
+  struct list_head *list = NULL;
+  struct inode *child = NULL;
+
+  if (!list_empty(&sb->s_inodes)) {
+    list = sb->s_inodes.next;
+
+    if (list->next != &sb->s_inodes) {
+#ifdef CMAKE_COMPILER_IS_GNUCC
+      list_for_each_entry(child, list, i_sb_list) {
+        sb->s_op->destroy_inode(child);
+      }
+#else
+      for (child = list_entry(list->next, struct inode, i_sb_list);
+           &child->i_sb_list != list;
+           child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+        sb->s_op->destroy_inode(child);
+      }
+#endif
+    }
+
+    child = list_entry(list, struct inode, i_sb_list);
+    sb->s_op->destroy_inode(child);
+  }
+
+  list_del_init(&sb->s_inodes);
 }
 
 /*
@@ -635,7 +672,9 @@ static int32_t fs_umount(const char *name, int32_t flags)
   /*
    * Free list of inode
    */
-  // add code here
+  if (fs_sb.s_op && (const struct super_operations *)(fs_sb.s_op)->destroy_inode) {
+    fs_destroy_inodes(&fs_sb);
+  }
 
   if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc) {
     free(((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc);
