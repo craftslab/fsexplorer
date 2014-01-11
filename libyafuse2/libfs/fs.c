@@ -62,6 +62,7 @@ static struct mount fs_mnt;
 static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
+static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
@@ -109,6 +110,35 @@ static int32_t fs_unload_lib(void *handle)
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
   return 0;
+}
+
+/*
+ * Get inode from ino of filesystem
+ */
+static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode)
+{
+  struct inode *child = NULL;
+  int32_t ret = -1;
+
+  if (list_empty(&sb->s_inodes)) {
+    return -1;
+  }
+
+#ifdef CMAKE_COMPILER_IS_GNUCC
+  list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
+#else
+  for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
+       &child->i_sb_list != (&sb->s_inodes);
+       child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+#endif
+    if (child->i_ino == ino) {
+      *inode = *child;
+      ret = 0;
+      break;
+    }
+  }
+
+  return ret;
 }
 
 /*
@@ -276,31 +306,24 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 {
   struct super_block *sb = fs_mnt.mnt.mnt_sb;
-  struct inode *child = NULL;
+  struct inode inode;
+  int32_t ret;
 
   if (!buf) {
     return -1;
   }
 
-  if (!sb || list_empty(&sb->s_inodes)) {
+  if (!sb) {
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
-    if (child->i_ino == ino) {
-      (void)fs_stat_helper(sb, child, buf);
-    }
+  memset((void *)&inode, 0, sizeof(struct inode));
+  ret = fs_get_inode(sb, ino, &inode);
+  if (ret != 0) {
+    return -1;
   }
-#else
-  for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
-       &child->i_sb_list != (&sb->s_inodes);
-       child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
-    if (child->i_ino == ino) {
-      (void)fs_stat_helper(sb, child, buf);
-    }
-  }
-#endif
+
+  (void)fs_stat_helper(sb, &inode, buf);
 
   return 0;
 }
@@ -310,7 +333,17 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
  */
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count)
 {
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct inode inode;
+  int32_t ret;
+
   if (!dirent || count == 0) {
+    return -1;
+  }
+
+  memset((void *)&inode, 0, sizeof(struct inode));
+  ret = fs_get_inode(sb, ino, &inode);
+  if (ret != 0) {
     return -1;
   }
 

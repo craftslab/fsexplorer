@@ -233,15 +233,13 @@ static void fs_d_release(struct dentry *dentry)
   if (!list_empty(&dentry->d_subdirs)) {
 #ifdef CMAKE_COMPILER_IS_GNUCC
     list_for_each_entry(child, &dentry->d_subdirs, d_child) {
-      fs_d_release(child);
-    }
 #else
     for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
         &child->d_child != (&dentry->d_subdirs);
         child = list_entry(child->d_child.next, struct dentry, d_child)) {
-        fs_d_release(child);
-    }
 #endif
+      fs_d_release(child);
+    }
 
     list_del_init(&dentry->d_subdirs);
   }
@@ -424,15 +422,13 @@ static void fs_destroy_inodes(struct super_block *sb)
     if (list->next != &sb->s_inodes) {
 #ifdef CMAKE_COMPILER_IS_GNUCC
       list_for_each_entry(child, list, i_sb_list) {
-        sb->s_op->destroy_inode(child);
-      }
 #else
       for (child = list_entry(list->next, struct inode, i_sb_list);
            &child->i_sb_list != list;
            child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+#endif
         sb->s_op->destroy_inode(child);
       }
-#endif
     }
 
     child = list_entry(list, struct inode, i_sb_list);
