@@ -51,18 +51,20 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build.")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEBUG 1)
+else (CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(RELEASE 1)
 endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 #
 # Options for selection of 32-bit/64-bit machine
 #
-set(YF_MACH_TYPE 64 CACHE STRING "Choose the type of machine.")
+set(YF_MACH_BIT 64 CACHE STRING "Choose the bit of machine.")
 
-if (YF_MACH_TYPE STREQUAL "32")
+if (YF_MACH_BIT STREQUAL "32")
   set(MACH "-m32")
-else (YF_MACH_TYPE STREQUAL "64")
+else (YF_MACH_BIT STREQUAL "64")
   set(MACH "-m64")
-endif (YF_MACH_TYPE STREQUAL "32")
+endif (YF_MACH_BIT STREQUAL "32")
 
 #
 # The compiling setting

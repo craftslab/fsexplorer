@@ -8,3 +8,4 @@
 
 #cmakedefine CMAKE_COMPILER_IS_GNUCC
 #cmakedefine DEBUG
+#cmakedefine RELEASE
