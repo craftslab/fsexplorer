@@ -16,10 +16,8 @@
 # along with this program (in the main directory of the distribution
 # in the file COPYING); if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  US
-#
 
-'''
-Example:
+"""Example:
 
 To generate ELF with signature and certificate chain according to directory:
 python elfimg-tool-auth-sec.py -d /path/to/kmod/dir -s /path/to/signature/tool/dir
@@ -28,7 +26,7 @@ OR:
 
 To generate ELF with signature and certificate chain according to file of kmod:
 python elfimg-tool-auth-sec.py -f /path/to/kmod.ko -s /path/to/signature/tool/dir
-'''
+"""
 
 import os, sys
 import getopt
@@ -36,13 +34,13 @@ import struct
 import hashlib
 import subprocess
 import shutil
-from stat import *
+import stat
 from zipfile import ZipFile
 from datetime import datetime
 
-'''
-Global Variable Definition
-'''
+#
+# Global Variable Definition
+#
 banner = '''
   __      _                     _       
  / _|_ __(_) ___ __ _ _ __   __| | ___  
@@ -70,9 +68,9 @@ filetype_table = {
   'ko': [FileType.KMODULE, '.ko']
 }
 
-'''
-Certificate Definitions
-'''
+#
+# Certificate Definitions
+#
 PAD_BYTE_1            = 255       # Padding byte 1s
 PAD_BYTE_0            = 0         # Padding byte 0s
 SHA256_SIGNATURE_SIZE = 256       # Support SHA256
@@ -83,9 +81,9 @@ BOOT_HEADER_LENGTH    = 20        # Boot Header Number of Elements
 FLASH_PARTI_VERSION   = 3         # Flash Partition Version Number
 MAX_PHDR_COUNT        = 10        # Maximum allowable program headers
 
-'''
-ELF Definitions
-'''
+#
+# ELF Definitions
+#
 ELF_HDR_SIZE            = 52
 ELF_PHDR_SIZE           = 32
 ELF_SHDR_SIZE           = 40
@@ -103,9 +101,9 @@ ELFINFO_VERSION_INDEX   = 6
 ELFINFO_VERSION_CURRENT = '\x01'
 ELF_BLOCK_ALIGN         = 0x1000
 
-'''
-ELF Object File Types
-'''
+#
+# ELF Object File Types
+#
 ET_NONE   = 0
 ET_REL    = 1
 ET_EXEC   = 2
@@ -114,23 +112,23 @@ ET_CORE   = 4
 ET_LOPROC = 0xFF00
 ET_HIPROC = 0xFFFF
 
-'''
-ELF Machine Types (part)
-'''
+#
+# ELF Machine Types (part)
+#
 EM_NONE  = 0
 EM_386   = 3
 EM_ARM   = 40
 EM_QDSP6 = 164
 
-'''
-ELF Version
-'''
+#
+# ELF Version
+#
 EV_NONE    = 0
 EV_CURRENT = 1
 
-'''
-ELF Flags
-'''
+#
+# ELF Flags
+#
 EF_ARM_HASENTRY         = 0x02
 EF_ARM_V4               = 0x03
 EF_ARM_SYMSARESORTED    = 0x04
@@ -138,9 +136,9 @@ EF_ARM_DYNSYMSUSESEGIDX = 0x08
 EF_ARM_MAPSYMSFIRST     = 0x10
 EF_ARM_EABIMASK         = 0xFF000000
 
-'''
-ELF Program Header Types
-'''
+#
+# ELF Program Header Types
+#
 NULL_TYPE    = 0x0
 LOAD_TYPE    = 0x1
 DYNAMIC_TYPE = 0x2
@@ -150,9 +148,9 @@ SHLIB_TYPE   = 0x5
 PHDR_TYPE    = 0x6
 TLS_TYPE     = 0x7
 
-'''
-ELF Program Segment Types
-'''
+#
+# ELF Program Segment Types
+#
 PT_NULL    = 0
 PT_LOAD    = 1
 PT_DYNAMIC = 2
@@ -163,14 +161,14 @@ PT_PHDR    = 6
 PT_LOPROC  = 0x70000000
 PT_HIPROC  = 0x7FFFFFFF
 
-'''
-Mask for bits 20-27 to parse program header p_flags
-'''
+#
+# Mask for bits 20-27 to parse program header p_flags
+#
 MI_PBT_FLAGS_MASK = 0x0FF00000
 
-'''
-Helper defines to help parse ELF program headers
-'''
+#
+# Helper defines to help parse ELF program headers
+#
 MI_PROG_BOOT_DIGEST_SIZE       = 20
 MI_PBT_FLAG_SEGMENT_TYPE_MASK  = 0x07000000
 MI_PBT_FLAG_SEGMENT_TYPE_SHIFT = 0x18
@@ -181,9 +179,9 @@ MI_PBT_FLAG_ACCESS_TYPE_SHIFT  = 0x15
 MI_PBT_FLAG_POOL_INDEX_MASK    = 0x08000000
 MI_PBT_FLAG_POOL_INDEX_SHIFT   = 0x1B
 
-'''
-Segment Type
-'''
+#
+# Segment Type
+#
 MI_PBT_L4_SEGMENT        = 0x0
 MI_PBT_AMSS_SEGMENT      = 0x1
 MI_PBT_HASH_SEGMENT      = 0x2
@@ -193,24 +191,24 @@ MI_PBT_SWAPPED_SEGMENT   = 0x5
 MI_PBT_SWAP_POOL_SEGMENT = 0x6
 MI_PBT_PHDR_SEGMENT      = 0x7
 
-'''
-Page/Non-Page Type
-'''
+#
+# Page/Non-Page Type
+#
 MI_PBT_NON_PAGED_SEGMENT = 0x0
 MI_PBT_PAGED_SEGMENT     = 0x1
 
-'''
-Access Type
-'''
+#
+# Access Type
+#
 MI_PBT_RW_SEGMENT      = 0x0
 MI_PBT_RO_SEGMENT      = 0x1
 MI_PBT_ZI_SEGMENT      = 0x2
 MI_PBT_NOTUSED_SEGMENT = 0x3
 MI_PBT_SHARED_SEGMENT  = 0x4
 
-'''
-ELF Segment Flag Definitions
-'''
+#
+# ELF Segment Flag Definitions
+#
 MI_PBT_ELF_AMSS_NON_PAGED_RO_SEGMENT = 0x01200000
 MI_PBT_ELF_AMSS_PAGED_RO_SEGMENT = 0x01300000 
 MI_PBT_ELF_SWAP_POOL_NON_PAGED_ZI_SEGMENT_INDEX0 = 0x06400000
@@ -231,9 +229,9 @@ MI_PBT_ELF_PHDR_SEGMENT = 0x07000000
 MI_PBT_ELF_NON_PAGED_L4BSP_SEGMENT = 0x04000000 
 MI_PBT_ELF_PAGED_L4BSP_SEGMENT = 0x04100000 
 
-'''
-Class of OS Type ID
-'''
+#
+# Class of OS Type ID
+#
 class OSType: 	  	 
   BMP_BOOT_OS     = 0
   WM_BOOT_OS      = 1
@@ -242,9 +240,9 @@ class OSType:
   SYMBIAN_BOOT_OS = 4
   LINUX_BOOT_OS   = 5
 
-'''
-Class of Image Type ID
-'''
+#
+# Class of Image Type ID
+#
 class ImageType:
   NONE_IMG         = 0
   OEM_SBL_IMG      = 1
@@ -273,9 +271,9 @@ class ImageType:
   SBL3_IMG         = 24
   TZ_IMG           = 25
 
-'''
-Image Type Table
-'''
+#
+# Image Type Table
+#
 image_id_table = {
   'appsbl': [ImageType.APPSBL_IMG, 'APPSBL_IMG', 'bin'],
   'dbl': [ImageType.DBL_IMG, 'DBL_IMG', 'bin'],
@@ -298,9 +296,9 @@ image_id_table = {
   'efs2': [ImageType.RAMFS2_IMG, 'RAMFS2_IMG', 'bin']
 }
 
-'''
-Class of ELF Header
-'''
+#
+# Class of ELF Header
+#
 class Elf32_Ehdr:
   s = struct.Struct('16sHHIIIIIHHHHHH') 
 
@@ -349,9 +347,9 @@ class Elf32_Ehdr:
 
     return (Elf32_Ehdr.s).pack(*values)
 
-'''
-ELF Program Header Class
-'''
+#
+# ELF Program Header Class
+#
 class Elf32_Phdr:
   s = struct.Struct('I' * 8)
 
@@ -388,9 +386,9 @@ class Elf32_Phdr:
 
     return (Elf32_Phdr.s).pack(*values)
 
-'''
-ELF Segment Information Class
-'''
+#
+# ELF Segment Information Class
+#
 class SegmentInfo:
   def __init__(self):
     self.flag  = 0
@@ -403,9 +401,9 @@ class SegmentInfo:
     print >> sys.stdout, 'Flag: ' + str(self.flag)
     print >> sys.stdout, 'Start Address: ' + str(hex(self.start_addr))
 
-'''
-Regular Boot Header Class
-'''
+#
+# Regular Boot Header Class
+#
 class Boot_Hdr:
   s_part = struct.Struct('I' * 10)
   s_full = struct.Struct('I' * BOOT_HEADER_LENGTH)
@@ -460,9 +458,9 @@ class Boot_Hdr:
               self.reserved_2,
               self.reserved_3 ]
 
-    '''
-    Write 10 entries(40B) or 20 entries(80B) of boot header
-    '''
+    #
+    # Write 10 entries(40B) or 20 entries(80B) of boot header
+    #
     if write_full_hdr is False:
       s = struct.Struct('I'* 10)
       values = values[:10]
@@ -477,9 +475,9 @@ class Boot_Hdr:
 
       return s.size
 
-'''
-Class of ELF Builder
-'''
+#
+# Class of ELF Builder
+#
 class ElfBuilder(object):
   def __init__(self, srcname, dstname, signtool = None, cleanup = False):
     self.ehdr = Elf32_Ehdr('\0' * ELF_HDR_SIZE)
@@ -517,22 +515,24 @@ class ElfBuilder(object):
     if self.dst_fp != -1:
       self.dst_fp.close()
 
-  '''
-  Generate hash
+  #
+  # Generate hash
+  #
 
-  if sizeof(buf) < ELF_BLOCK_ALIGN:
-    hash_size = sizeof(buf)
-  else:
-    hash_size = ELF_BLOCK_ALIGN
-  '''
+  #
+  # if sizeof(buf) < ELF_BLOCK_ALIGN:
+  #   hash_size = sizeof(buf)
+  # else:
+  #   hash_size = ELF_BLOCK_ALIGN
+  #
   def gen_sha1_hash(self, buf):
     m = hashlib.sha1()
     m.update(buf)
     return m.digest()
 
-  '''
-  Unzip .zip file
-  '''
+  #
+  # Unzip .zip file
+  #
   def unzip(self, zipname, dirname):
     z = ZipFile(zipname, 'r')
     names = z.namelist()
@@ -542,9 +542,9 @@ class ElfBuilder(object):
       outfile.close()
     z.close()
 
-  '''
-  Write ELF header
-  '''
+  #
+  # Write ELF header
+  #
   def write_exec_ehdr(self, entry, phnum):
     self.ehdr.e_ident     = \
         ELFINFO_MAG0 \
@@ -593,59 +593,53 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write ELF program header table
-  '''
+  #
+  # Write ELF program header table
+  #
   def write_phdr_tbl(self):
-    '''
-    Write ELF program header
-    '''
+    #
+    # Write ELF program header
+    #
     ret = self.write_progheader_phdr()
     if ret != 0:
       return -1
 
-    '''
-    Write ELF hash table header
-    '''
-    '''
-    Add boot image header at head of hast table
-    '''
+    #
+    # Write ELF hash table header
+    #
+
+    # Add boot image header at head of hast table
     hash_tbl_size = MI_BOOT_IMG_HDR_SIZE
 
-    '''
-    Add hash segment for program header
-    '''
+    # Add hash segment for program header
     hash_tbl_size += MI_PROG_BOOT_DIGEST_SIZE
 
-    '''
-    Add hash segment for the hash table itself
-    '''
+    # Add hash segment for the hash table itself
     hash_tbl_size += MI_PROG_BOOT_DIGEST_SIZE
 
-    '''
-    Add hash segment for code segment
-    '''
+    # Add hash segment for code segment
     hash_tbl_size += MI_PROG_BOOT_DIGEST_SIZE
 
-    '''
-    Add other hash segment
-    Add code here
-    '''
+    #
+    # TODO
+    # Add other hash segment
+    #
 
-    '''
-    Add signature & certificate
-    '''
+    #
+    # Add signature & certificate
+    #
     hash_tbl_size += SHA256_SIGNATURE_SIZE
     hash_tbl_size += CERT_CHAIN_MAXSIZE
 
-    '''
-    Add code here
-    vaddr
-    '''
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
-    disused due to customized definition
-    '''
+    #
+    # TODO
+    # Add code for vaddr
+    #
+
+    #
+    # DISUSED due to customized definition
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    #
     offset = ELF_BLOCK_ALIGN
 
     vaddr  = 0
@@ -656,19 +650,21 @@ class ElfBuilder(object):
     if ret != 0:
       return -1
 
-    '''
-    Write ELF code segment header
-    Add code here
-    '''
-    type = NULL_TYPE
+    #
+    # TODO
+    # Write ELF code segment header
+    #
+    phdr_type = NULL_TYPE
 
-    '''
-    Check if segment size is block aligned
-    '''
-    '''
-    size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hash_tbl_size
-    disused due to customized definition
-    '''
+    #
+    # Check if segment size is block aligned
+    #
+
+    #
+    # DISUSED
+    # size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hash_tbl_size
+    # disused due to customized definition
+    #
     size = ELF_BLOCK_ALIGN + hash_tbl_size
     if (size > ELF_BLOCK_ALIGN):
       off = size & (ELF_BLOCK_ALIGN - 1)
@@ -684,20 +680,20 @@ class ElfBuilder(object):
     filesz = self.src_sz
     memsz  = 0
     flags  = MI_PBT_ELF_PHDR_SEGMENT
-    ret = self.write_codeseg_phdr(type, offset, vaddr, paddr, filesz, memsz, flags)
+    ret = self.write_codeseg_phdr(phdr_type, offset, vaddr, paddr, filesz, memsz, flags)
     if ret != 0:
       return -1
 
-    '''
-    Write ELF other header
-    Add code here
-    '''
+    #
+    # TODO
+    # Write ELF other header
+    #
 
     return 0
 
-  '''
-  Write ELF program header
-  '''
+  #
+  # Write ELF program header
+  #
   def write_progheader_phdr(self):
     self.phdr.p_type   = NULL_TYPE
     self.phdr.p_offset = 0
@@ -726,9 +722,9 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write ELF hash table header
-  '''
+  #
+  # Write ELF hash table header
+  #
   def write_hashtbl_phdr(self, offset, vaddr, paddr, filesz, memsz):
     self.phdr.p_type   = LOAD_TYPE
     self.phdr.p_offset = offset
@@ -757,9 +753,9 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write ELF code segment header
-  '''
+  #
+  # Write ELF code segment header
+  #
   def write_codeseg_phdr(self, type, offset, vaddr, paddr, filesz, memsz, flags):
     self.phdr.p_type   = type
     self.phdr.p_offset = offset
@@ -788,71 +784,73 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write Hash table
-  '''
+  #
+  # Write Hash table
+  #
   def write_hash_tbl(self):
-    '''
-    Write boot header
-    '''
+    #
+    # Write boot header
+    #
     ret = self.write_bhdr()
     if ret != 0:
       return -1
 
-    '''
-    Write hash segment for program header
-    '''
+    #
+    # Write hash segment for program header
+    #
     ret = self.write_progheader_hashseg()
     if ret != 0:
       return -1
 
-    '''
-    Write hash segment for the hash table itself
-    '''
+    #
+    # Write hash segment for the hash table itself
+    #
     ret = self.write_itself_hashseg()
     if ret != 0:
       return -1
 
-    '''
-    Write hash segment for code segment
-    '''
+    #
+    # Write hash segment for code segment
+    #
     ret = self.write_codeseg_hashseg()
     if ret != 0:
       return -1
 
-    '''
-    Write other hash segment
-    Add code here
-    '''
+    #
+    # TODO
+    # Write other hash segment
+    #
 
-    '''
-    Write signature & certificate
-    '''
+    #
+    # Write signature & certificate
+    #
     ret = self.write_hash_certchain()
     if ret != 0:
       return -1
 
-    '''
-    Check if segment size is block aligned
-    '''
-    '''
-    Read ELF header
-    '''
+    #
+    # Check if segment size is block aligned
+    #
+
+    #
+    # Read ELF header
+    #
     offset = 0
     self.dst_fp.seek(offset, os.SEEK_SET)
     ehdr = Elf32_Ehdr(self.dst_fp.read(ELF_HDR_SIZE))
 
-    '''
-    Read ELF hash table header
-    '''
+    #
+    # Read ELF hash table header
+    #
     offset = ehdr.e_phoff + ehdr.e_phentsize
     self.dst_fp.seek(offset, os.SEEK_SET)
     hashtbl_phdr = Elf32_Phdr(self.dst_fp.read(ehdr.e_phentsize))
 
-    '''
-    'size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hashtbl_phdr.p_filesz'
-    disused due to customized definition
-    '''
+    #
+    # DISUSED
+    # size = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + hashtbl_phdr.p_filesz
+    # disused due to customized definition
+    #
     size = ELF_BLOCK_ALIGN + hashtbl_phdr.p_filesz
     if (size > ELF_BLOCK_ALIGN):
       off = size & (ELF_BLOCK_ALIGN - 1)
@@ -867,16 +865,16 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write boot header
-  '''
+  #
+  # Write boot header
+  #
   def write_bhdr(self):
-    '''
-    Add code here:
-    image_dest_ptr
-    sig_ptr
-    cert_chain_ptr
-    '''
+    #
+    # TODO
+    # image_dest_ptr
+    # sig_ptr
+    # cert_chain_ptr
+    #
     self.bhdr.image_id = ImageType.NONE_IMG
     self.bhdr.flash_parti_ver = FLASH_PARTI_VERSION
     self.bhdr.image_src = 0
@@ -902,10 +900,11 @@ class ElfBuilder(object):
 
     packed_values = Boot_Hdr.s_part.pack(*values)
 
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
-    disused due to customized definition
-    '''
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN
 
     self.dst_fp.seek(offset, os.SEEK_SET)
@@ -913,146 +912,155 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Write hash segment for program header
-  '''
+  #
+  # Write hash segment for program header
+  #
   def write_progheader_hashseg(self):
-    '''
-    Read ELF header
-    '''
+    #
+    # Read ELF header
+    #
     offset = 0
     self.dst_fp.seek(offset, os.SEEK_SET)
     ehdr_buf = self.dst_fp.read(ELF_HDR_SIZE)
 
-    '''
-    Read ELF program header table
-    '''
+    #
+    # Read ELF program header table
+    #
     offset = self.ehdr.e_phoff
     self.dst_fp.seek(offset, os.SEEK_SET)
     phdr_tbl_buf = self.dst_fp.read(self.ehdr.e_phnum * self.ehdr.e_phentsize)
 
-    '''
-    Generate hash
-    '''
-    hash = self.gen_sha1_hash(ehdr_buf + phdr_tbl_buf)
+    #
+    # Generate hash
+    #
+    sha1_hash = self.gen_sha1_hash(ehdr_buf + phdr_tbl_buf)
 
-    '''
-    Write hash to file as hash segment
-    '''
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE'
-    disused due to customized definition
-    '''
+    #
+    # Write hash to file as hash segment
+    #
+
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
-    self.dst_fp.write(hash)
+    self.dst_fp.write(sha1_hash)
 
-    if len(hash) < MI_PROG_BOOT_DIGEST_SIZE:
-      self.dst_fp.write('\0' * (MI_PROG_BOOT_DIGEST_SIZE - len(hash)))
-    elif len(hash) > MI_PROG_BOOT_DIGEST_SIZE:
+    if len(sha1_hash) < MI_PROG_BOOT_DIGEST_SIZE:
+      self.dst_fp.write('\0' * (MI_PROG_BOOT_DIGEST_SIZE - len(sha1_hash)))
+    elif len(sha1_hash) > MI_PROG_BOOT_DIGEST_SIZE:
       return -1
 
     return 0
 
-  '''
-  Write hash segment for the hash table itself
-  '''
+  #
+  # Write hash segment for the hash table itself
+  #
   def write_itself_hashseg(self):
-    '''
-    Generate hash
-    '''
-    hash = '\0' * MI_PROG_BOOT_DIGEST_SIZE
+    #
+    # Generate hash
+    #
+    sha1_hash = '\0' * MI_PROG_BOOT_DIGEST_SIZE
 
-    '''
-    Write hash to file as hash segment
-    '''
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE'
-    disused due to customized definition
-    '''
+    #
+    # Write hash to file as hash segment
+    #
+
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + MI_PROG_BOOT_DIGEST_SIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
-    self.dst_fp.write(hash)
+    self.dst_fp.write(sha1_hash)
 
     return 0
 
-  '''
-  Write hash segment for code segment
-  '''
+  #
+  # Write hash segment for code segment
+  #
   def write_codeseg_hashseg(self):
-    '''
-    Read ELF header
-    '''
+    #
+    # Read ELF header
+    #
     offset = 0
     self.dst_fp.seek(offset, os.SEEK_SET)
     ehdr = Elf32_Ehdr(self.dst_fp.read(ELF_HDR_SIZE))
 
-    '''
-    Read ELF code segment header
-    '''
+    #
+    # Read ELF code segment header
+    #
     offset = ehdr.e_phoff + (ehdr.e_phentsize * 2)
     self.dst_fp.seek(offset, os.SEEK_SET)
     codeseg_phdr = Elf32_Phdr(self.dst_fp.read(ehdr.e_phentsize))
 
-    '''
-    Generate hash
-    '''
+    #
+    # Generate hash
+    #
     offset = codeseg_phdr.p_offset
     self.dst_fp.seek(offset, os.SEEK_SET)
     buf = self.dst_fp.read(codeseg_phdr.p_filesz)
-    hash = self.gen_sha1_hash(buf)
+    sha1_hash = self.gen_sha1_hash(buf)
 
-    '''
-    Write hash to file as hash segment
-    '''
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)'
-    disused due to customized definition
-    '''
+    #
+    # Write hash to file as hash segment
+    #
+
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN + MI_BOOT_IMG_HDR_SIZE + (MI_PROG_BOOT_DIGEST_SIZE * 2)
 
     self.dst_fp.seek(offset, os.SEEK_SET)
-    self.dst_fp.write(hash)
+    self.dst_fp.write(sha1_hash)
 
-    if len(hash) < MI_PROG_BOOT_DIGEST_SIZE:
-      self.dst_fp.write('\0' * (MI_PROG_BOOT_DIGEST_SIZE - len(hash)))
-    elif len(hash) > MI_PROG_BOOT_DIGEST_SIZE:
+    if len(sha1_hash) < MI_PROG_BOOT_DIGEST_SIZE:
+      self.dst_fp.write('\0' * (MI_PROG_BOOT_DIGEST_SIZE - len(sha1_hash)))
+    elif len(sha1_hash) > MI_PROG_BOOT_DIGEST_SIZE:
       return -1
 
     return 0
 
-  '''
-  Write signature & certificate
-  '''
+  #
+  # Write signature & certificate
+  #
   def write_hash_certchain(self):
-    '''
-    Read ELF header
-    '''
+    #
+    # Read ELF header
+    #
     offset = 0
     self.dst_fp.seek(offset, os.SEEK_SET)
     ehdr = Elf32_Ehdr(self.dst_fp.read(ELF_HDR_SIZE))
 
-    '''
-    Read ELF hash table header
-    '''
+    #
+    # Read ELF hash table header
+    #
     offset = ehdr.e_phoff + ehdr.e_phentsize
     self.dst_fp.seek(offset, os.SEEK_SET)
     hashtbl_phdr = Elf32_Phdr(self.dst_fp.read(ehdr.e_phentsize))
 
-    '''
-    Read data of boot header
-                 + hash segment for program header
-                 + hash segment for the hash table itself
-                 + hash segment for code segment
-                 + other hash segments
-    for signature and certificate
-    '''
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)'
-    disused due to customized definition
-    '''
+    #
+    # Read data of
+    # boot header
+    # + hash segment for program header
+    # + hash segment for the hash table itself
+    # + hash segment for code segment
+    # + other hash segments
+    # for signature and certificate
+    #
+
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize)
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN
 
     self.dst_fp.seek(offset, os.SEEK_SET)
@@ -1060,13 +1068,16 @@ class ElfBuilder(object):
     length = hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE
     buf = self.dst_fp.read(length)
 
-    '''
-    Create a temporary file and write data to it
-    '''
-    ''' disused due to the failure of access to temporary file
-    ftmp = tempfile.NamedTemporaryFile()
-    ftmp.write(buf)
-    '''
+    #
+    # Create a temporary file and write data to it
+    #
+
+    #
+    # DISUSED
+    # disused due to the failure of access to temporary file
+    # ftmp = tempfile.NamedTemporaryFile()
+    # ftmp.write(buf)
+    #
     time = str(datetime.now()).replace(':', '-').replace(' ', '-').replace('.', '-')
     ftmppath = os.path.sep.join((self.signtool, time + '.bin'))
     try:
@@ -1077,15 +1088,14 @@ class ElfBuilder(object):
     ftmp.write(buf)
     ftmp.close()
 
-    '''
-    Run external signature tool, and the following files are generated:
-
-    *_attest.key
-    *-signature.bin
-    *-attestation_cert.cer
-    *-attestation_ca_cert.cer
-    *-root_cert.cer
-    '''
+    #
+    # Run external signature tool, and the following files are generated:
+    # *_attest.key
+    # *-signature.bin
+    # *-attestation_cert.cer
+    # *-attestation_ca_cert.cer
+    # *-root_cert.cer
+    #
     tool = os.path.sep.join((self.signtool, 'zpsa', 'qpsa.py'))
     image = ftmppath
     cmd = ['python', tool, 'image=' + image]
@@ -1094,21 +1104,18 @@ class ElfBuilder(object):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     out = proc.communicate()[0]
 
-    '''
-    print >> sys.stdout, out
-    '''
+    # print >> sys.stdout, out
 
     if proc.returncode != 0:
       return -1
 
-    '''
-    Write signature and certificate into ELF, as the followings:
-
-    *-signature.bin
-    *-attestation_cert.cer
-    *-attestation_ca_cert.cer
-    *-root_cert.cer
-    '''
+    #
+    # Write signature and certificate into ELF, as the followings:
+    # *-signature.bin
+    # *-attestation_cert.cer
+    # *-attestation_ca_cert.cer
+    # *-root_cert.cer
+    #
     try:
       zippath = os.path.sep.join((self.signtool, 'cert'))
       zipname = os.path.sep.join((zippath, '.zip'))
@@ -1126,11 +1133,12 @@ class ElfBuilder(object):
       print >> sys.stderr, str(err)
       return -1
 
-    '''
-    'offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + \
-        hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE'
-    disused due to customized definition
-    '''
+    #
+    # DISUSED
+    # offset = self.ehdr.e_phoff + (self.ehdr.e_phnum * self.ehdr.e_phentsize) + \
+    #    hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE
+    # disused due to customized definition
+    #
     offset = ELF_BLOCK_ALIGN + hashtbl_phdr.p_filesz - SHA256_SIGNATURE_SIZE - CERT_CHAIN_MAXSIZE
 
     self.dst_fp.seek(offset, os.SEEK_SET)
@@ -1152,9 +1160,9 @@ class ElfBuilder(object):
           self.dst_fp.write(str(buf))
           fp_read.close()
 
-          '''
-          Check if signature is size aligned
-          '''
+          #
+          # Check if signature is size aligned
+          #
           if length > SHA256_SIGNATURE_SIZE:
             off = length & (SHA256_SIGNATURE_SIZE - 1)
             if (int(off) != 0):
@@ -1221,9 +1229,9 @@ class ElfBuilder(object):
 
       break
 
-    '''
-    Check if certificate chain is size aligned
-    '''
+    #
+    # Check if certificate chain is size aligned
+    #
     if len_certchain > CERT_CHAIN_MAXSIZE:
       off = len_certchain & (CERT_CHAIN_MAXSIZE - 1)
       if (int(off) != 0):
@@ -1234,16 +1242,15 @@ class ElfBuilder(object):
     self.dst_fp.seek(offset + SHA256_SIGNATURE_SIZE + len_certchain, os.SEEK_SET)
     self.dst_fp.write(chr(0xFF) * pad)
 
-    '''
-    Clean up the following files:
-
-    *_attest.key
-    *-signature.bin
-    *-attestation_cert.cer
-    *-attestation_ca_cert.cer
-    *-root_cert.cer
-    temporary file
-    '''
+    #
+    # Clean up the following files:
+    # *_attest.key
+    # *-signature.bin
+    # *-attestation_cert.cer
+    # *-attestation_ca_cert.cer
+    # *-root_cert.cer
+    # temporary file
+    #
     if self.cleanup is True:
       try:
         shutil.rmtree(unzippath)
@@ -1251,39 +1258,39 @@ class ElfBuilder(object):
         os.remove(ftmppath)
         os.remove(os.path.sep.join((os.getcwd(), 'qpsa_log.txt')))
       except OSError, err:
-        '''
-        Ignore error
-        '''
-        '''print >> sys.stderr, str(err).replace('Errno', 'Warning')'''
+        #
+        # Ignore error
+        #
+        # print >> sys.stderr, str(err).replace('Errno', 'Warning')
         pass
 
       print >> sys.stdout, 'cleanup finished.'
 
     return 0
 
-  '''
-  Write code segment
-  '''
+  #
+  # Write code segment
+  #
   def write_code_seg(self):
     pad = 0
 
-    '''
-    Read ELF header
-    '''
+    #
+    # Read ELF header
+    #
     offset = 0
     self.dst_fp.seek(offset, os.SEEK_SET)
     ehdr = Elf32_Ehdr(self.dst_fp.read(ELF_HDR_SIZE))
 
-    '''
-    Read ELF code segment header
-    '''
+    #
+    # Read ELF code segment header
+    #
     offset = ehdr.e_phoff + (ehdr.e_phentsize * 2)
     self.dst_fp.seek(offset, os.SEEK_SET)
     codeseg_phdr = Elf32_Phdr(self.dst_fp.read(ehdr.e_phentsize))
 
-    '''
-    Write code to file as code segment
-    '''
+    #
+    # Write code to file as code segment
+    #
     offset = codeseg_phdr.p_offset
     self.dst_fp.seek(offset, os.SEEK_SET)
 
@@ -1294,9 +1301,9 @@ class ElfBuilder(object):
       print >> sys.stderr, str(err)
       return -1
 
-    '''
-    Check if segment size is block aligned
-    '''
+    #
+    # Check if segment size is block aligned
+    #
     if codeseg_phdr.p_filesz > ELF_BLOCK_ALIGN:
       off = codeseg_phdr.p_filesz & (ELF_BLOCK_ALIGN - 1)
       if (int(off) != 0):
@@ -1308,17 +1315,18 @@ class ElfBuilder(object):
 
     return 0
 
-  '''
-  Build ELF file
-  '''
+  #
+  # Build ELF file
+  #
   def build(self):
-    '''
-    Write ELF header
-    '''
-    '''
-    Add code here
-    entry
-    '''
+    #
+    # Write ELF header
+    #
+
+    #
+    # TODO
+    # add code for entry
+    #
     entry = 0
     phnum = 3
 
@@ -1326,77 +1334,77 @@ class ElfBuilder(object):
     if ret != 0:
       raise os.error, "failed to write ELF header!"
 
-    '''
-    Write ELF program header table
-    '''
+    #
+    # Write ELF program header table
+    #
     ret = self.write_phdr_tbl()
     if ret != 0:
       raise os.error, "failed to write program header table!"
 
-    '''
-    Write Hash table
-    Do nothing here
-    '''
+    #
+    # Write Hash table
+    # Do nothing here
+    #
 
-    '''
-    Write code segment
-    '''
+    #
+    # Write code segment
+    #
     ret = self.write_code_seg()
     if ret != 0:
       raise os.error, "failed to write code segment!"
 
-    '''
-    Write other segments
-    Add code here
-    '''
+    #
+    # TODO
+    # Write other segments
+    #
 
-  '''
-  Flush content of file to disk
-  '''
+  #
+  # Flush content of file to disk
+  #
   def flush(self):
-    '''
-    Write Hash table
-    Recalculate hash and rewrite hash table required
-    '''
+    #
+    # Write Hash table
+    # Recalculate hash and rewrite hash table required
+    #
     ret = self.write_hash_tbl()
     if ret != 0:
       raise os.error, "failed to write hash table!"
 
-'''
-Build Auth-Sec ELF From Directory
-'''
+#
+# Build Auth-Sec ELF From Directory
+#
 def build_auth_sec_elf_from_dir(directory, signtool = None, inplace = False, cleanup = False):
   ft = filetype_table['ko'][1]
 
-  for dir, dirs, files in os.walk(directory):
+  for d, dirs, files in os.walk(directory):
     for f in files:
       try:
         if f.rfind(ft) == -1 or f[f.rfind(ft):] != ft:
           raise os.error, "invalid file name!"
 
-        fname = os.path.sep.join((dir, f))
+        fname = os.path.sep.join((d, f))
 
-        if not S_ISREG(os.stat(fname).st_mode):
+        if not stat.S_ISREG(os.stat(fname).st_mode):
           raise os.error, "failed to stat file!"
 
         ElfBuilder(fname, fname + '.sec', signtool, cleanup)
-        '''
-        Remove original file if 'inplace' is True
-        '''
+        #
+        # Remove original file if 'inplace' is True
+        #
         if inplace is True:
           os.remove(fname)
           os.rename(fname + '.sec', fname)
       except os.error, err:
-        '''
-        Ignore error due to unrecognized file
-        '''
+        #
+        # Ignore error due to unrecognized file
+        #
         print >> sys.stderr, str(err).replace('Errno', 'Warning')
 
   return 0
 
-'''
-Build Auth-Sec ELF From File
-'''
+#
+# Build Auth-Sec ELF From File
+#
 def build_auth_sec_elf_from_file(filename, signtool = None, inplace = False, cleanup = False):
   ft = filetype_table['ko'][1]
 
@@ -1404,27 +1412,27 @@ def build_auth_sec_elf_from_file(filename, signtool = None, inplace = False, cle
     if filename.rfind(ft) == -1 or filename[filename.rfind(ft):] != ft:
       raise os.error, "invalid file name!"
 
-    if not S_ISREG(os.stat(filename).st_mode):
+    if not stat.S_ISREG(os.stat(filename).st_mode):
       raise os.error, "failed to stat file!"
 
     ElfBuilder(filename, filename + '.sec', signtool, cleanup)
-    '''
-    Remove original file if 'inplace' is True
-    '''
+    #
+    # Remove original file if 'inplace' is True
+    #
     if inplace is True:
       os.remove(filename)
       os.rename(filename + '.sec', filename)
   except os.error, err:
-    '''
-    Ignore error due to unrecognized file
-    '''
+    #
+    # Ignore error due to unrecognized file
+    #
     print >> sys.stderr, str(err).replace('Errno', 'Warning')
 
   return 0
 
-'''
-Print Usage
-'''
+#
+# Print Usage
+#
 def print_usage():
     print >> sys.stdout, 'USAGE: python elfimg-tool.py [OPTION...]'
     print >> sys.stdout, ''
@@ -1436,9 +1444,9 @@ def print_usage():
     print >> sys.stdout, '  -h, --help           Display help message'
     print >> sys.stdout, ''
 
-'''
-Main Entry
-'''
+#
+# Main Entry
+#
 def main():
   directory = ''
   filename = ''
@@ -1447,9 +1455,9 @@ def main():
   cleanup = False
   ret = 0
 
-  '''
-  Get args list
-  '''
+  #
+  # Get args list
+  #
   try:
     opts, args = getopt.getopt(sys.argv[1:], 'd:f:s:ich', ['dir', 'file', 'sign', 'inplace', 'cleanup', 'help'])
   except getopt.GetoptError, err:
@@ -1474,9 +1482,9 @@ def main():
     else:
       continue
 
-  '''
-  Sanity check
-  '''
+  #
+  # Sanity check
+  #
   if (len(directory) == 0 and len(filename) == 0) \
         or (os.access(directory, os.F_OK | os.R_OK) is False and os.access(filename, os.F_OK | os.R_OK) is False):
     print >> sys.stderr, 'error: failed to open directory or file!'
@@ -1486,9 +1494,9 @@ def main():
     print >> sys.stderr, 'error: failed to access signature tool!'
     sys.exit(1)
 
-  '''
-  Build auth-sec ELF with signature and certificate chain
-  '''
+  #
+  # Build auth-sec ELF with signature and certificate chain
+  #
   if len(directory) != 0:
     ret = build_auth_sec_elf_from_dir(directory, signtool, inplace, cleanup)
   elif len(filename) != 0:
