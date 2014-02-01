@@ -1,5 +1,5 @@
 /**
- * statswindow.h - Header of statswindow
+ * aboutdialog.h - Header of aboutdialog
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,37 +19,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef STATSWINDOW_H
-#define STATSWINDOW_H
+#ifndef ABOUTDIALOG_H
+#define ABOUTDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
+#include <QString>
+#include "ui_aboutdialog.h"
 
-class QTextEdit;
-class QFrame;
-class QPushButton;
-class QVBoxLayout;
-class QHBoxLayout;
+class QWidget;
 
-class StatsWindow : public QWidget
-{
+class AboutDialog : public QDialog {
   Q_OBJECT
 
 public:
-  StatsWindow(QWidget *parent = 0);
-
-protected:
-  void closeEvent(QCloseEvent *event);
-
-private slots:
-  void copyToClipboard();
+  AboutDialog(const QString &version, QWidget *parent = 0);
 
 private:
-  QTextEdit *textEdit;
-  QFrame *frameHLine;
-  QPushButton *copyToClipboardButton;
-  QPushButton *closeButton;
-  QHBoxLayout *hLayout;
-  QWidget *hLayoutWidget;
-  QVBoxLayout *vLayout;
+    Ui::About uiAbout;
 };
 #endif

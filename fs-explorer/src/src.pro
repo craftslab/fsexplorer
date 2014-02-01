@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 RESOURCES += src.qrc
 RC_FILE += src.rc
 
-#FORMS += statswindow.ui
+FORMS += aboutdialog.ui
 
 HEADERS += fsengine.h
 HEADERS += fstreeitem.h
@@ -15,6 +15,7 @@ HEADERS += fstreemodel.h
 HEADERS += statswindow.h
 HEADERS += consolethread.h
 HEADERS += consolewindow.h
+HEADERS += aboutdialog.h
 HEADERS += mainwindow.h
 
 SOURCES += fsengine.cpp
@@ -23,6 +24,7 @@ SOURCES += fstreemodel.cpp
 SOURCES += statswindow.cpp
 SOURCES += consolethread.cpp
 SOURCES += consolewindow.cpp
+SOURCES += aboutdialog.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 

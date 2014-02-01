@@ -1,5 +1,5 @@
 /**
- * statswindow.h - Header of statswindow
+ * aboutdialog.cpp - The entry of aboutdialog
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,37 +19,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef STATSWINDOW_H
-#define STATSWINDOW_H
-
+#include <QDialog>
 #include <QWidget>
+#include <QString>
 
-class QTextEdit;
-class QFrame;
-class QPushButton;
-class QVBoxLayout;
-class QHBoxLayout;
+#include "aboutdialog.h"
 
-class StatsWindow : public QWidget
+AboutDialog::AboutDialog(const QString &version, QWidget *parent)
+  : QDialog(parent)
 {
-  Q_OBJECT
+  uiAbout.setupUi(this);
 
-public:
-  StatsWindow(QWidget *parent = 0);
-
-protected:
-  void closeEvent(QCloseEvent *event);
-
-private slots:
-  void copyToClipboard();
-
-private:
-  QTextEdit *textEdit;
-  QFrame *frameHLine;
-  QPushButton *copyToClipboardButton;
-  QPushButton *closeButton;
-  QHBoxLayout *hLayout;
-  QWidget *hLayoutWidget;
-  QVBoxLayout *vLayout;
-};
-#endif
+  uiAbout.mVersion->setText(uiAbout.mVersion->text().arg(version));
+  QString url = "<a href=\"https://github.com/\">https://github.com/</a>";
+  uiAbout.mHomepage->setText(uiAbout.mHomepage->text().arg(url));
+  connect(uiAbout.mButtons, SIGNAL(accepted()), this, SLOT(accept()));
+}

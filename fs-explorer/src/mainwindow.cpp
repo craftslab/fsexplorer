@@ -37,6 +37,7 @@
 #include "fstreemodel.h"
 #include "statswindow.h"
 #include "consolewindow.h"
+#include "aboutdialog.h"
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
@@ -105,14 +106,6 @@ void MainWindow::closeFile()
 
 void MainWindow::stats()
 {
-#if 0
-  Ui::StatsWindow uiStatsWindow;
-  uiStatsWindow.setupUi(&statsWindow);
-  statsWindow.setWindowFlags(statsWindow.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
-  statsWindow.setAttribute(Qt::WA_QuitOnClose);
-  statWindow.show();
-#endif
-
   statsWindow = new StatsWindow(this);
   statsWindow->show();
 }
@@ -125,10 +118,8 @@ void MainWindow::console()
 
 void MainWindow::about()
 {
-  QMessageBox::about(this,
-                    tr("FS Explorer"),
-                    tr("<h3><center>FS Explorer</center></h3>"
-                       "<p>Copyright &copy; 2014 angersax@gmail.com</p>"));
+  AboutDialog *aboutDialog = new AboutDialog(tr("1.00"), this);
+  aboutDialog->exec();
 }
 
 void MainWindow::showWidgets(bool show)

@@ -23,6 +23,8 @@
 #if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #endif
+#include <QClipboard>
+#include <QMimeData>
 
 #include "statswindow.h"
 
@@ -39,12 +41,16 @@ StatsWindow::StatsWindow(QWidget *parent)
   frameHLine->setLineWidth(1);
   frameHLine->setMidLineWidth(0);
 
+  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
+
   closeButton = new QPushButton(tr("Close"));
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
   hLayout = new QHBoxLayout;
   hLayout->insertSpacing(0, 300);
   hLayout->insertStretch(0, 1);
+  hLayout->addWidget(copyToClipboardButton);
   hLayout->addWidget(closeButton);
 
   hLayoutWidget = new QWidget();
@@ -76,4 +82,24 @@ StatsWindow::StatsWindow(QWidget *parent)
 void StatsWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
+}
+
+void StatsWindow::copyToClipboard()
+{
+  QClipboard *clipboard = QApplication::clipboard();
+  if (!clipboard) {
+    return;
+  }
+
+  const QString textDemo = QString(tr("Demo"));
+  const QString textSummary = textDemo;
+
+  const QString htmlDemo = QString(tr("<h3>%1<h3>\n")).arg(tr("Demo"));
+  const QString htmlSummary = htmlDemo;
+
+  QMimeData *mimeData = new QMimeData();
+  mimeData->setText(textSummary);
+  mimeData->setHtml(htmlSummary);
+
+  clipboard->setMimeData(mimeData);
 }
