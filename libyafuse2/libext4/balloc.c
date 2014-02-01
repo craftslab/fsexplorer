@@ -113,7 +113,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
    * Ignore the feature of EXT4_FEATURE_INCOMPAT_META_BG
    * (ext4_super_block: s_first_meta_bg)
    */
-  // add code here
+  // TODO
 
   if (ext4_bg_has_super(sb, bg)) {
     has_super = 1;

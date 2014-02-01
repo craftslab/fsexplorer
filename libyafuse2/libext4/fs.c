@@ -528,8 +528,6 @@ static struct dentry* fs_make_root(struct super_block *sb)
     goto fs_make_root_fail;
   }
 
-  // add code here
-
   return root_dentry;
 
  fs_make_root_fail:
