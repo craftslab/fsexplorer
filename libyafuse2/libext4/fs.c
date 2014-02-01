@@ -259,7 +259,6 @@ static void fs_d_release(struct dentry *dentry)
 
   if (dentry) {
     free((void *)dentry);
-    dentry = (struct dentry *)NULL;
   }
 
   return;
@@ -404,7 +403,6 @@ static void fs_destroy_inode(struct inode *inode)
 
   if (inode) {
     free((void *)inode);
-    inode = NULL;
   }
 }
 
@@ -530,16 +528,20 @@ static struct dentry* fs_make_root(struct super_block *sb)
     goto fs_make_root_fail;
   }
 
+  // add code here
+
   return root_dentry;
 
  fs_make_root_fail:
 
   if (root_dentry) {
     sb->s_d_op->d_release(root_dentry);
+    root_dentry = NULL;
   }
 
   if (root_inode) {
     sb->s_op->destroy_inode(root_inode);
+    root_inode = NULL;
   }
 
   return NULL;
@@ -674,10 +676,12 @@ static int32_t fs_umount(const char *name, int32_t flags)
 
   if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc) {
     free(((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc);
+    ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc = NULL;
   }
 
   if (fs_sb.s_fs_info) {
     free(fs_sb.s_fs_info);
+    fs_sb.s_fs_info = NULL;
   }
 
   /*

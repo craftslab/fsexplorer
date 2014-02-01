@@ -562,7 +562,6 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
 
   fprintf(stdout, "Inode %5llu: ", (long long unsigned)ino);
 
-  str = NULL;
   fprintf(stdout, "type: ");
   if (inode->i_mode & EXT4_INODE_MODE_S_IFIFO) {
     str = "FIFO";
@@ -580,6 +579,8 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
     str = "socket";
   } else if (inode->i_mode & EXT4_INODE_MODE_S_IFCHR) {
     str = EXT4_DUMMY_STR;
+  } else {
+    str = NULL;
   }
   fprintf(stdout, "%s  ", str);
 
