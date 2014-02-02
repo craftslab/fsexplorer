@@ -333,27 +333,36 @@ static struct dentry* fs_alloc_dentry(struct dentry *parent, const struct qstr *
  */
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode)
 {
-  struct ext4_dir_entry_2 ext4_dentry;
-  int32_t ret;
+  struct ext4_dir_entry_2 *ext4_dentries = NULL;
+  uint32_t ext4_dentries_num;
+  struct dentry *ret = NULL;
 
   /*
    * Fill in Ext4 dentry
    */
-  ret = ext4_raw_dentry(inode, &ext4_dentry);
-  if (ret != 0) {
+  ext4_dentries_num = 2;
+  ext4_dentries = (struct ext4_dir_entry_2 *)malloc(ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
+  if (!ext4_dentries) {
     return NULL;
+  }
+  memset((void *)ext4_dentries, 0, ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
+
+  if (ext4_raw_dentry(inode, ext4_dentries, &ext4_dentries_num) != 0) {
+    ret = NULL;
+    goto fs_instantiate_dentry_exit;
   }
 
   /*
    * Fill in dentry
    */
   dentry->d_parent = (struct dentry *)dentry->d_parent;
-  dentry->d_name->len = (uint32_t)ext4_dentry.name_len;
+  dentry->d_name->len = (uint32_t)ext4_dentries[0].name_len;
   dentry->d_name->name = (const unsigned char *)malloc(dentry->d_name->len);
   if (!dentry->d_name->name) {
-    return NULL;
+    ret = NULL;
+    goto fs_instantiate_dentry_exit;
   }
-  memcpy((void *)dentry->d_name->name, (void *)ext4_dentry.name, ext4_dentry.name_len);
+  memcpy((void *)dentry->d_name->name, (void *)ext4_dentries[0].name, ext4_dentries[0].name_len);
   dentry->d_name->hash = (uint32_t)fs_name_hash(dentry->d_name->name, dentry->d_name->len);
   dentry->d_inode = (struct inode *)inode;
   dentry->d_op = (const struct dentry_operations *)dentry->d_op;
@@ -361,7 +370,16 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
   memcpy((void *)&dentry->d_child, (const void *)&dentry->d_child, sizeof(struct list_head));
   memcpy((void *)&dentry->d_subdirs, (const void *)&dentry->d_subdirs, sizeof(struct list_head));
 
-  return dentry;
+  ret = dentry;
+
+ fs_instantiate_dentry_exit:
+
+  if (ext4_dentries) {
+    free(ext4_dentries);
+    ext4_dentries = NULL;
+  }
+
+  return ret;
 }
 
 /*

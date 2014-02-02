@@ -50,21 +50,21 @@
 /*
  * Function Declaration
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, struct ext4_dir_entry_2 *dentry);
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, uint64_t offset, struct ext4_dir_entry_2 *dentry);
 
 /*
  * Function Definition
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, struct ext4_dir_entry_2 *dentry)
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, uint64_t offset, struct ext4_dir_entry_2 *dentry)
 {
   struct ext4_extent *ext = path->p_ext;
-  int64_t offset;
+  int64_t dent_offset;
   int64_t len;
   int32_t ret;
 
-  offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize;
+  dent_offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize + offset;
 
-  ret = io_seek(offset);
+  ret = io_seek(dent_offset);
   if (ret != 0) {
     return -1;
   }
@@ -80,7 +80,14 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   }
 
   len = (int64_t)(dentry->rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry->rec_len : sizeof(struct ext4_dir_entry_2));
+  if (dentry->inode == EXT4_UNUSED_INO && len == 0) {
+    return 0;
+  }
+
   len -= (int64_t)(sizeof(dentry->inode) + sizeof(dentry->rec_len));
+  if (len <= 0) {
+    return -1;
+  }
 
   ret = io_read((uint8_t *)dentry + sizeof(dentry->inode) + sizeof(dentry->rec_len), len);
   if (ret != 0) {
@@ -90,7 +97,7 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   return 0;
 }
 
-int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
+int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentries, uint32_t *dentries_num)
 {
   struct super_block *sb = inode->i_sb;
   struct ext4_extent_header eh;
@@ -98,10 +105,14 @@ int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
   struct ext4_extent ext;
   struct ext4_ext_path path;
   uint16_t depth;
+  struct ext4_dir_entry_2 dentry;
+  uint64_t offset;
+  uint32_t i;
   int32_t ret;
 
   /*
-   * Hash tree directories is NOT supported yet
+   * Support for linear directories only
+   * and hash tree directories is NOT supported yet
    */
   if (is_dx(inode)) {
     return -1;
@@ -130,14 +141,39 @@ int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry)
     return -1;
   }
 
-  ret = ext4_find_dentry(sb, &path, dentry);
-  if (ret != 0) {
-    return -1;
-  }
+  offset = 0;
+  i = 0;
+
+  while (1) {
+    memset((void *)&dentry, 0, sizeof(struct ext4_dir_entry_2));
+    ret = ext4_find_dentry(sb, &path, offset, &dentry);
+    if (ret != 0) {
+      break;
+    }
+
+    if (dentry.inode == EXT4_UNUSED_INO) {
+      ret = 0;
+      break;
+    }
+
+    if (++i <= *dentries_num) {
+      dentries[i - 1] = dentry;
+    } else {
+      *dentries_num += 1;
+      dentries = (struct ext4_dir_entry_2 *)realloc((void *)dentries, *dentries_num * sizeof(struct ext4_dir_entry_2));
+      if (!dentries) {
+        ret = -1;
+        break;
+      }
+      dentries[*dentries_num - 1] = dentry;
+    }
+
+    offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
 
 #ifdef DEBUG_LIBEXT4_DIR
-  ext4_show_dentry(dentry);
+    ext4_show_dentry(dentry);
 #endif
+  }
 
-  return 0;
+  return ret;
 }

@@ -56,7 +56,7 @@ void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext
 void ext4_show_sb_stat(struct ext4_super_block *sb);
 #endif
 
-int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentry);
+int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentries, uint32_t *dentries_num);
 
 int32_t ext4_ext_depth(struct inode *inode, uint16_t *depth);
 int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ext_path *path);
