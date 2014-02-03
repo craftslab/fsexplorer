@@ -63,14 +63,14 @@ static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
 static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
-static int32_t fs_get_dentry(struct dentry *root, uint64_t ino, struct dentry *dentry);
+static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t *count);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t *dirents_num);
 
 /*
  * Function Definition
@@ -125,7 +125,7 @@ static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
   list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
 #else
   for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
@@ -145,25 +145,25 @@ static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *
 /*
  * Get dentry from ino of filesystem
  */
-static int32_t fs_get_dentry(struct dentry *root, uint64_t ino, struct dentry *dentry)
+static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match)
 {
   struct dentry *child = NULL;
   int32_t ret = -1;
 
-  if (root->d_inode->i_ino == ino) {
-    *dentry = *root;
+  if (dentry->d_inode->i_ino == ino) {
+    *match = dentry;
     return 0;
   }
 
-  if (!list_empty(&root->d_subdirs)) {
-#ifdef CMAKE_COMPILER_IS_GNUCC
-    list_for_each_entry(child, &root->d_subdirs, d_child) {
+  if (!list_empty(&dentry->d_subdirs)) {
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
+    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
 #else
-    for (child = list_entry((&root->d_subdirs)->next, struct dentry, d_child);
-         &child->d_child != (&root->d_subdirs);
+    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
+         &child->d_child != (&dentry->d_subdirs);
          child = list_entry(child->d_child.next, struct dentry, d_child)) {
 #endif
-      ret = fs_get_dentry(child, ino, dentry);
+      ret = fs_get_dentry(child, ino, match);
       if (ret == 0) {
         break;
       }
@@ -363,23 +363,35 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 /*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t *count)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t *dirents_num)
 {
-  struct dentry *root = fs_mnt.mnt.mnt_root;
-  struct dentry dentry;
+  struct dentry *root = fs_mnt.mnt.mnt_root, *child = NULL;
+  struct dentry *dentry = NULL;
   int32_t ret;
 
-  if (!dirent || count == 0) {
+  if (!dirents || *dirents_num == 0) {
     return -1;
   }
 
-  memset((void *)&dentry, 0, sizeof(struct dentry));
   ret = fs_get_dentry(root, ino, &dentry);
   if (ret != 0) {
     return -1;
   }
 
   // TODO
+
+  if (!list_empty(&dentry->d_subdirs)) {
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
+    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
+#else
+    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
+         &child->d_child != (&dentry->d_subdirs);
+         child = list_entry(child->d_child.next, struct dentry, d_child)) {
+#endif
+      // TODO
+      child = child;
+    }
+  }
 
   return 0;
 }

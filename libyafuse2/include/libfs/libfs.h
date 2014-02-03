@@ -121,7 +121,7 @@ struct fs_opt_t {
   int32_t (*umount) (const char *dirname, int32_t flags);
   int32_t (*statfs) (const char *pathname, struct fs_kstatfs *buf);
   int32_t (*stat) (uint64_t ino, struct fs_kstat *buf);
-  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirent, uint32_t *count);
+  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirents, uint32_t *dirents_num);
 };
 
 /*
