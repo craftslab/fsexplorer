@@ -480,7 +480,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
  */
 static struct dentry* fs_make_root(struct super_block *sb)
 {
-  struct inode *root_inode = NULL, *child_inode = NULL;
+  struct inode *root_inode = NULL;
   struct dentry *root_dentry = NULL, *child_dentry = NULL;
   struct ext4_dir_entry_2 *ext4_dentries = NULL;
   uint32_t ext4_dentries_num, i;
@@ -521,7 +521,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
   }
 
   /*
-   * Allocate dentry
+   * Allocate parent dentry
    */
   root_dentry = fs_alloc_dentry(root_inode->i_sb);
   if (!root_dentry) {
@@ -537,8 +537,6 @@ static struct dentry* fs_make_root(struct super_block *sb)
   q_name.len = strlen((const char *)(q_name.name));
   q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
-  printf("%s: %d: name: %s\n", __func__, __LINE__, q_name.name);
-
   root_dentry = fs_instantiate_dentry(root_dentry, root_inode, &q_name);
   if (!root_dentry) {
     ret = NULL;
@@ -549,18 +547,6 @@ static struct dentry* fs_make_root(struct super_block *sb)
    * Instantiate child dentries
    */
   for (i = 1; i < ext4_dentries_num; ++i) {
-    child_inode = sb->s_op->alloc_inode(sb);
-    if (!child_inode) {
-      ret = NULL;
-      goto fs_make_root_fail;
-    }
-
-    child_inode = fs_instantiate_inode(child_inode, (uint64_t)ext4_dentries[i].inode);
-    if (!child_inode) {
-      ret = NULL;
-      goto fs_make_root_fail;
-    }
-
     child_dentry = fs_alloc_dentry_child(root_dentry);
     if (!child_dentry) {
       ret = NULL;
@@ -572,9 +558,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
     q_name.len = strlen((const char *)(q_name.name));
     q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
-    printf("%s: %d: name: %s\n", __func__, __LINE__, q_name.name);
-
-    ret = fs_instantiate_dentry(child_dentry, child_inode, &q_name);
+    ret = fs_instantiate_dentry(child_dentry, root_inode, &q_name);
     if (!ret) {
       goto fs_make_root_fail;
     }

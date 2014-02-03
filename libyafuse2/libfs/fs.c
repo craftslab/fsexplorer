@@ -70,7 +70,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t *count);
 
 /*
  * Function Definition
@@ -363,7 +363,7 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 /*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t count)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirent, uint32_t *count)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root;
   struct dentry dentry;

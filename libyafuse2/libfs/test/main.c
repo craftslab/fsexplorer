@@ -228,7 +228,7 @@ int32_t main(int argc, char *argv[])
   /*
    * Get dentry list
    */
-  fs_dirent_list_len = 2;
+  fs_dirent_list_len = 1;
   fs_dirent_list = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fs_dirent_list_len);
   if (!fs_dirent_list) {
     error("malloc failed!");
@@ -236,16 +236,15 @@ int32_t main(int argc, char *argv[])
   }
   memset((void *)fs_dirent_list, 0, sizeof(struct fs_dirent) * fs_dirent_list_len);
 
-  ret = fs_opt.getdents(fs_root.d_ino, fs_dirent_list, fs_dirent_list_len);
-  if (ret <= 0) {
+  ret = fs_opt.getdents(fs_root.d_ino, fs_dirent_list, &fs_dirent_list_len);
+  if (ret != 0) {
     error("getdents failed!");
     goto main_exit;
   }
-  fs_dirent_list_len = (uint32_t)ret;
 
   info("sub dentry of root:");
   for (i = 0; i < fs_dirent_list_len; ++i) {
-    fprintf(stdout, "name: %s, ino: %llu\n", fs_dirent_list[i].d_name, (long long unsigned)fs_dirent_list[i].d_ino);
+    info("name: %s, ino: %llu", fs_dirent_list[i].d_name, (long long unsigned)fs_dirent_list[i].d_ino);
   }
 
   ret = 0;
