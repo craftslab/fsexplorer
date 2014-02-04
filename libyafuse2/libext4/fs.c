@@ -70,6 +70,7 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
 static struct inode* fs_alloc_inode(struct super_block *sb);
 static void fs_destroy_inode(struct inode *inode);
 static void fs_destroy_inodes(struct super_block *sb);
+static struct inode* fs_find_inode(struct super_block *sb, uint64_t ino);
 static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino);
 
 static struct dentry* fs_make_root(struct super_block *sb);
@@ -397,10 +398,6 @@ static void fs_destroy_inodes(struct super_block *sb)
   struct inode *child = NULL;
   struct list_head *ptr = NULL;
 
-  if (!sb || !sb->s_op || !sb->s_op->destroy_inode) {
-    return;
-  }
-
   if (!list_empty(&sb->s_inodes)) {
 #if 0  // For CMAKE_COMPILER_IS_GNUCC only
     list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
@@ -415,6 +412,31 @@ static void fs_destroy_inodes(struct super_block *sb)
   }
 
   list_del_init(&sb->s_inodes);
+}
+
+/*
+ * Find inode matched with ino
+ */
+static struct inode* fs_find_inode(struct super_block *sb, uint64_t ino)
+{
+  struct inode *child = NULL, *ptr = NULL;
+
+  if (!list_empty(&sb->s_inodes)) {
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
+    list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
+#else
+    for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
+         &child->i_sb_list != (&sb->s_inodes);
+         child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+#endif
+      if (ino == child->i_ino) {
+        ptr = child;
+        break;
+      }
+    }
+  }
+
+  return ptr;
 }
 
 /*
@@ -535,16 +557,19 @@ static struct dentry* fs_make_root(struct super_block *sb)
    * Allocate & instantiate child inodes & dentries
    */
   for (i = 1; i < ext4_dentries_num; ++i) {
-    child_inode = sb->s_op->alloc_inode(sb);
+    child_inode = fs_find_inode(sb, (uint64_t)ext4_dentries[i].inode);
     if (!child_inode) {
-      ret = NULL;
-      goto fs_make_root_fail;
-    }
+      child_inode = sb->s_op->alloc_inode(sb);
+      if (!child_inode) {
+        ret = NULL;
+        goto fs_make_root_fail;
+      }
 
-    child_inode = fs_instantiate_inode(child_inode, (uint64_t)ext4_dentries[i].inode);
-    if (!child_inode) {
-      ret = NULL;
-      goto fs_make_root_fail;
+      child_inode = fs_instantiate_inode(child_inode, (uint64_t)ext4_dentries[i].inode);
+      if (!child_inode) {
+        ret = NULL;
+        goto fs_make_root_fail;
+      }
     }
 
     child_dentry = fs_alloc_dentry_child(parent_dentry);
