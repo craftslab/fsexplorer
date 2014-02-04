@@ -48,6 +48,7 @@ void ConsoleThread::quitConsole()
 void ConsoleThread::run()
 {
   while (!quit) {
-    qDebug() << "run";
+    // TODO
+    quit = quit;
   }
 }
