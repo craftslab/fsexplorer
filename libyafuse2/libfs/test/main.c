@@ -48,7 +48,7 @@
 #ifdef CMAKE_COMPILER_IS_GNUCC
 #define LIB_NAME "libfs.so"
 #else
-#define LIB_NAME "fs.dll"
+#define LIB_NAME "libfs.dll"
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*
