@@ -45,6 +45,8 @@
  */
 #define FS_LIB_NAME_LEN_MAX 16
 
+#define FS_PARENT_DENTRY_NAME "."
+
 /*
  * Type Definition
  */
@@ -62,9 +64,11 @@ static struct mount fs_mnt;
 static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
+
+static int32_t fs_is_parent_dentry(struct dentry *dentry);
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
-static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
 static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
+static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
 
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
@@ -115,6 +119,18 @@ static int32_t fs_unload_lib(void *handle)
 }
 
 /*
+ * Check if parent dentry
+ */
+static int32_t fs_is_parent_dentry(struct dentry *dentry)
+{
+  if (!memcmp((const void *)dentry->d_name->name, (const void *)FS_PARENT_DENTRY_NAME, strlen((const char *)dentry->d_name->name))) {
+    return 1;
+  }
+
+  return 0;
+}
+
+/*
  * Get dirent from dentry
  */
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
@@ -130,35 +146,6 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
   memcpy((void *)dirent->d_name, (void *)dentry->d_name->name, len);
 
   return 0;
-}
-
-/*
- * Get inode from ino of filesystem
- */
-static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode)
-{
-  struct inode *child = NULL;
-  int32_t ret = -1;
-
-  if (list_empty(&sb->s_inodes)) {
-    return -1;
-  }
-
-#if 0  // For CMAKE_COMPILER_IS_GNUCC only
-  list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
-#else
-  for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
-       &child->i_sb_list != (&sb->s_inodes);
-       child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
-#endif
-    if (child->i_ino == ino) {
-      *inode = *child;
-      ret = 0;
-      break;
-    }
-  }
-
-  return ret;
 }
 
 /*
@@ -186,6 +173,35 @@ static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry 
       if (ret == 0) {
         break;
       }
+    }
+  }
+
+  return ret;
+}
+
+/*
+ * Get inode from ino of filesystem
+ */
+static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode)
+{
+  struct inode *child = NULL;
+  int32_t ret = -1;
+
+  if (list_empty(&sb->s_inodes)) {
+    return -1;
+  }
+
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
+  list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
+#else
+  for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
+       &child->i_sb_list != (&sb->s_inodes);
+       child = list_entry(child->i_sb_list.next, struct inode, i_sb_list)) {
+#endif
+    if (child->i_ino == ino) {
+      *inode = *child;
+      ret = 0;
+      break;
     }
   }
 
@@ -389,14 +405,17 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
   }
 
   /*
-   * Get dentry mached with ino
+   * Get parent dentry mached with ino
    */
   ret = fs_get_dentry(root, ino, &parent);
   if (ret != 0) {
     return -1;
   }
 
-  // TODO
+  if (!fs_is_parent_dentry(parent)) {
+    // TODO
+    parent = parent;
+  }
 
   /*
    * Populate parent/child dentries

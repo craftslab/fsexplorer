@@ -140,7 +140,7 @@ static void show_stat(struct fs_kstat *stat)
   info("mtime: sec %lld nsec %lld", (long long int)stat->mtime.tv_sec, (long long int)stat->mtime.tv_nsec);
   info("ctime: sec %lld nsec %lld", (long long int)stat->ctime.tv_sec, (long long int)stat->ctime.tv_nsec);
   info("blksize: %llu", (long long unsigned)stat->blksize);
-  info("blocks: %llu", (long long unsigned)stat->blocks);
+  info("blocks: %llu\n", (long long unsigned)stat->blocks);
 }
 
 int32_t main(int argc, char *argv[])
@@ -199,10 +199,12 @@ int32_t main(int argc, char *argv[])
     error("mount failed!");
     goto main_exit;
   }
-  info("mount filesystem successfully.");
+  info("mount filesystem successfully.\n");
 
-  info("root dentry: ino %llu type %d name %s",
-       (long long unsigned)fs_root.d_ino, fs_root.d_type, fs_root.d_name);
+  info("root dentry");
+  info("ino %llu", (long long unsigned)fs_root.d_ino);
+  info("type %d", fs_root.d_type);
+  info("name %s\n", fs_root.d_name);
 
   /*
    * Show stats of fs
@@ -242,10 +244,11 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  info("sub dentry of root:");
+  info("child dentries of root");
   for (i = 0; i < fs_dirents_num; ++i) {
-    info("name: %s ino: %llu", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino);
+    info("name %s ino %llu", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino);
   }
+  fprintf(stdout, "\n");
 
   ret = 0;
 
