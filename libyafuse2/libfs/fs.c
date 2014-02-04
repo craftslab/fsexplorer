@@ -379,8 +379,8 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
  */
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num)
 {
-  struct dentry *root = fs_mnt.mnt.mnt_root, *child = NULL;
-  struct dentry *dentry = NULL;
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  struct dentry *parent = NULL, *child = NULL;
   uint32_t i;
   int32_t ret;
 
@@ -391,7 +391,7 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
   /*
    * Get dentry mached with ino
    */
-  ret = fs_get_dentry(root, ino, &dentry);
+  ret = fs_get_dentry(root, ino, &parent);
   if (ret != 0) {
     return -1;
   }
@@ -402,17 +402,17 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
    * Populate parent/child dentries
    */
   i = 0;
-  ret = fs_dentry2dirent(dentry, &(*dirents)[i]);
+  ret = fs_dentry2dirent(parent, &(*dirents)[i]);
   if (ret != 0) {
     return -1;
   }
 
-  if (!list_empty(&dentry->d_subdirs)) {
+  if (!list_empty(&parent->d_subdirs)) {
 #if 0  // For CMAKE_COMPILER_IS_GNUCC only
-    list_for_each_entry_reverse(child, &dentry->d_subdirs, d_child) {
+    list_for_each_entry_reverse(child, &parent->d_subdirs, d_child) {
 #else
-    for (child = list_entry((&dentry->d_subdirs)->prev, struct dentry, d_child);
-         &child->d_child != (&dentry->d_subdirs);
+    for (child = list_entry((&parent->d_subdirs)->prev, struct dentry, d_child);
+         &child->d_child != (&parent->d_subdirs);
          child = list_entry(child->d_child.prev, struct dentry, d_child)) {
 #endif
       if (++i < *dirents_num) {
