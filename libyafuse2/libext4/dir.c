@@ -97,7 +97,7 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   return 0;
 }
 
-int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentries, uint32_t *dentries_num)
+int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 **dentries, uint32_t *dentries_num)
 {
   struct super_block *sb = inode->i_sb;
   struct ext4_extent_header eh;
@@ -157,15 +157,15 @@ int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentries, 
     }
 
     if (++i <= *dentries_num) {
-      dentries[i - 1] = dentry;
+      (*dentries)[i - 1] = dentry;
     } else {
       *dentries_num += 1;
-      dentries = (struct ext4_dir_entry_2 *)realloc((void *)dentries, *dentries_num * sizeof(struct ext4_dir_entry_2));
-      if (!dentries) {
+      *dentries = (struct ext4_dir_entry_2 *)realloc((void *)*dentries, *dentries_num * sizeof(struct ext4_dir_entry_2));
+      if (!*dentries) {
         ret = -1;
         break;
       }
-      dentries[*dentries_num - 1] = dentry;
+      (*dentries)[*dentries_num - 1] = dentry;
     }
 
     offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
@@ -174,6 +174,8 @@ int32_t ext4_raw_dentry(struct inode *inode, struct ext4_dir_entry_2 *dentries, 
     ext4_show_dentry(dentry);
 #endif
   }
+
+  *dentries_num = i <= *dentries_num ? i : *dentries_num;
 
   return ret;
 }

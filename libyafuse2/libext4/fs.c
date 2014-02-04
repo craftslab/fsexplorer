@@ -515,7 +515,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
   }
   memset((void *)ext4_dentries, 0, ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
 
-  if (ext4_raw_dentry(root_inode, ext4_dentries, &ext4_dentries_num) != 0) {
+  if (ext4_raw_dentry(root_inode, &ext4_dentries, &ext4_dentries_num) != 0) {
     ret = NULL;
     goto fs_make_root_fail;
   }

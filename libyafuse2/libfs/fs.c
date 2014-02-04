@@ -62,6 +62,7 @@ static struct mount fs_mnt;
 static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
+static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
 static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
 static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
@@ -70,7 +71,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t *dirents_num);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num);
 
 /*
  * Function Definition
@@ -109,6 +110,24 @@ static int32_t fs_unload_lib(void *handle)
 #else
   (void)FreeLibrary((HMODULE)handle);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
+
+  return 0;
+}
+
+/*
+ * Get dirent from dentry
+ */
+static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
+{
+  int32_t len;
+
+  dirent->d_ino = (uint64_t)dentry->d_inode->i_ino;
+  dirent->d_off = (int64_t)-1;
+  dirent->d_reclen = (uint16_t)0;
+  dirent->d_type = (enum libfs_ftype)dentry->d_inode->i_flags;
+  len = (int32_t)dentry->d_name->len;
+  len = len >= 255 ? 255 : len;
+  memcpy((void *)dirent->d_name, (void *)dentry->d_name->name, len);
 
   return 0;
 }
@@ -205,7 +224,6 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
   struct dentry *root = NULL;
-  int32_t len;
 
   if (!devname || !dirname || !type || !dirent || fs_mnt.mnt_count != 0) {
     return -1;
@@ -246,13 +264,9 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   fs_mnt.mnt_devname = devname;
 
   memset((void *)dirent, 0, sizeof(struct fs_dirent));
-  dirent->d_ino = (uint64_t)fs_mnt.mnt_mountpoint->d_inode->i_ino;
-  dirent->d_off = (int64_t)-1;
-  dirent->d_reclen = (uint16_t)0;
-  dirent->d_type = (enum libfs_ftype)FT_DIR;
-  len = (int32_t)fs_mnt.mnt_mountpoint->d_name->len;
-  len = len >= 255 ? 255 : len;
-  memcpy((void *)dirent->d_name, fs_mnt.mnt_mountpoint->d_name->name, len);
+  if (fs_dentry2dirent(fs_mnt.mnt_mountpoint, dirent) != 0) {
+    goto fs_mount_exit;
+  }
 
   return 0;
 
@@ -363,16 +377,20 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 /*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t *dirents_num)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root, *child = NULL;
   struct dentry *dentry = NULL;
+  uint32_t i;
   int32_t ret;
 
-  if (!dirents || *dirents_num == 0) {
+  if (!dirents || !*dirents || *dirents_num == 0) {
     return -1;
   }
 
+  /*
+   * Get dentry mached with ino
+   */
   ret = fs_get_dentry(root, ino, &dentry);
   if (ret != 0) {
     return -1;
@@ -380,18 +398,43 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t *di
 
   // TODO
 
+  /*
+   * Populate parent/child dentries
+   */
+  i = 0;
+  ret = fs_dentry2dirent(dentry, &(*dirents)[i]);
+  if (ret != 0) {
+    return -1;
+  }
+
   if (!list_empty(&dentry->d_subdirs)) {
 #if 0  // For CMAKE_COMPILER_IS_GNUCC only
-    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
+    list_for_each_entry_reverse(child, &dentry->d_subdirs, d_child) {
 #else
-    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
+    for (child = list_entry((&dentry->d_subdirs)->prev, struct dentry, d_child);
          &child->d_child != (&dentry->d_subdirs);
-         child = list_entry(child->d_child.next, struct dentry, d_child)) {
+         child = list_entry(child->d_child.prev, struct dentry, d_child)) {
 #endif
-      // TODO
-      child = child;
+      if (++i < *dirents_num) {
+        ret = fs_dentry2dirent(child, &(*dirents)[i]);
+        if (ret != 0) {
+          return -1;
+        }
+      } else {
+        *dirents_num += 1;
+        *dirents = (struct fs_dirent *)realloc((void *)*dirents, *dirents_num * sizeof(struct fs_dirent));
+        if (!*dirents) {
+          return -1;
+        }
+        ret = fs_dentry2dirent(child, &(*dirents)[*dirents_num - 1]);
+        if (ret != 0) {
+          return -1;
+        }
+      }
     }
   }
+
+  *dirents_num = i < *dirents_num ? i + 1 : *dirents_num;
 
   return 0;
 }

@@ -236,7 +236,7 @@ int32_t main(int argc, char *argv[])
   }
   memset((void *)fs_dirents, 0, sizeof(struct fs_dirent) * fs_dirents_num);
 
-  ret = fs_opt.getdents(fs_root.d_ino, fs_dirents, &fs_dirents_num);
+  ret = fs_opt.getdents(fs_root.d_ino, &fs_dirents, &fs_dirents_num);
   if (ret != 0) {
     error("getdents failed!");
     goto main_exit;
@@ -244,7 +244,7 @@ int32_t main(int argc, char *argv[])
 
   info("sub dentry of root:");
   for (i = 0; i < fs_dirents_num; ++i) {
-    info("name: %s, ino: %llu", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino);
+    info("name: %s ino: %llu", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino);
   }
 
   ret = 0;
