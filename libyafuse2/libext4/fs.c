@@ -62,22 +62,22 @@ static inline uint64_t partial_name_hash(uint64_t c, uint64_t prevhash);
 static inline uint64_t end_name_hash(uint64_t hash);
 static uint64_t fs_name_hash(const unsigned char *name, uint32_t len);
 
-static void fs_d_release(struct dentry *dentry);
 static struct dentry* fs_alloc_dentry(struct super_block *sb);
 static struct dentry* fs_alloc_dentry_child(struct dentry *parent);
+static void fs_d_release(struct dentry *dentry);
 static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode *inode, const struct qstr *name);
-static struct dentry* fs_make_root(struct super_block *sb);
 
 static struct inode* fs_alloc_inode(struct super_block *sb);
 static void fs_destroy_inode(struct inode *inode);
 static void fs_destroy_inodes(struct super_block *sb);
-static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino);
 
+static struct dentry* fs_make_root(struct super_block *sb);
 static int32_t fs_fill_super(struct super_block *sb);
 
 static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, const char *name, void *data);
 static int32_t fs_umount(const char *name, int32_t flags);
+static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -218,47 +218,6 @@ static uint64_t fs_name_hash(const unsigned char *name, uint32_t len)
 }
 
 /*
- * Release dentry
- */
-static void fs_d_release(struct dentry *dentry)
-{
-  struct dentry *child = NULL;
-  struct list_head *ptr = NULL;
-
-  if (!dentry) {
-    return;
-  }
-
-  if (!list_empty(&dentry->d_subdirs)) {
-#if 0  // For CMAKE_COMPILER_IS_GNUCC only
-    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
-#else
-    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
-        &child->d_child != (&dentry->d_subdirs);
-        child = list_entry(ptr, struct dentry, d_child)) {
-#endif
-      ptr = child->d_child.next;
-      fs_d_release(child);
-    }
-  }
-
-  if (dentry->d_name) {
-    if (dentry->d_name->name) {
-      free((void *)dentry->d_name->name);
-      dentry->d_name->name = NULL;
-    }
-    free((void *)dentry->d_name);
-    dentry->d_name = NULL;
-  }
-
-  if (dentry) {
-    free((void *)dentry);
-  }
-
-  return;
-}
-
-/*
  * Allocate dentry
  */
 static struct dentry* fs_alloc_dentry(struct super_block *sb)
@@ -321,6 +280,47 @@ static struct dentry* fs_alloc_dentry_child(struct dentry *parent)
   list_add(&dentry->d_child, &parent->d_subdirs);
 
   return dentry;
+}
+
+/*
+ * Release dentry
+ */
+static void fs_d_release(struct dentry *dentry)
+{
+  struct dentry *child = NULL;
+  struct list_head *ptr = NULL;
+
+  if (!dentry) {
+    return;
+  }
+
+  if (!list_empty(&dentry->d_subdirs)) {
+#if 0  // For CMAKE_COMPILER_IS_GNUCC only
+    list_for_each_entry(child, &dentry->d_subdirs, d_child) {
+#else
+    for (child = list_entry((&dentry->d_subdirs)->next, struct dentry, d_child);
+        &child->d_child != (&dentry->d_subdirs);
+        child = list_entry(ptr, struct dentry, d_child)) {
+#endif
+      ptr = child->d_child.next;
+      fs_d_release(child);
+    }
+  }
+
+  if (dentry->d_name) {
+    if (dentry->d_name->name) {
+      free((void *)dentry->d_name->name);
+      dentry->d_name->name = NULL;
+    }
+    free((void *)dentry->d_name);
+    dentry->d_name = NULL;
+  }
+
+  if (dentry) {
+    free((void *)dentry);
+  }
+
+  return;
 }
 
 /*
@@ -415,18 +415,6 @@ static void fs_destroy_inodes(struct super_block *sb)
   }
 
   list_del_init(&sb->s_inodes);
-}
-
-/*
- * Show stats of filesystem
- */
-static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
-{
-  if (!dentry || !buf) {
-    return -1;
-  }
-
-  return 0;
 }
 
 /*
@@ -743,6 +731,20 @@ static int32_t fs_umount(const char *name, int32_t flags)
   memset((void *)&fs_sb, 0, sizeof(struct super_block));
 
   (void)io_close();
+
+  return 0;
+}
+
+/*
+ * Show stats of filesystem
+ */
+static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
+{
+  if (!dentry || !buf) {
+    return -1;
+  }
+
+  // TODO
 
   return 0;
 }
