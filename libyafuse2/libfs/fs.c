@@ -45,8 +45,6 @@
  */
 #define FS_LIB_NAME_LEN_MAX 16
 
-#define FS_PARENT_DENTRY_NAME "."
-
 /*
  * Type Definition
  */
@@ -65,7 +63,6 @@ static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
 
-static int32_t fs_is_parent_dentry(struct dentry *dentry);
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
 static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
 static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
@@ -119,18 +116,6 @@ static int32_t fs_unload_lib(void *handle)
 }
 
 /*
- * Check if parent dentry
- */
-static int32_t fs_is_parent_dentry(struct dentry *dentry)
-{
-  if (!memcmp((const void *)dentry->d_name->name, (const void *)FS_PARENT_DENTRY_NAME, strlen((const char *)dentry->d_name->name))) {
-    return 1;
-  }
-
-  return 0;
-}
-
-/*
  * Get dirent from dentry
  */
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
@@ -141,8 +126,10 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
   dirent->d_off = (int64_t)-1;
   dirent->d_reclen = (uint16_t)0;
   dirent->d_type = (enum libfs_ftype)dentry->d_inode->i_flags;
+
   len = (int32_t)dentry->d_name->len;
   len = len >= 255 ? 255 : len;
+  memset((void *)dirent->d_name, 0, sizeof(dirent->d_name));
   memcpy((void *)dirent->d_name, (void *)dentry->d_name->name, len);
 
   return 0;
@@ -412,19 +399,12 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
     return -1;
   }
 
-  if (!fs_is_parent_dentry(parent)) {
-    // TODO
-    parent = parent;
-  }
+  // TODO
 
   /*
-   * Populate parent/child dentries
+   * Populate child dentries
    */
   i = 0;
-  ret = fs_dentry2dirent(parent, &(*dirents)[i]);
-  if (ret != 0) {
-    return -1;
-  }
 
   if (!list_empty(&parent->d_subdirs)) {
 #if 0  // For CMAKE_COMPILER_IS_GNUCC only
@@ -434,8 +414,8 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
          &child->d_child != (&parent->d_subdirs);
          child = list_entry(child->d_child.prev, struct dentry, d_child)) {
 #endif
-      if (++i < *dirents_num) {
-        ret = fs_dentry2dirent(child, &(*dirents)[i]);
+      if (++i <= *dirents_num) {
+        ret = fs_dentry2dirent(child, &(*dirents)[i - 1]);
         if (ret != 0) {
           return -1;
         }
@@ -453,7 +433,7 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
     }
   }
 
-  *dirents_num = i < *dirents_num ? i + 1 : *dirents_num;
+  *dirents_num = i <= *dirents_num ? i : *dirents_num;
 
   return 0;
 }
