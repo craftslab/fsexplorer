@@ -35,6 +35,8 @@
 /*
  * Macro Definition
  */
+#define DNAME_ROOT "/"
+
 #define DNAME_INLINE_LEN 40
 
 #define IS_ROOT(x) ((x) == (x)->d_parent)

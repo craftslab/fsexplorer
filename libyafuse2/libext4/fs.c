@@ -42,8 +42,6 @@
 /*
  * Macro Definition
  */
-#define FS_ROOT_DENTRY_NAME "/"
-
 #define init_name_hash() 0
 
 /*
@@ -239,7 +237,7 @@ static struct dentry* fs_alloc_dentry(struct super_block *sb)
     goto fs_alloc_dentry_fail;
   }
   memset((void *)q_name, 0, sizeof(struct qstr));
-  q_name->name = (const unsigned char *)FS_ROOT_DENTRY_NAME;
+  q_name->name = (const unsigned char *)DNAME_ROOT;
   q_name->len = strlen((const char *)(q_name->name));
   q_name->hash = (uint32_t)fs_name_hash(q_name->name, q_name->len);
 
@@ -529,7 +527,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
    * Instantiate parent dentry
    */
   memset((void *)&q_name, 0, sizeof(struct qstr));
-  q_name.name = (const unsigned char *)FS_ROOT_DENTRY_NAME;
+  q_name.name = (const unsigned char *)DNAME_ROOT;
   q_name.len = strlen((const char *)(q_name.name));
   q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
