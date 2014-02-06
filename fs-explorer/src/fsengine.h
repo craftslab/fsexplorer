@@ -39,6 +39,9 @@ public:
   bool closeFile();
   QString getFileType() const;
   struct fs_dirent getFileRoot() const;
+  void initFileChilds(unsigned long long ino);
+  unsigned int getFileChildsNum() const;
+  struct fs_dirent getFileChilds(unsigned int index);
 
 private:
   bool loadLibrary();
@@ -50,5 +53,7 @@ private:
   QString *fileMount;
   QString *fileType;
   struct fs_dirent *fileRoot;
+  struct fs_dirent *fileChilds;
+  unsigned int fileChildsNum;
 };
 #endif

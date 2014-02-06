@@ -41,6 +41,8 @@ FsEngine::FsEngine(QWidget *parent)
   fileMount = NULL;
   fileType = NULL;
   fileRoot = NULL;
+  fileChilds = NULL;
+  fileChildsNum = 0;
 }
 
 FsEngine::~FsEngine()
@@ -97,6 +99,13 @@ bool FsEngine::openFile(QString &name)
     goto openFileFail;
   }
 
+  fileChildsNum = 1;
+  fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
+  if (!fileChilds) {
+    goto openFileFail;
+  }
+  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
+
   return true;
 
 openFileFail:
@@ -132,6 +141,12 @@ bool FsEngine::closeFile()
     fileRoot = NULL;
   }
 
+  if (fileChilds) {
+    free(fileChilds);
+    fileChilds = NULL;
+  }
+  fileChildsNum = 0;
+
   unloadLibrary();
 
   return true;
@@ -156,6 +171,52 @@ struct fs_dirent FsEngine::getFileRoot() const
   }
 
   return dent;
+}
+
+void FsEngine::initFileChilds(unsigned long long ino)
+{
+  if (!fileChilds) {
+    fileChildsNum = 1;
+    fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
+    if (!fileChilds) {
+      goto initFileChildsFail;
+    }
+  }
+  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
+
+  if (fileOpt && fileOpt->getdents) {
+    if (fileOpt->getdents(ino, &fileChilds, &fileChildsNum) != 0) {
+      goto initFileChildsFail;
+    }
+  }
+
+  return;
+
+initFileChildsFail:
+
+  if (fileChilds) {
+    free(fileChilds);
+    fileChilds = NULL;
+  }
+  fileChildsNum = 0;
+}
+
+unsigned int FsEngine::getFileChildsNum() const
+{
+  return fileChildsNum;
+}
+
+struct fs_dirent FsEngine::getFileChilds(unsigned int index)
+{
+  struct fs_dirent ret;
+
+  memset((void *)&ret, 0, sizeof(struct fs_dirent));
+
+  if (index >= fileChildsNum || !fileChilds) {
+    return ret;
+  }
+
+  return fileChilds[index];
 }
 
 bool FsEngine::loadLibrary()

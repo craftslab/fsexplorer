@@ -372,9 +372,21 @@ void MainWindow::createTreeRoot(struct fs_dirent *root)
 
 void MainWindow::createTreeChilds(unsigned long long ino)
 {
-  QStringList stringList;
-  stringList << tr("foo") << tr("") << tr("");
-  insertTreeChild(stringList);
+  struct fs_dirent child;
+
+  fsEngine->initFileChilds(ino);
+
+  unsigned int childsNum = fsEngine->getFileChildsNum();
+  if (childsNum == 0) {
+    return;
+  }
+
+  for (unsigned int i = 0; i < childsNum; ++i) {
+    child = fsEngine->getFileChilds(i);
+    QStringList stringList;
+    stringList << tr("%1").arg(child.d_name) << tr("%1").arg(child.d_ino) << tr("");
+    insertTreeChild(stringList);
+  }
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
