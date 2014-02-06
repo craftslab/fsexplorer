@@ -326,6 +326,10 @@ void MainWindow::loadFile(QString &name)
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
+    struct fs_dirent treeRoot = initTree();
+    createTreeRoot(&treeRoot);
+    createTreeChilds(treeRoot.d_ino);
+
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
     text.append(tr("mount filesystem successfully.\n\n"));
@@ -339,23 +343,6 @@ void MainWindow::loadFile(QString &name)
     status = false;
   }
 
-#if 1 //test only
-  removeTreeRowsAll();
-
-  struct fs_dirent fileRoot = fsEngine->getFileRoot();
-
-  QStringList root;
-  root << tr("/") << tr("%1").arg(fileRoot.d_ino) << tr("expanded");
-  updateTreeItem(0, root);
-
-  QStringList data;
-  data << tr("foo") << tr("") << tr("");
-  insertTreeChild(data);
-
-  QModelIndex index = treeModel->index(0, 0);
-  treeView->setCurrentIndex(index);
-#endif
-
   emit mounted(status);
 }
 
@@ -365,6 +352,32 @@ void MainWindow::setOutput(const QString &text)
     outputView->clear();
     outputView->setPlainText(text);
   }
+}
+
+struct fs_dirent MainWindow::initTree()
+{
+  removeTreeRowsAll();
+  return fsEngine->getFileRoot();
+}
+
+void MainWindow::createTreeRoot(struct fs_dirent *root)
+{
+  QStringList stringList;
+  stringList << tr("%1").arg(root->d_name) << tr("%1").arg(root->d_ino) << tr("expanded");
+  updateTreeItem(0, stringList);
+
+  QModelIndex index = treeModel->index(0, 0);
+  treeView->setCurrentIndex(index);
+}
+
+void MainWindow::createTreeChilds(unsigned long long ino)
+{
+  QStringList stringList;
+  stringList << tr("foo") << tr("") << tr("");
+  insertTreeChild(stringList);
+
+  QModelIndex index = treeModel->index(0, 0);
+  treeView->setCurrentIndex(index);
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)

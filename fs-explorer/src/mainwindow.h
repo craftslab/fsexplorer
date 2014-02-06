@@ -72,6 +72,9 @@ private:
   void createConnections();
   void loadFile(QString &name);
   void setOutput(const QString &text);
+  struct fs_dirent initTree();
+  void createTreeRoot(struct fs_dirent *root);
+  void createTreeChilds(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data);
   void removeTreeRowsAll();
