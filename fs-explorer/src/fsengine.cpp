@@ -57,6 +57,10 @@ bool FsEngine::openFile(QString &name)
   int32_t i, len;
   int32_t ret;
 
+  if (fileName && !fileName->compare(name)) {
+    return false;
+  }
+
   if (!loadLibrary()) {
     goto openFileFail;
   }
