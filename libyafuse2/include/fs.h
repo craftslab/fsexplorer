@@ -238,6 +238,7 @@ struct inode_operations {
 struct super_operations {
   struct inode* (*alloc_inode) (struct super_block *);
   void (*destroy_inode) (struct inode *);
+  int32_t (*traverse_dentry)(struct dentry **);
   int32_t (*statfs) (struct dentry *, struct kstatfs *);
 };
 

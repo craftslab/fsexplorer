@@ -64,7 +64,7 @@ static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
 
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
-static int32_t fs_traverse_dentry(struct dentry *dentry);
+static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
 static int32_t fs_get_inode(struct super_block *sb, uint64_t ino, struct inode *inode);
 static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struct fs_kstat *stat);
@@ -139,13 +139,23 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
 /*
  * Traverse dentry for chlid dentries
  */
-static int32_t fs_traverse_dentry(struct dentry *dentry)
+static int32_t fs_traverse_dentry(struct dentry **dentry)
 {
-  if (!list_empty(&dentry->d_subdirs)) {
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  int32_t ret;
+
+  if (!sb || !sb->s_op || !sb->s_op->traverse_dentry) {
+    return -1;
+  }
+
+  if (!list_empty(&(*dentry)->d_subdirs)) {
     return 0;
   }
 
-  // TODO
+  ret = sb->s_op->traverse_dentry(dentry);
+  if (ret != 0) {
+    return -1;
+  }
 
   return 0;
 }
@@ -419,7 +429,7 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
    * if child dentries exist and not be traversed yet, traverse them now,
    * otherwise just ignore it
    */
-  ret = fs_traverse_dentry(parent);
+  ret = fs_traverse_dentry(&parent);
   if (ret != 0) {
     return -1;
   }
