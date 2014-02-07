@@ -342,6 +342,7 @@ static struct dentry* fs_instantiate_dentry(struct dentry *dentry, struct inode 
   if (!dentry->d_name->name) {
     return NULL;
   }
+  memset((void *)dentry->d_name->name, 0, dentry->d_name->len);
   memcpy((void *)dentry->d_name->name, (void *)name->name, name->len);
 
   dentry->d_name->hash = (uint32_t)fs_name_hash(dentry->d_name->name, dentry->d_name->len);
@@ -486,6 +487,7 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   if (!inode->i_block) {
     return NULL;
   }
+  memset((void *)inode->i_block, 0, EXT4_N_BLOCKS * sizeof(uint32_t));
   memcpy((void *)inode->i_block, (const void *)ext4_inode.i_block, EXT4_N_BLOCKS * sizeof(uint32_t));
 
   return inode;
