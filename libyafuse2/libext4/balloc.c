@@ -50,22 +50,22 @@
 /*
  * Function Declaration
  */
-static inline int32_t ext4_test_root(ext4_group_t a, int32_t b);
+static inline int32_t ext4_test_root(ext4_group_t a, uint32_t b);
 static inline uint64_t ext4_group_first_block_no(struct super_block *sb, ext4_group_t bg);
 static int32_t ext4_group_sparse(ext4_group_t bg);
 
 /*
  * Function Definition
  */
-static inline int32_t ext4_test_root(ext4_group_t a, int32_t b)
+static inline int32_t ext4_test_root(ext4_group_t a, uint32_t b)
 {
-  int32_t num = b;
+  uint32_t num = b;
 
   while (a > (ext4_group_t)num) {
     num *= b;
   }
 
-  return num == a;
+  return (int32_t)(num == a);
 }
 
 static inline uint64_t ext4_group_first_block_no(struct super_block *sb, ext4_group_t bg)

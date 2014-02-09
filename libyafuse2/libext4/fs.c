@@ -742,6 +742,9 @@ static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, co
 {
   int32_t ret;
 
+  flags = flags;
+  data = data;
+
   if (!type || !name) {
     return NULL;
   }
@@ -779,6 +782,8 @@ static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, co
  */
 static int32_t fs_umount(const char *name, int32_t flags)
 {
+  flags = flags;
+
   if (!name) {
     return -1;
   }
@@ -786,7 +791,7 @@ static int32_t fs_umount(const char *name, int32_t flags)
   /*
    * Free list of dentry
    */
-  if (fs_sb.s_d_op && (const struct dentry_operations *)(fs_sb.s_d_op)->d_release && fs_sb.s_root) {
+  if (fs_sb.s_d_op && fs_sb.s_d_op->d_release && fs_sb.s_root) {
     fs_sb.s_d_op->d_release(fs_sb.s_root);
     fs_sb.s_root = NULL;
   }
