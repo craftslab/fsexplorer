@@ -246,10 +246,7 @@ void MainWindow::createWidgets()
   QStringList headers;
   headers << tr("name") << tr("ino") << tr("status");
 
-  QStringList data;
-  data << tr("/") << tr("") << tr("");
-
-  treeModel = new FsTreeModel(headers, data);
+  treeModel = new FsTreeModel(headers);
 
   treeView = new QTreeView();
   treeView->setModel(treeModel);
@@ -327,7 +324,7 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
     struct fs_dirent treeRoot = initTree();
-    createTreeRoot(&treeRoot);
+    createTreeParent(&treeRoot);
     createTreeChilds(treeRoot.d_ino);
 
     QDateTime dt = QDateTime::currentDateTime();
@@ -360,11 +357,11 @@ struct fs_dirent MainWindow::initTree()
   return fsEngine->getFileRoot();
 }
 
-void MainWindow::createTreeRoot(struct fs_dirent *root)
+void MainWindow::createTreeParent(struct fs_dirent *root)
 {
   QStringList stringList;
   stringList << tr("%1").arg(root->d_name) << tr("%1").arg(root->d_ino) << tr("expanded");
-  updateTreeItem(0, stringList);
+  insertTreeChild(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
@@ -386,6 +383,7 @@ void MainWindow::createTreeChilds(unsigned long long ino)
         || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOTDOT)) {
       continue;
     }
+
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name) << tr("%1").arg(child.d_ino) << tr("");
     insertTreeChild(stringList);

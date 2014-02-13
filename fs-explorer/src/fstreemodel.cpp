@@ -35,6 +35,17 @@ FsTreeModel::FsTreeModel(const QStringList &headers, const QStringList &data,
   setupModelData(data, rootItem);
 }
 
+FsTreeModel::FsTreeModel(const QStringList &headers, QObject *parent)
+  : QAbstractItemModel(parent)
+{
+  QVector<QVariant> rootData;
+  foreach (QString header, headers) {
+    rootData << header;
+  }
+
+  rootItem = new FsTreeItem(rootData);
+}
+
 FsTreeModel::~FsTreeModel()
 {
   delete rootItem;

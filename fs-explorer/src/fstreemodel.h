@@ -35,6 +35,7 @@ class FsTreeModel : public QAbstractItemModel
 public:
   FsTreeModel(const QStringList &headers, const QStringList &data,
               QObject *parent = 0);
+  FsTreeModel(const QStringList &headers, QObject *parent = 0);
   ~FsTreeModel();
 
   QVariant data(const QModelIndex &index, int role) const;
