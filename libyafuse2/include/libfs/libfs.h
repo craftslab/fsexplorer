@@ -29,7 +29,10 @@
  * Macro Definition
  */
 #define FS_TYPE_EXT4 "ext4"
-#define FS_TYPE_FAT  "fat"
+#define FS_TYPE_FAT "fat"
+
+#define FS_DNAME_DOT "."
+#define FS_DNAME_DOTDOT ".."
 
 /*
  * Type Definition
