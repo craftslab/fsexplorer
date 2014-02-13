@@ -63,6 +63,7 @@ static void* fs_load_lib(const char *libname);
 static void* fs_get_sym(void *handle, const char *symbol);
 static int32_t fs_unload_lib(void *handle);
 
+static int32_t fs_imode2ftype(enum libfs_imode imode, enum libfs_ftype *ftype);
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
 static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_get_dentry(struct dentry *dentry, uint64_t ino, struct dentry **match);
@@ -119,14 +120,44 @@ static int32_t fs_unload_lib(void *handle)
 /*
  * Get dirent from dentry
  */
+static int32_t fs_imode2ftype(enum libfs_imode imode, enum libfs_ftype *ftype)
+{
+  if (imode & IFIFO) {
+    *ftype = FT_FIFO;
+  } else if (imode & IFCHR) {
+    *ftype = FT_CHRDEV;
+  } else if (imode & IFDIR) {
+    *ftype = FT_DIR;
+  } else if (imode & IFBLK) {
+    *ftype = FT_BLKDEV;
+  } else if (imode & IFREG) {
+    *ftype = FT_REG_FILE;
+  } else if (imode & IFLNK) {
+    *ftype = FT_SYMLINK;
+  } else if (imode & IFSOCK) {
+    *ftype = FT_SOCK;
+  } else {
+    *ftype = FT_UNKNOWN;
+  }
+
+  return 0;
+}
+
+/*
+ * Get dirent from dentry
+ */
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
 {
   int32_t len;
+  int32_t ret;
 
   dirent->d_ino = (uint64_t)dentry->d_inode->i_ino;
   dirent->d_off = (int64_t)-1;
   dirent->d_reclen = (uint16_t)0;
-  dirent->d_type = (enum libfs_ftype)dentry->d_inode->i_flags;
+  ret = fs_imode2ftype((enum libfs_imode)dentry->d_inode->i_mode, &dirent->d_type);
+  if (ret != 0) {
+    return -1;
+  }
 
   len = (int32_t)dentry->d_name->len;
   len = len >= 255 ? 255 : len;
