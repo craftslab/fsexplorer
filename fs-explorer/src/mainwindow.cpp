@@ -372,8 +372,6 @@ void MainWindow::createTreeRoot(struct fs_dirent *root)
 
 void MainWindow::createTreeChilds(unsigned long long ino)
 {
-  struct fs_dirent child;
-
   fsEngine->initFileChilds(ino);
 
   unsigned int childsNum = fsEngine->getFileChildsNum();
@@ -382,7 +380,12 @@ void MainWindow::createTreeChilds(unsigned long long ino)
   }
 
   for (unsigned int i = 0; i < childsNum; ++i) {
-    child = fsEngine->getFileChilds(i);
+    struct fs_dirent child = fsEngine->getFileChilds(i);
+    if (child.d_type != FT_DIR
+        || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOT)
+        || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOTDOT)) {
+      continue;
+    }
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name) << tr("%1").arg(child.d_ino) << tr("");
     insertTreeChild(stringList);
