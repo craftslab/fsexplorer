@@ -324,8 +324,8 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
     struct fs_dirent treeRoot = initTree();
-    createTreeParent(&treeRoot);
-    createTreeChilds(treeRoot.d_ino);
+    createTreeRoot(&treeRoot);
+    createTreeItems(treeRoot.d_ino);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -357,17 +357,17 @@ struct fs_dirent MainWindow::initTree()
   return fsEngine->getFileRoot();
 }
 
-void MainWindow::createTreeParent(struct fs_dirent *root)
+void MainWindow::createTreeRoot(struct fs_dirent *root)
 {
   QStringList stringList;
   stringList << tr("%1").arg(root->d_name) << tr("%1").arg(root->d_ino) << tr("expanded");
-  insertTreeChild(stringList);
+  insertTreeRow(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
 }
 
-void MainWindow::createTreeChilds(unsigned long long ino)
+void MainWindow::createTreeItems(unsigned long long ino)
 {
   fsEngine->initFileChilds(ino);
 
@@ -375,6 +375,8 @@ void MainWindow::createTreeChilds(unsigned long long ino)
   if (childsNum == 0) {
     return;
   }
+
+  QModelIndex index = treeView->selectionModel()->currentIndex();
 
   for (unsigned int i = 0; i < childsNum; ++i) {
     struct fs_dirent child = fsEngine->getFileChilds(i);
@@ -386,11 +388,12 @@ void MainWindow::createTreeChilds(unsigned long long ino)
 
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name) << tr("%1").arg(child.d_ino) << tr("");
-    insertTreeChild(stringList);
+    insertTreeChild(stringList, index);
   }
 
-  QModelIndex index = treeModel->index(0, 0);
+  index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
+  treeView->expand(index);
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)
@@ -408,30 +411,29 @@ void MainWindow::insertTreeRow(const QStringList &data)
   }
 }
 
-void MainWindow::insertTreeChild(const QStringList &data)
+void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &parent)
 {
-  QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
 
-  if (model->columnCount(index) == 0) {
-    if (!model->insertColumn(0, index)) {
+  if (model->columnCount(parent) == 0) {
+    if (!model->insertColumn(0, parent)) {
       return;
     }
   }
 
-  if (!model->insertRow(0, index)) {
+  if (!model->insertRow(0, parent)) {
     return;
   }
 
-  for (int column = 0; column < model->columnCount(index); ++column) {
-    QModelIndex child = model->index(0, column, index);
+  for (int column = 0; column < model->columnCount(parent); ++column) {
+    QModelIndex child = model->index(0, column, parent);
     model->setData(child, QVariant(data[column]), Qt::EditRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
     }
 
-    treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                            QItemSelectionModel::ClearAndSelect);
+    treeView->selectionModel()->setCurrentIndex(model->index(0, 0, parent),
+                                                QItemSelectionModel::ClearAndSelect);
   }
 }
 
