@@ -99,6 +99,7 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
+  removeTreeRowsAll();
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
   emit mounted(false);
@@ -247,17 +248,15 @@ void MainWindow::createWidgets()
   headers << tr("name") << tr("ino") << tr("status");
 
   treeModel = new FsTreeModel(headers);
-
   treeView = new QTreeView();
   treeView->setModel(treeModel);
   QModelIndex index = treeModel->index(0, 0);
   treeView->scrollTo(index);
   treeView->expand(index);
   treeView->setCurrentIndex(index);
-  treeView->setHeaderHidden(false);
-  treeView->setColumnHidden(1, false);
-  treeView->setColumnHidden(2, false);
-
+  treeView->setHeaderHidden(true);
+  treeView->setColumnHidden(1, true);
+  treeView->setColumnHidden(2, true);
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
@@ -323,7 +322,7 @@ void MainWindow::loadFile(QString &name)
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
-    struct fs_dirent treeRoot = initTree();
+    struct fs_dirent treeRoot = fsEngine->getFileRoot();
     createTreeRoot(&treeRoot);
     createTreeItems(treeRoot.d_ino);
 
@@ -351,14 +350,10 @@ void MainWindow::setOutput(const QString &text)
   }
 }
 
-struct fs_dirent MainWindow::initTree()
-{
-  removeTreeRowsAll();
-  return fsEngine->getFileRoot();
-}
-
 void MainWindow::createTreeRoot(struct fs_dirent *root)
 {
+  removeTreeRowsAll();
+
   QStringList stringList;
   stringList << tr("%1").arg(root->d_name) << tr("%1").arg(root->d_ino) << tr("expanded");
   insertTreeRow(stringList);
@@ -431,10 +426,10 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
     }
-
-    treeView->selectionModel()->setCurrentIndex(model->index(0, 0, parent),
-                                                QItemSelectionModel::ClearAndSelect);
   }
+
+  treeView->selectionModel()->setCurrentIndex(model->index(0, 0, parent),
+                                              QItemSelectionModel::ClearAndSelect);
 }
 
 void MainWindow::removeTreeRowsAll()
