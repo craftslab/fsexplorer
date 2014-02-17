@@ -560,6 +560,12 @@ def main():
         else:
             continue
 
+    if len(tool) == 0:
+        tool = os.path.join(os.getcwd(), 'dtcc')
+    if os.access(tool, os.F_OK | os.X_OK) is False:
+        print >> sys.stderr, "dt compiler not found!\n"
+        sys.exit(1)
+
     if len(fname) != 0:
         if os.access(fname, os.F_OK | os.R_OK) is False:
             print >> sys.stderr, 'failed to access file!'
