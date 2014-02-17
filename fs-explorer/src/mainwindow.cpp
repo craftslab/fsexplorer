@@ -373,8 +373,8 @@ void MainWindow::createTreeItems(unsigned long long ino)
 
   QModelIndex index = treeView->selectionModel()->currentIndex();
 
-  for (unsigned int i = 0; i < childsNum; ++i) {
-    struct fs_dirent child = fsEngine->getFileChilds(i);
+  for (int i = (int)childsNum - 1; i >= 0; --i) {
+    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
     if (child.d_type != FT_DIR
         || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOT)
         || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOTDOT)) {
