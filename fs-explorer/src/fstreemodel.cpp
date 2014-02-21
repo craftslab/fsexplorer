@@ -74,7 +74,7 @@ Qt::ItemFlags FsTreeModel::flags(const QModelIndex &index) const
     return 0;
   }
 
-  return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 FsTreeItem *FsTreeModel::getItem(const QModelIndex &index) const
@@ -189,7 +189,7 @@ int FsTreeModel::rowCount(const QModelIndex &parent) const
 bool FsTreeModel::setData(const QModelIndex &index, const QVariant &value,
                           int role)
 {
-  if (role != Qt::EditRole) {
+  if (role != Qt::EditRole && role != Qt::DisplayRole) {
     return false;
   }
 
@@ -206,7 +206,7 @@ bool FsTreeModel::setData(const QModelIndex &index, const QVariant &value,
 bool FsTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                 const QVariant &value, int role)
 {
-  if (role != Qt::EditRole || orientation != Qt::Horizontal) {
+  if ((role != Qt::EditRole && role != Qt::DisplayRole) || orientation != Qt::Horizontal) {
     return false;
   }
 

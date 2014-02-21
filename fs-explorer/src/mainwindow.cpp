@@ -399,7 +399,7 @@ void MainWindow::insertTreeRow(const QStringList &data)
 
   for (int column = 0; column < model->columnCount(index.parent()); ++column) {
     QModelIndex child = model->index(index.row()+1, column, index.parent());
-    model->setData(child, QVariant(data[column]), Qt::EditRole);
+    model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
 }
 
@@ -421,7 +421,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
     QModelIndex child = model->index(0, column, parent);
     model->setData(child, QVariant(data[column]), Qt::EditRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
-      model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
+      model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::DisplayRole);
     }
   }
 
@@ -443,6 +443,6 @@ void MainWindow::updateTreeItem(int row, const QStringList &data)
 
   for (int column = 0; column < model->columnCount(index.parent()); ++column) {
     QModelIndex child = model->index(row, column, index.parent());
-    model->setData(child, QVariant(data[column]), Qt::EditRole);
+    model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
 }
