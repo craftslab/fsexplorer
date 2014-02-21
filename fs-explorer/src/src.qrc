@@ -8,5 +8,7 @@
     <file>images/console.png</file>
     <file>images/stats.png</file>
     <file>images/label.png</file>
+    <file>images/folder-open.png</file>
+    <file>images/folder-close.png</file>
 </qresource>
 </RCC>
