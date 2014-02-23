@@ -1,14 +1,16 @@
 <RCC>
 <qresource>
     <file>images/icon.png</file>
+    <file>images/label.png</file>
     <file>images/open.png</file>
     <file>images/close.png</file>
     <file>images/import.png</file>
     <file>images/export.png</file>
     <file>images/console.png</file>
     <file>images/stats.png</file>
-    <file>images/label.png</file>
+    <file>images/setting.png</file>
     <file>images/folder-open.png</file>
     <file>images/folder-close.png</file>
+    <file>images/file.png</file>
 </qresource>
 </RCC>
