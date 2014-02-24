@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#include <QPixmap>
 #include "fstreeitem.h"
 #include "fstreemodel.h"
 
@@ -59,13 +60,16 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
   }
 
-  if (role != Qt::DisplayRole && role != Qt::EditRole) {
-    return QVariant();
+  if (role == Qt::DisplayRole || role == Qt::EditRole) {
+    FsTreeItem *item = getItem(index);
+    return item->data(index.column());
+  } else if (role == Qt::DecorationRole) {
+    return QPixmap(":/images/folder-close.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  } else if (role == Qt::SizeHintRole) {
+    return QPixmap(":/images/folder-close.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
   }
 
-  FsTreeItem *item = getItem(index);
-
-  return item->data(index.column());
+  return QVariant();
 }
 
 Qt::ItemFlags FsTreeModel::flags(const QModelIndex &index) const
