@@ -64,7 +64,10 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
     FsTreeItem *item = getItem(index);
     return item->data(index.column());
   } else if (role == Qt::DecorationRole) {
-    return QPixmap(":/images/folder-close.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    FsTreeItem *item = getItem(index);
+    if (item->parent() != rootItem) {
+      return QPixmap(":/images/folder-close.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
   } else if (role == Qt::SizeHintRole) {
     return QPixmap(":/images/folder-close.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
   }
