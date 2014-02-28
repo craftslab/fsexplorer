@@ -2,4 +2,7 @@ icon style: eldorado stroke mini icons
 icon size: 40x40PX
 
 icon style: planes movie icons
-icon size: 48x48PX/512x512PX
+icon size: 512x512PX
+
+icon style: simply pixel icons
+icon size: 31x31PX
