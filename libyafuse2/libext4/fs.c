@@ -244,7 +244,7 @@ static struct dentry* fs_alloc_dentry(struct super_block *sb)
   }
   memset((void *)q_name, 0, sizeof(struct qstr));
   q_name->name = (const unsigned char *)DNAME_ROOT;
-  q_name->len = strlen((const char *)(q_name->name));
+  q_name->len = (uint32_t)strlen((const char *)(q_name->name));
   q_name->hash = (uint32_t)fs_name_hash(q_name->name, q_name->len);
 
   dentry->d_parent = dentry;
@@ -531,7 +531,7 @@ static struct dentry* fs_create_parent(struct super_block *sb, uint64_t ino, con
    */
   memset((void *)&q_name, 0, sizeof(struct qstr));
   q_name.name = (const unsigned char *)name;
-  q_name.len = strlen((const char *)(q_name.name));
+  q_name.len = (uint32_t)strlen((const char *)(q_name.name));
   q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
   dentry = fs_instantiate_dentry(dentry, inode, &q_name);
@@ -582,7 +582,7 @@ static struct dentry* fs_create_child(struct super_block *sb, struct dentry *par
 
   memset((void *)&q_name, 0, sizeof(struct qstr));
   q_name.name = (const unsigned char *)name;
-  q_name.len = strlen((const char *)(q_name.name));
+  q_name.len = (uint32_t)strlen((const char *)(q_name.name));
   q_name.hash = (uint32_t)fs_name_hash(q_name.name, q_name.len);
 
   if (!fs_instantiate_dentry(child, inode, &q_name)) {
