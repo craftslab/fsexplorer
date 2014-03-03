@@ -96,9 +96,11 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
-  removeTreeRowsAll();
+  removeTree();
+
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
+
   emit mounted(false);
 }
 
@@ -320,8 +322,7 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
-    createTreeRoot(&treeRoot);
-    createTreeItems(treeRoot.d_ino);
+    createTree(&treeRoot);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -347,12 +348,16 @@ void MainWindow::setOutput(const QString &text)
   }
 }
 
-void MainWindow::createTreeRoot(struct fs_dirent *root)
+void MainWindow::createTree(const struct fs_dirent *root)
 {
-  removeTreeRowsAll();
+  createTreeRoot(root->d_ino, root->d_name);
+  createTreeItems(root->d_ino);
+}
 
+void MainWindow::createTreeRoot(unsigned long long ino, const char *name)
+{
   QStringList stringList;
-  stringList << tr("%1").arg(root->d_name) << tr("%1").arg(root->d_ino) << tr("expanded");
+  stringList << tr("%1").arg(name) << tr("%1").arg(ino) << tr("expanded");
   insertTreeRow(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
@@ -427,6 +432,19 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
 
   treeView->selectionModel()->setCurrentIndex(model->index(0, 0, parent),
                                               QItemSelectionModel::ClearAndSelect);
+}
+
+void MainWindow::removeTree()
+{
+  removeTreeColumnsAll();
+  removeTreeRowsAll();
+}
+
+void MainWindow::removeTreeColumnsAll()
+{
+  QModelIndex index = treeModel->index(0, 0);
+  QAbstractItemModel *model = treeView->model();
+  model->removeColumns(0, model->columnCount(), index);
 }
 
 void MainWindow::removeTreeRowsAll()

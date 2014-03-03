@@ -69,10 +69,13 @@ private:
   void createConnections();
   void loadFile(QString &name);
   void setOutput(const QString &text);
-  void createTreeRoot(struct fs_dirent *root);
+  void createTree(const struct fs_dirent *root);
+  void createTreeRoot(unsigned long long ino, const char *name);
   void createTreeItems(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
+  void removeTree();
+  void removeTreeColumnsAll();
   void removeTreeRowsAll();
   void updateTreeItem(int row, const QStringList &data);
 
