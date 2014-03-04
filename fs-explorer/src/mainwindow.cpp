@@ -137,6 +137,10 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
+void MainWindow::updateTree()
+{
+}
+
 void MainWindow::createActions()
 {
   openAction = new QAction(tr("&Open file..."), this);
@@ -311,6 +315,8 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
+
+  connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(updateTree()));
 }
 
 void MainWindow::loadFile(QString &name)

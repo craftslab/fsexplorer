@@ -59,6 +59,7 @@ private slots:
   void stats();
   void about();
   void showWidgets(bool show);
+  void updateTree();
 
 private:
   void createActions();
