@@ -74,7 +74,7 @@ private:
   void loadFile(QString &name);
   void setOutput(const QString &text);
   void createTreeView(const struct fs_dirent *root);
-  void createTreeRoot(unsigned long long ino, const char *name);
+  void createTreeRoot(const char *name);
   void createTreeItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);

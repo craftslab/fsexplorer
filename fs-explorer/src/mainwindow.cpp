@@ -261,7 +261,7 @@ void MainWindow::createStatusBar()
 void MainWindow::createWidgets()
 {
   QStringList headers;
-  headers << tr("name") << tr("ino") << tr("status");
+  headers << tr("name");
 
   treeModel = new FsTreeModel(headers);
   treeView = new QTreeView();
@@ -271,8 +271,7 @@ void MainWindow::createWidgets()
   treeView->expand(index);
   treeView->setCurrentIndex(index);
   treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(1, true);
-  treeView->setColumnHidden(2, true);
+  treeView->setColumnHidden(0, false);
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
@@ -373,14 +372,14 @@ void MainWindow::setOutput(const QString &text)
 
 void MainWindow::createTreeView(const struct fs_dirent *root)
 {
-  createTreeRoot(root->d_ino, root->d_name);
+  createTreeRoot(root->d_name);
   createTreeItem(root->d_ino);
 }
 
-void MainWindow::createTreeRoot(unsigned long long ino, const char *name)
+void MainWindow::createTreeRoot(const char *name)
 {
   QStringList stringList;
-  stringList << tr("%1").arg(name) << tr("%1").arg(ino) << tr("expanded");
+  stringList << tr("%1").arg(name);
   insertTreeRow(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
@@ -407,7 +406,7 @@ void MainWindow::createTreeItem(unsigned long long ino)
     }
 
     QStringList stringList;
-    stringList << tr("%1").arg(child.d_name) << tr("%1").arg(child.d_ino) << tr("");
+    stringList << tr("%1").arg(child.d_name);
     insertTreeChild(stringList, index);
   }
 
