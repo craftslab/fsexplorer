@@ -139,8 +139,7 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::clickTreeItem()
 {
-  QModelIndex index = treeView->selectionModel()->currentIndex();
-  showTreeItem(index);
+  showTreeItem();
 }
 
 void MainWindow::doubleClickTreeItem()
@@ -448,7 +447,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
 
   for (int column = 0; column < model->columnCount(parent); ++column) {
     QModelIndex child = model->index(0, column, parent);
-    model->setData(child, QVariant(data[column]), Qt::EditRole);
+    model->setData(child, QVariant(data[column]), Qt::DisplayRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::DisplayRole);
     }
@@ -478,17 +477,19 @@ void MainWindow::removeTreeRowsAll()
   model->removeRows(0, model->rowCount(), index);
 }
 
-void MainWindow::showTreeItem(const QModelIndex &parent)
+void MainWindow::showTreeItem()
 {
   QAbstractItemModel *model = treeView->model();
-  QVariant data = model->data(parent, Qt::DisplayRole);
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+
+  QVariant data = model->data(index, Qt::DisplayRole);
 
 #if 0 // TODO
   createTreeItem(d_ino);
 #endif
 
-  treeView->setCurrentIndex(parent);
-  treeView->expand(parent);
+  treeView->setCurrentIndex(index);
+  treeView->expand(index);
 }
 
 void MainWindow::updateTreeItem(int row, const QStringList &data)
