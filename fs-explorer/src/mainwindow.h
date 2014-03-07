@@ -81,6 +81,7 @@ private:
   void removeTreeView();
   void removeTreeColumnsAll();
   void removeTreeRowsAll();
+  void showTreeItem(const QModelIndex &parent);
   void updateTreeItem(int row, const QStringList &data);
 
   QWidget *layoutWidget;

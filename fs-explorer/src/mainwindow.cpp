@@ -139,6 +139,8 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::clickTreeItem()
 {
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+  showTreeItem(index);
 }
 
 void MainWindow::doubleClickTreeItem()
@@ -474,6 +476,19 @@ void MainWindow::removeTreeRowsAll()
   QModelIndex index = treeModel->index(0, 0);
   QAbstractItemModel *model = treeView->model();
   model->removeRows(0, model->rowCount(), index);
+}
+
+void MainWindow::showTreeItem(const QModelIndex &parent)
+{
+  QAbstractItemModel *model = treeView->model();
+  QVariant data = model->data(parent, Qt::DisplayRole);
+
+#if 0 // TODO
+  createTreeItem(d_ino);
+#endif
+
+  treeView->setCurrentIndex(parent);
+  treeView->expand(parent);
 }
 
 void MainWindow::updateTreeItem(int row, const QStringList &data)
