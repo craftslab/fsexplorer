@@ -96,7 +96,7 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
-  removeTree();
+  removeTreeView();
 
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
@@ -137,7 +137,19 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
-void MainWindow::updateTree()
+void MainWindow::clickTreeItem()
+{
+}
+
+void MainWindow::doubleClickTreeItem()
+{
+}
+
+void MainWindow::clickListItem()
+{
+}
+
+void MainWindow::doubleClickListItem()
 {
 }
 
@@ -316,7 +328,11 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(updateTree()));
+  connect(treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickTreeItem()));
+  connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickTreeItem()));
+
+  connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem()));
+  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem()));
 }
 
 void MainWindow::loadFile(QString &name)
@@ -328,7 +344,7 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
-    createTree(&treeRoot);
+    createTreeView(&treeRoot);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -354,10 +370,10 @@ void MainWindow::setOutput(const QString &text)
   }
 }
 
-void MainWindow::createTree(const struct fs_dirent *root)
+void MainWindow::createTreeView(const struct fs_dirent *root)
 {
   createTreeRoot(root->d_ino, root->d_name);
-  createTreeItems(root->d_ino);
+  createTreeItem(root->d_ino);
 }
 
 void MainWindow::createTreeRoot(unsigned long long ino, const char *name)
@@ -370,7 +386,7 @@ void MainWindow::createTreeRoot(unsigned long long ino, const char *name)
   treeView->setCurrentIndex(index);
 }
 
-void MainWindow::createTreeItems(unsigned long long ino)
+void MainWindow::createTreeItem(unsigned long long ino)
 {
   fsEngine->initFileChilds(ino);
 
@@ -440,7 +456,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
                                               QItemSelectionModel::ClearAndSelect);
 }
 
-void MainWindow::removeTree()
+void MainWindow::removeTreeView()
 {
   removeTreeColumnsAll();
   removeTreeRowsAll();
