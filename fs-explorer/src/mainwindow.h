@@ -73,8 +73,8 @@ private:
   void createConnections();
   void loadFile(QString &name);
   void setOutput(const QString &text);
-  void createTreeView(const struct fs_dirent *root);
-  void createTreeRoot(const char *name);
+  void createTreeView(const struct fs_dirent *dent);
+  void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
@@ -116,6 +116,6 @@ private:
   ConsoleWindow *consoleWindow;
 
   FsEngine *fsEngine;
-  QString filePath;
+  QString fsPath;
 };
 #endif

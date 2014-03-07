@@ -29,6 +29,7 @@
 #include <QFileSystemModel>
 #include <QFileDialog>
 #include <QStyle>
+#include <QMap>
 
 #include "fsengine.h"
 #include "fstreemodel.h"
@@ -45,6 +46,9 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" mar
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
 
+static QMap<QVariant, unsigned long long> mapFsNameIno;
+static QMap<unsigned long long, bool> mapFsInoStatus;
+
 MainWindow::MainWindow()
 {
   setWindowIcon(QPixmap(":/images/icon.png"));
@@ -59,7 +63,7 @@ MainWindow::MainWindow()
   showWidgets(false);
 
   fsEngine = new FsEngine;
-  filePath = QString(QDir::homePath());
+  fsPath = QString(QDir::homePath());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -75,15 +79,13 @@ void MainWindow::openFile()
   QString filter = tr("FS Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, filter);
-  if (fileName.isEmpty()) {
+  QString name = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPath, filter);
+  if (name.isEmpty()) {
     return;
   }
+  fsPath = QDir::toNativeSeparators(name);
 
-  fileName = QDir::toNativeSeparators(fileName);
-  filePath = fileName;
-
-  loadFile(fileName);
+  loadFile(fsPath);
 }
 
 void MainWindow::importDir()
@@ -370,13 +372,13 @@ void MainWindow::setOutput(const QString &text)
   }
 }
 
-void MainWindow::createTreeView(const struct fs_dirent *root)
+void MainWindow::createTreeView(const struct fs_dirent *dent)
 {
-  createTreeRoot(root->d_name);
-  createTreeItem(root->d_ino);
+  createTreeRoot(dent->d_name, dent->d_ino);
+  createTreeItem(dent->d_ino);
 }
 
-void MainWindow::createTreeRoot(const char *name)
+void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
 {
   QStringList stringList;
   stringList << tr("%1").arg(name);
@@ -384,10 +386,14 @@ void MainWindow::createTreeRoot(const char *name)
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
+
+  mapFsNameIno[name] = ino;
 }
 
 void MainWindow::createTreeItem(unsigned long long ino)
 {
+  mapFsInoStatus[ino] = true;
+
   fsEngine->initFileChilds(ino);
 
   unsigned int childsNum = fsEngine->getFileChildsNum();
@@ -408,6 +414,9 @@ void MainWindow::createTreeItem(unsigned long long ino)
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name);
     insertTreeChild(stringList, index);
+
+    mapFsNameIno[child.d_name] = child.d_ino;
+    mapFsInoStatus[child.d_ino] = false;
   }
 
   index = treeModel->index(0, 0);
@@ -480,11 +489,10 @@ void MainWindow::showTreeItem()
 {
   QAbstractItemModel *model = treeView->model();
   QModelIndex index = treeView->selectionModel()->currentIndex();
-
   QVariant data = model->data(index, Qt::DisplayRole);
 
 #if 0 // TODO
-  createTreeItem(d_ino);
+  createTreeItem(mapFsNameIno[data]);
 #endif
 
   treeView->setCurrentIndex(index);
