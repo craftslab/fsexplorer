@@ -185,10 +185,12 @@ void FsEngine::initFileChilds(unsigned long long ino)
   }
   memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
 
-  if (fileOpt && fileOpt->getdents) {
-    if (fileOpt->getdents(ino, &fileChilds, &fileChildsNum) != 0) {
-      goto initFileChildsFail;
-    }
+  if (!fileOpt || !fileOpt->getdents) {
+    goto initFileChildsFail;
+  }
+
+  if (fileOpt->getdents(ino, &fileChilds, &fileChildsNum) != 0) {
+    goto initFileChildsFail;
   }
 
   return;
