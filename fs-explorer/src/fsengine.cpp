@@ -174,6 +174,8 @@ struct fs_dirent FsEngine::getFileRoot() const
 
 void FsEngine::initFileChilds(unsigned long long ino)
 {
+  int32_t ret;
+
   if (!fileChilds) {
     fileChildsNum = 1;
     fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
@@ -187,7 +189,8 @@ void FsEngine::initFileChilds(unsigned long long ino)
     goto initFileChildsFail;
   }
 
-  if (fileOpt->getdents(ino, &fileChilds, &fileChildsNum) != 0) {
+  ret = fileOpt->getdents(ino, &fileChilds, &fileChildsNum);
+  if ((ret == 0 && fileChildsNum == 0) || (ret != 0)) {
     goto initFileChildsFail;
   }
 

@@ -118,9 +118,7 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::pressTreeItem()
 {
-  mutex.lock();
   showTreeItem();
-  mutex.unlock();
 }
 
 void MainWindow::clickListItem()
