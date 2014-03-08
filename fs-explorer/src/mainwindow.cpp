@@ -47,7 +47,7 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :
 #endif
 
 static QMap<QVariant, unsigned long long> mapFsNameIno;
-static QMap<unsigned long long, bool> mapFsInoStatus;
+static QMap<unsigned long long, bool> mapFsInoExpand;
 
 MainWindow::MainWindow()
 {
@@ -139,13 +139,9 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
-void MainWindow::clickTreeItem()
+void MainWindow::pressTreeItem()
 {
   showTreeItem();
-}
-
-void MainWindow::doubleClickTreeItem()
-{
 }
 
 void MainWindow::clickListItem()
@@ -330,8 +326,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickTreeItem()));
-  connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickTreeItem()));
+  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem()));
 
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem()));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem()));
@@ -392,7 +387,7 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
 
 void MainWindow::createTreeItem(unsigned long long ino)
 {
-  mapFsInoStatus[ino] = true;
+  mapFsInoExpand[ino] = true;
 
   fsEngine->initFileChilds(ino);
 
@@ -416,7 +411,7 @@ void MainWindow::createTreeItem(unsigned long long ino)
     insertTreeChild(stringList, index);
 
     mapFsNameIno[child.d_name] = child.d_ino;
-    mapFsInoStatus[child.d_ino] = false;
+    mapFsInoExpand[child.d_ino] = false;
   }
 
   index = treeModel->index(0, 0);
@@ -467,6 +462,9 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
 
 void MainWindow::removeTreeView()
 {
+  mapFsInoExpand.clear();
+  mapFsNameIno.clear();
+
   removeTreeColumnsAll();
   removeTreeRowsAll();
 }
@@ -490,10 +488,11 @@ void MainWindow::showTreeItem()
   QAbstractItemModel *model = treeView->model();
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QVariant data = model->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapFsNameIno[data];
 
-#if 0 // TODO
-  createTreeItem(mapFsNameIno[data]);
-#endif
+  if (!mapFsInoExpand[ino]) {
+    createTreeItem(ino);
+  }
 
   treeView->setCurrentIndex(index);
   treeView->expand(index);

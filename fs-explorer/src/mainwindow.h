@@ -59,8 +59,7 @@ private slots:
   void stats();
   void about();
   void showWidgets(bool show);
-  void clickTreeItem();
-  void doubleClickTreeItem();
+  void pressTreeItem();
   void clickListItem();
   void doubleClickListItem();
 
