@@ -19,11 +19,11 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <QDialog>
 #include <QString>
-#include "ui_aboutdialog.h"
+#include <QDialog>
+#include <QWidget>
 
-class QWidget;
+#include "ui_aboutdialog.h"
 
 class AboutDialog : public QDialog {
   Q_OBJECT

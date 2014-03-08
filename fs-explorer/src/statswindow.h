@@ -19,13 +19,12 @@
 #ifndef STATSWINDOW_H
 #define STATSWINDOW_H
 
-#include <QWidget>
-
-class QTextEdit;
-class QFrame;
-class QPushButton;
-class QVBoxLayout;
-class QHBoxLayout;
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
+#include <QClipboard>
+#include <QMimeData>
 
 class StatsWindow : public QWidget
 {

@@ -22,8 +22,9 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
+#include <QPixmap>
 
-class FsTreeItem;
+#include "fstreeitem.h"
 
 class FsTreeModel : public QAbstractItemModel
 {

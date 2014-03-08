@@ -22,6 +22,7 @@
 #include <QList>
 #include <QVariant>
 #include <QVector>
+#include <QStringList>
 
 class FsTreeItem
 {

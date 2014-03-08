@@ -16,13 +16,6 @@
  * limitations under the License.
  */
 
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#endif
-#include <QClipboard>
-#include <QMimeData>
-
 #include "statswindow.h"
 
 StatsWindow::StatsWindow(QWidget *parent)

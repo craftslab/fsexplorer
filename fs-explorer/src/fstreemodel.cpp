@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <QPixmap>
-#include "fstreeitem.h"
 #include "fstreemodel.h"
 
 FsTreeModel::FsTreeModel(const QStringList &headers, const QStringList &data,

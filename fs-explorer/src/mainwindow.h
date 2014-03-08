@@ -19,23 +19,28 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
+#include <QtCore>
+#include <QMap>
+#include <QStyle>
+#include <QDateTime>
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QFileSystemModel>
+#include <QFileDialog>
+#include <QTreeView>
+#include <QListView>
+#include <QTextEdit>
 #include <QMainWindow>
 
-class QAction;
-class QActionGroup;
-class QLabel;
-class QMenu;
-class QToolBar;
-class QTreeView;
-class QListView;
-class QTextEdit;
-class QSplitter;
-class QHBoxLayout;
-
-class FsEngine;
-class FsTreeModel;
-class StatsWindow;
-class ConsoleWindow;
+#include "fsengine.h"
+#include "fstreemodel.h"
+#include "statswindow.h"
+#include "consolewindow.h"
+#include "aboutdialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -116,5 +121,9 @@ private:
 
   FsEngine *fsEngine;
   QString fsPath;
+  QMap<QVariant, unsigned long long> mapFsNameIno;
+  QMap<unsigned long long, bool> mapFsInoExpand;
+
+  QMutex mutex;
 };
 #endif

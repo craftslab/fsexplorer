@@ -16,12 +16,6 @@
  * limitations under the License.
  */
 
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#endif
-
-#include "consolethread.h"
 #include "consolewindow.h"
 
 ConsoleWindow::ConsoleWindow(QWidget *parent)

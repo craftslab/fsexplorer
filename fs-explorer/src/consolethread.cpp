@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 
-#include <QThread>
-#include <QtGui>
-
 #include "consolethread.h"
 
 ConsoleThread::ConsoleThread(QObject *parent)

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <QLibrary>
-
 #include "fsengine.h"
 
 #define LIB_NAME "libfs"

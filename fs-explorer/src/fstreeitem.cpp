@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <QStringList>
-
 #include "fstreeitem.h"
 
 FsTreeItem::FsTreeItem(const QVector<QVariant> &data, FsTreeItem *parent)

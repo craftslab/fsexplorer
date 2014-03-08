@@ -16,26 +16,6 @@
  * limitations under the License.
  */
 
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#endif
-#include <QDateTime>
-#include <QTreeView>
-#include <QListView>
-#include <QTextEdit>
-#include <QSplitter>
-#include <QHBoxLayout>
-#include <QFileSystemModel>
-#include <QFileDialog>
-#include <QStyle>
-#include <QMap>
-
-#include "fsengine.h"
-#include "fstreemodel.h"
-#include "statswindow.h"
-#include "consolewindow.h"
-#include "aboutdialog.h"
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
@@ -45,9 +25,6 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" mar
 #else
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
-
-static QMap<QVariant, unsigned long long> mapFsNameIno;
-static QMap<unsigned long long, bool> mapFsInoExpand;
 
 MainWindow::MainWindow()
 {
@@ -141,7 +118,9 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::pressTreeItem()
 {
+  mutex.lock();
   showTreeItem();
+  mutex.unlock();
 }
 
 void MainWindow::clickListItem()

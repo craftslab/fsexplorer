@@ -19,11 +19,12 @@
 #ifndef CONSOLEWINDOW_H
 #define CONSOLEWINDOW_H
 
-#include <QWidget>
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 
-class QTextEdit;
-class QVBoxLayout;
-class ConsoleThread;
+#include "consolethread.h"
 
 class ConsoleWindow : public QWidget
 {

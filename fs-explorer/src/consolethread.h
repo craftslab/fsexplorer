@@ -21,6 +21,7 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QtGui>
 
 class ConsoleThread : public QThread
 {
