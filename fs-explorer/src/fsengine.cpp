@@ -99,6 +99,7 @@ bool FsEngine::openFile(QString &name)
   }
 
   fileChildsNum = 1;
+
   fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
   if (!fileChilds) {
     goto openFileFail;
@@ -176,16 +177,7 @@ void FsEngine::initFileChilds(unsigned long long ino)
 {
   int32_t ret;
 
-  if (!fileChilds) {
-    fileChildsNum = 1;
-    fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
-    if (!fileChilds) {
-      goto initFileChildsFail;
-    }
-  }
-  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
-
-  if (!fileOpt || !fileOpt->getdents) {
+  if (!fileOpt || !fileOpt->getdents || !fileChilds) {
     goto initFileChildsFail;
   }
 
@@ -198,11 +190,9 @@ void FsEngine::initFileChilds(unsigned long long ino)
 
 initFileChildsFail:
 
-  if (fileChilds) {
-    free(fileChilds);
-    fileChilds = NULL;
-  }
   fileChildsNum = 0;
+
+  return;
 }
 
 unsigned int FsEngine::getFileChildsNum() const
