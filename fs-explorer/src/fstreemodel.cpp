@@ -58,16 +58,22 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
   }
 
+  FsTreeItem *item = getItem(index);
+
   if (role == Qt::DisplayRole || role == Qt::EditRole) {
-    FsTreeItem *item = getItem(index);
     return item->data(index.column());
   } else if (role == Qt::DecorationRole) {
-    FsTreeItem *item = getItem(index);
-    if (item->parent() != rootItem) {
-      return QPixmap(":/images/folder.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (item->parent() == rootItem) {
+      return QPixmap(":/images/icon.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    } else {
+      return QPixmap(":/images/folder.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
   } else if (role == Qt::SizeHintRole) {
-    return QPixmap(":/images/folder.png").scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+    if (item->parent() == rootItem) {
+      return QPixmap(":/images/icon.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+    } else {
+      return QPixmap(":/images/folder.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+    }
   }
 
   return QVariant();
