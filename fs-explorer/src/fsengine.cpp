@@ -170,11 +170,11 @@ void FsEngine::initFileChilds(unsigned long long ino)
   struct fs_dirent dent;
   int32_t ret;
 
-  if (!fileOpt || !fileOpt->ino2dent || !fileOpt->getdents || fileChilds) {
+  if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents || fileChilds) {
     return;
   }
 
-  ret = fileOpt->ino2dent(ino, &dent);
+  ret = fileOpt->querydent(ino, &dent);
   if (ret != 0) {
     goto initFileChildsFail;
   }
