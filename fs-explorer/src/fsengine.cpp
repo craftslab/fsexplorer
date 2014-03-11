@@ -98,14 +98,6 @@ bool FsEngine::openFile(QString &name)
     goto openFileFail;
   }
 
-  fileChildsNum = 1;
-
-  fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
-  if (!fileChilds) {
-    goto openFileFail;
-  }
-  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
-
   return true;
 
 openFileFail:
@@ -175,14 +167,28 @@ struct fs_dirent FsEngine::getFileRoot() const
 
 void FsEngine::initFileChilds(unsigned long long ino)
 {
+  struct fs_dirent dent;
   int32_t ret;
 
-  if (!fileOpt || !fileOpt->getdents || !fileChilds) {
+  if (!fileOpt || !fileOpt->ino2dent || !fileOpt->getdents || fileChilds) {
+    return;
+  }
+
+  ret = fileOpt->ino2dent(ino, &dent);
+  if (ret != 0) {
     goto initFileChildsFail;
   }
 
-  ret = fileOpt->getdents(ino, &fileChilds, &fileChildsNum);
-  if ((ret == 0 && fileChildsNum == 0) || (ret != 0)) {
+  fileChildsNum = dent.d_childnum;
+
+  fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
+  if (!fileChilds) {
+    goto initFileChildsFail;
+  }
+  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
+
+  ret = fileOpt->getdents(ino, fileChilds, fileChildsNum);
+  if (ret != 0) {
     goto initFileChildsFail;
   }
 
@@ -190,9 +196,24 @@ void FsEngine::initFileChilds(unsigned long long ino)
 
 initFileChildsFail:
 
+  if (fileChilds) {
+    free(fileChilds);
+    fileChilds = NULL;
+  }
+
   fileChildsNum = 0;
 
   return;
+}
+
+void FsEngine::deinitFileChilds()
+{
+  if (fileChilds) {
+    free(fileChilds);
+    fileChilds = NULL;
+  }
+
+  fileChildsNum = 0;
 }
 
 unsigned int FsEngine::getFileChildsNum() const
@@ -200,7 +221,7 @@ unsigned int FsEngine::getFileChildsNum() const
   return fileChildsNum;
 }
 
-struct fs_dirent FsEngine::getFileChilds(unsigned int index)
+struct fs_dirent FsEngine::getFileChilds(unsigned int index) const
 {
   struct fs_dirent ret;
 

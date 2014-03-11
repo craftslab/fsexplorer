@@ -37,8 +37,9 @@ public:
   QString getFileType() const;
   struct fs_dirent getFileRoot() const;
   void initFileChilds(unsigned long long ino);
+  void deinitFileChilds();
   unsigned int getFileChildsNum() const;
-  struct fs_dirent getFileChilds(unsigned int index);
+  struct fs_dirent getFileChilds(unsigned int index) const;
 
 private:
   bool loadLibrary();

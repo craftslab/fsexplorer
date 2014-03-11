@@ -370,6 +370,7 @@ void MainWindow::createTreeItem(unsigned long long ino)
 
   unsigned int childsNum = fsEngine->getFileChildsNum();
   if (childsNum == 0) {
+    fsEngine->deinitFileChilds();
     return;
   }
 
@@ -394,6 +395,8 @@ void MainWindow::createTreeItem(unsigned long long ino)
   index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
   treeView->expand(index);
+
+  fsEngine->deinitFileChilds();
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)
