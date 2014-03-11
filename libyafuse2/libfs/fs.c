@@ -74,7 +74,7 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
-static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent);
+static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
 
 /*
@@ -437,9 +437,9 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 }
 
 /*
- * Conversion from ino to dirent
+ * Query dirent for ino
  */
-static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent)
+static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root;
   struct dentry *parent = NULL;
@@ -551,7 +551,7 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   (*fs_opt).umount = fs_umount;
   (*fs_opt).statfs = fs_statfs;
   (*fs_opt).stat = fs_stat;
-  (*fs_opt).ino2dent = fs_ino2dent;
+  (*fs_opt).querydent = fs_querydent;
   (*fs_opt).getdents = fs_getdents;
 
   return 0;

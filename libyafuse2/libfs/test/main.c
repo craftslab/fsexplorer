@@ -231,9 +231,9 @@ int32_t main(int argc, char *argv[])
   /*
    * Get dentry list
    */
-  ret = fs_opt.ino2dent(fs_root.d_ino, &fs_dirent);
+  ret = fs_opt.querydent(fs_root.d_ino, &fs_dirent);
   if (ret != 0) {
-    error("ino2dent failed!");
+    error("querydent failed!");
     goto main_exit;
   }
 
