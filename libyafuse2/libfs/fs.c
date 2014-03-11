@@ -74,7 +74,8 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num);
+static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
 
 /*
  * Function Definition
@@ -163,6 +164,8 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
   len = len >= 255 ? 255 : len;
   memset((void *)dirent->d_name, 0, sizeof(dirent->d_name));
   memcpy((void *)dirent->d_name, (void *)dentry->d_name->name, len);
+
+  dirent->d_childnum = dentry->d_childnum;
 
   return 0;
 }
@@ -434,16 +437,45 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 }
 
 /*
+ * Conversion from ino to dirent
+ */
+static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent)
+{
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  struct dentry *dentry = NULL;
+  int32_t ret;
+
+  if (!dirent) {
+    return -1;
+  }
+
+  /*
+   * Get dentry mached with ino
+   */
+  ret = fs_get_dentry(root, ino, &dentry);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = fs_dentry2dirent(dentry, dirent);
+  if (ret != 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+/*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root;
   struct dentry *parent = NULL, *child = NULL;
   uint32_t i;
   int32_t ret;
 
-  if (!dirents || !*dirents || *dirents_num == 0) {
+  if (!dirents || dirents_num == 0) {
     return -1;
   }
 
@@ -478,26 +510,16 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent **dirents, uint32_t *d
          &child->d_child != (&parent->d_subdirs);
          child = list_entry(child->d_child.prev, struct dentry, d_child)) {
 #endif
-      if (++i <= *dirents_num) {
-        ret = fs_dentry2dirent(child, &(*dirents)[i - 1]);
-        if (ret != 0) {
-          return -1;
-        }
-      } else {
-        *dirents_num += 1;
-        *dirents = (struct fs_dirent *)realloc((void *)*dirents, *dirents_num * sizeof(struct fs_dirent));
-        if (!*dirents) {
-          return -1;
-        }
-        ret = fs_dentry2dirent(child, &(*dirents)[*dirents_num - 1]);
-        if (ret != 0) {
-          return -1;
-        }
+      if (++i > dirents_num) {
+        return -1;
+      }
+
+      ret = fs_dentry2dirent(child, &dirents[i - 1]);
+      if (ret != 0) {
+        return -1;
       }
     }
   }
-
-  *dirents_num = i <= *dirents_num ? i : *dirents_num;
 
   return 0;
 }
@@ -519,6 +541,7 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   (*fs_opt).umount = fs_umount;
   (*fs_opt).statfs = fs_statfs;
   (*fs_opt).stat = fs_stat;
+  (*fs_opt).ino2dent = fs_ino2dent;
   (*fs_opt).getdents = fs_getdents;
 
   return 0;

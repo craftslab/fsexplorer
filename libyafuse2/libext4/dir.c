@@ -177,6 +177,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 **childs,
   }
 
   *childs_num = i <= *childs_num ? i : *childs_num;
+  parent->d_childnum = *childs_num;
 
   return ret;
 }

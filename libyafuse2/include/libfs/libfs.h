@@ -84,25 +84,26 @@ struct fs_fsid_t {
 
 struct fs_kstatfs {
   enum libfs_ftype f_type;
-  int64_t f_bsize;
-  uint64_t f_blocks;
-  uint64_t f_bfree;
-  uint64_t f_bavail;
-  uint64_t f_files;
-  uint64_t f_ffree;
+  int64_t          f_bsize;
+  uint64_t         f_blocks;
+  uint64_t         f_bfree;
+  uint64_t         f_bavail;
+  uint64_t         f_files;
+  uint64_t         f_ffree;
   struct fs_fsid_t f_fsid;
-  int64_t f_namelen;
-  int64_t f_frsize;
-  int64_t f_flags;
-  int64_t f_spare[4];
+  int64_t          f_namelen;
+  int64_t          f_frsize;
+  int64_t          f_flags;
+  int64_t          f_spare[4];
 };
 
 struct fs_dirent {
-  uint64_t d_ino;
-  int64_t d_off;
-  uint16_t d_reclen;
+  uint64_t         d_ino;
+  int64_t          d_off;
+  uint16_t         d_reclen;
   enum libfs_ftype d_type;
-  char d_name[256];
+  char             d_name[256];
+  uint32_t         d_childnum;
 };
 
 struct fs_kstat {
@@ -124,7 +125,8 @@ struct fs_opt_t {
   int32_t (*umount) (const char *dirname, int32_t flags);
   int32_t (*statfs) (const char *pathname, struct fs_kstatfs *buf);
   int32_t (*stat) (uint64_t ino, struct fs_kstat *buf);
-  int32_t (*getdents) (uint64_t ino, struct fs_dirent **dirents, uint32_t *dirents_num);
+  int32_t (*ino2dent) (uint64_t ino, struct fs_dirent *dirent);
+  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
 };
 
 /*

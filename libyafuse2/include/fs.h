@@ -157,6 +157,7 @@ struct dentry {
   struct super_block             *d_sb;
   struct list_head               d_child;
   struct list_head               d_subdirs;
+  uint32_t                       d_childnum;
 };
 
 struct inode {

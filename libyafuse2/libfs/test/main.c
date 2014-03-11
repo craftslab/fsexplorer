@@ -150,6 +150,7 @@ int32_t main(int argc, char *argv[])
   struct fs_dirent fs_root;
   struct fs_kstatfs fs_statfs;
   struct fs_kstat fs_stat;
+  struct fs_dirent fs_dirent;
   struct fs_dirent *fs_dirents = NULL;
   uint32_t fs_dirents_num;
   uint32_t i;
@@ -230,7 +231,13 @@ int32_t main(int argc, char *argv[])
   /*
    * Get dentry list
    */
-  fs_dirents_num = 1;
+  ret = fs_opt.ino2dent(fs_root.d_ino, &fs_dirent);
+  if (ret != 0) {
+    error("ino2dent failed!");
+    goto main_exit;
+  }
+
+  fs_dirents_num = fs_dirent.d_childnum;
   fs_dirents = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fs_dirents_num);
   if (!fs_dirents) {
     error("malloc failed!");
@@ -238,7 +245,7 @@ int32_t main(int argc, char *argv[])
   }
   memset((void *)fs_dirents, 0, sizeof(struct fs_dirent) * fs_dirents_num);
 
-  ret = fs_opt.getdents(fs_root.d_ino, &fs_dirents, &fs_dirents_num);
+  ret = fs_opt.getdents(fs_root.d_ino, fs_dirents, fs_dirents_num);
   if (ret != 0) {
     error("getdents failed!");
     goto main_exit;
