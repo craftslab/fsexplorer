@@ -442,7 +442,7 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root;
-  struct dentry *dentry = NULL;
+  struct dentry *parent = NULL;
   int32_t ret;
 
   if (!dirent) {
@@ -450,14 +450,24 @@ static int32_t fs_ino2dent(uint64_t ino, struct fs_dirent *dirent)
   }
 
   /*
-   * Get dentry mached with ino
+   * Get parent dentry mached with ino
    */
-  ret = fs_get_dentry(root, ino, &dentry);
+  ret = fs_get_dentry(root, ino, &parent);
   if (ret != 0) {
     return -1;
   }
 
-  ret = fs_dentry2dirent(dentry, dirent);
+  /*
+   * Check if parent dentry has child dentries and
+   * if child dentries exist and not be traversed yet, traverse them now,
+   * otherwise just ignore it
+   */
+  ret = fs_traverse_dentry(&parent);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = fs_dentry2dirent(parent, dirent);
   if (ret != 0) {
     return -1;
   }
