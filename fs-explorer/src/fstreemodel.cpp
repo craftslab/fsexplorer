@@ -64,15 +64,15 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
     return item->data(index.column());
   } else if (role == Qt::DecorationRole) {
     if (item->parent() == rootItem) {
-      return QPixmap(":/images/icon.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+      return QPixmap(":/images/icon.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     } else {
-      return QPixmap(":/images/folder.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+      return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
   } else if (role == Qt::SizeHintRole) {
     if (item->parent() == rootItem) {
-      return QPixmap(":/images/icon.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+      return QPixmap(":/images/icon.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
     } else {
-      return QPixmap(":/images/folder.png").scaled(15, 15, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+      return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
     }
   }
 

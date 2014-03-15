@@ -214,6 +214,7 @@ void MainWindow::createToolBars()
   fileToolBar = addToolBar(tr("File"));
   fileToolBar->setFloatable(false);
   fileToolBar->setMovable(false);
+  fileToolBar->setIconSize(QSize(16, 16));
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(importAction);
   fileToolBar->addAction(exportAction);
@@ -222,6 +223,7 @@ void MainWindow::createToolBars()
   optionsToolBar = addToolBar(tr("Options"));
   optionsToolBar->setFloatable(false);
   optionsToolBar->setMovable(false);
+  optionsToolBar->setIconSize(QSize(16, 16));
   optionsToolBar->addAction(statsAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addSeparator();
