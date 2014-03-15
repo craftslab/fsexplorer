@@ -75,7 +75,7 @@ bool FsEngine::openFile(QString &name)
   dir = (const char*)"/";
   len = sizeof(fileTypeList) / sizeof(const char*);
 
-  fileRoot = (struct fs_dirent *)malloc(sizeof(struct fs_dirent));
+  fileRoot = new fs_dirent;
   if (!fileRoot) {
     goto openFileFail;
   }
@@ -100,7 +100,7 @@ bool FsEngine::openFile(QString &name)
     goto openFileFail;
   }
 
-  fileParent = (struct fs_dirent *)malloc(sizeof(struct fs_dirent));
+  fileParent = new fs_dirent;
   if (!fileParent) {
     goto openFileFail;
   }
@@ -137,17 +137,17 @@ bool FsEngine::closeFile()
   }
 
   if (fileRoot) {
-    free(fileRoot);
+    delete fileRoot;
     fileRoot = NULL;
   }
 
   if (fileParent) {
-    free(fileParent);
+    delete fileParent;
     fileParent = NULL;
   }
 
   if (fileChilds) {
-    free(fileChilds);
+    delete[] fileChilds;
     fileChilds = NULL;
   }
   fileChildsNum = 0;
@@ -195,7 +195,7 @@ void FsEngine::initFileChilds(unsigned long long ino)
 
   fileChildsNum = fileParent->d_childnum;
 
-  fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
+  fileChilds = new fs_dirent[fileChildsNum];
   if (!fileChilds) {
     goto initFileChildsFail;
   }
@@ -211,7 +211,7 @@ void FsEngine::initFileChilds(unsigned long long ino)
 initFileChildsFail:
 
   if (fileChilds) {
-    free(fileChilds);
+    delete[] fileChilds;
     fileChilds = NULL;
   }
 
@@ -223,7 +223,7 @@ initFileChildsFail:
 void FsEngine::deinitFileChilds()
 {
   if (fileChilds) {
-    free(fileChilds);
+    delete[] fileChilds;
     fileChilds = NULL;
   }
 
