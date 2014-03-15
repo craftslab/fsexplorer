@@ -22,7 +22,11 @@
 #include <QObject>
 #include <QLibrary>  
 
+#ifdef __cplusplus
+extern "C" {
 #include "libfs.h"
+}
+#endif /* __cplusplus */
 
 class FsEngine : public QObject
 {
@@ -51,6 +55,7 @@ private:
   QString *fileMount;
   QString *fileType;
   struct fs_dirent *fileRoot;
+  struct fs_dirent *fileParent;
   struct fs_dirent *fileChilds;
   unsigned int fileChildsNum;
 };

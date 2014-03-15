@@ -36,6 +36,7 @@ FsEngine::FsEngine(QWidget *parent)
   fileMount = NULL;
   fileType = NULL;
   fileRoot = NULL;
+  fileParent = NULL;
   fileChilds = NULL;
   fileChildsNum = 0;
 }
@@ -78,6 +79,7 @@ bool FsEngine::openFile(QString &name)
   if (!fileRoot) {
     goto openFileFail;
   }
+  memset((void *)fileRoot, 0, sizeof(struct fs_dirent));
 
   for (i = 0; i < len; ++i) {
     type = fileTypeList[i];
@@ -97,6 +99,12 @@ bool FsEngine::openFile(QString &name)
   if (!fileName || !fileMount || !fileType) {
     goto openFileFail;
   }
+
+  fileParent = (struct fs_dirent *)malloc(sizeof(struct fs_dirent));
+  if (!fileParent) {
+    goto openFileFail;
+  }
+  memset((void *)fileParent, 0, sizeof(struct fs_dirent));
 
   return true;
 
@@ -133,6 +141,11 @@ bool FsEngine::closeFile()
     fileRoot = NULL;
   }
 
+  if (fileParent) {
+    free(fileParent);
+    fileParent = NULL;
+  }
+
   if (fileChilds) {
     free(fileChilds);
     fileChilds = NULL;
@@ -167,19 +180,20 @@ struct fs_dirent FsEngine::getFileRoot() const
 
 void FsEngine::initFileChilds(unsigned long long ino)
 {
-  struct fs_dirent dent;
   int32_t ret;
 
-  if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents || fileChilds) {
+  if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents || !fileParent || fileChilds) {
     return;
   }
 
-  ret = fileOpt->querydent(ino, &dent);
+  memset((void *)fileParent, 0, sizeof(struct fs_dirent));
+
+  ret = fileOpt->querydent(ino, fileParent);
   if (ret != 0) {
     goto initFileChildsFail;
   }
 
-  fileChildsNum = dent.d_childnum;
+  fileChildsNum = fileParent->d_childnum;
 
   fileChilds = (struct fs_dirent *)malloc(sizeof(struct fs_dirent) * fileChildsNum);
   if (!fileChilds) {
