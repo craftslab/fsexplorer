@@ -253,7 +253,7 @@ int32_t main(int argc, char *argv[])
 
   info("child dentries of inode %llu", (long long unsigned)fs_root.d_ino);
   for (i = 0; i < fs_dirents_num; ++i) {
-    info("name %s ino %llu", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino);
+    info("name %s ino %llu type %d", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino, fs_dirents[i].d_type);
   }
   fprintf(stdout, "\n");
 
