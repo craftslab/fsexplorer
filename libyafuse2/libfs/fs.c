@@ -547,12 +547,12 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
     return -1;
   }
 
-  (*fs_opt).mount = fs_mount;
-  (*fs_opt).umount = fs_umount;
-  (*fs_opt).statfs = fs_statfs;
-  (*fs_opt).stat = fs_stat;
-  (*fs_opt).querydent = fs_querydent;
-  (*fs_opt).getdents = fs_getdents;
+  fs_opt->mount = fs_mount;
+  fs_opt->umount = fs_umount;
+  fs_opt->statfs = fs_statfs;
+  fs_opt->stat = fs_stat;
+  fs_opt->querydent = fs_querydent;
+  fs_opt->getdents = fs_getdents;
 
   return 0;
 }

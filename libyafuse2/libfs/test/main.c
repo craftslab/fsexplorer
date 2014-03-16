@@ -153,6 +153,7 @@ int32_t main(int argc, char *argv[])
   struct fs_dirent fs_dirent;
   struct fs_dirent *fs_dirents = NULL;
   uint32_t fs_dirents_num;
+  uint64_t ino;
   uint32_t i;
   int32_t ret = 0;
 
@@ -231,7 +232,9 @@ int32_t main(int argc, char *argv[])
   /*
    * Get dentry list
    */
-  ret = fs_opt.querydent(fs_root.d_ino, &fs_dirent);
+  ino = fs_root.d_ino;
+
+  ret = fs_opt.querydent(ino, &fs_dirent);
   if (ret != 0) {
     error("querydent failed!");
     goto main_exit;
@@ -245,13 +248,13 @@ int32_t main(int argc, char *argv[])
   }
   memset((void *)fs_dirents, 0, sizeof(struct fs_dirent) * fs_dirents_num);
 
-  ret = fs_opt.getdents(fs_root.d_ino, fs_dirents, fs_dirents_num);
+  ret = fs_opt.getdents(ino, fs_dirents, fs_dirents_num);
   if (ret != 0) {
     error("getdents failed!");
     goto main_exit;
   }
 
-  info("child dentries of inode %llu", (long long unsigned)fs_root.d_ino);
+  info("child dentries of inode %llu", (long long unsigned)ino);
   for (i = 0; i < fs_dirents_num; ++i) {
     info("name %s ino %llu type %d", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino, fs_dirents[i].d_type);
   }
