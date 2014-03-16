@@ -806,6 +806,11 @@ static int32_t fs_umount(const char *name, int32_t flags)
     ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc = NULL;
   }
 
+  if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es) {
+    free(((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es);
+    ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es = NULL;
+  }
+
   if (fs_sb.s_fs_info) {
     free(fs_sb.s_fs_info);
     fs_sb.s_fs_info = NULL;

@@ -72,11 +72,18 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   info->s_itb_per_group = (__le64)(info->s_inodes_per_group / info->s_inodes_per_block);
   info->s_groups_count = (ext4_group_t)((blocks_count - es->s_first_data_block + es->s_blocks_per_group - 1) / es->s_blocks_per_group);
   info->s_desc_per_block = (__le64)(block_size / info->s_desc_size);
-  info->s_es = (struct ext4_super_block *)es;
+ 
+  info->s_es = (struct ext4_super_block *)malloc(sizeof(struct ext4_super_block));
+  if (!info->s_es) {
+    ret = -1;
+    goto ext4_fill_super_info_fail;
+  }
+  memcpy((void *)info->s_es, (const void *)es, sizeof(struct ext4_super_block));
 
   info->s_group_desc = (struct ext4_group_desc *)malloc((size_t)(info->s_groups_count * info->s_desc_size));
   if (!info->s_group_desc) {
-    return -1;
+    ret = -1;
+    goto ext4_fill_super_info_fail;
   }
   memset((void *)info->s_group_desc, 0, (size_t)(info->s_groups_count * info->s_desc_size));
 
@@ -94,6 +101,11 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   if (info->s_group_desc) {
     free(info->s_group_desc);
     info->s_group_desc = NULL;
+  }
+
+  if (info->s_es) {
+    free(info->s_es);
+    info->s_es = NULL;
   }
 
   return ret;
