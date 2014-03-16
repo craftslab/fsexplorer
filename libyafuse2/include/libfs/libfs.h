@@ -84,6 +84,7 @@ struct fs_fsid_t {
 
 struct fs_kstatfs {
   enum libfs_ftype f_type;
+  uint8_t          padding[4];
   int64_t          f_bsize;
   uint64_t         f_blocks;
   uint64_t         f_bfree;
@@ -101,9 +102,11 @@ struct fs_dirent {
   uint64_t         d_ino;
   int64_t          d_off;
   uint16_t         d_reclen;
+  uint8_t          padding0[2];
   enum libfs_ftype d_type;
   char             d_name[256];
   uint32_t         d_childnum;
+  uint8_t          padding1[4];
 };
 
 struct fs_kstat {
