@@ -243,17 +243,28 @@ void MainWindow::createWidgets()
   treeModel = new FsTreeModel(headers);
   treeView = new QTreeView();
   treeView->setModel(treeModel);
-  QModelIndex index = treeModel->index(0, 0);
-  treeView->scrollTo(index);
-  treeView->expand(index);
-  treeView->setCurrentIndex(index);
+  QModelIndex treeIndex = treeModel->index(0, 0);
+  treeView->scrollTo(treeIndex);
+  treeView->expand(treeIndex);
+  treeView->setCurrentIndex(treeIndex);
   treeView->setHeaderHidden(true);
   treeView->setColumnHidden(0, false);
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
 
-  listView = new QListView();
+  listModel = new FsListModel(headers);
+  listView = new QTreeView();
+  listView->setModel(listModel);
+  QModelIndex listIndex = listModel->index(0, 0);
+  listView->scrollTo(listIndex);
+  listView->expand(listIndex);
+  listView->setCurrentIndex(listIndex);
+  listView->setHeaderHidden(false);
+  listView->setColumnHidden(0, false);
+  for (int column = 0; column < listModel->columnCount(); ++column) {
+    listView->resizeColumnToContents(column);
+  }
 
   horiSplitter = new QSplitter(Qt::Horizontal);
   horiSplitter->addWidget(treeView);

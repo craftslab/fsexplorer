@@ -32,12 +32,12 @@
 #include <QFileSystemModel>
 #include <QFileDialog>
 #include <QTreeView>
-#include <QListView>
 #include <QTextEdit>
 #include <QMainWindow>
 
 #include "fsengine.h"
 #include "fstreemodel.h"
+#include "fslistmodel.h"
 #include "statswindow.h"
 #include "consolewindow.h"
 #include "aboutdialog.h"
@@ -92,7 +92,8 @@ private:
   QHBoxLayout *hBoxLayout;
   FsTreeModel *treeModel;
   QTreeView *treeView;
-  QListView *listView;
+  FsListModel *listModel;
+  QTreeView *listView;
   QTextEdit *outputView;
   QSplitter *vertSplitter;
   QSplitter *horiSplitter;
