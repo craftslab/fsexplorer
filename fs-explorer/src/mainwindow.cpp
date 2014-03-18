@@ -237,10 +237,10 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createWidgets()
 {
-  QStringList headers;
-  headers << tr("name");
+  QStringList treeHeader;
+  treeHeader << tr("Name");
 
-  treeModel = new FsTreeModel(headers);
+  treeModel = new FsTreeModel(treeHeader);
   treeView = new QTreeView();
   treeView->setModel(treeModel);
   QModelIndex treeIndex = treeModel->index(0, 0);
@@ -253,7 +253,12 @@ void MainWindow::createWidgets()
     treeView->resizeColumnToContents(column);
   }
 
-  listModel = new FsListModel(headers);
+  QStringList listHeader;
+  listHeader << tr("Name") << tr("Size") << tr("Type")
+             << tr("Data Modified") << tr("Data Accessed")
+             << tr("Permissions") << tr("Owner") << tr("Group");
+
+  listModel = new FsListModel(listHeader);
   listView = new QTreeView();
   listView->setModel(listModel);
   QModelIndex listIndex = listModel->index(0, 0);
