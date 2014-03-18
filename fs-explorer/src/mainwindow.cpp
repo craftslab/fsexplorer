@@ -336,7 +336,12 @@ void MainWindow::loadFile(QString &name)
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
-    createTreeView(&treeRoot);
+
+    QList<struct fs_dirent> fileList;
+    createFileList(treeRoot.d_ino, fileList);
+    createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
+    createTreeItem(treeRoot.d_ino, fileList);
+    createListItem(fileList);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -362,10 +367,22 @@ void MainWindow::setOutput(const QString &text)
   }
 }
 
-void MainWindow::createTreeView(const struct fs_dirent *dent)
+void MainWindow::createFileList(unsigned long long ino, QList<struct fs_dirent> &list)
 {
-  createTreeRoot(dent->d_name, dent->d_ino);
-  createTreeItem(dent->d_ino);
+  fsEngine->initFileChilds(ino);
+
+  unsigned int childsNum = fsEngine->getFileChildsNum();
+  if (childsNum == 0) {
+    fsEngine->deinitFileChilds();
+    return;
+  }
+
+  for (int i = (int)childsNum - 1; i >= 0; --i) {
+    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
+    list << child;
+  }
+
+  fsEngine->deinitFileChilds();
 }
 
 void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
@@ -377,25 +394,17 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
 
-  mapFsNameIno[name] = ino;
+  mapTreeNameIno[name] = ino;
 }
 
-void MainWindow::createTreeItem(unsigned long long ino)
+void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list)
 {
-  mapFsInoExpand[ino] = true;
-
-  fsEngine->initFileChilds(ino);
-
-  unsigned int childsNum = fsEngine->getFileChildsNum();
-  if (childsNum == 0) {
-    fsEngine->deinitFileChilds();
-    return;
-  }
+  mapTreeInoExpand[ino] = true;
 
   QModelIndex index = treeView->selectionModel()->currentIndex();
 
-  for (int i = (int)childsNum - 1; i >= 0; --i) {
-    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
+  for (int i = 0; i < list.size(); ++i) {
+    struct fs_dirent child = list.at(i);
     if (child.d_type != FT_DIR) {
       continue;
     }
@@ -409,15 +418,26 @@ void MainWindow::createTreeItem(unsigned long long ino)
     stringList << tr("%1").arg(child.d_name);
     insertTreeChild(stringList, index);
 
-    mapFsNameIno[child.d_name] = child.d_ino;
-    mapFsInoExpand[child.d_ino] = false;
+    mapTreeNameIno[child.d_name] = child.d_ino;
+    mapTreeInoExpand[child.d_ino] = false;
   }
 
   index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
   treeView->expand(index);
+}
 
-  fsEngine->deinitFileChilds();
+void MainWindow::createListItem(const QList<struct fs_dirent> &list)
+{
+  for (int i = 0; i < list.size(); ++i) {
+    struct fs_dirent child = list.at(i);
+
+    QStringList stringList;
+    stringList << tr("%1").arg(child.d_name) << tr("0") << tr("%1").arg(child.d_type)
+               << tr("0") << tr("0")
+               << tr("0") << tr("0") << tr("0");
+    insertListRow(stringList);
+  }
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)
@@ -461,10 +481,25 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
                                               QItemSelectionModel::ClearAndSelect);
 }
 
+void MainWindow::insertListRow(const QStringList &data)
+{
+  QModelIndex index = listView->selectionModel()->currentIndex();
+  QAbstractItemModel *model = listView->model();
+
+  if (!model->insertRow(index.row()+1, index.parent())) {
+    return;
+  }
+
+  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+    QModelIndex child = model->index(index.row()+1, column, index.parent());
+    model->setData(child, QVariant(data[column]), Qt::DisplayRole);
+  }
+}
+
 void MainWindow::removeTreeView()
 {
-  mapFsInoExpand.clear();
-  mapFsNameIno.clear();
+  mapTreeInoExpand.clear();
+  mapTreeNameIno.clear();
 
   removeTreeColumnsAll();
   removeTreeRowsAll();
@@ -489,10 +524,10 @@ void MainWindow::showTreeItem()
   QAbstractItemModel *model = treeView->model();
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapFsNameIno[data];
+  unsigned long long ino = mapTreeNameIno[data];
 
-  if (!mapFsInoExpand[ino]) {
-    createTreeItem(ino);
+  if (!mapTreeInoExpand[ino]) {
+    // TODO
   }
 
   treeView->setCurrentIndex(index);

@@ -64,7 +64,9 @@ private slots:
   void stats();
   void about();
   void showWidgets(bool show);
+
   void pressTreeItem();
+
   void clickListItem();
   void doubleClickListItem();
 
@@ -77,11 +79,14 @@ private:
   void createConnections();
   void loadFile(QString &name);
   void setOutput(const QString &text);
-  void createTreeView(const struct fs_dirent *dent);
+
+  void createFileList(unsigned long long ino, QList<struct fs_dirent> &list);
   void createTreeRoot(const char *name, unsigned long long ino);
-  void createTreeItem(unsigned long long ino);
+  void createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list);
+  void createListItem(const QList<struct fs_dirent> &list);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
+  void insertListRow(const QStringList &data);
   void removeTreeView();
   void removeTreeColumnsAll();
   void removeTreeRowsAll();
@@ -122,8 +127,9 @@ private:
 
   FsEngine *fsEngine;
   QString fsPath;
-  QMap<QVariant, unsigned long long> mapFsNameIno;
-  QMap<unsigned long long, bool> mapFsInoExpand;
+
+  QMap<QVariant, unsigned long long> mapTreeNameIno;
+  QMap<unsigned long long, bool> mapTreeInoExpand;
 
   QMutex mutex;
 };
