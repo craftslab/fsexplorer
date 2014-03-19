@@ -24,6 +24,7 @@
 #include <QVariant>
 #include <QPixmap>
 
+#include "libfs.h"
 #include "fslistitem.h"
 
 class FsListModel : public QAbstractItemModel

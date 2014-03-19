@@ -254,9 +254,8 @@ void MainWindow::createWidgets()
   }
 
   QStringList listHeader;
-  listHeader << tr("Name") << tr("Size") << tr("Type")
-             << tr("Data Modified") << tr("Data Accessed")
-             << tr("Permissions") << tr("Owner") << tr("Group");
+  listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed")
+             << tr("Type");
 
   listModel = new FsListModel(listHeader);
   listView = new QTreeView();
@@ -266,7 +265,7 @@ void MainWindow::createWidgets()
   listView->expand(listIndex);
   listView->setCurrentIndex(listIndex);
   listView->setHeaderHidden(false);
-  listView->setColumnHidden(0, false);
+  listView->setColumnHidden(listModel->columnCount() - 1, true);
   for (int column = 0; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
@@ -433,9 +432,9 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
     struct fs_dirent child = list.at(i);
 
     QStringList stringList;
-    stringList << tr("%1").arg(child.d_name) << tr("0") << tr("%1").arg(child.d_type)
-               << tr("0") << tr("0")
-               << tr("0") << tr("0") << tr("0");
+    stringList << tr("%1").arg(child.d_name) << tr("0") << tr("0") << tr("0")
+               << tr("%1").arg(child.d_type);
+
     insertListRow(stringList);
   }
 }

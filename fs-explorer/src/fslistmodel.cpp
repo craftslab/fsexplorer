@@ -63,7 +63,13 @@ QVariant FsListModel::data(const QModelIndex &index, int role) const
   if (role == Qt::DisplayRole || role == Qt::EditRole) {
     return item->data(index.column());
   } else if (role == Qt::DecorationRole) {
-    return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (index.column() == 0) {
+      if (item->data(columnCount() - 1) == FT_DIR) {
+        return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+      } else {
+        return QPixmap(":/images/file.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+      }
+    }
   } else if (role == Qt::SizeHintRole) {
     return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
   }
