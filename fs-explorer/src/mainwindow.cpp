@@ -548,7 +548,9 @@ void MainWindow::showTreeItem()
   unsigned long long ino = mapTreeNameIno[data];
 
   if (!mapTreeInoExpand[ino]) {
-    // TODO
+    QList<struct fs_dirent> fileList;
+    createFileList(ino, fileList);
+    createTreeItem(ino, fileList);
   }
 
   treeView->setCurrentIndex(index);
