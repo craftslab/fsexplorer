@@ -122,12 +122,24 @@ void MainWindow::pressTreeItem()
   showTreeItem();
 }
 
+void MainWindow::syncTreeItem(unsigned long long ino)
+{
+  ino = ino;
+}
+
 void MainWindow::clickListItem()
 {
 }
 
 void MainWindow::doubleClickListItem()
 {
+  showListItem();
+}
+
+void MainWindow::syncListItem(unsigned long long ino)
+{
+  removeListView();
+  updateListItem(ino);
 }
 
 void MainWindow::createActions()
@@ -323,9 +335,11 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
   connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem()));
+  connect(this, SIGNAL(sync(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
 
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem()));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem()));
+  connect(this, SIGNAL(sync(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
 }
 
 void MainWindow::loadFile(QString &name)
@@ -441,6 +455,41 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
   }
 }
 
+void MainWindow::showTreeItem()
+{
+  QAbstractItemModel *model = treeView->model();
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+  QVariant data = model->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapTreeNameIno[data];
+
+  if (!mapTreeInoExpand[ino]) {
+    QList<struct fs_dirent> fileList;
+    createFileList(ino, fileList);
+    createTreeItem(ino, fileList);
+  }
+
+  treeView->setCurrentIndex(index);
+  treeView->expand(index);
+
+  emit sync(ino);
+}
+
+void MainWindow::showListItem()
+{
+}
+
+void MainWindow::updateTreeItem(unsigned long long ino)
+{
+  ino = ino;
+}
+
+void MainWindow::updateListItem(unsigned long long ino)
+{
+  QList<struct fs_dirent> fileList;
+  createFileList(ino, fileList);
+  createListItem(fileList);
+}
+
 void MainWindow::insertTreeRow(const QStringList &data)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
@@ -540,23 +589,7 @@ void MainWindow::removeListRowsAll()
   model->removeRows(0, model->rowCount(), index);
 }
 
-void MainWindow::showTreeItem()
-{
-  QAbstractItemModel *model = treeView->model();
-  QModelIndex index = treeView->selectionModel()->currentIndex();
-  QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapTreeNameIno[data];
-
-  if (!mapTreeInoExpand[ino]) {
-    QList<struct fs_dirent> fileList;
-    createFileList(ino, fileList);
-    createTreeItem(ino, fileList);
-  }
-
-  treeView->setCurrentIndex(index);
-  treeView->expand(index);
-}
-
+#if 0 // DISUSE here
 void MainWindow::updateTreeItem(int row, const QStringList &data)
 {
   QModelIndex index = treeModel->index(0, 0);
@@ -567,3 +600,4 @@ void MainWindow::updateTreeItem(int row, const QStringList &data)
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
 }
+#endif

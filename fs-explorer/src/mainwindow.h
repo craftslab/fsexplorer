@@ -51,6 +51,7 @@ public:
 
 signals:
   void mounted(bool status);
+  void sync(unsigned long long ino);
 
 protected:
   void closeEvent(QCloseEvent *event);
@@ -66,9 +67,11 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem();
+  void syncTreeItem(unsigned long long ino);
 
   void clickListItem();
   void doubleClickListItem();
+  void syncListItem(unsigned long long ino);
 
 private:
   void createActions();
@@ -84,6 +87,10 @@ private:
   void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list);
   void createListItem(const QList<struct fs_dirent> &list);
+  void showTreeItem();
+  void showListItem();
+  void updateTreeItem(unsigned long long ino);
+  void updateListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
   void insertListRow(const QStringList &data);
@@ -93,8 +100,6 @@ private:
   void removeListView();
   void removeListColumnsAll();
   void removeListRowsAll();
-  void showTreeItem();
-  void updateTreeItem(int row, const QStringList &data);
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
