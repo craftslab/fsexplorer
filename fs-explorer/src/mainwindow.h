@@ -90,6 +90,9 @@ private:
   void removeTreeView();
   void removeTreeColumnsAll();
   void removeTreeRowsAll();
+  void removeListView();
+  void removeListColumnsAll();
+  void removeListRowsAll();
   void showTreeItem();
   void updateTreeItem(int row, const QStringList &data);
 

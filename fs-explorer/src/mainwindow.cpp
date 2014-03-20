@@ -76,6 +76,7 @@ void MainWindow::exportDir()
 void MainWindow::closeFile()
 {
   removeTreeView();
+  removeListView();
 
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
@@ -516,6 +517,26 @@ void MainWindow::removeTreeRowsAll()
 {
   QModelIndex index = treeModel->index(0, 0);
   QAbstractItemModel *model = treeView->model();
+  model->removeRows(0, model->rowCount(), index);
+}
+
+void MainWindow::removeListView()
+{
+  removeListColumnsAll();
+  removeListRowsAll();
+}
+
+void MainWindow::removeListColumnsAll()
+{
+  QModelIndex index = listModel->index(0, 0);
+  QAbstractItemModel *model = listView->model();
+  model->removeColumns(0, model->columnCount(), index);
+}
+
+void MainWindow::removeListRowsAll()
+{
+  QModelIndex index = listModel->index(0, 0);
+  QAbstractItemModel *model = listView->model();
   model->removeRows(0, model->rowCount(), index);
 }
 
