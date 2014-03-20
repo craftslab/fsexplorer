@@ -266,7 +266,8 @@ void MainWindow::createWidgets()
   listView->setCurrentIndex(listIndex);
   listView->setHeaderHidden(false);
   listView->setColumnHidden(listModel->columnCount() - 1, true);
-  for (int column = 0; column < listModel->columnCount(); ++column) {
+  listView->setColumnWidth(0, 192);
+  for (int column = 1; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 

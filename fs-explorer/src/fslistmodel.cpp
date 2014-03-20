@@ -54,6 +54,8 @@ int FsListModel::columnCount(const QModelIndex & /* parent */) const
 
 QVariant FsListModel::data(const QModelIndex &index, int role) const
 {
+  static int maxWidth = 0, maxHeight = 0;
+
   if (!index.isValid()) {
     return QVariant();
   }
@@ -71,7 +73,18 @@ QVariant FsListModel::data(const QModelIndex &index, int role) const
       }
     }
   } else if (role == Qt::SizeHintRole) {
-    return QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+    int width = item->data(index.column()).toString().size();
+    maxWidth = width > maxWidth ? width : maxWidth;
+
+    int height;
+    if (item->data(columnCount() - 1) == FT_DIR) {
+      height = QPixmap(":/images/folder.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).height();
+    } else {
+      height = QPixmap(":/images/file.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation).height();
+    }
+    maxHeight = height > maxHeight ? height : maxHeight;
+
+    return QSize(maxWidth, maxHeight);
   }
 
   return QVariant();
