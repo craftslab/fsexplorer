@@ -493,6 +493,12 @@ void MainWindow::insertTreeRow(const QStringList &data)
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
 
+  if (model->columnCount(index.parent()) == 0) {
+    if (!model->insertColumns(0, treeHeader.size(), index.parent())) {
+      return;
+    }
+  }
+
   if (!model->insertRow(index.row()+1, index.parent())) {
     return;
   }
