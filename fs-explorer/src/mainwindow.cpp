@@ -75,8 +75,8 @@ void MainWindow::exportDir()
 
 void MainWindow::closeFile()
 {
-  removeTreeView();
-  removeListView();
+  removeTreeAll();
+  removeListAll();
 
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
@@ -138,7 +138,7 @@ void MainWindow::doubleClickListItem()
 
 void MainWindow::syncListItem(unsigned long long ino)
 {
-  removeListView();
+  removeListAll();
   updateListItem(ino);
 }
 
@@ -250,7 +250,6 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createWidgets()
 {
-  QStringList treeHeader;
   treeHeader << tr("Name");
 
   treeModel = new FsTreeModel(treeHeader);
@@ -266,7 +265,6 @@ void MainWindow::createWidgets()
     treeView->resizeColumnToContents(column);
   }
 
-  QStringList listHeader;
   listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed")
              << tr("Type");
 
@@ -546,13 +544,12 @@ void MainWindow::insertListRow(const QStringList &data)
   }
 }
 
-void MainWindow::removeTreeView()
+void MainWindow::removeTreeAll()
 {
   mapTreeInoExpand.clear();
   mapTreeNameIno.clear();
 
   removeTreeColumnsAll();
-  removeTreeRowsAll();
 }
 
 void MainWindow::removeTreeColumnsAll()
@@ -569,10 +566,9 @@ void MainWindow::removeTreeRowsAll()
   model->removeRows(0, model->rowCount(), index);
 }
 
-void MainWindow::removeListView()
+void MainWindow::removeListAll()
 {
   removeListColumnsAll();
-  removeListRowsAll();
 }
 
 void MainWindow::removeListColumnsAll()

@@ -94,10 +94,10 @@ private:
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
   void insertListRow(const QStringList &data);
-  void removeTreeView();
+  void removeTreeAll();
   void removeTreeColumnsAll();
   void removeTreeRowsAll();
-  void removeListView();
+  void removeListAll();
   void removeListColumnsAll();
   void removeListRowsAll();
 
@@ -136,8 +136,11 @@ private:
   FsEngine *fsEngine;
   QString fsPath;
 
+  QStringList treeHeader;
   QMap<QVariant, unsigned long long> mapTreeNameIno;
   QMap<unsigned long long, bool> mapTreeInoExpand;
+
+  QStringList listHeader;
 
   QMutex mutex;
 };
