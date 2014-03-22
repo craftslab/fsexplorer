@@ -494,8 +494,15 @@ void MainWindow::insertTreeRow(const QStringList &data)
   QAbstractItemModel *model = treeView->model();
 
   if (model->columnCount(index.parent()) == 0) {
-    if (!model->insertColumns(0, treeHeader.size(), index.parent())) {
+    bool ret = model->insertColumns(0, treeHeader.size(), index.parent());
+    if (!ret) {
       return;
+    }
+
+    for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+      if (!model->headerData(column, Qt::Horizontal).isValid()) {
+        model->setHeaderData(column, Qt::Horizontal, treeHeader.at(column), Qt::DisplayRole);
+      }
     }
   }
 
@@ -541,8 +548,15 @@ void MainWindow::insertListRow(const QStringList &data)
   QAbstractItemModel *model = listView->model();
 
   if (model->columnCount(index.parent()) == 0) {
-    if (!model->insertColumns(0, listHeader.size(), index.parent())) {
+    bool ret = model->insertColumns(0, listHeader.size(), index.parent());
+    if (!ret) {
       return;
+    }
+
+    for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+      if (!model->headerData(column, Qt::Horizontal).isValid()) {
+        model->setHeaderData(column, Qt::Horizontal, listHeader.at(column), Qt::DisplayRole);
+      }
     }
   }
 
