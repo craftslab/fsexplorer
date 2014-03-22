@@ -534,6 +534,12 @@ void MainWindow::insertListRow(const QStringList &data)
   QModelIndex index = listView->selectionModel()->currentIndex();
   QAbstractItemModel *model = listView->model();
 
+  if (model->columnCount(index.parent()) == 0) {
+    if (!model->insertColumns(0, listHeader.size(), index.parent())) {
+      return;
+    }
+  }
+
   if (!model->insertRow(index.row()+1, index.parent())) {
     return;
   }
