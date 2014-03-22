@@ -117,27 +117,53 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
-void MainWindow::pressTreeItem()
+void MainWindow::pressTreeItem(QModelIndex index)
 {
-  showTreeItem();
+  QAbstractItemModel *model = treeView->model();
+  QVariant data = model->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapTreeNameIno[data.toString()];
+
+  if (!mapTreeInoExpand[ino]) {
+    updateTreeItem(ino);
+  }
+
+  treeView->setCurrentIndex(index);
+  treeView->expand(index);
+
+  emit syncList(index);
 }
 
-void MainWindow::syncTreeItem(unsigned long long ino)
+void MainWindow::syncTreeItem(QModelIndex index)
 {
-  ino = ino;
+  index = index;
 }
 
-void MainWindow::clickListItem()
+void MainWindow::clickListItem(QModelIndex index)
 {
+  index = index;
 }
 
-void MainWindow::doubleClickListItem()
+void MainWindow::doubleClickListItem(QModelIndex index)
 {
-  showListItem();
+  QAbstractItemModel *model = listView->model();
+  QVariant data = model->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapListNameIno[data.toString()];
+
+  if (mapListInoType[ino] != FT_DIR) {
+    return;
+  }
+
+  removeListAll();
+  updateListItem(ino);
+
+  emit syncTree(index);
 }
 
-void MainWindow::syncListItem(unsigned long long ino)
+void MainWindow::syncListItem(QModelIndex index)
 {
+  QVariant data = treeModel->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapTreeNameIno[data.toString()];
+
   removeListAll();
   updateListItem(ino);
 }
@@ -335,12 +361,13 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem()));
-  connect(this, SIGNAL(sync(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
+  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
 
-  connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem()));
-  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem()));
-  connect(this, SIGNAL(sync(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
+  connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
+  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
+
+  connect(this, SIGNAL(syncTree(QModelIndex)), this, SLOT(syncTreeItem(QModelIndex)));
+  connect(this, SIGNAL(syncList(QModelIndex)), this, SLOT(syncListItem(QModelIndex)));
 }
 
 void MainWindow::loadFile(QString &name)
@@ -410,7 +437,7 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
 
-  mapTreeNameIno[name] = ino;
+  mapTreeNameIno[QString(name)] = ino;
 }
 
 void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list)
@@ -434,7 +461,7 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
     stringList << tr("%1").arg(child.d_name);
     insertTreeChild(stringList, index);
 
-    mapTreeNameIno[child.d_name] = child.d_ino;
+    mapTreeNameIno[QString(child.d_name)] = child.d_ino;
     mapTreeInoExpand[child.d_ino] = false;
   }
 
@@ -453,6 +480,9 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
                << tr("%1").arg(child.d_type);
 
     insertListRow(stringList);
+
+    mapListNameIno[QString(child.d_name)] = child.d_ino;
+    mapListInoType[child.d_ino] = child.d_type;
   }
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
@@ -463,32 +493,11 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
   }
 }
 
-void MainWindow::showTreeItem()
+void MainWindow::updateTreeItem(unsigned long long ino)
 {
-  QAbstractItemModel *model = treeView->model();
-  QModelIndex index = treeView->selectionModel()->currentIndex();
-  QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapTreeNameIno[data];
-
-  if (!mapTreeInoExpand[ino]) {
     QList<struct fs_dirent> fileList;
     createFileList(ino, fileList);
     createTreeItem(ino, fileList);
-  }
-
-  treeView->setCurrentIndex(index);
-  treeView->expand(index);
-
-  emit sync(ino);
-}
-
-void MainWindow::showListItem()
-{
-}
-
-void MainWindow::updateTreeItem(unsigned long long ino)
-{
-  ino = ino;
 }
 
 void MainWindow::updateListItem(unsigned long long ino)
@@ -604,6 +613,9 @@ void MainWindow::removeTreeRowsAll()
 
 void MainWindow::removeListAll()
 {
+  mapListNameIno.clear();
+  mapListInoType.clear();
+
   removeListColumnsAll();
 }
 

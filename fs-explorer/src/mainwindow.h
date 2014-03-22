@@ -51,7 +51,8 @@ public:
 
 signals:
   void mounted(bool status);
-  void sync(unsigned long long ino);
+  void syncTree(QModelIndex index);
+  void syncList(QModelIndex index);
 
 protected:
   void closeEvent(QCloseEvent *event);
@@ -66,12 +67,12 @@ private slots:
   void about();
   void showWidgets(bool show);
 
-  void pressTreeItem();
-  void syncTreeItem(unsigned long long ino);
+  void pressTreeItem(QModelIndex index);
+  void syncTreeItem(QModelIndex index);
 
-  void clickListItem();
-  void doubleClickListItem();
-  void syncListItem(unsigned long long ino);
+  void clickListItem(QModelIndex index);
+  void doubleClickListItem(QModelIndex index);
+  void syncListItem(QModelIndex index);
 
 private:
   void createActions();
@@ -87,8 +88,6 @@ private:
   void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list);
   void createListItem(const QList<struct fs_dirent> &list);
-  void showTreeItem();
-  void showListItem();
   void updateTreeItem(unsigned long long ino);
   void updateListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
@@ -139,8 +138,11 @@ private:
   QStringList treeHeader;
   QStringList listHeader;
 
-  QMap<QVariant, unsigned long long> mapTreeNameIno;
+  QMap<QString, unsigned long long> mapTreeNameIno;
+  QMap<QString, unsigned long long> mapListNameIno;
+
   QMap<unsigned long long, bool> mapTreeInoExpand;
+  QMap<unsigned long long, libfs_ftype> mapListInoType;
 
   int columnWidth;
 
