@@ -104,8 +104,8 @@ private:
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
   FsTreeModel *treeModel;
-  QTreeView *treeView;
   FsListModel *listModel;
+  QTreeView *treeView;
   QTreeView *listView;
   QTextEdit *outputView;
   QSplitter *vertSplitter;
@@ -137,10 +137,12 @@ private:
   QString fsPath;
 
   QStringList treeHeader;
+  QStringList listHeader;
+
   QMap<QVariant, unsigned long long> mapTreeNameIno;
   QMap<unsigned long long, bool> mapTreeInoExpand;
 
-  QStringList listHeader;
+  int columnWidth;
 
   QMutex mutex;
 };

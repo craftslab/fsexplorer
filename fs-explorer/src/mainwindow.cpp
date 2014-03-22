@@ -277,7 +277,10 @@ void MainWindow::createWidgets()
   listView->setCurrentIndex(listIndex);
   listView->setHeaderHidden(false);
   listView->setColumnHidden(listModel->columnCount() - 1, true);
-  listView->setColumnWidth(0, 192);
+
+  columnWidth = 192;
+  listView->setColumnWidth(0, columnWidth);
+
   for (int column = 1; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
@@ -450,6 +453,13 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
                << tr("%1").arg(child.d_type);
 
     insertListRow(stringList);
+  }
+
+  listView->setColumnHidden(listModel->columnCount() - 1, true);
+  listView->setColumnWidth(0, columnWidth);
+
+  for (int column = 1; column < listModel->columnCount(); ++column) {
+    listView->resizeColumnToContents(column);
   }
 }
 
