@@ -543,13 +543,13 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
 
 void MainWindow::updateTreeItem(unsigned long long ino)
 {
-    fileDentList.clear();
-    createFileDentList(ino, fileDentList);
+  fileDentList.clear();
+  createFileDentList(ino, fileDentList);
 
-    fileStatList.clear();
-    createFileStatList(fileDentList, fileStatList);
+  fileStatList.clear();
+  createFileStatList(fileDentList, fileStatList);
 
-    createTreeItem(ino, fileDentList);
+  createTreeItem(ino, fileDentList);
 }
 
 void MainWindow::updateListItem(unsigned long long ino)
