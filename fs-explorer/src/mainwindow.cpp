@@ -96,6 +96,14 @@ void MainWindow::console()
   consoleWindow->show();
 }
 
+void MainWindow::goHome()
+{
+}
+
+void MainWindow::goUp()
+{
+}
+
 void MainWindow::about()
 {
   AboutDialog *aboutDialog = new AboutDialog(tr("1.00"), this);
@@ -223,6 +231,20 @@ void MainWindow::createActions()
   consoleAction->setEnabled(false);
   connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
+  homeAction = new QAction(tr("Ho&me"), this);
+  homeAction->setIcon(QIcon(":/images/home.png"));
+  homeAction->setShortcut(QKeySequence(tr("Ctrl+M")));
+  homeAction->setStatusTip(tr("Go home"));
+  homeAction->setEnabled(false);
+  connect(homeAction, SIGNAL(triggered()), this, SLOT(goHome()));
+
+  upAction = new QAction(tr("&Up"), this);
+  upAction->setIcon(QIcon(":/images/up.png"));
+  upAction->setShortcut(QKeySequence(tr("Ctrl+U")));
+  upAction->setStatusTip(tr("Go up"));
+  upAction->setEnabled(false);
+  connect(upAction, SIGNAL(triggered()), this, SLOT(goUp()));
+
   aboutAction = new QAction(tr("&About"), this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -243,6 +265,10 @@ void MainWindow::createMenus()
   optionsMenu = menuBar()->addMenu(tr("&Options"));
   optionsMenu->addAction(statsAction);
   optionsMenu->addAction(consoleAction);
+
+  goMenu = menuBar()->addMenu(tr("&Go"));
+  goMenu->addAction(homeAction);
+  goMenu->addAction(upAction);
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
@@ -266,6 +292,14 @@ void MainWindow::createToolBars()
   optionsToolBar->addAction(statsAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addSeparator();
+
+  goToolBar = addToolBar(tr("Go"));
+  goToolBar->setFloatable(false);
+  goToolBar->setMovable(false);
+  goToolBar->setIconSize(QSize(16, 16));
+  goToolBar->addAction(homeAction);
+  goToolBar->addAction(upAction);
+  goToolBar->addSeparator();
 }
 
 void MainWindow::createStatusBar()
@@ -357,8 +391,10 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
+  // TODO: connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
   connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));

@@ -62,8 +62,10 @@ private slots:
   void importDir();
   void exportDir();
   void closeFile();
-  void console();
   void stats();
+  void console();
+  void goHome();
+  void goUp();
   void about();
   void showWidgets(bool show);
 
@@ -114,10 +116,12 @@ private:
 
   QMenu *fileMenu;
   QMenu *optionsMenu;
+  QMenu *goMenu;
   QMenu *helpMenu;
 
   QToolBar *fileToolBar;
   QToolBar *optionsToolBar;
+  QToolBar *goToolBar;
 
   QAction *openAction;
   QAction *importAction;
@@ -126,6 +130,8 @@ private:
   QAction *exitAction;
   QAction *consoleAction;
   QAction *statsAction;
+  QAction *homeAction;
+  QAction *upAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
 
