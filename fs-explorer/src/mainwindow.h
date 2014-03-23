@@ -84,7 +84,7 @@ private:
   void createWidgets();
   void createConnections();
   void loadFile(QString &name);
-  void setOutput(const QString &text);
+  void setOutput(const QString &text) const;
 
   void createFileList(unsigned long long ino, QList<struct fs_dirent> &list);
   void createTreeRoot(const char *name, unsigned long long ino);
@@ -101,6 +101,8 @@ private:
   void removeListAll();
   void removeListColumnsAll();
   void removeListRowsAll();
+
+  void showFileStat(unsigned long long ino) const;
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;

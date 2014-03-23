@@ -248,6 +248,16 @@ struct fs_dirent FsEngine::getFileChilds(unsigned int index) const
   return fileChilds[index];
 }
 
+struct fs_kstat FsEngine::getFileStat(unsigned long long ino) const
+{
+  struct fs_kstat ret;
+
+  memset((void *)&ret, 0, sizeof(struct fs_kstat));
+  (void)fileOpt->stat(ino, &ret);
+
+  return ret;
+}
+
 bool FsEngine::loadLibrary()
 {
   fs_opt_init_t optHandle;

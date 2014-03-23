@@ -148,7 +148,11 @@ void MainWindow::syncTreeItem(QModelIndex index)
 
 void MainWindow::clickListItem(QModelIndex index)
 {
-  index = index;
+  QAbstractItemModel *model = listView->model();
+  QVariant data = model->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapListNameIno[data.toString()];
+
+  showFileStat(ino);
 }
 
 void MainWindow::doubleClickListItem(QModelIndex index)
@@ -423,8 +427,8 @@ void MainWindow::loadFile(QString &name)
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
     text.append(tr("mount filesystem successfully.\n\n"));
-    text.append(tr("name: %1\n").arg(name));
-    text.append(tr("type: %1\n").arg(fsEngine->getFileType()));
+    text.append(tr("name : %1\n").arg(name));
+    text.append(tr("type : %1\n").arg(fsEngine->getFileType()));
     setOutput(text);
 
     status = true;
@@ -436,7 +440,7 @@ void MainWindow::loadFile(QString &name)
   emit mounted(status);
 }
 
-void MainWindow::setOutput(const QString &text)
+void MainWindow::setOutput(const QString &text) const
 {
   if (outputView) {
     outputView->clear();
@@ -665,4 +669,23 @@ void MainWindow::removeListRowsAll()
   QModelIndex index = listModel->index(0, 0);
   QAbstractItemModel *model = listView->model();
   model->removeRows(0, model->rowCount(), index);
+}
+
+void MainWindow::showFileStat(unsigned long long ino) const
+{
+  struct fs_kstat fileStat = fsEngine->getFileStat(ino);
+
+  QString text =  QObject::tr("inode   : %1\n").arg(fileStat.ino);
+  text.append(tr("mode    : %1\n").arg(fileStat.mode));
+  text.append(tr("nlink   : %1\n").arg(fileStat.nlink));
+  text.append(tr("uid     : %1\n").arg(fileStat.uid));
+  text.append(tr("gid     : %1\n").arg(fileStat.gid));
+  text.append(tr("size    : %1\n").arg(fileStat.size));
+  text.append(tr("atime   : sec %1 nsec %2\n").arg(fileStat.atime.tv_sec).arg(fileStat.atime.tv_nsec));
+  text.append(tr("mtime   : sec %1 nsec %2\n").arg(fileStat.mtime.tv_sec).arg(fileStat.mtime.tv_nsec));
+  text.append(tr("ctime   : sec %1 nsec %2\n").arg(fileStat.ctime.tv_sec).arg(fileStat.ctime.tv_nsec));
+  text.append(tr("blksize : %1\n").arg(fileStat.blksize));
+  text.append(tr("blocks  : %1\n").arg(fileStat.blocks));
+
+  setOutput(text);
 }

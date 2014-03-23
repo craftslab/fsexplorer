@@ -44,6 +44,7 @@ public:
   void deinitFileChilds();
   unsigned int getFileChildsNum() const;
   struct fs_dirent getFileChilds(unsigned int index) const;
+  struct fs_kstat getFileStat(unsigned long long ino) const;
 
 private:
   bool loadLibrary();
