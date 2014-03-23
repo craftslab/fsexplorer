@@ -552,13 +552,13 @@ void MainWindow::insertTreeRow(const QStringList &data)
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QAbstractItemModel *model = treeView->model();
 
-  if (model->columnCount(index.parent()) == 0) {
+  if (model->columnCount() == 0) {
     bool ret = model->insertColumns(0, treeHeader.size(), index.parent());
     if (!ret) {
       return;
     }
 
-    for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+    for (int column = 0; column < model->columnCount(); ++column) {
       if (!model->headerData(column, Qt::Horizontal).isValid()) {
         model->setHeaderData(column, Qt::Horizontal, treeHeader.at(column), Qt::DisplayRole);
       }
@@ -569,7 +569,7 @@ void MainWindow::insertTreeRow(const QStringList &data)
     return;
   }
 
-  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+  for (int column = 0; column < model->columnCount(); ++column) {
     QModelIndex child = model->index(index.row()+1, column, index.parent());
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
@@ -579,7 +579,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
 {
   QAbstractItemModel *model = treeView->model();
 
-  if (model->columnCount(parent) == 0) {
+  if (model->columnCount() == 0) {
     if (!model->insertColumn(0, parent)) {
       return;
     }
@@ -589,7 +589,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
     return;
   }
 
-  for (int column = 0; column < model->columnCount(parent); ++column) {
+  for (int column = 0; column < model->columnCount(); ++column) {
     QModelIndex child = model->index(0, column, parent);
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
@@ -606,13 +606,13 @@ void MainWindow::insertListRow(const QStringList &data)
   QModelIndex index = listView->selectionModel()->currentIndex();
   QAbstractItemModel *model = listView->model();
 
-  if (model->columnCount(index.parent()) == 0) {
+  if (model->columnCount() == 0) {
     bool ret = model->insertColumns(0, listHeader.size(), index.parent());
     if (!ret) {
       return;
     }
 
-    for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+    for (int column = 0; column < model->columnCount(); ++column) {
       if (!model->headerData(column, Qt::Horizontal).isValid()) {
         model->setHeaderData(column, Qt::Horizontal, listHeader.at(column), Qt::DisplayRole);
       }
@@ -623,7 +623,7 @@ void MainWindow::insertListRow(const QStringList &data)
     return;
   }
 
-  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
+  for (int column = 0; column < model->columnCount(); ++column) {
     QModelIndex child = model->index(index.row()+1, column, index.parent());
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
