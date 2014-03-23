@@ -291,7 +291,6 @@ void MainWindow::createToolBars()
   optionsToolBar->setIconSize(QSize(16, 16));
   optionsToolBar->addAction(statsAction);
   optionsToolBar->addAction(consoleAction);
-  optionsToolBar->addSeparator();
 
   goToolBar = addToolBar(tr("Go"));
   goToolBar->setFloatable(false);
@@ -299,7 +298,6 @@ void MainWindow::createToolBars()
   goToolBar->setIconSize(QSize(16, 16));
   goToolBar->addAction(homeAction);
   goToolBar->addAction(upAction);
-  goToolBar->addSeparator();
 }
 
 void MainWindow::createStatusBar()
@@ -668,16 +666,3 @@ void MainWindow::removeListRowsAll()
   QAbstractItemModel *model = listView->model();
   model->removeRows(0, model->rowCount(), index);
 }
-
-#if 0 // DISUSE here
-void MainWindow::updateTreeItem(int row, const QStringList &data)
-{
-  QModelIndex index = treeModel->index(0, 0);
-  QAbstractItemModel *model = treeView->model();
-
-  for (int column = 0; column < model->columnCount(index.parent()); ++column) {
-    QModelIndex child = model->index(row, column, index.parent());
-    model->setData(child, QVariant(data[column]), Qt::DisplayRole);
-  }
-}
-#endif
