@@ -420,11 +420,15 @@ void MainWindow::loadFile(QString &name)
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
 
-    QList<struct fs_dirent> fileList;
-    createFileList(treeRoot.d_ino, fileList);
+    fileDentList.clear();
+    createFileDentList(treeRoot.d_ino, fileDentList);
+
+    fileStatList.clear();
+    createFileStatList(fileDentList, fileStatList);
+
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
-    createTreeItem(treeRoot.d_ino, fileList);
-    createListItem(fileList);
+    createTreeItem(treeRoot.d_ino, fileDentList);
+    createListItem(fileDentList);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -450,7 +454,7 @@ void MainWindow::setOutput(const QString &text) const
   }
 }
 
-void MainWindow::createFileList(unsigned long long ino, QList<struct fs_dirent> &list)
+void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
 {
   fsEngine->initFileChilds(ino);
 
@@ -466,6 +470,10 @@ void MainWindow::createFileList(unsigned long long ino, QList<struct fs_dirent> 
   }
 
   fsEngine->deinitFileChilds();
+}
+
+void MainWindow::createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList)
+{
 }
 
 void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
@@ -535,16 +543,24 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &list)
 
 void MainWindow::updateTreeItem(unsigned long long ino)
 {
-    QList<struct fs_dirent> fileList;
-    createFileList(ino, fileList);
-    createTreeItem(ino, fileList);
+    fileDentList.clear();
+    createFileDentList(ino, fileDentList);
+
+    fileStatList.clear();
+    createFileStatList(fileDentList, fileStatList);
+
+    createTreeItem(ino, fileDentList);
 }
 
 void MainWindow::updateListItem(unsigned long long ino)
 {
-  QList<struct fs_dirent> fileList;
-  createFileList(ino, fileList);
-  createListItem(fileList);
+  fileDentList.clear();
+  createFileDentList(ino, fileDentList);
+
+  fileStatList.clear();
+  createFileStatList(fileDentList, fileStatList);
+
+  createListItem(fileDentList);
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)
@@ -675,7 +691,21 @@ void MainWindow::removeListRowsAll()
 
 void MainWindow::showFileStat(unsigned long long ino) const
 {
-  struct fs_kstat fileStat = fsEngine->getFileStat(ino);
+  struct fs_kstat fileStat;
+  bool found = false;
+
+  memset((void *)&fileStat, 0, sizeof(struct fs_kstat));
+
+  for (int i = 0; i < fileStatList.size(); ++i) {
+   if (fileStatList.at(i).ino == ino) {
+     found = true;
+     break;
+   }
+  }
+
+  if (!found) {
+    return;
+  }
 
   QString text =  QObject::tr("inode   : %1\n").arg(fileStat.ino);
   text.append(tr("mode    : %1\n").arg(fileStat.mode));
