@@ -168,6 +168,8 @@ void MainWindow::doubleClickListItem(QModelIndex index)
   removeListAll();
   updateListItem(ino);
 
+  showFileStat(ino);
+
   emit syncTree(index);
 }
 
