@@ -46,9 +46,9 @@
  * Macro Definition
  */
 #ifdef CMAKE_COMPILER_IS_GNUCC
-#define LIB_NAME "libfs.so"
+#define LIB_NAME "libyafuse2.so"
 #else
-#define LIB_NAME "libfs.dll"
+#define LIB_NAME "libyafuse2.dll"
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*

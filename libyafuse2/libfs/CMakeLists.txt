@@ -29,23 +29,30 @@ add_subdirectory(test)
 #
 # Generate the library
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-add_library(fs
+add_library(${YF_LIB_LIBYAFUSE2}
   SHARED
   ${YF_DIR_LIBFS}
   )
-else (CMAKE_COMPILER_IS_GNUCC)
-add_library(libfs
-  SHARED
-  ${YF_DIR_LIBFS}
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
+# Add the dependency
+#
+add_dependencies(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBIO})
+add_dependencies(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBEXT4})
+add_dependencies(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBFAT})
 
 #
 # Linke the library
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(fs dl)
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBIO})
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBEXT4})
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBFAT})
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} dl)
+else (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBIO})
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBEXT4})
+  target_link_libraries(${YF_LIB_LIBYAFUSE2} ${YF_LIB_LIBFAT})
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
@@ -60,18 +67,9 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Add the install targets
 #
-if (CMAKE_COMPILER_IS_GNUCC)
 install(
-  TARGETS fs
+  TARGETS ${YF_LIB_LIBYAFUSE2}
   ARCHIVE DESTINATION ${YF_LIBDIR}
   LIBRARY DESTINATION ${YF_LIBDIR}
   COMPONENT library
   )
-else (CMAKE_COMPILER_IS_GNUCC)
-install(
-  TARGETS libfs
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)

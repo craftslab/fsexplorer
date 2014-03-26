@@ -24,7 +24,7 @@ aux_source_directory(. YF_DIR_LIBIO)
 #
 # Generate the library
 #
-add_library(io
+add_library(${YF_LIB_LIBIO}
   STATIC
   ${YF_DIR_LIBIO}
   )
@@ -32,4 +32,4 @@ add_library(io
 #
 # Linke the library
 #
-#target_link_libraries(io m)
+#target_link_libraries(${YF_LIB_LIBIO} m)

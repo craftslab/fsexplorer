@@ -250,9 +250,11 @@ struct file_operations {
   int32_t (*release) (struct inode *, struct file *);
 };
 
+typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *type, int32_t flags);
+
 /*
  * Function Declaration
  */
-typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *type, int32_t flags);
+struct file_system_type* fs_file_system_type_init_ext4(const char *type, int32_t flags);
 
 #endif /* _FS_H */

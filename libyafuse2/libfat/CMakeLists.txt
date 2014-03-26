@@ -27,26 +27,24 @@ aux_source_directory(. YF_DIR_LIBFAT)
 #
 # Generate the library
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-add_library(fat
-  SHARED
+add_library(${YF_LIB_LIBFAT}
+  STATIC
   ${YF_DIR_LIBFAT}
   )
-else (CMAKE_COMPILER_IS_GNUCC)
-add_library(libfat
-  SHARED
-  ${YF_DIR_LIBFAT}
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
+# Add the dependency
+#
+add_dependencies(${YF_LIB_LIBFAT} ${YF_LIB_LIBIO})
 
 #
 # Linke the library
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(fat m)
-  target_link_libraries(fat io)
+  target_link_libraries(${YF_LIB_LIBFAT} m)
+  target_link_libraries(${YF_LIB_LIBFAT} ${YF_LIB_LIBIO})
 else (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(libfat io)
+  target_link_libraries(${YF_LIB_LIBFAT} ${YF_LIB_LIBIO})
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
@@ -61,18 +59,9 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Add the install targets
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-install(
-  TARGETS fat
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )
-else (CMAKE_COMPILER_IS_GNUCC)
-install(
-  TARGETS libfat
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)
+#install(
+#  TARGETS ${YF_LIB_LIBFAT}
+#  ARCHIVE DESTINATION ${YF_LIBDIR}
+#  LIBRARY DESTINATION ${YF_LIBDIR}
+#  COMPONENT library
+#  )

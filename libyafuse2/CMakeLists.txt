@@ -86,10 +86,20 @@ configure_file(
 #
 # Add source directory
 #
+set(YF_LIB_LIBIO "io")
+set(YF_LIB_LIBEXT4 "ext4")
+set(YF_LIB_LIBFAT "fat")
+
+if (CMAKE_COMPILER_IS_GNUCC)
+  set(YF_LIB_LIBYAFUSE2 "yafuse2")
+else (CMAKE_COMPILER_IS_GNUCC)
+  set(YF_LIB_LIBYAFUSE2 "libyafuse2")
+endif (CMAKE_COMPILER_IS_GNUCC)
+
 aux_source_directory(. YF_DIR)
 
 add_subdirectory(include)
 add_subdirectory(libio)
-add_subdirectory(libfs)
 add_subdirectory(libext4)
 add_subdirectory(libfat)
+add_subdirectory(libfs)

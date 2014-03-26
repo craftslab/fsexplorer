@@ -26,12 +26,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-#include <dlfcn.h>  
-#else
-#include <Windows.h>
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
 #ifdef DEBUG
 #define DEBUG_LIBFS_FS
 #endif
@@ -48,21 +42,32 @@
 /*
  * Type Definition
  */
+struct fs_type_list_t {
+  const char *type;
+  fs_file_system_type_init_t handle;
+};
 
 /*
  * Global Variable Definition
  */
-static void *fs_lib_handle = NULL;
+static struct fs_type_list_t fs_type_list[] = {
+  {
+    FS_TYPE_EXT4,
+    fs_file_system_type_init_ext4,
+  },
+
+  {
+    NULL,
+    NULL,
+  },
+};
+
 static struct file_system_type *fs_type = NULL;
 static struct mount fs_mnt;
 
 /*
  * Function Declaration
  */
-static void* fs_load_lib(const char *libname);
-static void* fs_get_sym(void *handle, const char *symbol);
-static int32_t fs_unload_lib(void *handle);
-
 static int32_t fs_imode2ftype(enum libfs_imode imode, enum libfs_ftype *ftype);
 static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent);
 static int32_t fs_traverse_dentry(struct dentry **dentry);
@@ -80,44 +85,6 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dir
 /*
  * Function Definition
  */
-/*
- * Load library
- */
-static void* fs_load_lib(const char *libname)
-{
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  return dlopen(libname, RTLD_LAZY);
-#else
-  return (void *)LoadLibrary(libname);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-}
-
-/*
- * Get symbol in library
- */
-static void* fs_get_sym(void *handle, const char *symbol)
-{
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  return dlsym(handle, symbol);
-#else
-  return (void *)GetProcAddress((HMODULE)handle, (LPCSTR)symbol);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-}
-
-/*
- * Unload library
- */
-static int32_t fs_unload_lib(void *handle)
-{
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  (void)dlclose(handle);
-#else
-  (void)FreeLibrary((HMODULE)handle);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
-  return 0;
-}
-
 /*
  * Get dirent from dentry
  */
@@ -283,28 +250,25 @@ static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struc
  */
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent)
 {
-  char lib_name[FS_LIB_NAME_LEN_MAX] = {0};
   fs_file_system_type_init_t handle = NULL;
   struct dentry *root = NULL;
+  int32_t i, len;
 
   if (!devname || !dirname || !type || !dirent || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  (void)snprintf(lib_name, FS_LIB_NAME_LEN_MAX - 1, "lib%s.so", type);
-#else
-  (void)_snprintf(lib_name, FS_LIB_NAME_LEN_MAX - 1, "lib%s.dll", type);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
+  len = sizeof(fs_type_list) / sizeof(fs_type_list[0]);
 
-  fs_lib_handle = fs_load_lib(lib_name);
-  if (!fs_lib_handle) {
-    goto fs_mount_exit;
+  for (i = 0; i < len; ++i) {
+    if (!memcmp((const void *)type, (const void *)fs_type_list[i].type, strlen(fs_type_list[i].type))) {
+      handle = fs_type_list[i].handle;
+      break;
+    }
   }
 
-  *(void **)(&handle) = fs_get_sym(fs_lib_handle, "fs_file_system_type_init");
   if (!handle) {
-    goto fs_mount_exit;
+    return -1;
   }
 
   fs_type = handle(type, flags);
@@ -336,11 +300,6 @@ fs_mount_exit:
 
   fs_type = NULL;
 
-  if (fs_lib_handle) {
-    (void)fs_unload_lib(fs_lib_handle);
-    fs_lib_handle = NULL;
-  }
-
   return -1;
 }
 
@@ -356,11 +315,6 @@ static int32_t fs_umount(const char *dirname, int32_t flags)
   if (fs_type && fs_type->umount) {
     (void)fs_type->umount(dirname, flags);
     fs_type = NULL;
-  }
-
-  if (fs_lib_handle) {
-    (void)fs_unload_lib(fs_lib_handle);
-    fs_lib_handle = NULL;
   }
 
   memset((void *)&fs_mnt, 0, sizeof(struct mount));

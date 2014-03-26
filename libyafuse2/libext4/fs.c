@@ -911,11 +911,7 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 /*
  * Init filesystem type
  */
-#ifdef CMAKE_COMPILER_IS_GNUCC
-struct file_system_type* fs_file_system_type_init(const char *type, int32_t flags)
-#else
-__declspec(dllexport) struct file_system_type* fs_file_system_type_init(const char *type, int32_t flags)
-#endif /* CMAKE_COMPILER_IS_GNUCC */
+struct file_system_type* fs_file_system_type_init_ext4(const char *type, int32_t flags)
 {
   if (!type) {
     return NULL;

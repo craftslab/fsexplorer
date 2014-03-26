@@ -27,26 +27,24 @@ aux_source_directory(. YF_DIR_LIBEXT4)
 #
 # Generate the library
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-add_library(ext4
-  SHARED
+add_library(${YF_LIB_LIBEXT4}
+  STATIC 
   ${YF_DIR_LIBEXT4}
   )
-else (CMAKE_COMPILER_IS_GNUCC)
-add_library(libext4
-  SHARED
-  ${YF_DIR_LIBEXT4}
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
+# Add the dependency
+#
+add_dependencies(${YF_LIB_LIBEXT4} ${YF_LIB_LIBIO})
 
 #
 # Linke the library
 #
 if (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(ext4 m)
-  target_link_libraries(ext4 io)
+  target_link_libraries(${YF_LIB_LIBEXT4} m)
+  target_link_libraries(${YF_LIB_LIBEXT4} ${YF_LIB_LIBIO})
 else (CMAKE_COMPILER_IS_GNUCC)
-  target_link_libraries(libext4 io)
+  target_link_libraries(${YF_LIB_LIBEXT4} ${YF_LIB_LIBIO})
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
@@ -61,18 +59,9 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 #
 # Add the install targets
 #
-if (CMAKE_COMPILER_IS_GNUCC)
-install(
-  TARGETS ext4
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )
-else (CMAKE_COMPILER_IS_GNUCC)
-install(
-  TARGETS libext4
-  ARCHIVE DESTINATION ${YF_LIBDIR}
-  LIBRARY DESTINATION ${YF_LIBDIR}
-  COMPONENT library
-  )
-endif (CMAKE_COMPILER_IS_GNUCC)
+#install(
+#  TARGETS ${YF_LIB_LIBEXT4}
+#  ARCHIVE DESTINATION ${YF_LIBDIR}
+#  LIBRARY DESTINATION ${YF_LIBDIR}
+#  COMPONENT library
+#  )
