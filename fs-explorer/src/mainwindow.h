@@ -156,7 +156,5 @@ private:
   QMap<unsigned long long, libfs_ftype> mapListInoType;
 
   int columnWidth;
-
-  QMutex mutex;
 };
 #endif

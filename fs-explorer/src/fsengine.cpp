@@ -70,9 +70,9 @@ bool FsEngine::openFile(QString &name)
    * if 'name.toLatin1.data()' is used instead.
    */
   ba = name.toLatin1();
-  dev = (const char*)ba.data();
+  dev = (const char *)ba.data();
 
-  dir = (const char*)"/";
+  dir = (const char *)"/";
   len = sizeof(fileTypeList) / sizeof(const char*);
 
   fileRoot = new fs_dirent;
