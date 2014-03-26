@@ -18,9 +18,6 @@
 
 #include "fsengine.h"
 
-#define LIB_NAME "libfs"
-#define LIB_SYMBOL "fs_opt_init"
-
 static const char* fileTypeList[] = {
   FS_TYPE_EXT4,
   FS_TYPE_FAT,
@@ -262,12 +259,12 @@ bool FsEngine::loadLibrary()
 {
   fs_opt_init_t optHandle;
 
-  fileLib = new QLibrary(LIB_NAME);
+  fileLib = new QLibrary(FS_LIB_NAME);
   if (!fileLib) {
     goto loadLibraryExit;
   }
 
-  optHandle = (fs_opt_init_t)fileLib->resolve(LIB_SYMBOL);
+  optHandle = (fs_opt_init_t)fileLib->resolve(FS_LIB_SYMBOL);
   if (!optHandle) {
     goto loadLibraryExit;
   }

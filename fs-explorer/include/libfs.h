@@ -28,6 +28,9 @@
 /*
  * Macro Definition
  */
+#define FS_LIB_NAME "libyafuse2"
+#define FS_LIB_SYMBOL "fs_opt_init"
+
 #define FS_TYPE_EXT4 "ext4"
 #define FS_TYPE_FAT "fat"
 

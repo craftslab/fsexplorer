@@ -33,7 +33,7 @@ SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
 INCLUDEPATH += ../include
-#unix:LIBS += "-L../install/lib/ -lext4 -lfat"
+#unix:LIBS += "-L../install/lib/ -lyafuse2"
 #win32:LIBS += "-L../install/lib/"
 
 MACH = 64
@@ -52,17 +52,13 @@ contains(MACH, 64) {
 }
 
 unix {
-  inst.files += ../lib$$MACH/unix/libfs.so
-  inst.files += ../lib$$MACH/unix/libext4.so
-  inst.files += ../lib$$MACH/unix/libfat.so
+  inst.files += ../lib$$MACH/unix/libyafuse2.so
   inst.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
   inst.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
 }
 
 win32 {
-  inst.files += ../lib$$MACH/win/libfs.dll
-  inst.files += ../lib$$MACH/win/libext4.dll
-  inst.files += ../lib$$MACH/win/libfat.dll
+  inst.files += ../lib$$MACH/win/libyafuse2.dll
   inst.files += ../lib$$MACH/win/Qt5Core.dll
   inst.files += ../lib$$MACH/win/Qt5Gui.dll
 }
