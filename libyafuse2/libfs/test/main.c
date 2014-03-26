@@ -112,7 +112,19 @@ static void* load_lib(const char *lib_name)
 static void* get_sym(void *handle, const char *symbol)
 {
 #ifdef CMAKE_COMPILER_IS_GNUCC
-  return dlsym(handle, symbol);
+  void *sym = NULL;
+  const char *error = NULL;
+
+  dlerror();
+
+  *(void **)(&sym) = dlsym(handle, symbol);
+
+  error = dlerror();
+  if (error) {
+    return NULL;
+  }
+
+  return sym;
 #else
   return (void *)GetProcAddress((HMODULE)handle, (LPCSTR)symbol);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
