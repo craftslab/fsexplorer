@@ -191,7 +191,7 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  *(void **)(&opt_handle) = get_sym(lib_handle, "fs_opt_init");
+  *(void **)(&opt_handle) = get_sym(lib_handle, FS_LIB_SYMBOL);
   if (!opt_handle) {
     error("get_sym failed!");
     ret = -1;
