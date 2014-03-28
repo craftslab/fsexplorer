@@ -18,6 +18,8 @@
 
 #include "fsengine.h"
 
+#define FS_LIB_NAME "libyafuse2"
+
 static const char* fileTypeList[] = {
   FS_TYPE_EXT4,
   FS_TYPE_FAT,
