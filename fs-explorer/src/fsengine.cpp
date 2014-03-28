@@ -263,26 +263,26 @@ bool FsEngine::loadLibrary()
 
   fileLib = new QLibrary(FS_LIB_NAME);
   if (!fileLib) {
-    goto loadLibraryExit;
+    goto loadLibraryFail;
   }
 
   optHandle = (fs_opt_init_t)fileLib->resolve(FS_LIB_SYMBOL);
   if (!optHandle) {
-    goto loadLibraryExit;
+    goto loadLibraryFail;
   }
 
   fileOpt = new fs_opt_t;
   if (!fileOpt) {
-    goto loadLibraryExit;
+    goto loadLibraryFail;
   }
 
   if (optHandle(fileOpt) != 0) {
-    goto loadLibraryExit;
+    goto loadLibraryFail;
   }
 
   return true;
 
- loadLibraryExit:
+ loadLibraryFail:
 
   unloadLibrary();
 
