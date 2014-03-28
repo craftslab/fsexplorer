@@ -722,6 +722,10 @@ static int32_t fs_fill_super(struct super_block *sb)
 
   list_init(&sb->s_inodes);
   sb->s_root = (struct dentry *)fs_make_root(sb);
+  if (!sb->s_root) {
+    ret = -1;
+    goto fs_fill_super_fail;
+  }
 
   return 0;
 
