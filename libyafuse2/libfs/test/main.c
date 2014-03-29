@@ -277,7 +277,7 @@ int32_t main(int argc, char *argv[])
 main_exit:
 
   if (fs_dirents) {
-    free(fs_dirents);
+    free((void *)fs_dirents);
     fs_dirents = NULL;
   }
 

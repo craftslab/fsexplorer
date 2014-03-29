@@ -105,12 +105,12 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
  ext4_fill_super_info_fail:
 
   if (info->s_group_desc) {
-    free(info->s_group_desc);
+    free((void *)info->s_group_desc);
     info->s_group_desc = NULL;
   }
 
   if (info->s_es) {
-    free(info->s_es);
+    free((void *)info->s_es);
     info->s_es = NULL;
   }
 

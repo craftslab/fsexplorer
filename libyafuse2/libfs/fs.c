@@ -128,9 +128,9 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
   }
 
   len = (int32_t)dentry->d_name->len;
-  len = len >= 255 ? 255 : len;
-  memset((void *)dirent->d_name, 0, sizeof(dirent->d_name));
-  memcpy((void *)dirent->d_name, (void *)dentry->d_name->name, len);
+  len = len > FS_DNAME_LEN - 1 ? FS_DNAME_LEN - 1 : len;
+  memset((void *)dirent->d_name, 0, FS_DNAME_LEN);
+  memcpy((void *)dirent->d_name, (const void *)dentry->d_name->name, len);
 
   dirent->d_childnum = dentry->d_childnum;
 

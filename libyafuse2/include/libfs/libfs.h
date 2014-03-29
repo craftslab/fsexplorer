@@ -33,6 +33,7 @@
 #define FS_TYPE_EXT4 "ext4"
 #define FS_TYPE_FAT "fat"
 
+#define FS_DNAME_LEN 256
 #define FS_DNAME_DOT "."
 #define FS_DNAME_DOTDOT ".."
 
@@ -106,7 +107,7 @@ struct fs_dirent {
   uint16_t         d_reclen;
   uint8_t          padding0[2];
   enum libfs_ftype d_type;
-  char             d_name[256];
+  char             d_name[FS_DNAME_LEN];
   uint32_t         d_childnum;
   uint8_t          padding1[4];
 };
