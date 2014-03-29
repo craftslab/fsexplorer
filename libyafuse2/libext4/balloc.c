@@ -102,6 +102,7 @@ int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg)
   return 1;
 }
 
+#if 0 // DISUSED here
 int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp)
 {
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
@@ -138,3 +139,48 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
 
   return 0;
 }
+#else
+int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4_group_desc *gdp)
+{
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+  int64_t has_super, offset;
+  uint32_t i, j;
+  int32_t ret;
+
+  /*
+   * Ignore the feature of EXT4_FEATURE_INCOMPAT_META_BG
+   * (ext4_super_block: s_first_meta_bg)
+   */
+  // TODO
+
+  for (i = 0; i < bg_cnt; ++i) {
+    if (ext4_bg_has_super(sb, i)) {
+      has_super = 1;
+    }
+
+    offset = has_super + (int64_t)(ext4_group_first_block_no(sb, i));
+    ret = io_seek((int64_t)(offset * sb->s_blocksize));
+    if (ret != 0) {
+      return -1;
+    }
+
+    for (j = 0; j < bg_cnt; ++j) {
+      ret = io_read((uint8_t *)&gdp[j], (int64_t)es->s_desc_size);
+      if (ret != 0) {
+        return -1;
+      }
+    }
+
+    break;
+  }
+
+#ifdef DEBUG_LIBEXT4_BALLOC
+  for (i = 0; i < bg_cnt; ++i) {
+    ext4_show_gdp_stat(es, i, &gdp[i]);
+  }
+#endif
+
+  return 0;
+}
+#endif

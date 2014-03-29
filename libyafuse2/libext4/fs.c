@@ -325,6 +325,7 @@ static void fs_d_release(struct dentry *dentry)
 
   if (dentry) {
     free((void *)dentry);
+    dentry = NULL;
   }
 
   return;
@@ -394,6 +395,7 @@ static void fs_destroy_inode(struct inode *inode)
 
   if (inode) {
     free((void *)inode);
+    inode = NULL;
   }
 }
 

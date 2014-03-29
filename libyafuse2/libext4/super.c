@@ -62,7 +62,6 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
 {
   uint64_t block_size = sb->s_blocksize;
   uint64_t blocks_count = (uint64_t)es->s_blocks_count_hi << 32 | (uint64_t)es->s_blocks_count_lo;
-  ext4_group_t i;
   int32_t ret;
 
   info->s_desc_size = (__le64)es->s_desc_size;
@@ -87,12 +86,19 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   }
   memset((void *)info->s_group_desc, 0, (size_t)(info->s_groups_count * info->s_desc_size));
 
+#if 0 // DISUSED here
   for (i = 0; i < info->s_groups_count; ++i) {
     ret = ext4_raw_group_desc(sb, i, &info->s_group_desc[i]);
     if (ret != 0) {
       goto ext4_fill_super_info_fail;
     }
   }
+#else
+  ret = ext4_raw_group_desc(sb, info->s_groups_count, info->s_group_desc);
+  if (ret != 0) {
+    goto ext4_fill_super_info_fail;
+  }
+#endif
 
   return 0;
 

@@ -65,7 +65,12 @@ int32_t ext4_inode_hdr(struct inode *inode, struct ext4_extent_header *eh);
 int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode);
 
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg);
+
+#if 0 // DISUSED here
 int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp);
+#else
+int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4_group_desc *gdp);
+#endif
 
 int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es, struct ext4_sb_info *info);
 int32_t ext4_raw_super(struct ext4_super_block *es);
