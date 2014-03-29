@@ -629,7 +629,12 @@ static struct dentry* fs_make_root(struct super_block *sb)
   /*
    * Fill in Ext4 dentry
    */
-  ext4_dentries_num = 1;
+  ext4_dentries_num = 0;
+  if (ext4_raw_dentry_num(parent, &ext4_dentries_num) != 0) {
+    ret = NULL;
+    goto fs_make_root_fail;
+  }
+
   ext4_dentries = (struct ext4_dir_entry_2 *)malloc(ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
   if (!ext4_dentries) {
     ret = NULL;
@@ -637,7 +642,7 @@ static struct dentry* fs_make_root(struct super_block *sb)
   }
   memset((void *)ext4_dentries, 0, ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
 
-  if (ext4_raw_dentry(parent, &ext4_dentries, &ext4_dentries_num) != 0) {
+  if (ext4_raw_dentry(parent, ext4_dentries, ext4_dentries_num) != 0) {
     ret = NULL;
     goto fs_make_root_fail;
   }
@@ -856,7 +861,12 @@ static int32_t fs_traverse_dentry(struct dentry **dentry)
   /*
    * Fill in Ext4 dentry
    */
-  ext4_dentries_num = 1;
+  ext4_dentries_num = 0;
+  if (ext4_raw_dentry_num(*dentry, &ext4_dentries_num) != 0) {
+    ret = -1;
+    goto fs_traverse_dentry_fail;
+  }
+
   ext4_dentries = (struct ext4_dir_entry_2 *)malloc(ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
   if (!ext4_dentries) {
     ret = -1;
@@ -864,7 +874,7 @@ static int32_t fs_traverse_dentry(struct dentry **dentry)
   }
   memset((void *)ext4_dentries, 0, ext4_dentries_num * sizeof(struct ext4_dir_entry_2));
 
-  if (ext4_raw_dentry(*dentry, &ext4_dentries, &ext4_dentries_num) != 0) {
+  if (ext4_raw_dentry(*dentry, ext4_dentries, ext4_dentries_num) != 0) {
     ret = -1;
     goto fs_traverse_dentry_fail;
   }
