@@ -384,10 +384,6 @@ static void fs_destroy_inode(struct inode *inode)
     return;
   }
 
-  if (!list_empty(&inode->i_sb_list)) {
-    list_del_init(&inode->i_sb_list);
-  }
-
   if (inode->i_block) {
     free(inode->i_block);
     inode->i_block = NULL;
@@ -416,11 +412,14 @@ static void fs_destroy_inodes(struct super_block *sb)
          child = list_entry(ptr, struct inode, i_sb_list)) {
 #endif
       ptr = child->i_sb_list.next;
+
+      if (!list_empty(&child->i_sb_list)) {
+        list_del_init(&child->i_sb_list);
+      }
+
       sb->s_op->destroy_inode(child);
     }
   }
-
-  list_del_init(&sb->s_inodes);
 }
 
 /*
