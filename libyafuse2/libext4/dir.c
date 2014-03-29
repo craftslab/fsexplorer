@@ -229,7 +229,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
 
 #ifdef DEBUG_LIBEXT4_DIR
-    ext4_show_dentry(&child[i]);
+    ext4_show_dentry(&childs[i]);
 #endif
   }
 
