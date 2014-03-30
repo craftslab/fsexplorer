@@ -55,11 +55,6 @@ static struct fs_type_list_t fs_type_list[] = {
     FS_TYPE_EXT4,
     fs_file_system_type_init_ext4,
   },
-
-  {
-    NULL,
-    NULL,
-  },
 };
 
 static struct file_system_type *fs_type = NULL;
