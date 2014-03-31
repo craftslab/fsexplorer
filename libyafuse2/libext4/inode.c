@@ -108,7 +108,6 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
 
   start = (int64_t)((ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block)) * sb->s_blocksize);
   offset = (int64_t)((inode_offset % inodes_per_block) * es->s_inode_size);
-
   ret = io_seek(start + offset);
   if (ret != 0) {
     return -1;

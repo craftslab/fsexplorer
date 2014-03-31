@@ -138,7 +138,6 @@ int32_t fat_fill_sb(struct fat_super_block *sb)
      * Fill in FAT32 boot fsinfo
      */
     offset = sb->bs.info_sector == 0 ? GET_UNALIGNED_LE16(sb->bs.sector_size) : sb->bs.info_sector * GET_UNALIGNED_LE16(sb->bs.sector_size);
-
     ret = io_seek(offset);
     if (ret != 0) {
       return -1;

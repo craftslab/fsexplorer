@@ -110,14 +110,12 @@ int32_t fat_fill_root_dentries(const struct fat_super_block *sb, int32_t *dentri
   }
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
-
   ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
 
   sz = sizeof(struct msdos_dir_entry);
-
   ret = io_read((uint8_t *)&dentry, sz);
   if (ret != 0) {
     return -1;
@@ -171,7 +169,6 @@ int32_t fat_fill_root_dentry(const struct fat_super_block *sb, int32_t dentries,
   }
 
   offset = root_den_sec * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
-
   ret = io_seek(offset);
   if (ret != 0) {
     return -1;
@@ -216,17 +213,15 @@ int32_t fat_fill_dentries(const struct fat_super_block *sb, int32_t cluster, int
   }
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
-
   ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
 
-  sz = sizeof(struct msdos_dir_entry);
-
   /*
    * Read FAT dentry of '.'
    */
+  sz = sizeof(struct msdos_dir_entry);
   ret = io_read((uint8_t *)&dentry, sz);
   if (ret != 0) {
     return -1;
@@ -278,17 +273,15 @@ int32_t fat_fill_dentry(const struct fat_super_block *sb, int32_t cluster, int32
   }
 
   offset = sector * (int32_t)GET_UNALIGNED_LE16(sb->bs.sector_size);
-
   ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
 
-  sz = sizeof(struct msdos_dir_entry);
-
   /*
    * Fill in dentry of '.'
    */
+  sz = sizeof(struct msdos_dir_entry);
   memset((void *)&dslot[0], 0, (size_t)sz);
 
   ret = io_read((uint8_t *)&dentry[0], sz);

@@ -123,7 +123,6 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
   }
 
   offset = has_super + (int64_t)(ext4_group_first_block_no(sb, bg));
-
   ret = io_seek((int64_t)(offset * sb->s_blocksize));
   if (ret != 0) {
     return -1;
@@ -160,7 +159,6 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
       has_super = 1;
 
       offset = has_super + (int64_t)(ext4_group_first_block_no(sb, i));
-
       ret = io_seek((int64_t)(offset * sb->s_blocksize));
       if (ret != 0) {
         return -1;

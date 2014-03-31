@@ -63,7 +63,6 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   int32_t ret;
 
   dent_offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize + offset;
-
   ret = io_seek(dent_offset);
   if (ret != 0) {
     return -1;
