@@ -123,6 +123,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
   }
 
   offset = has_super + (int64_t)(ext4_group_first_block_no(sb, bg));
+
   ret = io_seek((int64_t)(offset * sb->s_blocksize));
   if (ret != 0) {
     return -1;
@@ -145,7 +146,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
   struct ext4_super_block *es = info->s_es;
   int64_t has_super, offset;
-  uint32_t i, j;
+  uint32_t i;
   int32_t ret;
 
   /*
@@ -157,16 +158,15 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
   for (i = 0; i < bg_cnt; ++i) {
     if (ext4_bg_has_super(sb, i)) {
       has_super = 1;
-    }
 
-    offset = has_super + (int64_t)(ext4_group_first_block_no(sb, i));
-    ret = io_seek((int64_t)(offset * sb->s_blocksize));
-    if (ret != 0) {
-      return -1;
-    }
+      offset = has_super + (int64_t)(ext4_group_first_block_no(sb, i));
 
-    for (j = 0; j < bg_cnt; ++j) {
-      ret = io_read((uint8_t *)&gdp[j], (int64_t)es->s_desc_size);
+      ret = io_seek((int64_t)(offset * sb->s_blocksize));
+      if (ret != 0) {
+        return -1;
+      }
+
+      ret = io_read((uint8_t *)gdp, (int64_t)(es->s_desc_size * bg_cnt));
       if (ret != 0) {
         return -1;
       }

@@ -74,6 +74,12 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
     return -1;
   }
 
+  dent_offset += sizeof(dentry->inode);
+  ret = io_seek(dent_offset);
+  if (ret != 0) {
+    return -1;
+  }
+
   ret = io_read((uint8_t *)&dentry->rec_len, sizeof(dentry->rec_len));
   if (ret != 0) {
     return -1;
@@ -86,6 +92,12 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
 
   len -= (int64_t)(sizeof(dentry->inode) + sizeof(dentry->rec_len));
   if (len <= 0) {
+    return -1;
+  }
+
+  dent_offset += sizeof(dentry->rec_len);
+  ret = io_seek(dent_offset);
+  if (ret != 0) {
     return -1;
   }
 
