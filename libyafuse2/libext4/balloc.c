@@ -168,9 +168,9 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
       if (ret != 0) {
         return -1;
       }
-    }
 
-    break;
+      break;
+    }
   }
 
 #ifdef DEBUG_LIBEXT4_BALLOC
