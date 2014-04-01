@@ -475,6 +475,9 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
 
 void MainWindow::createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList)
 {
+  for (int i = 0; i < dentList.size(); ++i) {
+    statList << fsEngine->getFileStat((unsigned long long)dentList[i].d_ino);
+  }
 }
 
 void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
@@ -692,13 +695,11 @@ void MainWindow::removeListRowsAll()
 
 void MainWindow::showFileStat(unsigned long long ino) const
 {
-  struct fs_kstat fileStat;
+  int i = 0;
   bool found = false;
 
-  memset((void *)&fileStat, 0, sizeof(struct fs_kstat));
-
-  for (int i = 0; i < fileStatList.size(); ++i) {
-   if (fileStatList.at(i).ino == ino) {
+  for (i = 0; i < fileStatList.size(); ++i) {
+   if (fileStatList[i].ino == ino) {
      found = true;
      break;
    }
@@ -708,17 +709,17 @@ void MainWindow::showFileStat(unsigned long long ino) const
     return;
   }
 
-  QString text =  QObject::tr("inode   : %1\n").arg(fileStat.ino);
-  text.append(tr("mode    : %1\n").arg(fileStat.mode));
-  text.append(tr("nlink   : %1\n").arg(fileStat.nlink));
-  text.append(tr("uid     : %1\n").arg(fileStat.uid));
-  text.append(tr("gid     : %1\n").arg(fileStat.gid));
-  text.append(tr("size    : %1\n").arg(fileStat.size));
-  text.append(tr("atime   : sec %1 nsec %2\n").arg(fileStat.atime.tv_sec).arg(fileStat.atime.tv_nsec));
-  text.append(tr("mtime   : sec %1 nsec %2\n").arg(fileStat.mtime.tv_sec).arg(fileStat.mtime.tv_nsec));
-  text.append(tr("ctime   : sec %1 nsec %2\n").arg(fileStat.ctime.tv_sec).arg(fileStat.ctime.tv_nsec));
-  text.append(tr("blksize : %1\n").arg(fileStat.blksize));
-  text.append(tr("blocks  : %1\n").arg(fileStat.blocks));
+  QString text = QObject::tr("inode: %1\n").arg(fileStatList[i].ino);
+  text.append(tr("mode: %1\n").arg(fileStatList[i].mode));
+  text.append(tr("nlink: %1\n").arg(fileStatList[i].nlink));
+  text.append(tr("uid: %1\n").arg(fileStatList[i].uid));
+  text.append(tr("gid: %1\n").arg(fileStatList[i].gid));
+  text.append(tr("size: %1\n").arg(fileStatList[i].size));
+  text.append(tr("atime: sec %1 nsec %2\n").arg(fileStatList[i].atime.tv_sec).arg(fileStatList[i].atime.tv_nsec));
+  text.append(tr("mtime: sec %1 nsec %2\n").arg(fileStatList[i].mtime.tv_sec).arg(fileStatList[i].mtime.tv_nsec));
+  text.append(tr("ctime: sec %1 nsec %2\n").arg(fileStatList[i].ctime.tv_sec).arg(fileStatList[i].ctime.tv_nsec));
+  text.append(tr("blksize: %1\n").arg(fileStatList[i].blksize));
+  text.append(tr("blocks: %1\n").arg(fileStatList[i].blocks));
 
   setOutput(text);
 }
