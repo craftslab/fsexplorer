@@ -496,7 +496,7 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
   QModelIndex index = treeView->selectionModel()->currentIndex();
 
   for (int i = 0; i < list.size(); ++i) {
-    struct fs_dirent child = list.at(i);
+    struct fs_dirent child = list[i];
     if (child.d_type != FT_DIR) {
       continue;
     }
@@ -522,7 +522,7 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
 void MainWindow::createListItem(const QList<struct fs_dirent> &list)
 {
   for (int i = 0; i < list.size(); ++i) {
-    struct fs_dirent child = list.at(i);
+    struct fs_dirent child = list[i];
 
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name) << tr("0") << tr("0") << tr("0")
@@ -577,7 +577,7 @@ void MainWindow::insertTreeRow(const QStringList &data)
 
     for (int column = 0; column < model->columnCount(); ++column) {
       if (!model->headerData(column, Qt::Horizontal).isValid()) {
-        model->setHeaderData(column, Qt::Horizontal, treeHeader.at(column), Qt::DisplayRole);
+        model->setHeaderData(column, Qt::Horizontal, treeHeader[column], Qt::DisplayRole);
       }
     }
   }
@@ -631,7 +631,7 @@ void MainWindow::insertListRow(const QStringList &data)
 
     for (int column = 0; column < model->columnCount(); ++column) {
       if (!model->headerData(column, Qt::Horizontal).isValid()) {
-        model->setHeaderData(column, Qt::Horizontal, listHeader.at(column), Qt::DisplayRole);
+        model->setHeaderData(column, Qt::Horizontal, listHeader[column], Qt::DisplayRole);
       }
     }
   }
