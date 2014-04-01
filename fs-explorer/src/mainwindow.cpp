@@ -42,6 +42,7 @@ MainWindow::MainWindow()
 
   fsEngine = new FsEngine;
   fsPath = QString(QDir::homePath());
+  fsStatus = false;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -61,9 +62,35 @@ void MainWindow::openFile()
   if (name.isEmpty()) {
     return;
   }
-  fsPath = QDir::toNativeSeparators(name);
 
-  loadFile(fsPath);
+  if (fsStatus) {
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText("The fs image has been open!");
+    msgBox.setInformativeText("Do you want to close it?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+    int ret = msgBox.exec();
+    switch (ret) {
+    case QMessageBox::Yes:
+      fsStatus = false;
+      closeFile();
+      break;
+
+    case QMessageBox::No:
+      // Do nothing here
+      break;
+
+    default:
+      // Do nothing here
+      break;
+    }
+  }
+
+  if (!fsStatus) {
+    fsPath = QDir::toNativeSeparators(name);
+    loadFile(fsPath);
+  }
 }
 
 void MainWindow::importDir()
@@ -82,7 +109,9 @@ void MainWindow::closeFile()
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(mainWindowTitle));
 
-  emit mounted(false);
+  fsStatus = false;
+
+  emit mounted(fsStatus);
 }
 
 void MainWindow::stats()
@@ -415,8 +444,6 @@ void MainWindow::createConnections()
 
 void MainWindow::loadFile(QString &name)
 {
-  bool status;
-
   bool ret = fsEngine->openFile(name);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
@@ -440,13 +467,13 @@ void MainWindow::loadFile(QString &name)
     text.append(tr("type : %1\n").arg(fsEngine->getFileType()));
     setOutput(text);
 
-    status = true;
+    fsStatus = true;
   } else {
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
-    status = false;
+    fsStatus = false;
   }
 
-  emit mounted(status);
+  emit mounted(fsStatus);
 }
 
 void MainWindow::setOutput(const QString &text) const

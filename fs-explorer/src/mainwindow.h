@@ -143,6 +143,7 @@ private:
 
   FsEngine *fsEngine;
   QString fsPath;
+  bool fsStatus;
   QList<struct fs_dirent> fileDentList;
   QList<struct fs_kstat> fileStatList;
 
