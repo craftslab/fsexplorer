@@ -99,6 +99,8 @@ void MainWindow::console()
 
 void MainWindow::goHome()
 {
+  QModelIndex treeIndex = treeModel->index(0, 0);
+  pressTreeItem(treeIndex);
 }
 
 void MainWindow::goUp()
