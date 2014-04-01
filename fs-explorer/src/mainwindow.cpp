@@ -19,6 +19,7 @@
 #include "mainwindow.h"
 
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
+static const QString version = QObject::tr("14.04");
 
 #if 0
 static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
@@ -106,7 +107,7 @@ void MainWindow::goUp()
 
 void MainWindow::about()
 {
-  AboutDialog *aboutDialog = new AboutDialog(tr("1.00"), this);
+  AboutDialog *aboutDialog = new AboutDialog(version, this);
   aboutDialog->exec();
 }
 
