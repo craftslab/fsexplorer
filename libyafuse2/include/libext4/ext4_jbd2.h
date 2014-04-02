@@ -16,7 +16,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with libyafuse2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _EXT4_JBD2_H
