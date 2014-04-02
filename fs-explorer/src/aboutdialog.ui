@@ -89,7 +89,7 @@
         <widget class="QLabel" name="mLicense">
          <property name="text">
           <string>This program is licensed under the terms
-of the Apache License version 2.0</string>
+of the GNU Lesser General Public License version 3</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
