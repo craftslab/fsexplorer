@@ -34,6 +34,7 @@ MainWindow::MainWindow()
 {
   setWindowIcon(QPixmap(":/images/icon.png"));
   setWindowTitle(tr("%1").arg(mainWindowTitle));
+  setAcceptDrops(true);
 
   createActions();
   createMenus();
@@ -46,6 +47,42 @@ MainWindow::MainWindow()
   fsEngine = new FsEngine;
   fsPath = QString(QDir::homePath());
   fsStatus = false;
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (event->mimeData()->hasUrls()) {
+    event->acceptProposedAction();
+  }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+  QList<QUrl> list;
+  QString name;
+  QFileInfo info;
+
+  if (!event->mimeData()->hasUrls()) {
+    return;
+  }
+
+  /*
+   * text is dropped if size == 0
+   */
+  list = event->mimeData()->urls();
+  if (list.size() != 1) {
+    return;
+  }
+
+  name = list[0].toLocalFile();
+  info.setFile(name);
+  if (!info.isFile()) {
+    return;
+  }
+
+  fsPath = name;
+
+  event->acceptProposedAction();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
