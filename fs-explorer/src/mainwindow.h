@@ -168,7 +168,5 @@ private:
 
   QMap<unsigned long long, bool> mapTreeInoExpand;
   QMap<unsigned long long, libfs_ftype> mapListInoType;
-
-  int columnWidth;
 };
 #endif

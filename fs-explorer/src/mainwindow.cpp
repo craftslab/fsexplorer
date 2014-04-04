@@ -30,6 +30,9 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" mar
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
 
+static int columnNameWidth = 224;
+static int columnSizeWidth = 96;
+
 MainWindow::MainWindow()
 {
   initSettings();
@@ -441,10 +444,14 @@ void MainWindow::createWidgets()
   /*
    * Set column width of 'Name'
    */
-  columnWidth = 200;
-  listView->setColumnWidth(0, columnWidth);
+  listView->setColumnWidth(0, columnNameWidth);
 
-  for (int column = 1; column < listModel->columnCount(); ++column) {
+  /*
+   * Set column width of 'Size'
+   */
+  listView->setColumnWidth(1, columnSizeWidth);
+
+  for (int column = 2; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 
@@ -678,9 +685,18 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
   }
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
-  listView->setColumnWidth(0, columnWidth);
 
-  for (int column = 1; column < listModel->columnCount(); ++column) {
+  /*
+   * Set column width of 'Name'
+   */
+  listView->setColumnWidth(0, columnNameWidth);
+
+  /*
+   * Set column width of 'Size'
+   */
+  listView->setColumnWidth(1, columnSizeWidth);
+
+  for (int column = 2; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 }
