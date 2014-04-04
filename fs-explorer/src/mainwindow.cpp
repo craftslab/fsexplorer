@@ -32,9 +32,8 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :
 
 MainWindow::MainWindow()
 {
-  setWindowIcon(QPixmap(":/images/icon.png"));
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
-  setAcceptDrops(true);
+  initSettings();
+  readSettings();
 
   createActions();
   createMenus();
@@ -45,7 +44,7 @@ MainWindow::MainWindow()
   showWidgets(false);
 
   fsEngine = new FsEngine;
-  fsPath = QString(QDir::homePath());
+  fsPath = fsPath;
   fsStatus = false;
 }
 
@@ -116,6 +115,7 @@ void MainWindow::openFile()
 
   if (!fsStatus) {
     fsPath = QDir::toNativeSeparators(name);
+    writeSettings();
     loadFile(fsPath);
   }
 }
@@ -239,6 +239,42 @@ void MainWindow::syncListItem(QModelIndex index)
 
   removeListAll();
   updateListItem(ino);
+}
+
+void MainWindow::initSettings()
+{
+  QCoreApplication::setOrganizationName(mainWindowTitle);
+  QCoreApplication::setOrganizationDomain(mainWindowTitle);
+  QCoreApplication::setApplicationName(mainWindowTitle);
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
+  settings = new QSettings(tr("settings.ini"), QSettings::IniFormat);
+#elif defined(Q_OS_MAC)
+  settings = new QSettings(tr("settings.plist"), QSettings::NativeFormat);
+#else
+  settings = new QSettings(tr("settings.ini"), QSettings::IniFormat);
+#endif /* Q_OS_LINUX */
+
+  setWindowIcon(QPixmap(":/images/icon.png"));
+  setWindowTitle(tr("%1").arg(mainWindowTitle));
+
+  setAcceptDrops(true);
+}
+
+void MainWindow::writeSettings()
+{
+  settings->beginGroup(tr("MainWindow"));
+  settings->setValue(tr("fsPath"), fsPath);
+  settings->endGroup();
+
+  settings->sync();
+}
+
+void MainWindow::readSettings()
+{
+  settings->beginGroup(tr("MainWindow"));
+  fsPath = settings->value(tr("fsPath"), QString(QDir::homePath())).value<QString>();
+  settings->endGroup();
 }
 
 void MainWindow::createActions()

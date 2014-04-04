@@ -36,6 +36,7 @@
 #include <QFileDialog>
 #include <QTreeView>
 #include <QTextEdit>
+#include <QSettings>
 #include <QMainWindow>
 
 #include "fsengine.h"
@@ -82,6 +83,10 @@ private slots:
   void syncListItem(QModelIndex index);
 
 private:
+  void initSettings();
+  void writeSettings();
+  void readSettings();
+
   void createActions();
   void createMenus();
   void createToolBars();
@@ -110,6 +115,8 @@ private:
   void removeListRowsAll();
 
   void showFileStat(unsigned long long ino) const;
+
+  QSettings *settings;
 
   QWidget *layoutWidget;
   QHBoxLayout *hBoxLayout;
