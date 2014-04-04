@@ -65,8 +65,8 @@ protected:
 
 private slots:
   void openFile();
-  void importDir();
-  void exportDir();
+  void importFile();
+  void exportFile();
   void closeFile();
   void stats();
   void console();
@@ -81,6 +81,7 @@ private slots:
   void clickListItem(QModelIndex index);
   void doubleClickListItem(QModelIndex index);
   void syncListItem(QModelIndex index);
+  void showContextMenu(const QPoint& pos);
 
 private:
   void initSettings();

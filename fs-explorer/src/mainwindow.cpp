@@ -123,12 +123,14 @@ void MainWindow::openFile()
   }
 }
 
-void MainWindow::importDir()
+void MainWindow::importFile()
 {
+  // TODO
 }
 
-void MainWindow::exportDir()
+void MainWindow::exportFile()
 {
+  // TODO
 }
 
 void MainWindow::closeFile()
@@ -244,6 +246,19 @@ void MainWindow::syncListItem(QModelIndex index)
   updateListItem(ino);
 }
 
+void MainWindow::showContextMenu(const QPoint &pos)
+{
+  QPoint globalPos = listView->mapToGlobal(pos);
+
+  QMenu menu;
+  menu.addAction(exportAction);
+
+  QAction *selectedItem = menu.exec(globalPos);
+  if (selectedItem) {
+    // Do nothing here
+  }
+}
+
 void MainWindow::initSettings()
 {
   QCoreApplication::setOrganizationName(mainWindowTitle);
@@ -293,21 +308,21 @@ void MainWindow::createActions()
   openAction->setStatusTip(tr("Open an existing file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
-  importAction = new QAction(tr("&Import from directory..."), this);
+  importAction = new QAction(tr("&Import from..."), this);
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
-  importAction->setStatusTip(tr("Import an existing directory"));
+  importAction->setStatusTip(tr("Import file"));
   importAction->setEnabled(false);
   importAction->setVisible(false);
-  connect(importAction, SIGNAL(triggered()), this, SLOT(importDir()));
+  connect(importAction, SIGNAL(triggered()), this, SLOT(importFile()));
 
-  exportAction = new QAction(tr("&Export to directory"), this);
+  exportAction = new QAction(tr("&Export to"), this);
   exportAction->setIcon(QIcon(":/images/export.png"));
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
-  exportAction->setStatusTip(tr("Export to the directory"));
-  exportAction->setEnabled(false);
-  exportAction->setVisible(false);
-  connect(exportAction, SIGNAL(triggered()), this, SLOT(exportDir()));
+  exportAction->setStatusTip(tr("Export file"));
+  exportAction->setEnabled(true);
+  exportAction->setVisible(true);
+  connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
 
   closeAction = new QAction(tr("&Close"), this);
   closeAction->setIcon(QIcon(":/images/close.png"));
@@ -358,10 +373,6 @@ void MainWindow::createMenus()
 {
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(openAction);
-  fileMenu->addSeparator();
-  fileMenu->addAction(importAction);
-  fileMenu->addAction(exportAction);
-  fileMenu->addSeparator();
   fileMenu->addAction(closeAction);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
@@ -385,8 +396,6 @@ void MainWindow::createToolBars()
   fileToolBar->setMovable(false);
   fileToolBar->setIconSize(QSize(16, 16));
   fileToolBar->addAction(openAction);
-  fileToolBar->addAction(importAction);
-  fileToolBar->addAction(exportAction);
   fileToolBar->addAction(closeAction);
 
   optionsToolBar = addToolBar(tr("Options"));
@@ -440,6 +449,7 @@ void MainWindow::createWidgets()
   listView->setCurrentIndex(listIndex);
   listView->setHeaderHidden(false);
   listView->setColumnHidden(listModel->columnCount() - 1, true);
+  listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
   /*
    * Set column width of 'Name'
@@ -511,6 +521,7 @@ void MainWindow::createConnections()
 
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
+  connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
   connect(this, SIGNAL(syncTree(QModelIndex)), this, SLOT(syncTreeItem(QModelIndex)));
   connect(this, SIGNAL(syncList(QModelIndex)), this, SLOT(syncListItem(QModelIndex)));
