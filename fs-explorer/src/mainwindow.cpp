@@ -80,7 +80,14 @@ void MainWindow::dropEvent(QDropEvent *event)
     return;
   }
 
-  fsPath = name;
+  if (fsStatus) {
+    confirmFileStatus(fsStatus);
+  }
+
+  if (!fsStatus) {
+    fsPath = QDir::toNativeSeparators(name);
+    loadFile(fsPath);
+  }
 
   event->acceptProposedAction();
 }
@@ -104,27 +111,7 @@ void MainWindow::openFile()
   }
 
   if (fsStatus) {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setText("The fs image has been open!");
-    msgBox.setInformativeText("Do you want to close it?");
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-
-    int ret = msgBox.exec();
-    switch (ret) {
-    case QMessageBox::Yes:
-      fsStatus = false;
-      closeFile();
-      break;
-
-    case QMessageBox::No:
-      // Do nothing here
-      break;
-
-    default:
-      // Do nothing here
-      break;
-    }
+    confirmFileStatus(fsStatus);
   }
 
   if (!fsStatus) {
@@ -480,6 +467,31 @@ void MainWindow::createConnections()
 
   connect(this, SIGNAL(syncTree(QModelIndex)), this, SLOT(syncTreeItem(QModelIndex)));
   connect(this, SIGNAL(syncList(QModelIndex)), this, SLOT(syncListItem(QModelIndex)));
+}
+
+void MainWindow::confirmFileStatus(bool &status)
+{
+  QMessageBox msgBox;
+  msgBox.setIcon(QMessageBox::Information);
+  msgBox.setText("The fs image has been open.");
+  msgBox.setInformativeText("Do you want to close it?");
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+  int ret = msgBox.exec();
+  switch (ret) {
+  case QMessageBox::Yes:
+    status = false;
+    closeFile();
+    break;
+
+  case QMessageBox::No:
+    // Do nothing here
+    break;
+
+  default:
+    // Do nothing here
+    break;
+  }
 }
 
 void MainWindow::loadFile(QString &name)

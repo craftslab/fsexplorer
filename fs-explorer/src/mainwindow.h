@@ -88,6 +88,7 @@ private:
   void createStatusBar();
   void createWidgets();
   void createConnections();
+  void confirmFileStatus(bool &status);
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
 
