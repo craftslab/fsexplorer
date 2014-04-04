@@ -68,6 +68,7 @@ private slots:
   void importFile();
   void exportFile();
   void closeFile();
+  void prop();
   void stats();
   void console();
   void goHome();
@@ -145,8 +146,9 @@ private:
   QAction *exportAction;
   QAction *closeAction;
   QAction *exitAction;
-  QAction *consoleAction;
+  QAction *propAction;
   QAction *statsAction;
+  QAction *consoleAction;
   QAction *homeAction;
   QAction *upAction;
   QAction *aboutAction;

@@ -146,6 +146,11 @@ void MainWindow::closeFile()
   emit mounted(fsStatus);
 }
 
+void MainWindow::prop()
+{
+  // TODO
+}
+
 void MainWindow::stats()
 {
   statsWindow = new StatsWindow(this);
@@ -252,6 +257,9 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
   QMenu menu;
   menu.addAction(exportAction);
+  menu.addAction(consoleAction);
+  menu.addSeparator();
+  menu.addAction(propAction);
 
   QAction *selectedItem = menu.exec(globalPos);
   if (selectedItem) {
@@ -321,7 +329,6 @@ void MainWindow::createActions()
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export file"));
   exportAction->setEnabled(true);
-  exportAction->setVisible(true);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
 
   closeAction = new QAction(tr("&Close"), this);
@@ -335,6 +342,12 @@ void MainWindow::createActions()
   exitAction->setShortcut(tr("Ctrl+Q"));
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+
+  propAction = new QAction(tr("&Properties"), this);
+  propAction->setShortcut(QKeySequence(tr("Ctrl+P")));
+  propAction->setStatusTip(tr("Show properties"));
+  propAction->setEnabled(true);
+  connect(propAction, SIGNAL(triggered()), this, SLOT(prop()));
 
   statsAction = new QAction(tr("&Stats"), this);
   statsAction->setIcon(QIcon(":/images/stats.png"));
