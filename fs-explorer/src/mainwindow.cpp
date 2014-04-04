@@ -424,7 +424,8 @@ void MainWindow::createWidgets()
     treeView->resizeColumnToContents(column);
   }
 
-  listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed")
+  listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed") << tr("Data Created")
+             << tr("Ino") << tr("Mode") << tr("UID") << tr("GID")
              << tr("Type");
 
   listModel = new FsListModel(listHeader);
@@ -437,7 +438,10 @@ void MainWindow::createWidgets()
   listView->setHeaderHidden(false);
   listView->setColumnHidden(listModel->columnCount() - 1, true);
 
-  columnWidth = 192;
+  /*
+   * Set column width of 'Name'
+   */
+  columnWidth = 200;
   listView->setColumnWidth(0, columnWidth);
 
   for (int column = 1; column < listModel->columnCount(); ++column) {
@@ -546,7 +550,7 @@ void MainWindow::loadFile(QString &name)
 
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
     createTreeItem(treeRoot.d_ino, fileDentList);
-    createListItem(fileDentList);
+    createListItem(fileDentList, fileStatList);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -639,19 +643,38 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
   treeView->expand(index);
 }
 
-void MainWindow::createListItem(const QList<struct fs_dirent> &list)
+void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList)
 {
-  for (int i = 0; i < list.size(); ++i) {
-    struct fs_dirent child = list[i];
+  if (dentList.size() != statList.size()) {
+    return;
+  }
+
+  for (int i = 0; i < dentList.size(); ++i) {
+    struct fs_dirent childDentList = dentList[i];
+    struct fs_kstat childStatList = statList[i];
+
+    int64_t size;
+    const char *str;
+    if (childStatList.size >= 0 && childStatList.size < 1024) {
+      str = "%1 B";
+      size = childStatList.size;
+    } else if (childStatList.size >= 1024){
+      str = "%1 KB";
+      size = childStatList.size >> 10;
+    } else {
+      str = "%1 B";
+      size = 0;
+    }
 
     QStringList stringList;
-    stringList << tr("%1").arg(child.d_name) << tr("0") << tr("0") << tr("0")
-               << tr("%1").arg(child.d_type);
+    stringList << tr("%1").arg(childDentList.d_name) << tr(str).arg(size) << tr("0") << tr("0") << tr("0")
+               << tr("%1").arg(childDentList.d_ino) << tr("%1").arg(childStatList.mode, 0, 8) << tr("%1").arg(childStatList.uid) << tr("%1").arg(childStatList.gid)
+               << tr("%1").arg(childDentList.d_type);
 
     insertListRow(stringList);
 
-    mapListNameIno[QString(child.d_name)] = child.d_ino;
-    mapListInoType[child.d_ino] = child.d_type;
+    mapListNameIno[QString(childDentList.d_name)] = childDentList.d_ino;
+    mapListInoType[childDentList.d_ino] = childDentList.d_type;
   }
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
@@ -681,7 +704,7 @@ void MainWindow::updateListItem(unsigned long long ino)
   fileStatList.clear();
   createFileStatList(fileDentList, fileStatList);
 
-  createListItem(fileDentList);
+  createListItem(fileDentList, fileStatList);
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)
@@ -827,7 +850,7 @@ void MainWindow::showFileStat(unsigned long long ino) const
   }
 
   QString text = QObject::tr("inode: %1\n").arg(fileStatList[i].ino);
-  text.append(tr("mode: %1\n").arg(fileStatList[i].mode));
+  text.append(tr("mode: %1\n").arg(fileStatList[i].mode, 0, 8));
   text.append(tr("nlink: %1\n").arg(fileStatList[i].nlink));
   text.append(tr("uid: %1\n").arg(fileStatList[i].uid));
   text.append(tr("gid: %1\n").arg(fileStatList[i].gid));

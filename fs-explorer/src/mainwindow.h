@@ -101,7 +101,7 @@ private:
   void createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList);
   void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list);
-  void createListItem(const QList<struct fs_dirent> &list);
+  void createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList);
   void updateTreeItem(unsigned long long ino);
   void updateListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
