@@ -515,7 +515,6 @@ void ext4_show_sb_stat(struct ext4_super_block *sb)
     fprintf(stdout, "Reserved padding                 : %u\n", sb->s_reserved_pad);
     fprintf(stdout, "KiB writtten                     : %llu\n", sb->s_kbytes_written);
   }
-
   fprintf(stdout, "\n");
 }
 
@@ -532,7 +531,6 @@ void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext
     fprintf(stdout, "block bitmap at %llu, ", ((__le64)gdp->bg_block_bitmap_hi << 32) | (__le64)gdp->bg_block_bitmap_lo);
     fprintf(stdout, "inode bitmap at %llu, ", ((__le64)gdp->bg_inode_bitmap_hi << 32) | (__le64)gdp->bg_inode_bitmap_lo);
     fprintf(stdout, "inode table at %llu, ", ((__le64)gdp->bg_inode_table_hi << 32) | (__le64)gdp->bg_inode_table_lo);
-
     fprintf(stdout, "\n          ");
 
     fprintf(stdout, "%llu free blocks, ", ((__le64)gdp->bg_free_blocks_count_hi << 32) | (__le64)gdp->bg_free_blocks_count_lo);
@@ -544,14 +542,12 @@ void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext
     fprintf(stdout, "block bitmap at %u, ", (__le32)gdp->bg_block_bitmap_lo);
     fprintf(stdout, "inode bitmap at %u, ", (__le32)gdp->bg_inode_bitmap_lo);
     fprintf(stdout, "inode table at %u, ", (__le32)gdp->bg_inode_table_lo);
-
     fprintf(stdout, "\n          ");
 
     fprintf(stdout, "%u free blocks, ", (__le16)gdp->bg_free_blocks_count_lo);
     fprintf(stdout, "%u free inodes, ", (__le16)gdp->bg_free_inodes_count_lo);
     fprintf(stdout, "%u used directories\n", (__le16)gdp->bg_used_dirs_count_lo);
   }
-
   fprintf(stdout, "\n");
 }
 
@@ -585,7 +581,6 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   fprintf(stdout, "%s  ", str);
 
   fprintf(stdout, "mode: %04o  ", inode->i_mode & 0777);
-
   fprintf(stdout, "\n             ");
 
   str = NULL;
@@ -693,7 +688,6 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   if (str == NULL) {
     fprintf(stdout, EXT4_DUMMY_STR);
   }
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "generation: %u  ", inode->i_generation);
@@ -703,22 +697,18 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   } else {
     fprintf(stdout, "version: 0x%08x", inode->osd1.linux1.l_i_version);
   }
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "user: %u  ", inode->i_uid);
   fprintf(stdout, "group: %u  ", inode->i_gid);
   fprintf(stdout, "size: %llu", ((__le64)inode->i_size_high << 32) | (__le64)inode->i_size_lo);
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "file ACL: %llu", ((__le64)inode->osd2.linux2.l_i_file_acl_high << 32) | (__le64)inode->i_file_acl_lo);
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "link count: %u  ", inode->i_links_count);
   fprintf(stdout, "block count: %llu", ((__le64)inode->osd2.linux2.l_i_blocks_high << 32) | (__le64)inode->i_blocks_lo);
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "ctime: ");
@@ -752,11 +742,9 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   }
 
   fprintf(stdout, "size of extra inode: %u", inode->i_extra_isize);
-
   fprintf(stdout, "\n             ");
 
   fprintf(stdout, "extents: %s\n", EXT4_DUMMY_STR);
-
   fprintf(stdout, "\n");
 }
 
@@ -765,20 +753,16 @@ void ext4_show_extent_header(struct ext4_extent_header *eh)
   fprintf(stdout, "Extent header: ");
 
   fprintf(stdout, "magic: 0x%X  ", eh->eh_magic);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "valid entries: %u  ", eh->eh_entries);
   fprintf(stdout, "max entries: %u", eh->eh_max);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "depth: %u", eh->eh_depth);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "generation: %u\n", eh->eh_generation);
-
   fprintf(stdout, "\n");
 }
 
@@ -788,7 +772,6 @@ void ext4_show_extent_idx(struct ext4_extent_idx *ei)
 
   fprintf(stdout, "file blocks covered: %u  ", ei->ei_block);
   fprintf(stdout, "block pointed to: %llu\n", ((__le64)ei->ei_leaf_hi << 32) | (__le64)ei->ei_leaf_lo);
-
   fprintf(stdout, "\n");
 }
 
@@ -797,15 +780,12 @@ void ext4_show_extent(struct ext4_extent *ext)
   fprintf(stdout, "Extent leaf node: ");
 
   fprintf(stdout, "first file block: %u", ext->ee_block);
-
   fprintf(stdout, "\n                  ");
 
   fprintf(stdout, "blocks: %u", ext->ee_len);
-
   fprintf(stdout, "\n                  ");
 
   fprintf(stdout, "block pointed to: %llu\n", ((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo);
-
   fprintf(stdout, "\n");
 }
 
@@ -817,15 +797,12 @@ void ext4_show_dentry(struct ext4_dir_entry_2 *dentry)
   fprintf(stdout, "Linear dentry: ");
 
   fprintf(stdout, "inode: %u", dentry->inode);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "entry length: %u", dentry->rec_len);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "name length: %u", dentry->name_len);
-
   fprintf(stdout, "\n               ");
 
   switch (dentry->file_type) {
@@ -858,7 +835,6 @@ void ext4_show_dentry(struct ext4_dir_entry_2 *dentry)
     break;
   }
   fprintf(stdout, "type: %s", str);
-
   fprintf(stdout, "\n               ");
 
   fprintf(stdout, "name: ");
