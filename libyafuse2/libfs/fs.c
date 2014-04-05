@@ -73,7 +73,7 @@ static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struc
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
-static int32_t fs_statrawfs(const char *pathname, const char *const *buf);
+static int32_t fs_statrawfs(const char *pathname, const char **buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
@@ -361,7 +361,7 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 /*
  * Show raw stats of filesystem
  */
-static int32_t fs_statrawfs(const char *pathname, const char *const *buf)
+static int32_t fs_statrawfs(const char *pathname, const char **buf)
 {
   struct super_block *sb = fs_mnt.mnt.mnt_sb;
   struct dentry *root = fs_mnt.mnt.mnt_root;

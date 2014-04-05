@@ -84,7 +84,7 @@ static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, co
 static int32_t fs_umount(const char *name, int32_t flags);
 static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
-static int32_t fs_statrawfs(struct dentry *dentry, const char *const *buf);
+static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -940,7 +940,7 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 /*
  * Show raw stats of filesystem
  */
-static int32_t fs_statrawfs(struct dentry *dentry, const char *const *buf)
+static int32_t fs_statrawfs(struct dentry *dentry, const char **buf)
 {
   struct ext4_super_block ext4_sb;
   int32_t ret;
@@ -961,7 +961,7 @@ static int32_t fs_statrawfs(struct dentry *dentry, const char *const *buf)
   memset((void *)fs_stat_sb, 0, sizeof(fs_stat_sb));
   ext4_show_stat_sb(&ext4_sb, fs_stat_sb, sizeof(fs_stat_sb));
 
-  buf = (const char *const *)&fs_stat_sb;
+  *buf = (const char *)fs_stat_sb;
 
   return 0;
 }
