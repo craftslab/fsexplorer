@@ -55,8 +55,8 @@ public:
 
 signals:
   void mounted(bool status);
-  void syncTree(QModelIndex index);
-  void syncList(QModelIndex index);
+  void syncTree(QModelIndex &index);
+  void syncList(QModelIndex &index);
 
 protected:
   void dragEnterEvent(QDragEnterEvent *event);
@@ -77,12 +77,12 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem(QModelIndex index);
-  void syncTreeItem(QModelIndex index);
+  void syncTreeItem(QModelIndex &index);
 
   void clickListItem(QModelIndex index);
   void doubleClickListItem(QModelIndex index);
-  void syncListItem(QModelIndex index);
-  void showContextMenu(const QPoint& pos);
+  void syncListItem(QModelIndex &index);
+  void showContextMenu(const QPoint &pos);
 
 private:
   void initSettings();
