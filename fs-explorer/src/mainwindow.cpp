@@ -231,6 +231,9 @@ void MainWindow::syncTreeItem(unsigned long long ino)
       treeView->setCurrentIndex(index);
       updateTreeItem(ino);
     }
+
+    treeView->setCurrentIndex(index);
+    treeView->expandAll();
   }
 }
 
