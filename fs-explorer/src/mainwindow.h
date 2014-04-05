@@ -167,9 +167,10 @@ private:
   QStringList listHeader;
 
   QMap<QString, unsigned long long> mapTreeNameIno;
-  QMap<QString, unsigned long long> mapListNameIno;
-
+  QMap<unsigned long long, QModelIndex> mapTreeInoIndex;
   QMap<unsigned long long, bool> mapTreeInoExpand;
+
+  QMap<QString, unsigned long long> mapListNameIno;
   QMap<unsigned long long, libfs_ftype> mapListInoType;
 };
 #endif

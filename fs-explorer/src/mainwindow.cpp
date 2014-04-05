@@ -217,6 +217,21 @@ void MainWindow::pressTreeItem(QModelIndex index)
 
 void MainWindow::syncTreeItem(unsigned long long ino)
 {
+  QModelIndex index = mapTreeInoIndex[ino];
+  QVariant parentData = treeModel->data(index.parent(), Qt::DisplayRole);
+  unsigned long long parentIno = mapTreeNameIno[parentData.toString()];
+
+  /* 
+   * Go up if 'parentIno == ino', otherwise, go down.
+   */
+  if (parentIno == ino) {
+    treeView->setCurrentIndex(index.parent());
+  } else {
+    if (!mapTreeInoExpand[ino]) {
+      treeView->setCurrentIndex(index);
+      updateTreeItem(ino);
+    }
+  }
 }
 
 void MainWindow::clickListItem(QModelIndex index)
@@ -625,6 +640,8 @@ void MainWindow::setOutput(const QString &text) const
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
 {
+  struct fs_dirent child;
+
   fsEngine->initFileChilds(ino);
 
   unsigned int childsNum = fsEngine->getFileChildsNum();
@@ -634,7 +651,7 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
   }
 
   for (int i = (int)childsNum - 1; i >= 0; --i) {
-    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
+    child = fsEngine->getFileChilds((unsigned int)i);
     list << child;
   }
 
@@ -658,16 +675,21 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
   treeView->setCurrentIndex(index);
 
   mapTreeNameIno[QString(name)] = ino;
+  mapTreeInoIndex[ino] = index;
+  mapTreeInoExpand[ino] = false;
 }
 
 void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list)
 {
+  QModelIndex parent = treeView->selectionModel()->currentIndex();
+  QModelIndex index;
+  struct fs_dirent child;
+
+  mapTreeInoIndex[ino] = parent;
   mapTreeInoExpand[ino] = true;
 
-  QModelIndex index = treeView->selectionModel()->currentIndex();
-
   for (int i = 0; i < list.size(); ++i) {
-    struct fs_dirent child = list[i];
+    child = list[i];
     if (child.d_type != FT_DIR) {
       continue;
     }
@@ -679,29 +701,36 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
 
     QStringList stringList;
     stringList << tr("%1").arg(child.d_name);
-    insertTreeChild(stringList, index);
+
+    insertTreeChild(stringList, parent);
 
     mapTreeNameIno[QString(child.d_name)] = child.d_ino;
+    index = treeView->selectionModel()->currentIndex();
+    mapTreeInoIndex[child.d_ino] = index;
     mapTreeInoExpand[child.d_ino] = false;
   }
 
-  index = treeModel->index(0, 0);
-  treeView->setCurrentIndex(index);
-  treeView->expand(index);
+  treeView->setCurrentIndex(parent);
+  treeView->expand(parent);
 }
 
 void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList)
 {
+  struct fs_dirent childDentList;
+  struct fs_kstat childStatList;
+  const char *str = NULL;
+  int64_t size;
+  QDateTime dtMtime, dtAtime, dtCtime;
+  QString mtime, atime, ctime;
+
   if (dentList.size() != statList.size()) {
     return;
   }
 
   for (int i = 0; i < dentList.size(); ++i) {
-    struct fs_dirent childDentList = dentList[i];
-    struct fs_kstat childStatList = statList[i];
+    childDentList = dentList[i];
+    childStatList = statList[i];
 
-    int64_t size;
-    const char *str;
     if (childStatList.size >= 0 && childStatList.size < 1024) {
       str = "%1 B";
       size = childStatList.size;
@@ -713,14 +742,14 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
       size = 0;
     }
 
-    QDateTime dtMtime = QDateTime::fromTime_t((uint)childStatList.mtime.tv_sec);
-    QString mtime = dtMtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+    dtMtime = QDateTime::fromTime_t((uint)childStatList.mtime.tv_sec);
+    mtime = dtMtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
-    QDateTime dtAtime = QDateTime::fromTime_t((uint)childStatList.atime.tv_sec);
-    QString atime = dtAtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+    dtAtime = QDateTime::fromTime_t((uint)childStatList.atime.tv_sec);
+    atime = dtAtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
-    QDateTime dtCtime = QDateTime::fromTime_t((uint)childStatList.ctime.tv_sec);
-    QString ctime = dtCtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+    dtCtime = QDateTime::fromTime_t((uint)childStatList.ctime.tv_sec);
+    ctime = dtCtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
     QStringList stringList;
     stringList << tr("%1").arg(childDentList.d_name) << tr(str).arg(size) << tr("%1").arg(mtime) << tr("%1").arg(atime) << tr("%1").arg(ctime)
@@ -790,6 +819,7 @@ void MainWindow::updateListItem(unsigned long long ino)
 void MainWindow::insertTreeRow(const QStringList &data)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
+  QModelIndex child;
   QAbstractItemModel *model = treeView->model();
 
   if (model->columnCount() == 0) {
@@ -810,7 +840,7 @@ void MainWindow::insertTreeRow(const QStringList &data)
   }
 
   for (int column = 0; column < model->columnCount(); ++column) {
-    QModelIndex child = model->index(index.row()+1, column, index.parent());
+    child = model->index(index.row()+1, column, index.parent());
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
 }
@@ -818,6 +848,7 @@ void MainWindow::insertTreeRow(const QStringList &data)
 void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &parent)
 {
   QAbstractItemModel *model = treeView->model();
+  QModelIndex child;
 
   if (model->columnCount() == 0) {
     if (!model->insertColumn(0, parent)) {
@@ -830,7 +861,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
   }
 
   for (int column = 0; column < model->columnCount(); ++column) {
-    QModelIndex child = model->index(0, column, parent);
+    child = model->index(0, column, parent);
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
       model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::DisplayRole);
@@ -844,6 +875,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
 void MainWindow::insertListRow(const QStringList &data)
 {
   QModelIndex index = listView->selectionModel()->currentIndex();
+  QModelIndex child;
   QAbstractItemModel *model = listView->model();
 
   if (model->columnCount() == 0) {
@@ -864,7 +896,7 @@ void MainWindow::insertListRow(const QStringList &data)
   }
 
   for (int column = 0; column < model->columnCount(); ++column) {
-    QModelIndex child = model->index(index.row()+1, column, index.parent());
+    child = model->index(index.row()+1, column, index.parent());
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
   }
 }
@@ -872,6 +904,7 @@ void MainWindow::insertListRow(const QStringList &data)
 void MainWindow::removeTreeAll()
 {
   mapTreeInoExpand.clear();
+  mapTreeInoIndex.clear();
   mapTreeNameIno.clear();
 
   removeTreeColumnsAll();
