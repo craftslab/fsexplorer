@@ -32,6 +32,9 @@ static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :
 
 static int columnNameWidth = 224;
 static int columnSizeWidth = 96;
+static int columnMtimeWidth = 224;
+static int columnAtimeWidth = 224;
+static int columnCtimeWidth = 224;
 
 MainWindow::MainWindow()
 {
@@ -474,7 +477,22 @@ void MainWindow::createWidgets()
    */
   listView->setColumnWidth(1, columnSizeWidth);
 
-  for (int column = 2; column < listModel->columnCount(); ++column) {
+  /*
+   * Set column width of 'Data Modified'
+   */
+  listView->setColumnWidth(2, columnMtimeWidth);
+
+  /*
+   * Set column width of 'Data Accessed'
+   */
+  listView->setColumnWidth(3, columnAtimeWidth);
+
+  /*
+   * Set column width of 'Data Created'
+   */
+  listView->setColumnWidth(4, columnCtimeWidth);
+
+  for (int column = 5; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 
@@ -697,8 +715,17 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
       size = 0;
     }
 
+    QDateTime dtMtime = QDateTime::fromTime_t((uint)childStatList.mtime.tv_sec);
+    QString mtime = dtMtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+
+    QDateTime dtAtime = QDateTime::fromTime_t((uint)childStatList.atime.tv_sec);
+    QString atime = dtAtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+
+    QDateTime dtCtime = QDateTime::fromTime_t((uint)childStatList.ctime.tv_sec);
+    QString ctime = dtCtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
+
     QStringList stringList;
-    stringList << tr("%1").arg(childDentList.d_name) << tr(str).arg(size) << tr("0") << tr("0") << tr("0")
+    stringList << tr("%1").arg(childDentList.d_name) << tr(str).arg(size) << tr("%1").arg(mtime) << tr("%1").arg(atime) << tr("%1").arg(ctime)
                << tr("%1").arg(childDentList.d_ino) << tr("%1").arg(childStatList.mode, 0, 8) << tr("%1").arg(childStatList.uid) << tr("%1").arg(childStatList.gid)
                << tr("%1").arg(childDentList.d_type);
 
@@ -720,7 +747,22 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
    */
   listView->setColumnWidth(1, columnSizeWidth);
 
-  for (int column = 2; column < listModel->columnCount(); ++column) {
+  /*
+   * Set column width of 'Data Modified'
+   */
+  listView->setColumnWidth(2, columnMtimeWidth);
+
+  /*
+   * Set column width of 'Data Accessed'
+   */
+  listView->setColumnWidth(3, columnAtimeWidth);
+
+  /*
+   * Set column width of 'Data Created'
+   */
+  listView->setColumnWidth(4, columnCtimeWidth);
+
+  for (int column = 5; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 }
