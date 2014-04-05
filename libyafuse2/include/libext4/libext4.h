@@ -47,13 +47,13 @@
  * Function Declaration
  */
 #ifdef DEBUG_INCLUDE_LIBEXT4_LIBEXT4
-void ext4_show_dentry(struct ext4_dir_entry_2 *dentry);
-void ext4_show_extent(struct ext4_extent *ext);
-void ext4_show_extent_idx(struct ext4_extent_idx *ei);
-void ext4_show_extent_header(struct ext4_extent_header *eh);
-void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode);
-void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp);
-void ext4_show_sb_stat(struct ext4_super_block *sb);
+void ext4_show_sb_stat(struct ext4_super_block *sb, char *buf, int32_t buf_len);
+void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len);
+void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len);
+void ext4_show_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len);
+void ext4_show_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len);
+void ext4_show_extent(struct ext4_extent *ext, char *buf, int32_t buf_len);
+void ext4_show_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len);
 #endif
 
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num);

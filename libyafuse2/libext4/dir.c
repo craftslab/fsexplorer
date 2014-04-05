@@ -46,6 +46,9 @@
 /*
  * Global Variable Definition
  */
+#ifdef DEBUG_LIBEXT4_DIR
+static char buf[0x100];
+#endif
 
 /*
  * Function Declaration
@@ -240,7 +243,9 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
 
 #ifdef DEBUG_LIBEXT4_DIR
-    ext4_show_dentry(&childs[i]);
+    memset((void *)buf, 0, sizeof(buf));
+    ext4_show_dentry(&childs[i], buf, sizeof(buf));
+    fprintf(stdout, "%s", buf);
 #endif
   }
 

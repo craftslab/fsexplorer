@@ -46,6 +46,9 @@
 /*
  * Global Variable Definition
  */
+#ifdef DEBUG_LIBEXT4_BALLOC
+static char buf[0x100];
+#endif
 
 /*
  * Function Declaration
@@ -134,7 +137,9 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
   }
 
 #ifdef DEBUG_LIBEXT4_BALLOC
-  ext4_show_gdp_stat(es, bg, gdp);
+  memset((void *)buf, 0, sizeof(buf));
+  ext4_show_gdp_stat(es, bg, gdp, buf, sizeof(buf));
+  fprintf(stdout, "%s", buf);
 #endif
 
   return 0;
@@ -175,7 +180,9 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
 
 #ifdef DEBUG_LIBEXT4_BALLOC
   for (i = 0; i < bg_cnt; ++i) {
-    ext4_show_gdp_stat(es, i, &gdp[i]);
+    memset((void *)buf, 0, sizeof(buf));
+    ext4_show_gdp_stat(es, i, &gdp[i], buf, sizeof(buf));
+    fprintf(stdout, "%s", buf);
   }
 #endif
 
