@@ -234,7 +234,7 @@ bool FsTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 void FsTreeModel::setupModelData(const QStringList &lines, FsTreeItem *parent)
 {
-#if 0
+#if 0 // DISUSED here
   QList<FsTreeItem*> parents;
   QList<int> indentations;
   parents << parent;

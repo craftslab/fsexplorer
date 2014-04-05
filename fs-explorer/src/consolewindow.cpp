@@ -28,7 +28,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
-#if 0
+#if 0 // DISUSED here
   textEdit->setTextColor(QColor(0, 255, 0));
   textEdit->setStyleSheet("background-color: black");
 #else

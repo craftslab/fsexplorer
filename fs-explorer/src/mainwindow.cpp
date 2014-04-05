@@ -24,7 +24,7 @@
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
 static const QString version = QObject::tr("14.04");
 
-#if 0
+#if 0 // DISUSED here
 static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
 #else
 static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
@@ -311,7 +311,7 @@ void MainWindow::readSettings()
 void MainWindow::createActions()
 {
   openAction = new QAction(tr("&Open file..."), this);
-#if 0
+#if 0 // DISUSED here
   QStyle *appStyle = QApplication::style();
   openAction->setIcon(appStyle->standardIcon(QStyle::SP_DirOpenIcon));
 #else

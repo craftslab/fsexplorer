@@ -245,7 +245,7 @@ bool FsListModel::setHeaderData(int section, Qt::Orientation orientation,
 
 void FsListModel::setupModelData(const QStringList &lines, FsListItem *parent)
 {
-#if 0
+#if 0 // DISUSED here
   QList<FsListItem*> parents;
   QList<int> indentations;
   parents << parent;
