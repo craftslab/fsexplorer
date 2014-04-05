@@ -38,6 +38,9 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   textEdit->setPalette(p);
 #endif
 
+  textEdit->clear();
+  textEdit->setPlainText(tr("ongoing..."));  
+
   layout = new QVBoxLayout;
   layout->addWidget(textEdit);
   setLayout(layout);
@@ -75,5 +78,6 @@ void ConsoleWindow::startConsoleThread()
 {
   consoleThread = new ConsoleThread(this);
   connect(consoleThread, SIGNAL(finished()), consoleThread, SLOT(deleteLater()));
-  consoleThread->start();
+
+  // TODO: consoleThread->start();
 }
