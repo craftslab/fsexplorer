@@ -212,12 +212,11 @@ void MainWindow::pressTreeItem(QModelIndex index)
   treeView->setCurrentIndex(index);
   treeView->expand(index);
 
-  emit syncList(index);
+  emit syncList(ino);
 }
 
-void MainWindow::syncTreeItem(QModelIndex &index)
+void MainWindow::syncTreeItem(unsigned long long ino)
 {
-  index = index;
 }
 
 void MainWindow::clickListItem(QModelIndex index)
@@ -244,14 +243,11 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 
   showFileStat(ino);
 
-  emit syncTree(index);
+  emit syncTree(ino);
 }
 
-void MainWindow::syncListItem(QModelIndex &index)
+void MainWindow::syncListItem(unsigned long long ino)
 {
-  QVariant data = treeModel->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapTreeNameIno[data.toString()];
-
   removeListAll();
   updateListItem(ino);
 }
@@ -556,8 +552,8 @@ void MainWindow::createConnections()
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
   connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
-  connect(this, SIGNAL(syncTree(QModelIndex&)), this, SLOT(syncTreeItem(QModelIndex&)));
-  connect(this, SIGNAL(syncList(QModelIndex&)), this, SLOT(syncListItem(QModelIndex&)));
+  connect(this, SIGNAL(syncTree(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
+  connect(this, SIGNAL(syncList(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
 }
 
 void MainWindow::confirmFileStatus(bool &status)
