@@ -489,9 +489,14 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   inode->i_op = (const struct inode_operations *)&fs_inode_opt;
   inode->i_sb = (struct super_block *)sb;
   inode->i_ino = (uint64_t)ino;
-  memset((void *)&inode->i_atime, 0, sizeof(struct fs_timespec));  // NOT used yet
-  memset((void *)&inode->i_mtime, 0, sizeof(struct fs_timespec));  // NOT used yet
-  memset((void *)&inode->i_ctime, 0, sizeof(struct fs_timespec));  // NOT used yet
+
+  memset((void *)&inode->i_atime, 0, sizeof(struct fs_timespec));
+  inode->i_atime.tv_sec = (int64_t)ext4_inode.i_atime;
+  memset((void *)&inode->i_mtime, 0, sizeof(struct fs_timespec));
+  inode->i_mtime.tv_sec = (int64_t)ext4_inode.i_mtime;
+  memset((void *)&inode->i_ctime, 0, sizeof(struct fs_timespec));
+  inode->i_ctime.tv_sec = (int64_t)ext4_inode.i_ctime;
+
   inode->i_blocks = (uint64_t)(((uint64_t)ext4_inode.osd2.linux2.l_i_blocks_high << 32) | (uint64_t)ext4_inode.i_blocks_lo);
   inode->i_size = (int64_t)(((int64_t)ext4_inode.i_size_high << 32) | (int64_t)ext4_inode.i_size_lo);
   memcpy((void *)&inode->i_sb_list, (void *)&inode->i_sb_list, sizeof(struct list_head));
