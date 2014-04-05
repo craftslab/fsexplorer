@@ -327,7 +327,7 @@ void MainWindow::createActions()
   importAction->setVisible(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(importFile()));
 
-  exportAction = new QAction(tr("&Export to"), this);
+  exportAction = new QAction(tr("&Export to..."), this);
   exportAction->setIcon(QIcon(":/images/export.png"));
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export file"));
