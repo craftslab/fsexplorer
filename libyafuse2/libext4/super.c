@@ -51,7 +51,7 @@
  * Global Variable Definition
  */
 #ifdef DEBUG_LIBEXT4_SUPER
-static char buf[0x900];
+static char buf[EXT4_SHOW_STAT_SB_SZ];
 #endif
 
 /*
@@ -149,7 +149,7 @@ int32_t ext4_raw_super(struct ext4_super_block *sb)
 
 #ifdef DEBUG_LIBEXT4_SUPER
   memset((void *)buf, 0, sizeof(buf));
-  ext4_show_sb_stat(sb, buf, sizeof(buf));
+  ext4_show_stat_sb(sb, buf, sizeof(buf));
   fprintf(stdout, "%s", buf);
 #endif
 

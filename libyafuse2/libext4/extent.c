@@ -47,7 +47,7 @@
  * Global Variable Definition
  */
 #ifdef DEBUG_LIBEXT4_EXTENT
-static char buf[0x100];
+static char buf[EXT4_SHOW_STAT_EXTENT_SZ];
 #endif
 
 /*
@@ -101,11 +101,11 @@ int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ex
 
 #ifdef DEBUG_LIBEXT4_EXTENT
   memset((void *)buf, 0, sizeof(buf));
-  ext4_show_extent_header(path[0].p_hdr, buf, sizeof(buf));
+  ext4_show_stat_extent_header(path[0].p_hdr, buf, sizeof(buf));
   fprintf(stdout, "%s", buf);
 
   memset((void *)buf, 0, sizeof(buf));
-  ext4_show_extent(path[0].p_ext, buf, sizeof(buf));
+  ext4_show_stat_extent(path[0].p_ext, buf, sizeof(buf));
   fprintf(stdout, "%s", buf);
 #endif
 

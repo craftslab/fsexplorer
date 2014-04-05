@@ -73,6 +73,7 @@ static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struc
 static int32_t fs_mount(const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
 static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
+static int32_t fs_statrawfs(const char *pathname, const char *const *buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
@@ -358,6 +359,31 @@ static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf)
 }
 
 /*
+ * Show raw stats of filesystem
+ */
+static int32_t fs_statrawfs(const char *pathname, const char *const *buf)
+{
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  int32_t ret;
+
+  if (!pathname || !buf) {
+    return -1;
+  }
+
+  if (!sb || !sb->s_op || !sb->s_op->statrawfs) {
+    return -1;
+  }
+
+  ret = sb->s_op->statrawfs(root, buf);
+  if (ret != 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+/*
  * Show stats of file
  */
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
@@ -499,6 +525,7 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   fs_opt->mount = fs_mount;
   fs_opt->umount = fs_umount;
   fs_opt->statfs = fs_statfs;
+  fs_opt->statrawfs = fs_statrawfs;
   fs_opt->stat = fs_stat;
   fs_opt->querydent = fs_querydent;
   fs_opt->getdents = fs_getdents;

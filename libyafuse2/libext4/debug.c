@@ -56,7 +56,7 @@
 /*
  * Function Definition
  */
-void ext4_show_sb_stat(struct ext4_super_block *sb, char *buf, int32_t buf_len)
+void ext4_show_stat_sb(struct ext4_super_block *sb, char *buf, int32_t buf_len)
 {
   int32_t i = 0;
   uint32_t val = 0;
@@ -668,7 +668,7 @@ void ext4_show_sb_stat(struct ext4_super_block *sb, char *buf, int32_t buf_len)
   buf += len;
 }
 
-void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len)
+void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len)
 {
   int32_t len = 0;
 
@@ -720,7 +720,7 @@ void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext
   buf += len;
 }
 
-void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len)
+void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len)
 {
   const char *str = NULL;
   time_t tm = 0;
@@ -983,7 +983,7 @@ void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4
   buf += len;
 }
 
-void ext4_show_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len)
+void ext4_show_stat_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len)
 {
   int32_t len = 0;
 
@@ -1013,7 +1013,7 @@ void ext4_show_extent_header(struct ext4_extent_header *eh, char *buf, int32_t b
   buf += len;
 }
 
-void ext4_show_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len)
+void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len)
 {
   int32_t len = 0;
 
@@ -1028,7 +1028,7 @@ void ext4_show_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len
   buf += len;
 }
 
-void ext4_show_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
+void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
 {
   int32_t len = 0;
 
@@ -1051,7 +1051,7 @@ void ext4_show_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
   buf += len;
 }
 
-void ext4_show_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len)
+void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len)
 {
   int32_t i = 0;
   const char *str = NULL;

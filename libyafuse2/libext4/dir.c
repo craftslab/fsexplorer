@@ -47,7 +47,7 @@
  * Global Variable Definition
  */
 #ifdef DEBUG_LIBEXT4_DIR
-static char buf[0x100];
+static char buf[EXT4_SHOW_STAT_DENTRY_SZ];
 #endif
 
 /*
@@ -244,7 +244,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
 
 #ifdef DEBUG_LIBEXT4_DIR
     memset((void *)buf, 0, sizeof(buf));
-    ext4_show_dentry(&childs[i], buf, sizeof(buf));
+    ext4_show_stat_dentry(&childs[i], buf, sizeof(buf));
     fprintf(stdout, "%s", buf);
 #endif
   }

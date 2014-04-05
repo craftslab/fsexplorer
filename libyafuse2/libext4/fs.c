@@ -54,6 +54,8 @@
 static struct file_system_type fs_file_type;
 static struct super_block fs_sb;
 
+static char fs_stat_sb[EXT4_SHOW_STAT_SB_SZ];
+
 /*
  * Function Declaration
  */
@@ -82,6 +84,7 @@ static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, co
 static int32_t fs_umount(const char *name, int32_t flags);
 static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
+static int32_t fs_statrawfs(struct dentry *dentry, const char *const *buf);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -162,6 +165,9 @@ static struct super_operations fs_super_opt = {
 
   //.statfs =
   fs_statfs,
+
+  //.statrawfs =
+  fs_statrawfs,
 };
 
 static struct file_operations fs_file_opt = {
@@ -927,6 +933,35 @@ static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
   }
 
   // TODO
+
+  return 0;
+}
+
+/*
+ * Show raw stats of filesystem
+ */
+static int32_t fs_statrawfs(struct dentry *dentry, const char *const *buf)
+{
+  struct ext4_super_block ext4_sb;
+  int32_t ret;
+
+  if (!dentry || !buf) {
+    return -1;
+  }
+
+  /*
+   * Fill in Ext4 superblock
+   */
+  memset((void *)&ext4_sb, 0, sizeof(struct ext4_super_block));
+  ret = ext4_raw_super(&ext4_sb);
+  if (ret != 0) {
+    return -1;
+  }
+
+  memset((void *)fs_stat_sb, 0, sizeof(fs_stat_sb));
+  ext4_show_stat_sb(&ext4_sb, fs_stat_sb, sizeof(fs_stat_sb));
+
+  buf = (const char *const *)&fs_stat_sb;
 
   return 0;
 }

@@ -47,7 +47,7 @@
  * Global Variable Definition
  */
 #ifdef DEBUG_LIBEXT4_INODE
-static char buf[0x200];
+static char buf[EXT4_SHOW_STAT_INODE_SZ];
 #endif
 
 /*
@@ -123,7 +123,7 @@ int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *
 
 #ifdef DEBUG_LIBEXT4_INODE
   memset((void *)buf, 0, sizeof(buf));
-  ext4_show_inode_stat(es, ino, inode, buf, sizeof(buf));
+  ext4_show_stat_inode(es, ino, inode, buf, sizeof(buf));
   fprintf(stdout, "%s", buf);
 #endif
 

@@ -38,6 +38,11 @@
 /*
  * Macro Definition
  */
+#define EXT4_SHOW_STAT_SB_SZ      (0x900)
+#define EXT4_SHOW_STAT_GDP_SZ     (0x100)
+#define EXT4_SHOW_STAT_INODE_SZ   (0x200)
+#define EXT4_SHOW_STAT_EXTENT_SZ  (0x100)
+#define EXT4_SHOW_STAT_DENTRY_SZ  (0x100)
 
 /*
  * Type Definition
@@ -46,15 +51,13 @@
 /*
  * Function Declaration
  */
-#ifdef DEBUG_INCLUDE_LIBEXT4_LIBEXT4
-void ext4_show_sb_stat(struct ext4_super_block *sb, char *buf, int32_t buf_len);
-void ext4_show_gdp_stat(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len);
-void ext4_show_inode_stat(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len);
-void ext4_show_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len);
-void ext4_show_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len);
-void ext4_show_extent(struct ext4_extent *ext, char *buf, int32_t buf_len);
-void ext4_show_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len);
-#endif
+void ext4_show_stat_sb(struct ext4_super_block *sb, char *buf, int32_t buf_len);
+void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len);
+void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len);
+void ext4_show_stat_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len);
+void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len);
+void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len);
+void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len);
 
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num);
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num);

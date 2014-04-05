@@ -241,6 +241,7 @@ struct super_operations {
   void (*destroy_inode) (struct inode *);
   int32_t (*traverse_dentry)(struct dentry **);
   int32_t (*statfs) (struct dentry *, struct kstatfs *);
+  int32_t (*statrawfs) (struct dentry *, const char *const *);
 };
 
 struct file_operations {
