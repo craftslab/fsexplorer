@@ -59,6 +59,10 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+#ifndef CMAKE_COMPILER_IS_GNUCC
+#define snprintf _snprintf
+#endif
+
 #define DIV_ROUND_UP(x, y) (((x) + (y) - 1)/(y))
 #define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
 
