@@ -21,12 +21,14 @@
 
 #include "statswindow.h"
 
-StatsWindow::StatsWindow(QWidget *parent)
+StatsWindow::StatsWindow(const QString &stat, QWidget *parent)
     : QWidget(parent)
 {
   textEdit = new QTextEdit;
   textEdit->setReadOnly(true);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
+  textEdit->clear();
+  textEdit->setPlainText(stat);
 
   frameHLine = new QFrame;
   frameHLine->setFrameShape(QFrame::HLine);
@@ -79,20 +81,19 @@ void StatsWindow::closeEvent(QCloseEvent *event)
 
 void StatsWindow::copyToClipboard()
 {
+#if 0 // DISUSED here
   QClipboard *clipboard = QApplication::clipboard();
   if (!clipboard) {
     return;
   }
 
-  const QString textDemo = QString(tr("Demo"));
-  const QString textSummary = textDemo;
-
-  const QString htmlDemo = QString(tr("<h3>%1<h3>\n")).arg(tr("Demo"));
-  const QString htmlSummary = htmlDemo;
-
   QMimeData *mimeData = new QMimeData();
-  mimeData->setText(textSummary);
-  mimeData->setHtml(htmlSummary);
+  const QString text = QString(tr("Foo"));
+  mimeData->setText(text);
 
   clipboard->setMimeData(mimeData);
+#else
+  textEdit->selectAll();
+  textEdit->copy();
+#endif
 }

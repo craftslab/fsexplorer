@@ -168,6 +168,27 @@ QString FsEngine::getFileType() const
   return *fileType;
 }
 
+QString FsEngine::getFileStat() const
+{
+  QString str;
+  const char *buf = NULL;
+  int32_t ret;
+
+  str.clear();
+
+  if (!fileName) {
+    return str;
+  }
+
+  ret = fileOpt->statrawfs((const char *)fileName->constData(), &buf);
+  if (ret != 0 || !buf) {
+    return str;
+  }
+  str = buf;
+
+  return str;
+}
+
 struct fs_dirent FsEngine::getFileRoot() const
 {
   struct fs_dirent dent;
@@ -250,7 +271,7 @@ struct fs_dirent FsEngine::getFileChilds(unsigned int index) const
   return fileChilds[index];
 }
 
-struct fs_kstat FsEngine::getFileStat(unsigned long long ino) const
+struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino) const
 {
   struct fs_kstat ret;
 

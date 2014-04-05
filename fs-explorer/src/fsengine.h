@@ -42,12 +42,13 @@ public:
   bool openFile(QString &name);
   bool closeFile();
   QString getFileType() const;
+  QString getFileStat() const;
   struct fs_dirent getFileRoot() const;
   void initFileChilds(unsigned long long ino);
   void deinitFileChilds();
   unsigned int getFileChildsNum() const;
   struct fs_dirent getFileChilds(unsigned int index) const;
-  struct fs_kstat getFileStat(unsigned long long ino) const;
+  struct fs_kstat getFileChildsStat(unsigned long long ino) const;
 
 private:
   bool loadLibrary();

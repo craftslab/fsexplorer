@@ -34,7 +34,7 @@ class StatsWindow : public QWidget
   Q_OBJECT
 
 public:
-  StatsWindow(QWidget *parent = 0);
+  StatsWindow(const QString &stat, QWidget *parent = 0);
 
 protected:
   void closeEvent(QCloseEvent *event);

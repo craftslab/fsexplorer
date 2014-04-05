@@ -156,7 +156,9 @@ void MainWindow::prop()
 
 void MainWindow::stats()
 {
-  statsWindow = new StatsWindow(this);
+  QString stat = fsEngine->getFileStat();
+
+  statsWindow = new StatsWindow(stat, this);
   statsWindow->show();
 }
 
@@ -646,7 +648,7 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
 void MainWindow::createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList)
 {
   for (int i = 0; i < dentList.size(); ++i) {
-    statList << fsEngine->getFileStat((unsigned long long)dentList[i].d_ino);
+    statList << fsEngine->getFileChildsStat((unsigned long long)dentList[i].d_ino);
   }
 }
 
