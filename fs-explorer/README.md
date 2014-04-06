@@ -27,6 +27,8 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 
 [64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix64)
 
+![Screenshot](https://github.com/lemonjia/Fricando/blob/master/screenshot-ubuntu.png)
+
 ## Mac OSX
 ongoing...
 
