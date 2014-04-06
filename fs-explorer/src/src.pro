@@ -33,8 +33,8 @@ SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
 INCLUDEPATH += ../include
-#unix:LIBS += "-L../install/lib/ -lyafuse2"
-#win32:LIBS += "-L../install/lib/"
+#unix:LIBS += "-L../release/lib/ -lyafuse2"
+#win32:LIBS += "-L../release/lib/"
 
 MACH = 64
 message(building $$MACH bit)
@@ -63,10 +63,10 @@ win32 {
   inst.files += ../lib$$MACH/win/Qt5Gui.dll
 }
 
-inst.path = ../install/bin
+inst.path = ../release/lib
 INSTALLS += inst
 
 release {
   TARGET = fs-explorer
-  DESTDIR = ../install/bin
+  DESTDIR = ../release/bin
 }
