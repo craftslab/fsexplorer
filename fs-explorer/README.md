@@ -56,9 +56,9 @@ make && make install
 
 [libyafuse2](https://github.com/lemonjia/Fricando/blob/master/libyafuse2) - the precompiled filesystem library, developed for Ext4, FAT16/FAT32, etc.
 
-[libyafuse2/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/lib32/unix), [libyafuse2/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/lib64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
+[libyafuse2/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix32), [libyafuse2/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix64) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
-[libyafuse2/lib32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/lib32/win), [libyafuse2/lib64/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/lib64/win) - 32-bit/64-bit, precompiled by Visual Studio 2012 from libyafuse2.
+[libyafuse2/lib32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win32), [libyafuse2/lib64/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win64) - 32-bit/64-bit, precompiled by Visual Studio 2012 from libyafuse2.
 
 # Authors
 
