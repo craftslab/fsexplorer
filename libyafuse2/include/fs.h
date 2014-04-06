@@ -242,6 +242,7 @@ struct super_operations {
   int32_t (*traverse_dentry)(struct dentry **);
   int32_t (*statfs) (struct dentry *, struct kstatfs *);
   int32_t (*statrawfs) (struct dentry *, const char **);
+  int32_t (*statraw) (struct inode *, const char **);
 }; 
 
 struct file_operations {

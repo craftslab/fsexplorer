@@ -75,6 +75,7 @@ static int32_t fs_umount(const char *dirname, int32_t flags);
 static int32_t fs_statfs(const char *pathname, struct fs_kstatfs *buf);
 static int32_t fs_statrawfs(const char *pathname, const char **buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
+static int32_t fs_statraw(uint64_t ino, const char **buf);
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
 
@@ -412,6 +413,37 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf)
 }
 
 /*
+ * Show raw stats of file
+ */
+static int32_t fs_statraw(uint64_t ino, const char **buf)
+{
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct inode inode;
+  int32_t ret;
+
+  if (!buf) {
+    return -1;
+  }
+
+  if (!sb) {
+    return -1;
+  }
+
+  memset((void *)&inode, 0, sizeof(struct inode));
+  ret = fs_get_inode(sb, ino, &inode);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = sb->s_op->statraw(&inode, buf);
+  if (ret != 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+/*
  * Query dirent for ino
  */
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent)
@@ -527,6 +559,7 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   fs_opt->statfs = fs_statfs;
   fs_opt->statrawfs = fs_statrawfs;
   fs_opt->stat = fs_stat;
+  fs_opt->statraw = fs_statraw;
   fs_opt->querydent = fs_querydent;
   fs_opt->getdents = fs_getdents;
 

@@ -55,6 +55,7 @@ static struct file_system_type fs_file_type;
 static struct super_block fs_sb;
 
 static char fs_stat_sb[EXT4_SHOW_STAT_SB_SZ];
+static char fs_stat_inode[EXT4_SHOW_STAT_INODE_SZ];
 
 /*
  * Function Declaration
@@ -85,6 +86,7 @@ static int32_t fs_umount(const char *name, int32_t flags);
 static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
+static int32_t fs_statraw(struct inode *inode, const char **buf);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -168,6 +170,9 @@ static struct super_operations fs_super_opt = {
 
   //.statrawfs =
   fs_statrawfs,
+
+  //.statraw =
+  fs_statraw,
 };
 
 static struct file_operations fs_file_opt = {
@@ -962,6 +967,38 @@ static int32_t fs_statrawfs(struct dentry *dentry, const char **buf)
   ext4_show_stat_sb(&ext4_sb, fs_stat_sb, sizeof(fs_stat_sb));
 
   *buf = (const char *)fs_stat_sb;
+
+  return 0;
+}
+
+/*
+ * Show raw stats of file
+ */
+static int32_t fs_statraw(struct inode *inode, const char **buf)
+{
+  struct super_block *sb = inode->i_sb;
+  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
+  struct ext4_super_block *es = info->s_es;
+  struct ext4_inode ext4_inode;
+  uint64_t ino = inode->i_ino;
+  int32_t ret;
+
+  if (!inode || !buf) {
+    return -1;
+  }
+
+  /*
+   * Fill in Ext4 inode
+   */
+  ret = ext4_raw_inode(sb, ino, &ext4_inode);
+  if (ret != 0) {
+    return -1;
+  }
+
+  memset((void *)fs_stat_inode, 0, sizeof(fs_stat_inode));
+  ext4_show_stat_inode(es, ino, &ext4_inode, fs_stat_inode, sizeof(fs_stat_inode));
+
+  *buf = (const char *)fs_stat_inode;
 
   return 0;
 }
