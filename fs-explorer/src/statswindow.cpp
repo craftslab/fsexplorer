@@ -21,7 +21,7 @@
 
 #include "statswindow.h"
 
-StatsWindow::StatsWindow(const QString &stat, QWidget *parent)
+StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *parent)
     : QWidget(parent)
 {
   textEdit = new QTextEdit;
@@ -57,7 +57,7 @@ StatsWindow::StatsWindow(const QString &stat, QWidget *parent)
   vLayout->addWidget(hLayoutWidget);
   setLayout(vLayout);
 
-  setWindowTitle(tr("FS Stats"));
+  setWindowTitle(title);
   Qt::WindowFlags flags = Qt::Window | Qt::WindowStaysOnTopHint;
   setWindowFlags(flags);
   setAttribute(Qt::WA_DeleteOnClose, true);

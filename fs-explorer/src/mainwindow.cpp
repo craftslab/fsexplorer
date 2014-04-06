@@ -151,14 +151,20 @@ void MainWindow::closeFile()
 
 void MainWindow::prop()
 {
-  // TODO
+  QModelIndex index = listView->selectionModel()->currentIndex();
+  QVariant data = listModel->data(index, Qt::DisplayRole);
+  unsigned long long ino = mapListNameIno[data.toString()];
+  QString stat = fsEngine->getFileChildsStatDetail(ino);
+
+  statsWindow = new StatsWindow(tr("File Stats"), stat, this);
+  statsWindow->show();
 }
 
 void MainWindow::stats()
 {
   QString stat = fsEngine->getFileStatDetail();
 
-  statsWindow = new StatsWindow(stat, this);
+  statsWindow = new StatsWindow(tr("FS Stats"), stat, this);
   statsWindow->show();
 }
 
