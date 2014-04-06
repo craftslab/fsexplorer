@@ -10,22 +10,18 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 # Installation
 
 ## Windows
-[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-win32)
+[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install32/win)
 
-[64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-win64)
-
-[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win32)
-
-[64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win64)
+[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win)
 
 ## Ubuntu
-[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-unix32)
+[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install32/unix)
 
-[64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-unix64)
+[64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install64/unix)
 
-[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix32)
+[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/unix)
 
-[64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix64)
+[64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install64/unix)
 
 ![Screenshot](https://github.com/lemonjia/Fricando/blob/master/screenshot-ubuntu.png)
 
@@ -42,7 +38,7 @@ The source code of FS Explorer contains several precompiled libraries:
 
 [fs-explorer/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/unix), [fs-explorer/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
-[fs-explorer/lib32/win](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/win), [fs-explorer/lib64/win](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib64/win) - 32-bit/64-bit, precompiled by Visual Studio 2012 from libyafuse2.
+[fs-explorer/lib32/win](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/win) - 32-bit, precompiled by Visual Studio 2012 from libyafuse2.
 
 ## Building
 
@@ -62,9 +58,9 @@ make && make install
 
 [libyafuse2](https://github.com/lemonjia/Fricando/blob/master/libyafuse2) - the precompiled filesystem library, developed for Ext4, FAT16/FAT32, etc.
 
-[libyafuse2/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix32), [libyafuse2/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix64) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
+[libyafuse2/install32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/unix), [libyafuse2/install64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
-[libyafuse2/lib32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win32), [libyafuse2/lib64/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win64) - 32-bit/64-bit, precompiled by Visual Studio 2012 from libyafuse2.
+[libyafuse2/install32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win) 32-bit, precompiled by Visual Studio 2012 from libyafuse2.
 
 # Authors
 

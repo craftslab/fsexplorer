@@ -1,4 +1,4 @@
-; -- install-setup-iss --
+; -- install-setup.iss --
 
 [Setup]
 AppName=FS Explorer
@@ -9,15 +9,14 @@ DefaultGroupName=FS Explorer
 UninstallDisplayIcon={app}\bin\fs-explorer.exe
 Compression=lzma2
 SolidCompression=yes
-OutputDir=install-win
+OutputDir=install32/win
 
 [Dirs]
 Name: "{app}\bin"
-Name: "{app}\lib"
 
 [Files]
 Source: ".\release\bin\*"; DestDir: "{app}\bin"
-Source: ".\release\lib\*"; DestDir: "{app}\lib"
+Source: ".\release\lib\*"; DestDir: "{app}\bin"
 Source: ".\release\ReleaseNote.txt"; DestDir: "{app}\"
 
 [Icons]
