@@ -142,13 +142,13 @@ private:
   QToolBar *goToolBar;
 
   QAction *openAction;
-  QAction *importAction;
-  QAction *exportAction;
   QAction *closeAction;
   QAction *exitAction;
+  QAction *importAction;
+  QAction *exportAction;
+  QAction *consoleAction;
   QAction *propAction;
   QAction *statsAction;
-  QAction *consoleAction;
   QAction *homeAction;
   QAction *upAction;
   QAction *aboutAction;

@@ -126,16 +126,6 @@ void MainWindow::openFile()
   }
 }
 
-void MainWindow::importFile()
-{
-  // TODO
-}
-
-void MainWindow::exportFile()
-{
-  // TODO
-}
-
 void MainWindow::closeFile()
 {
   removeTreeAll();
@@ -147,6 +137,22 @@ void MainWindow::closeFile()
   fsStatus = false;
 
   emit mounted(fsStatus);
+}
+
+void MainWindow::importFile()
+{
+  // TODO
+}
+
+void MainWindow::exportFile()
+{
+  // TODO
+}
+
+void MainWindow::console()
+{
+  consoleWindow = new ConsoleWindow(this);
+  consoleWindow->show();
 }
 
 void MainWindow::prop()
@@ -166,12 +172,6 @@ void MainWindow::stats()
 
   statsWindow = new StatsWindow(tr("FS Stats"), stat, this);
   statsWindow->show();
-}
-
-void MainWindow::console()
-{
-  consoleWindow = new ConsoleWindow(this);
-  consoleWindow->show();
 }
 
 void MainWindow::goHome()
@@ -357,6 +357,18 @@ void MainWindow::createActions()
   openAction->setStatusTip(tr("Open an existing file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
+  closeAction = new QAction(tr("&Close"), this);
+  closeAction->setIcon(QIcon(":/images/close.png"));
+  closeAction->setShortcut(QKeySequence::Close);
+  closeAction->setStatusTip(tr("Close the file or directory"));
+  closeAction->setEnabled(false);
+  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
+
+  exitAction = new QAction(tr("E&xit"), this);
+  exitAction->setShortcut(tr("Ctrl+Q"));
+  exitAction->setStatusTip(tr("Exit the application"));
+  connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+
   importAction = new QAction(tr("&Import from..."), this);
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
@@ -369,20 +381,15 @@ void MainWindow::createActions()
   exportAction->setIcon(QIcon(":/images/export.png"));
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export file"));
-  exportAction->setEnabled(true);
+  exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
 
-  closeAction = new QAction(tr("&Close"), this);
-  closeAction->setIcon(QIcon(":/images/close.png"));
-  closeAction->setShortcut(QKeySequence::Close);
-  closeAction->setStatusTip(tr("Close the file or directory"));
-  closeAction->setEnabled(false);
-  connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
-
-  exitAction = new QAction(tr("E&xit"), this);
-  exitAction->setShortcut(tr("Ctrl+Q"));
-  exitAction->setStatusTip(tr("Exit the application"));
-  connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+  consoleAction = new QAction(tr("Co&nsole"), this);
+  consoleAction->setIcon(QIcon(":/images/console.png"));
+  consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
+  consoleAction->setStatusTip(tr("Run console"));
+  consoleAction->setEnabled(false);
+  connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
   propAction = new QAction(tr("&Properties"), this);
   propAction->setShortcut(QKeySequence(tr("Ctrl+P")));
@@ -396,13 +403,6 @@ void MainWindow::createActions()
   statsAction->setStatusTip(tr("Show stats"));
   statsAction->setEnabled(false);
   connect(statsAction, SIGNAL(triggered()), this, SLOT(stats()));
-
-  consoleAction = new QAction(tr("Co&nsole"), this);
-  consoleAction->setIcon(QIcon(":/images/console.png"));
-  consoleAction->setShortcut(QKeySequence(tr("Ctrl+N")));
-  consoleAction->setStatusTip(tr("Run console"));
-  consoleAction->setEnabled(false);
-  connect(consoleAction, SIGNAL(triggered()), this, SLOT(console()));
 
   homeAction = new QAction(tr("Ho&me"), this);
   homeAction->setIcon(QIcon(":/images/home.png"));
@@ -438,8 +438,9 @@ void MainWindow::createMenus()
   fileMenu->addAction(exitAction);
 
   optionsMenu = menuBar()->addMenu(tr("&Options"));
-  optionsMenu->addAction(statsAction);
+  optionsMenu->addAction(exportAction);
   optionsMenu->addAction(consoleAction);
+  optionsMenu->addAction(statsAction);
 
   goMenu = menuBar()->addMenu(tr("&Go"));
   goMenu->addAction(homeAction);
@@ -458,13 +459,16 @@ void MainWindow::createToolBars()
   fileToolBar->setIconSize(QSize(16, 16));
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(closeAction);
+  fileToolBar->addSeparator();
 
   optionsToolBar = addToolBar(tr("Options"));
   optionsToolBar->setFloatable(false);
   optionsToolBar->setMovable(false);
   optionsToolBar->setIconSize(QSize(16, 16));
-  optionsToolBar->addAction(statsAction);
+  optionsToolBar->addAction(exportAction);
   optionsToolBar->addAction(consoleAction);
+  optionsToolBar->addAction(statsAction);
+  optionsToolBar->addSeparator();
 
   goToolBar = addToolBar(tr("Go"));
   goToolBar->setFloatable(false);
@@ -587,8 +591,9 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
