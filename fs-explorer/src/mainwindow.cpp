@@ -176,6 +176,16 @@ void MainWindow::goHome()
 
 void MainWindow::goUp()
 {
+  unsigned long long ino;
+
+  for (int i = 0; i < fileDentList.size(); ++i) {
+    if (fileDentList[i].d_type == FT_DIR && !strcmp(fileDentList[i].d_name, FS_DNAME_DOTDOT)) {
+      ino = fileDentList[i].d_ino;
+    }
+  }
+
+  removeListAll();
+  updateListItem(ino);
 }
 
 void MainWindow::about()
