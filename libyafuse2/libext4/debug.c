@@ -680,7 +680,7 @@ void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext
      * instead of 'struct ext4_group_desc'
      */
 #if 0
-    len = snprintf(buf, buf_len, "Group : %2d\n", bg);
+    len = snprintf(buf, buf_len, "Group : %d\n", bg);
     buf += len;
     len = snprintf(buf, buf_len, "block bitmap at : %llu\n", ((__le64)gdp->bg_block_bitmap_hi << 32) | (__le64)gdp->bg_block_bitmap_lo);
     buf += len;
@@ -696,7 +696,7 @@ void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext
     buf += len;
 #endif
   } else {
-    len = snprintf(buf, buf_len, "Group : %2d\n", bg);
+    len = snprintf(buf, buf_len, "Group : %d\n", bg);
     buf += len;
     len = snprintf(buf, buf_len, "block bitmap at : %u\n", (__le32)gdp->bg_block_bitmap_lo);
     buf += len;
@@ -722,7 +722,7 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
   time_t tm = 0;
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Inode : %5llu\n", (long long unsigned)ino);
+  len = snprintf(buf, buf_len, "Inode : %llu\n", (long long unsigned)ino);
   buf += len;
 
   len = snprintf(buf, buf_len, "type : ");
@@ -925,8 +925,6 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
 
   len = snprintf(buf, buf_len, "atime : ");
   buf += len;
@@ -938,8 +936,6 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
 
   len = snprintf(buf, buf_len, "mtime : ");
   buf += len;
@@ -951,8 +947,6 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
 
   len = snprintf(buf, buf_len, "size of extra inode : %u\n", inode->i_extra_isize);
   buf += len;
