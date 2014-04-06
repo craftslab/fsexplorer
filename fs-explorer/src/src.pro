@@ -52,19 +52,23 @@ contains(MACH, 64) {
 }
 
 unix {
-  inst.files += ../lib$$MACH/unix/libyafuse2.so
-  inst.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
-  inst.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
+  inst_library.files += ../lib$$MACH/unix/libyafuse2.so
+  inst_library.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
+  inst_library.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
 }
 
 win32 {
-  inst.files += ../lib$$MACH/win/libyafuse2.dll
-  inst.files += ../lib$$MACH/win/Qt5Core.dll
-  inst.files += ../lib$$MACH/win/Qt5Gui.dll
+  inst_library.files += ../lib$$MACH/win/libyafuse2.dll
+  inst_library.files += ../lib$$MACH/win/Qt5Core.dll
+  inst_library.files += ../lib$$MACH/win/Qt5Gui.dll
 }
 
-inst.path = ../release/lib
-INSTALLS += inst
+inst_library.path = ../release/lib
+INSTALLS += inst_library
+
+inst_releasenote.files = ../ReleaseNote.txt
+inst_releasenote.path = ../release
+INSTALLS += inst_releasenote
 
 release {
   TARGET = fs-explorer
