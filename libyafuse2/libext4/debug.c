@@ -664,6 +664,7 @@ void ext4_show_stat_sb(struct ext4_super_block *sb, char *buf, int32_t buf_len)
     len = snprintf(buf, buf_len, "KiB writtten : %llu\n", sb->s_kbytes_written);
     buf += len;
   }
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -679,43 +680,38 @@ void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext
      * instead of 'struct ext4_group_desc'
      */
 #if 0
-    len = snprintf(buf, buf_len, "Group %2d : ", bg);
+    len = snprintf(buf, buf_len, "Group : %2d\n", bg);
     buf += len;
-    len = snprintf(buf, buf_len, "block bitmap at %llu, ", ((__le64)gdp->bg_block_bitmap_hi << 32) | (__le64)gdp->bg_block_bitmap_lo);
+    len = snprintf(buf, buf_len, "block bitmap at : %llu\n", ((__le64)gdp->bg_block_bitmap_hi << 32) | (__le64)gdp->bg_block_bitmap_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "inode bitmap at %llu, ", ((__le64)gdp->bg_inode_bitmap_hi << 32) | (__le64)gdp->bg_inode_bitmap_lo);
+    len = snprintf(buf, buf_len, "inode bitmap at : %llu\n", ((__le64)gdp->bg_inode_bitmap_hi << 32) | (__le64)gdp->bg_inode_bitmap_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "inode table at %llu, ", ((__le64)gdp->bg_inode_table_hi << 32) | (__le64)gdp->bg_inode_table_lo);
+    len = snprintf(buf, buf_len, "inode table at : %llu\n", ((__le64)gdp->bg_inode_table_hi << 32) | (__le64)gdp->bg_inode_table_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "\n          ");
+    len = snprintf(buf, buf_len, "free blocks : %llu\n", ((__le64)gdp->bg_free_blocks_count_hi << 32) | (__le64)gdp->bg_free_blocks_count_lo);
     buf += len;
-
-    len = snprintf(buf, buf_len, "%llu free blocks, ", ((__le64)gdp->bg_free_blocks_count_hi << 32) | (__le64)gdp->bg_free_blocks_count_lo);
+    len = snprintf(buf, buf_len, "free inodes : %llu\n", ((__le64)gdp->bg_free_inodes_count_hi << 32) | (__le64)gdp->bg_free_inodes_count_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "%llu free inodes, ", ((__le64)gdp->bg_free_inodes_count_hi << 32) | (__le64)gdp->bg_free_inodes_count_lo);
-    buf += len;
-    len = snprintf(buf, buf_len, "%llu used directories\n", ((__le64)gdp->bg_used_dirs_count_hi << 32) | (__le64)gdp->bg_used_dirs_count_lo);
+    len = snprintf(buf, buf_len, "directories used : %llu\n", ((__le64)gdp->bg_used_dirs_count_hi << 32) | (__le64)gdp->bg_used_dirs_count_lo);
     buf += len;
 #endif
   } else {
-    len = snprintf(buf, buf_len, "Group %2d : ", bg);
+    len = snprintf(buf, buf_len, "Group : %2d\n", bg);
     buf += len;
-    len = snprintf(buf, buf_len, "block bitmap at %u, ", (__le32)gdp->bg_block_bitmap_lo);
+    len = snprintf(buf, buf_len, "block bitmap at : %u\n", (__le32)gdp->bg_block_bitmap_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "inode bitmap at %u, ", (__le32)gdp->bg_inode_bitmap_lo);
+    len = snprintf(buf, buf_len, "inode bitmap at : %u\n", (__le32)gdp->bg_inode_bitmap_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "inode table at %u, ", (__le32)gdp->bg_inode_table_lo);
+    len = snprintf(buf, buf_len, "inode table at : %u\n", (__le32)gdp->bg_inode_table_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "\n          ");
+    len = snprintf(buf, buf_len, "free blocks : %u\n", (__le16)gdp->bg_free_blocks_count_lo);
     buf += len;
-
-    len = snprintf(buf, buf_len, "%u free blocks, ", (__le16)gdp->bg_free_blocks_count_lo);
+    len = snprintf(buf, buf_len, "free inodes : %u\n", (__le16)gdp->bg_free_inodes_count_lo);
     buf += len;
-    len = snprintf(buf, buf_len, "%u free inodes, ", (__le16)gdp->bg_free_inodes_count_lo);
-    buf += len;
-    len = snprintf(buf, buf_len, "%u used directories\n", (__le16)gdp->bg_used_dirs_count_lo);
+    len = snprintf(buf, buf_len, "directories used : %u\n", (__le16)gdp->bg_used_dirs_count_lo);
     buf += len;
   }
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -726,7 +722,7 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
   time_t tm = 0;
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Inode %5llu : ", (long long unsigned)ino);
+  len = snprintf(buf, buf_len, "Inode : %5llu\n", (long long unsigned)ino);
   buf += len;
 
   len = snprintf(buf, buf_len, "type : ");
@@ -750,12 +746,10 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
   } else {
     str = NULL;
   }
-  len = snprintf(buf, buf_len, "%s  ", str);
+  len = snprintf(buf, buf_len, "%s\n", str);
   buf += len;
 
-  len = snprintf(buf, buf_len, "mode : %04o  ", inode->i_mode & 0777);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "mode : %04o\n", inode->i_mode & 0777);
   buf += len;
 
   str = NULL;
@@ -890,10 +884,10 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     len = snprintf(buf, buf_len, EXT4_DUMMY_STR);
     buf += len;
   }
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "\n");
   buf += len;
 
-  len = snprintf(buf, buf_len, "generation : %u  ", inode->i_generation);
+  len = snprintf(buf, buf_len, "generation : %u\n", inode->i_generation);
   buf += len;
 
   if (sb->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE && inode->i_extra_isize >= 24) {
@@ -903,28 +897,22 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     len = snprintf(buf, buf_len, "version : 0x%08x", inode->osd1.linux1.l_i_version);
     buf += len;
   }
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "\n");
   buf += len;
 
-  len = snprintf(buf, buf_len, "user : %u  ", inode->i_uid);
+  len = snprintf(buf, buf_len, "user : %u\n", inode->i_uid);
   buf += len;
-  len = snprintf(buf, buf_len, "group : %u  ", inode->i_gid);
+  len = snprintf(buf, buf_len, "group : %u\n", inode->i_gid);
   buf += len;
-  len = snprintf(buf, buf_len, "size : %llu", ((__le64)inode->i_size_high << 32) | (__le64)inode->i_size_lo);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "size : %llu\n", ((__le64)inode->i_size_high << 32) | (__le64)inode->i_size_lo);
   buf += len;
 
-  len = snprintf(buf, buf_len, "file ACL : %llu", ((__le64)inode->osd2.linux2.l_i_file_acl_high << 32) | (__le64)inode->i_file_acl_lo);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "file ACL : %llu\n", ((__le64)inode->osd2.linux2.l_i_file_acl_high << 32) | (__le64)inode->i_file_acl_lo);
   buf += len;
 
-  len = snprintf(buf, buf_len, "link count : %u  ", inode->i_links_count);
+  len = snprintf(buf, buf_len, "link count : %u\n", inode->i_links_count);
   buf += len;
-  len = snprintf(buf, buf_len, "block count : %llu", ((__le64)inode->osd2.linux2.l_i_blocks_high << 32) | (__le64)inode->i_blocks_lo);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n             ");
+  len = snprintf(buf, buf_len, "block count : %llu\n", ((__le64)inode->osd2.linux2.l_i_blocks_high << 32) | (__le64)inode->i_blocks_lo);
   buf += len;
 
   len = snprintf(buf, buf_len, "ctime : ");
@@ -933,14 +921,12 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     tm = (time_t)inode->i_ctime;
     len = snprintf(buf, buf_len, "%s", ctime(&tm));
     buf += len;
-    len = snprintf(buf, buf_len, "             ");
-    buf += len;
   } else {
-    len = snprintf(buf, buf_len, EXT4_DUMMY_STR);
-    buf += len;
-    len = snprintf(buf, buf_len, "\n             ");
+    len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
+  len = snprintf(buf, buf_len, "\n");
+  buf += len;
 
   len = snprintf(buf, buf_len, "atime : ");
   buf += len;
@@ -948,14 +934,12 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     tm = (time_t)inode->i_atime;
     len = snprintf(buf, buf_len, "%s", ctime(&tm));
     buf += len;
-    len = snprintf(buf, buf_len, "             ");
-    buf += len;
   } else {
-    len = snprintf(buf, buf_len, EXT4_DUMMY_STR);
-    buf += len;
-    len = snprintf(buf, buf_len, "\n             ");
+    len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
+  len = snprintf(buf, buf_len, "\n");
+  buf += len;
 
   len = snprintf(buf, buf_len, "mtime : ");
   buf += len;
@@ -963,22 +947,19 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     tm = (time_t)inode->i_mtime;
     len = snprintf(buf, buf_len, "%s", ctime(&tm));
     buf += len;
-    len = snprintf(buf, buf_len, "             ");
-    buf += len;
   } else {
-    len = snprintf(buf, buf_len, EXT4_DUMMY_STR);
-    buf += len;
-    len = snprintf(buf, buf_len, "\n             ");
+    len = snprintf(buf, buf_len, "%s", EXT4_DUMMY_STR);
     buf += len;
   }
-
-  len = snprintf(buf, buf_len, "size of extra inode : %u", inode->i_extra_isize);
+  len = snprintf(buf, buf_len, "\n");
   buf += len;
-  len = snprintf(buf, buf_len, "\n             ");
+
+  len = snprintf(buf, buf_len, "size of extra inode : %u\n", inode->i_extra_isize);
   buf += len;
 
   len = snprintf(buf, buf_len, "extents : %s\n", EXT4_DUMMY_STR);
   buf += len;
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -987,28 +968,19 @@ void ext4_show_stat_extent_header(struct ext4_extent_header *eh, char *buf, int3
 {
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Extent header : ");
+  len = snprintf(buf, buf_len, "Extent header :\n");
   buf += len;
-
-  len = snprintf(buf, buf_len, "magic : 0x%X  ", eh->eh_magic);
+  len = snprintf(buf, buf_len, "magic : 0x%X\n", eh->eh_magic);
   buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
+  len = snprintf(buf, buf_len, "valid entries : %u\n", eh->eh_entries);
   buf += len;
-
-  len = snprintf(buf, buf_len, "valid entries : %u  ", eh->eh_entries);
+  len = snprintf(buf, buf_len, "max entries : %u\n", eh->eh_max);
   buf += len;
-  len = snprintf(buf, buf_len, "max entries : %u", eh->eh_max);
+  len = snprintf(buf, buf_len, "depth : %u\n", eh->eh_depth);
   buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
-  buf += len;
-
-  len = snprintf(buf, buf_len, "depth : %u", eh->eh_depth);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
-  buf += len;
-
   len = snprintf(buf, buf_len, "generation : %u\n", eh->eh_generation);
   buf += len;
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -1017,13 +989,13 @@ void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t bu
 {
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Extent internal node : ");
+  len = snprintf(buf, buf_len, "Extent internal node :\n");
   buf += len;
-
-  len = snprintf(buf, buf_len, "file blocks covered : %u  ", ei->ei_block);
+  len = snprintf(buf, buf_len, "file blocks covered : %u\n", ei->ei_block);
   buf += len;
   len = snprintf(buf, buf_len, "block pointed to : %llu\n", ((__le64)ei->ei_leaf_hi << 32) | (__le64)ei->ei_leaf_lo);
   buf += len;
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -1032,21 +1004,15 @@ void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
 {
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Extent leaf node : ");
+  len = snprintf(buf, buf_len, "Extent leaf node :\n");
   buf += len;
-
-  len = snprintf(buf, buf_len, "first file block : %u", ext->ee_block);
+  len = snprintf(buf, buf_len, "first file block : %u\n", ext->ee_block);
   buf += len;
-  len = snprintf(buf, buf_len, "\n                  ");
+  len = snprintf(buf, buf_len, "blocks : %u\n", ext->ee_len);
   buf += len;
-
-  len = snprintf(buf, buf_len, "blocks : %u", ext->ee_len);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n                  ");
-  buf += len;
-
   len = snprintf(buf, buf_len, "block pointed to : %llu\n", ((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo);
   buf += len;
+
   len = snprintf(buf, buf_len, "\n");
   buf += len;
 }
@@ -1057,22 +1023,13 @@ void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t b
   const char *str = NULL;
   int32_t len = 0;
 
-  len = snprintf(buf, buf_len, "Linear dentry : ");
+  len = snprintf(buf, buf_len, "Linear dentry :\n");
   buf += len;
-
-  len = snprintf(buf, buf_len, "inode : %u", dentry->inode);
+  len = snprintf(buf, buf_len, "inode : %u\n", dentry->inode);
   buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
+  len = snprintf(buf, buf_len, "entry length : %u\n", dentry->rec_len);
   buf += len;
-
-  len = snprintf(buf, buf_len, "entry length : %u", dentry->rec_len);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
-  buf += len;
-
-  len = snprintf(buf, buf_len, "name length : %u", dentry->name_len);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
+  len = snprintf(buf, buf_len, "name length : %u\n", dentry->name_len);
   buf += len;
 
   switch (dentry->file_type) {
@@ -1104,9 +1061,7 @@ void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t b
     str = EXT4_DUMMY_STR;
     break;
   }
-  len = snprintf(buf, buf_len, "type : %s", str);
-  buf += len;
-  len = snprintf(buf, buf_len, "\n               ");
+  len = snprintf(buf, buf_len, "type : %s\n", str);
   buf += len;
 
   len = snprintf(buf, buf_len, "name : ");
