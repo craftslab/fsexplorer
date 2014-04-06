@@ -176,12 +176,19 @@ void MainWindow::goHome()
 
 void MainWindow::goUp()
 {
-  unsigned long long ino;
+  unsigned long long ino = 0;
+  bool found = false;
 
   for (int i = 0; i < fileDentList.size(); ++i) {
     if (fileDentList[i].d_type == FT_DIR && !strcmp(fileDentList[i].d_name, FS_DNAME_DOTDOT)) {
       ino = fileDentList[i].d_ino;
+      found = true;
+      break;
     }
+  }
+
+  if (!found) {
+    return;
   }
 
   removeListAll();
@@ -405,9 +412,15 @@ void MainWindow::createActions()
   upAction->setEnabled(false);
   connect(upAction, SIGNAL(triggered()), this, SLOT(goUp()));
 
-  aboutAction = new QAction(tr("&About"), this);
+  QString about = tr("&About ");
+  about.append(mainWindowTitle);
+  aboutAction = new QAction(about, this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+
+  aboutQtAction = new QAction(tr("About &Qt"), this);
+  aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
+  connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
@@ -428,6 +441,7 @@ void MainWindow::createMenus()
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAction);
+  helpMenu->addAction(aboutQtAction);
 }
 
 void MainWindow::createToolBars()
