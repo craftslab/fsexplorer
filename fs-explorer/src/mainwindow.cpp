@@ -156,7 +156,7 @@ void MainWindow::prop()
 
 void MainWindow::stats()
 {
-  QString stat = fsEngine->getFileStat();
+  QString stat = fsEngine->getFileStatDetail();
 
   statsWindow = new StatsWindow(stat, this);
   statsWindow->show();

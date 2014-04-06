@@ -168,7 +168,18 @@ QString FsEngine::getFileType() const
   return *fileType;
 }
 
-QString FsEngine::getFileStat() const
+struct fs_kstatfs FsEngine::getFileStat() const
+{
+  struct fs_kstatfs ret;
+
+  memset((void *)&ret, 0, sizeof(struct fs_kstatfs));
+
+  // TODO
+
+  return ret;
+}
+
+QString FsEngine::getFileStatDetail() const
 {
   QString str;
   const char *buf = NULL;
@@ -279,6 +290,23 @@ struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino) const
   (void)fileOpt->stat(ino, &ret);
 
   return ret;
+}
+
+QString FsEngine::getFileChildsStatDetail(unsigned long long ino) const
+{
+  QString str;
+  const char *buf = NULL;
+  int32_t ret;
+
+  str.clear();
+
+  ret = fileOpt->statraw(ino, &buf);
+  if (ret != 0 || !buf) {
+    return str;
+  }
+  str = buf;
+
+  return str;
 }
 
 bool FsEngine::loadLibrary()
