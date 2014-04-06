@@ -11,16 +11,20 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 
 ## Windows
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-win32)
+
 [64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-win64)
 
 [32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win32)
+
 [64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-win64)
 
 ## Ubuntu
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-unix32)
+
 [64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install-unix64)
 
 [32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix32)
+
 [64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install-unix64)
 
 ## Mac OSX
