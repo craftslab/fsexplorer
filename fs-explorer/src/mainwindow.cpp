@@ -232,7 +232,6 @@ void MainWindow::syncTreeItem(unsigned long long ino)
       updateTreeItem(ino);
     }
 
-    treeView->setCurrentIndex(index);
     treeView->expandAll();
   }
 }
@@ -713,7 +712,6 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
     mapTreeInoExpand[child.d_ino] = false;
   }
 
-  treeView->setCurrentIndex(parent);
   treeView->expand(parent);
 }
 
