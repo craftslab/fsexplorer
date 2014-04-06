@@ -354,13 +354,13 @@ void MainWindow::createActions()
   openAction->setIcon(QIcon(":/images/open.png"));
 #endif
   openAction->setShortcut(QKeySequence::Open);
-  openAction->setStatusTip(tr("Open an existing file"));
+  openAction->setStatusTip(tr("Open an file"));
   connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
   closeAction = new QAction(tr("&Close"), this);
   closeAction->setIcon(QIcon(":/images/close.png"));
   closeAction->setShortcut(QKeySequence::Close);
-  closeAction->setStatusTip(tr("Close the file or directory"));
+  closeAction->setStatusTip(tr("Close the file"));
   closeAction->setEnabled(false);
   connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
 
