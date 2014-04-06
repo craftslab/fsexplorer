@@ -1,0 +1,57 @@
+-------------------------------------------------------------------------------
+April 6th, 2014
+
+Major Milestone Release (Preview Rlease)
+
+
+- Summary of Changes for FS Explorer
+
+-- Features
+
+   * GUI designed for general filesystem hierarchy
+   * Read-only operation for general filesystem hierarchy
+   * Tree and list view for directories and files
+   * Detailed fielsystem info shown in popup menu
+   * Detailed inode info shown in output window and popup menu
+   * Navigation of 'Home'/'Up' to root/parent directory supported
+
+-- Improvements
+
+   N/A
+
+-- Bug Fixes
+
+   N/A
+
+-- Ongoing
+
+   * Export files/folders in filesystem image into local disk
+   * Support for command-line operation in console view
+   * Support for Mac OSX
+
+
+- Summary of Changes of libyafuse2
+
+-- Features
+
+   * virtaul filesystem designed for general filesystem hierarchy
+   * dynamic & static library compilation supported
+   * read-only operation for Ext4 supported
+
+-- Improvements
+
+   N/A
+
+-- Bug Fixes
+
+   N/A
+
+-- Ongoing
+
+   * Support for read-only operation on FAT16/FAT32
+
+
+-------------------------------------------------------------------------------
+August 31st, 2013
+
+Kick Off
