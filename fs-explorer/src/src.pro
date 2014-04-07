@@ -55,6 +55,10 @@ unix {
   inst_library.files += ../lib$$MACH/unix/libyafuse2.so
   inst_library.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
   inst_library.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
+  inst_library.files += ../lib$$MACH/unix/libQt5Widgets.so.5.2.0
+  inst_library.files += ../lib$$MACH/unix/libicudata.so.51.1
+  inst_library.files += ../lib$$MACH/unix/libicui18n.so.51.1
+  inst_library.files += ../lib$$MACH/unix/libicuuc.so.51.1
 }
 
 win32 {
