@@ -45,9 +45,6 @@
  */
 int main(int argc, char *argv[])
 {
-  QApplication::addLibraryPath(QApplication::applicationFilePath() + QDir::separator() + "lib");
-  QApplication::addLibraryPath(QApplication::applicationFilePath() + QDir::separator() + "plugins");
-
   QApplication app(argc, argv);
   MainWindow mainWin;
 
