@@ -9,12 +9,12 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 
 # Installation
 
-## Windows
+## Windows XP, 7+
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install32/win)
 
 [32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win)
 
-## Ubuntu
+## Ubuntu 12.04+
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install32/unix)
 
 [64-bit FS Explorer Install](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/install64/unix)
@@ -25,7 +25,7 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 
 ![Screenshot](https://github.com/lemonjia/Fricando/blob/master/screenshot-ubuntu.png)
 
-## Mac OSX
+## Mac OS X 10.9+
 ongoing...
 
 # Source code
@@ -38,7 +38,7 @@ The source code of FS Explorer contains several precompiled libraries:
 
 [fs-explorer/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/unix), [fs-explorer/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
-[fs-explorer/lib32/win](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/win) - 32-bit, precompiled by Visual Studio 2012 from libyafuse2.
+[fs-explorer/lib32/win](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/win) - 32-bit, precompiled by Visual Studio 2010 from libyafuse2.
 
 ## Building
 
@@ -60,7 +60,7 @@ make && make install
 
 [libyafuse2/install32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/unix), [libyafuse2/install64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
-[libyafuse2/install32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win) 32-bit, precompiled by Visual Studio 2012 from libyafuse2.
+[libyafuse2/install32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win) 32-bit, precompiled by Visual Studio 2010 from libyafuse2.
 
 # Authors
 
