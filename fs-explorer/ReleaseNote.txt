@@ -9,11 +9,11 @@ Major Milestone Release (Preview Rlease)
 -- Features
 
    * GUI designed for general filesystem hierarchy
-   * Read-only operation for general filesystem hierarchy
-   * Tree and list view for directories and files
-   * Detailed fielsystem info shown in popup menu
-   * Detailed inode info shown in output window and popup menu
-   * Navigation of 'Home'/'Up' to root/parent directory supported
+   * read-only operation for general filesystem hierarchy
+   * tree and list view for directories and files
+   * detailed fielsystem info shown in popup menu
+   * detailed inode info shown in output window and popup menu
+   * navigation of 'Home'/'Up' to root/parent directory supported
 
 -- Improvements
 
@@ -25,9 +25,9 @@ Major Milestone Release (Preview Rlease)
 
 -- Ongoing
 
-   * Export files/folders in filesystem image into local disk
-   * Support for command-line operation in console view
-   * Support for Mac OSX
+   * export files/folders in filesystem image into local disk
+   * support for command-line operation in console view
+   * support for Mac OSX
 
 
 - Summary of Changes of libyafuse2
@@ -48,7 +48,7 @@ Major Milestone Release (Preview Rlease)
 
 -- Ongoing
 
-   * Support for read-only operation on FAT16/FAT32
+   * support for read-only operation on FAT16/FAT32
 
 
 -------------------------------------------------------------------------------
