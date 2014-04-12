@@ -13,11 +13,12 @@ OutputDir=install32/win
 
 [Dirs]
 Name: "{app}\bin"
+Name: "{app}\bin\platforms"
 
 [Files]
 Source: ".\release\bin\*"; DestDir: "{app}\bin"
 Source: ".\release\lib\*"; DestDir: "{app}\bin"
-Source: ".\release\lib\platforms\*"; DestDir: "{app}\bin"
+Source: ".\release\lib\platforms\*"; DestDir: "{app}\bin\platforms"
 Source: ".\release\ReleaseNote.txt"; DestDir: "{app}\"
 
 [Icons]
