@@ -17,11 +17,11 @@ Major Milestone Release (Preview Rlease)
 
 -- Improvements
 
-   N/A
+   * N/A
 
 -- Bug Fixes
 
-   N/A
+   * N/A
 
 -- Ongoing
 
@@ -40,11 +40,11 @@ Major Milestone Release (Preview Rlease)
 
 -- Improvements
 
-   N/A
+   * N/A
 
 -- Bug Fixes
 
-   N/A
+   * N/A
 
 -- Ongoing
 
