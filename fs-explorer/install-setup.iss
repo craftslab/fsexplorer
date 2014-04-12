@@ -17,6 +17,7 @@ Name: "{app}\bin"
 [Files]
 Source: ".\release\bin\*"; DestDir: "{app}\bin"
 Source: ".\release\lib\*"; DestDir: "{app}\bin"
+Source: ".\release\lib\platforms\*"; DestDir: "{app}\bin"
 Source: ".\release\ReleaseNote.txt"; DestDir: "{app}\"
 
 [Icons]
