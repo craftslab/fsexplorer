@@ -34,6 +34,7 @@
 #include <QHBoxLayout>
 #include <QFileSystemModel>
 #include <QFileDialog>
+#include <QLineEdit>
 #include <QTreeView>
 #include <QTextEdit>
 #include <QSettings>
@@ -65,9 +66,10 @@ protected:
 
 private slots:
   void openFile();
+  void closeFile();
   void importFile();
   void exportFile();
-  void closeFile();
+  void removeFile();
   void prop();
   void stats();
   void console();
@@ -140,12 +142,18 @@ private:
   QToolBar *fileToolBar;
   QToolBar *optionsToolBar;
   QToolBar *goToolBar;
+  QToolBar *searchToolBar;
+
+  QLineEdit *addressBar;
+  QLineEdit *searchBar;
+  QSplitter *searchSplitter;
 
   QAction *openAction;
   QAction *closeAction;
   QAction *exitAction;
   QAction *importAction;
   QAction *exportAction;
+  QAction *removeAction;
   QAction *consoleAction;
   QAction *propAction;
   QAction *statsAction;

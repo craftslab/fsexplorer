@@ -6,12 +6,15 @@
     <file>images/close.png</file>
     <file>images/import.png</file>
     <file>images/export.png</file>
+    <file>images/remove.png</file>
     <file>images/console.png</file>
     <file>images/stats.png</file>
     <file>images/setting.png</file>
     <file>images/home.png</file>
     <file>images/up.png</file>
+    <file>images/search.png</file>
     <file>images/folder.png</file>
     <file>images/file.png</file>
+    <file>images/warning.png</file>
 </qresource>
 </RCC>

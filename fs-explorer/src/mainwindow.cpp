@@ -149,6 +149,11 @@ void MainWindow::exportFile()
   // TODO
 }
 
+void MainWindow::removeFile()
+{
+  // TODO
+}
+
 void MainWindow::console()
 {
   consoleWindow = new ConsoleWindow(this);
@@ -298,6 +303,8 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
   QMenu menu;
   menu.addAction(exportAction);
+  menu.addAction(removeAction);
+  menu.addSeparator();
   menu.addAction(consoleAction);
   menu.addSeparator();
   menu.addAction(propAction);
@@ -374,7 +381,6 @@ void MainWindow::createActions()
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
   importAction->setStatusTip(tr("Import file"));
   importAction->setEnabled(false);
-  importAction->setVisible(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(importFile()));
 
   exportAction = new QAction(tr("&Export to..."), this);
@@ -383,6 +389,13 @@ void MainWindow::createActions()
   exportAction->setStatusTip(tr("Export file"));
   exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
+
+  removeAction = new QAction(tr("&Remove"), this);
+  removeAction->setIcon(QIcon(":/images/remove.png"));
+  removeAction->setShortcut(QKeySequence(tr("Ctrl+D")));
+  removeAction->setStatusTip(tr("Remove file"));
+  removeAction->setEnabled(false);
+  connect(removeAction, SIGNAL(triggered()), this, SLOT(removeFile()));
 
   consoleAction = new QAction(tr("Co&nsole"), this);
   consoleAction->setIcon(QIcon(":/images/console.png"));
@@ -438,8 +451,12 @@ void MainWindow::createMenus()
   fileMenu->addAction(exitAction);
 
   optionsMenu = menuBar()->addMenu(tr("&Options"));
+  optionsMenu->addAction(importAction);
   optionsMenu->addAction(exportAction);
+  optionsMenu->addAction(removeAction);
+  optionsMenu->addSeparator();
   optionsMenu->addAction(consoleAction);
+  optionsMenu->addSeparator();
   optionsMenu->addAction(statsAction);
 
   goMenu = menuBar()->addMenu(tr("&Go"));
@@ -465,7 +482,9 @@ void MainWindow::createToolBars()
   optionsToolBar->setFloatable(false);
   optionsToolBar->setMovable(false);
   optionsToolBar->setIconSize(QSize(16, 16));
+  optionsToolBar->addAction(importAction);
   optionsToolBar->addAction(exportAction);
+  optionsToolBar->addAction(removeAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addAction(statsAction);
   optionsToolBar->addSeparator();
@@ -476,6 +495,30 @@ void MainWindow::createToolBars()
   goToolBar->setIconSize(QSize(16, 16));
   goToolBar->addAction(homeAction);
   goToolBar->addAction(upAction);
+  goToolBar->addSeparator();
+
+  addressBar = new QLineEdit();
+  addressBar->setFrame(true);
+  addressBar->setEnabled(false);
+
+  searchBar = new QLineEdit();
+  searchBar->setPlaceholderText(QString(tr("Search")));
+  searchBar->setClearButtonEnabled(true);
+  searchBar->setFrame(true);
+  searchBar->setEnabled(false);
+  searchBar->addAction(QIcon(":/images/search.png"), QLineEdit::TrailingPosition);
+
+  searchSplitter = new QSplitter(Qt::Horizontal);
+  searchSplitter->addWidget(addressBar);
+  searchSplitter->addWidget(searchBar);
+  searchSplitter->setStretchFactor(1, 1);
+  searchSplitter->setHandleWidth(1);
+  searchSplitter->setEnabled(false);
+
+  searchToolBar = addToolBar(tr("Search"));
+  searchToolBar->setFloatable(false);
+  searchToolBar->setMovable(false);
+  searchToolBar->addWidget(searchSplitter);
 }
 
 void MainWindow::createStatusBar()
@@ -591,11 +634,16 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), removeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), addressBar, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), searchBar, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), searchSplitter, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
   connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
