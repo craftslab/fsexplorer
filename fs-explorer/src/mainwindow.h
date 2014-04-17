@@ -100,6 +100,7 @@ private:
   void confirmFileStatus(bool &status);
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
+  void showAddress(QModelIndex index) const;
 
   void createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list);
   void createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList);

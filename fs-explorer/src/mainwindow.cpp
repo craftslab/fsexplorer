@@ -128,6 +128,8 @@ void MainWindow::openFile()
 
 void MainWindow::closeFile()
 {
+  addressBar->clear();
+
   removeTreeAll();
   removeListAll();
 
@@ -204,6 +206,8 @@ void MainWindow::goUp()
 
   removeListAll();
   updateListItem(ino);
+
+  emit syncTree(ino);
 }
 
 void MainWindow::about()
@@ -240,6 +244,8 @@ void MainWindow::pressTreeItem(QModelIndex index)
   treeView->setCurrentIndex(index);
   treeView->expand(index);
 
+  showAddress(index);
+
   emit syncList(ino);
 }
 
@@ -254,13 +260,15 @@ void MainWindow::syncTreeItem(unsigned long long ino)
    */
   if (parentIno == ino) {
     treeView->setCurrentIndex(index.parent());
+    showAddress(index.parent());
   } else {
     if (!mapTreeInoExpand[ino]) {
       treeView->setCurrentIndex(index);
       updateTreeItem(ino);
     }
-
     treeView->expandAll();
+
+    showAddress(index);
   }
 }
 
@@ -543,6 +551,7 @@ void MainWindow::createWidgets()
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
+  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
 
   listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed") << tr("Data Created")
              << tr("Ino") << tr("Mode") << tr("UID") << tr("GID")
@@ -587,6 +596,10 @@ void MainWindow::createWidgets()
   for (int column = 5; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
+
+  connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
+  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
+  connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
   horiSplitter = new QSplitter(Qt::Horizontal);
   horiSplitter->addWidget(treeView);
@@ -644,13 +657,8 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), addressBar, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), searchBar, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), searchSplitter, SLOT(setEnabled(bool)));
+
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
-
-  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
-
-  connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
-  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
-  connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
   connect(this, SIGNAL(syncTree(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
   connect(this, SIGNAL(syncList(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
@@ -687,6 +695,8 @@ void MainWindow::loadFile(QString &name)
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
+    addressBar->setText(QString(tr("/")));
+
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
 
     fileDentList.clear();
@@ -721,6 +731,33 @@ void MainWindow::setOutput(const QString &text) const
     outputView->clear();
     outputView->setPlainText(text);
   }
+}
+
+void MainWindow::showAddress(QModelIndex index) const
+{
+  QAbstractItemModel *model = treeView->model();
+  QVariant data;
+  QStringList list;
+  QString address;
+
+  while (index.isValid()) {
+    data = model->data(index, Qt::DisplayRole);
+    list << data.toString();
+
+    index = index.parent();
+  }
+
+  address.clear();
+  for (int i = list.size() - 1; i >= 0; --i) {
+    if (i == list.size() - 1) {
+      address.append(list[i]);
+    } else {
+      address.append(list[i]).append(tr("/"));
+    }
+  }
+
+  addressBar->clear();
+  addressBar->setText(address);
 }
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
