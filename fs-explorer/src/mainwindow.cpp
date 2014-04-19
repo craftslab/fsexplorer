@@ -537,7 +537,10 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createWidgets()
 {
-  treeHeader << tr("Name");
+  for (int i = 0; i < TREE_MAX; ++i) {
+    treeHeader << tr("");
+  }
+  treeHeader[TREE_NAME] = tr("Name");
 
   treeModel = new FsTreeModel(treeHeader);
   treeView = new QTreeView();
@@ -553,9 +556,19 @@ void MainWindow::createWidgets()
   }
   connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
 
-  listHeader << tr("Name") << tr("Size") << tr("Data Modified") << tr("Data Accessed") << tr("Data Created")
-             << tr("Ino") << tr("Mode") << tr("UID") << tr("GID")
-             << tr("Type");
+  for (int i = 0; i < LIST_MAX; ++i) {
+    listHeader << tr("");
+  }
+  listHeader[LIST_NAME] = tr("Name");
+  listHeader[LIST_SIZE] = tr("Size");
+  listHeader[LIST_MTIME] = tr("Data Modified");
+  listHeader[LIST_ATIME] = tr("Data Accessed");
+  listHeader[LIST_CTIME] = tr("Data Created");
+  listHeader[LIST_INO] = tr("Ino");
+  listHeader[LIST_MODE] = tr("Mode");
+  listHeader[LIST_UID] = tr("UID");
+  listHeader[LIST_GID] = tr("GID");
+  listHeader[LIST_TYPE] = tr("Type");
 
   listModel = new FsListModel(listHeader);
   listView = new QTreeView();
@@ -790,7 +803,12 @@ void MainWindow::createFileStatList(QList<struct fs_dirent> &dentList, QList<str
 void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
 {
   QStringList stringList;
-  stringList << tr("%1").arg(name);
+
+  for (int i = 0; i < TREE_MAX; ++i) {
+    stringList << tr("");
+  }
+  stringList[TREE_NAME] = tr("%1").arg(name);
+
   insertTreeRow(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
@@ -822,7 +840,11 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
     }
 
     QStringList stringList;
-    stringList << tr("%1").arg(child.d_name);
+
+    for (int i = 0; i < TREE_MAX; ++i) {
+      stringList << tr("");
+    }
+    stringList[TREE_NAME] = tr("%1").arg(child.d_name);
 
     insertTreeChild(stringList, parent);
 
@@ -873,9 +895,20 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
     ctime = dtCtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
     QStringList stringList;
-    stringList << tr("%1").arg(childDentList.d_name) << tr(str).arg(size) << tr("%1").arg(mtime) << tr("%1").arg(atime) << tr("%1").arg(ctime)
-               << tr("%1").arg(childDentList.d_ino) << tr("%1").arg(childStatList.mode, 0, 8) << tr("%1").arg(childStatList.uid) << tr("%1").arg(childStatList.gid)
-               << tr("%1").arg(childDentList.d_type);
+
+    for (int i = 0; i < LIST_MAX; ++i) {
+      stringList << tr("");
+    }
+    stringList[LIST_NAME] = tr("%1").arg(childDentList.d_name);
+    stringList[LIST_SIZE] = tr(str).arg(size);
+    stringList[LIST_MTIME] = tr("%1").arg(mtime);
+    stringList[LIST_ATIME] = tr("%1").arg(atime);
+    stringList[LIST_CTIME] = tr("%1").arg(ctime);
+    stringList[LIST_INO] = tr("%1").arg(childDentList.d_ino);
+    stringList[LIST_MODE] = tr("%1").arg(childStatList.mode, 0, 8);
+    stringList[LIST_UID] = tr("%1").arg(childStatList.uid);
+    stringList[LIST_GID] = tr("%1").arg(childStatList.gid);
+    stringList[LIST_TYPE] = tr("%1").arg(childDentList.d_type);
 
     insertListRow(stringList);
 

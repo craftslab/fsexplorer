@@ -47,6 +47,25 @@
 #include "consolewindow.h"
 #include "aboutdialog.h"
 
+enum TreeHeader{
+  TREE_NAME = 0,
+  TREE_MAX
+};
+
+enum ListHeader{
+  LIST_NAME = 0,
+  LIST_SIZE,
+  LIST_MTIME,
+  LIST_ATIME,
+  LIST_CTIME,
+  LIST_INO,
+  LIST_MODE,
+  LIST_UID,
+  LIST_GID,
+  LIST_TYPE,
+  LIST_MAX
+};
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
