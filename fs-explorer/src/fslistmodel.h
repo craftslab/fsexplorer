@@ -41,6 +41,7 @@ public:
   ~FsListModel();
 
   QVariant data(const QModelIndex &index, int role) const;
+  QVariant data(const QModelIndex &index, int column, int role) const;
   QVariant headerData(int section, Qt::Orientation orientation,
                       int role = Qt::DisplayRole) const;
 

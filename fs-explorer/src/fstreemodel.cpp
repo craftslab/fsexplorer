@@ -82,6 +82,21 @@ QVariant FsTreeModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
+QVariant FsTreeModel::data(const QModelIndex &index, int column, int role) const
+{
+  if (!index.isValid()) {
+    return QVariant();
+  }
+
+  FsTreeItem *item = getItem(index);
+
+  if (role == Qt::DisplayRole || role == Qt::EditRole) {
+    return item->data(column);
+  }
+
+  return QVariant();
+}
+
 Qt::ItemFlags FsTreeModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid()) {
