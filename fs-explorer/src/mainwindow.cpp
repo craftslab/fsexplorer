@@ -232,9 +232,7 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::pressTreeItem(QModelIndex index)
 {
-  QAbstractItemModel *model = treeView->model();
-  QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapTreeNameIno[data.toString()];
+  unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
   if (!mapTreeInoExpand[ino]) {
     updateTreeItem(ino);
@@ -251,8 +249,7 @@ void MainWindow::pressTreeItem(QModelIndex index)
 void MainWindow::syncTreeItem(unsigned long long ino)
 {
   QModelIndex index = mapTreeInoIndex[ino];
-  QVariant parentData = treeModel->data(index.parent(), Qt::DisplayRole);
-  unsigned long long parentIno = mapTreeNameIno[parentData.toString()];
+  unsigned long long parentIno = treeModel->data(index.parent(), TREE_INO, Qt::DisplayRole).toULongLong();
 
   /* 
    * Go up if 'parentIno == ino', otherwise, go down.
@@ -537,6 +534,7 @@ void MainWindow::createWidgets()
     treeHeader << tr("");
   }
   treeHeader[TREE_NAME] = tr("Name");
+  treeHeader[TREE_INO] = tr("Ino");
 
   treeModel = new FsTreeModel(treeHeader);
   treeView = new QTreeView();
@@ -546,7 +544,7 @@ void MainWindow::createWidgets()
   treeView->expand(treeIndex);
   treeView->setCurrentIndex(treeIndex);
   treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(0, false);
+  treeView->setColumnHidden(TREE_INO, true);
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
@@ -804,13 +802,13 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
     stringList << tr("");
   }
   stringList[TREE_NAME] = tr("%1").arg(name);
+  stringList[TREE_INO] = tr("%1").arg(ino);
 
   insertTreeRow(stringList);
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
 
-  mapTreeNameIno[QString(name)] = ino;
   mapTreeInoIndex[ino] = index;
   mapTreeInoExpand[ino] = false;
 }
@@ -819,35 +817,35 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
 {
   QModelIndex parent = treeView->selectionModel()->currentIndex();
   QModelIndex index;
-  struct fs_dirent child;
+  struct fs_dirent dent;
 
   mapTreeInoIndex[ino] = parent;
   mapTreeInoExpand[ino] = true;
 
   for (int i = 0; i < list.size(); ++i) {
-    child = list[i];
-    if (child.d_type != FT_DIR) {
+    dent = list[i];
+    if (dent.d_type != FT_DIR) {
       continue;
     }
 
-    if (!strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOT)
-        || !strcmp((const char *)child.d_name, (const char *)FS_DNAME_DOTDOT)) {
+    if (!strcmp((const char *)dent.d_name, (const char *)FS_DNAME_DOT)
+        || !strcmp((const char *)dent.d_name, (const char *)FS_DNAME_DOTDOT)) {
       continue;
     }
 
     QStringList stringList;
 
-    for (int i = 0; i < TREE_MAX; ++i) {
+    for (int j = 0; j < TREE_MAX; ++j) {
       stringList << tr("");
     }
-    stringList[TREE_NAME] = tr("%1").arg(child.d_name);
+    stringList[TREE_NAME] = tr("%1").arg(dent.d_name);
+    stringList[TREE_INO] = tr("%1").arg(dent.d_ino);
 
     insertTreeChild(stringList, parent);
 
-    mapTreeNameIno[QString(child.d_name)] = child.d_ino;
     index = treeView->selectionModel()->currentIndex();
-    mapTreeInoIndex[child.d_ino] = index;
-    mapTreeInoExpand[child.d_ino] = false;
+    mapTreeInoIndex[dent.d_ino] = index;
+    mapTreeInoExpand[dent.d_ino] = false;
   }
 
   treeView->expand(parent);
@@ -892,7 +890,7 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
 
     QStringList stringList;
 
-    for (int i = 0; i < LIST_MAX; ++i) {
+    for (int j = 0; j < LIST_MAX; ++j) {
       stringList << tr("");
     }
     stringList[LIST_NAME] = tr("%1").arg(childDentList.d_name);
@@ -1052,7 +1050,6 @@ void MainWindow::removeTreeAll()
 {
   mapTreeInoExpand.clear();
   mapTreeInoIndex.clear();
-  mapTreeNameIno.clear();
 
   removeTreeColumnsAll();
 }

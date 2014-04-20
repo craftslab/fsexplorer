@@ -49,6 +49,7 @@
 
 enum TreeHeader{
   TREE_NAME = 0,
+  TREE_INO,
   TREE_MAX
 };
 
@@ -194,7 +195,6 @@ private:
   QStringList treeHeader;
   QStringList listHeader;
 
-  QMap<QString, unsigned long long> mapTreeNameIno;
   QMap<unsigned long long, QModelIndex> mapTreeInoIndex;
   QMap<unsigned long long, bool> mapTreeInoExpand;
 };
