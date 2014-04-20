@@ -165,8 +165,7 @@ void MainWindow::console()
 void MainWindow::prop()
 {
   QModelIndex index = listView->selectionModel()->currentIndex();
-  QVariant data = listModel->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapListNameIno[data.toString()];
+  unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
   QString stat = fsEngine->getFileChildsStatDetail(ino);
 
   statsWindow = new StatsWindow(tr("File Stats"), stat, this);
@@ -274,20 +273,17 @@ void MainWindow::syncTreeItem(unsigned long long ino)
 
 void MainWindow::clickListItem(QModelIndex index)
 {
-  QAbstractItemModel *model = listView->model();
-  QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapListNameIno[data.toString()];
+  unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
 
   showFileStat(ino);
 }
 
 void MainWindow::doubleClickListItem(QModelIndex index)
 {
-  QAbstractItemModel *model = listView->model();
-  QVariant data = model->data(index, Qt::DisplayRole);
-  unsigned long long ino = mapListNameIno[data.toString()];
+  enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
+  unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
 
-  if (mapListInoType[ino] != FT_DIR) {
+  if (type != FT_DIR) {
     return;
   }
 
@@ -911,9 +907,6 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
     stringList[LIST_TYPE] = tr("%1").arg(childDentList.d_type);
 
     insertListRow(stringList);
-
-    mapListNameIno[QString(childDentList.d_name)] = childDentList.d_ino;
-    mapListInoType[childDentList.d_ino] = childDentList.d_type;
   }
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
@@ -1080,9 +1073,6 @@ void MainWindow::removeTreeRowsAll()
 
 void MainWindow::removeListAll()
 {
-  mapListNameIno.clear();
-  mapListInoType.clear();
-
   removeListColumnsAll();
 }
 
