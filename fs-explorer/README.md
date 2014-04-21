@@ -12,16 +12,10 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 ## Windows XP, 7+
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/win)
 
-[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando-install/blob/master/libyafuse2/install32/win)
-
 ## Ubuntu 12.04+
 [32-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/unix)
 
 [64-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install64/unix)
-
-[32-bit libyafuse2 Install](https://github.com/lemonjia/Fricando-install/blob/master/libyafuse2/install32/unix)
-
-[64-bit libyafuse2 Install](https://github.com/lemonjia/Fricando-install/blob/master/libyafuse2/install64/unix)
 
 ![Screenshot](https://github.com/lemonjia/Fricando-install/blob/master/screenshot-ubuntu.png)
 
@@ -51,16 +45,6 @@ cd fs-explorer
 qmake
 make && make install
 ```
-
-# Precompiled libraries
-
-## Overview
-
-[libyafuse2](https://github.com/lemonjia/Fricando/blob/master/libyafuse2) - the precompiled filesystem library, developed for Ext4, FAT16/FAT32, etc.
-
-[libyafuse2/install32/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/unix), [libyafuse2/install64/unix](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
-
-[libyafuse2/install32/win](https://github.com/lemonjia/Fricando/blob/master/libyafuse2/install32/win) 32-bit, precompiled by Visual Studio 2010 from libyafuse2.
 
 # Authors
 
