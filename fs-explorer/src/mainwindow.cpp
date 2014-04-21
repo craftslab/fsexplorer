@@ -217,14 +217,16 @@ void MainWindow::about()
 
 void MainWindow::showWidgets(bool show)
 {
-  if (!vertSplitter || !bgLabel) {
+  if (!searchToolBar || !vertSplitter || !bgLabel) {
     return;
   }
 
   if (show) {
+    searchToolBar->setVisible(true);
     vertSplitter->setVisible(true);
     bgLabel->setVisible(false);
   } else {
+    searchToolBar->setVisible(false);
     vertSplitter->setVisible(false);
     bgLabel->setVisible(true);
   }
@@ -498,15 +500,16 @@ void MainWindow::createToolBars()
   goToolBar->addAction(upAction);
   goToolBar->addSeparator();
 
+  addToolBarBreak(Qt::TopToolBarArea);
+
   addressBar = new QLineEdit();
   addressBar->setFrame(true);
-  addressBar->setEnabled(false);
+  addressBar->addAction(QIcon(":/images/right.png"), QLineEdit::TrailingPosition);
 
   searchBar = new QLineEdit();
   searchBar->setPlaceholderText(QString(tr("Search")));
   searchBar->setClearButtonEnabled(true);
   searchBar->setFrame(true);
-  searchBar->setEnabled(false);
   searchBar->addAction(QIcon(":/images/search.png"), QLineEdit::TrailingPosition);
 
   searchSplitter = new QSplitter(Qt::Horizontal);
@@ -514,7 +517,6 @@ void MainWindow::createToolBars()
   searchSplitter->addWidget(searchBar);
   searchSplitter->setStretchFactor(1, 1);
   searchSplitter->setHandleWidth(1);
-  searchSplitter->setEnabled(false);
 
   searchToolBar = addToolBar(tr("Search"));
   searchToolBar->setFloatable(false);
@@ -661,9 +663,6 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), addressBar, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), searchBar, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), searchSplitter, SLOT(setEnabled(bool)));
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
