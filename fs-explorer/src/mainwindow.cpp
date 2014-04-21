@@ -54,6 +54,32 @@ MainWindow::MainWindow()
   fsStatus = false;
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+  QSize size = event->size();
+
+  if (searchSplitter) {
+    QList<int> searchList = searchSplitter->sizes();
+    searchList[1] = size.width() / 4;
+    searchList[0] = size.width() - searchList[1];
+    searchSplitter->setSizes(searchList);
+  }
+
+  if (horiSplitter) {
+    QList<int> horiList = horiSplitter->sizes();
+    horiList[0] = size.width() / 5;
+    horiList[1] = size.width() - horiList[0];
+    horiSplitter->setSizes(horiList);
+  }
+
+  if (vertSplitter) {
+    QList<int> vertList = vertSplitter->sizes();
+    vertList[1] = size.height() / 3;
+    vertList[0] = size.height() - vertList[1];
+    vertSplitter->setSizes(vertList);
+  }
+}
+
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
@@ -616,12 +642,6 @@ void MainWindow::createWidgets()
   horiSplitter->setStretchFactor(1, 1);
   horiSplitter->setHandleWidth(1);
 
-  QList<int> horiList = horiSplitter->sizes();
-  horiList[0] = horiSplitter->widget(0)->sizeHint().width();
-  horiList[0] -= horiList[0] / 4;
-  horiList[1] = horiSplitter->widget(1)->sizeHint().width();
-  horiSplitter->setSizes(horiList);
-
   outputView = new QTextEdit();
   outputView->setReadOnly(true);
   outputView->setLineWrapMode(QTextEdit::NoWrap);
@@ -632,12 +652,6 @@ void MainWindow::createWidgets()
   vertSplitter->addWidget(outputView);
   vertSplitter->setStretchFactor(1, 1);
   vertSplitter->setHandleWidth(1);
-
-  QList<int> vertList = vertSplitter->sizes();
-  vertList[0] = vertSplitter->widget(0)->sizeHint().width();
-  vertList[0] += vertList[0] / 24;
-  vertList[1] = vertSplitter->widget(1)->sizeHint().width();
-  vertSplitter->setSizes(vertList);
 
   bgLabel = new QLabel(bgLabelText);
   bgLabel->setVisible(false);
@@ -714,6 +728,8 @@ void MainWindow::loadFile(QString &name)
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
     createTreeItem(treeRoot.d_ino, fileDentList);
     createListItem(fileDentList, fileStatList);
+
+    treeView->setColumnHidden(TREE_INO, true);
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));

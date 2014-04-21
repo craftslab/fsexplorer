@@ -80,6 +80,7 @@ signals:
   void syncList(unsigned long long ino);
 
 protected:
+  void resizeEvent(QResizeEvent *event);
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   void closeEvent(QCloseEvent *event);
