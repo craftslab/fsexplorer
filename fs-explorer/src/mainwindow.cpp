@@ -505,7 +505,6 @@ void MainWindow::createToolBars()
   fileToolBar->setIconSize(QSize(16, 16));
   fileToolBar->addAction(openAction);
   fileToolBar->addAction(closeAction);
-  fileToolBar->addSeparator();
 
   optionsToolBar = addToolBar(tr("Options"));
   optionsToolBar->setFloatable(false);
@@ -516,7 +515,6 @@ void MainWindow::createToolBars()
   optionsToolBar->addAction(removeAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addAction(statsAction);
-  optionsToolBar->addSeparator();
 
   goToolBar = addToolBar(tr("Go"));
   goToolBar->setFloatable(false);
@@ -524,7 +522,6 @@ void MainWindow::createToolBars()
   goToolBar->setIconSize(QSize(16, 16));
   goToolBar->addAction(homeAction);
   goToolBar->addAction(upAction);
-  goToolBar->addSeparator();
 
   addToolBarBreak(Qt::TopToolBarArea);
 
@@ -670,10 +667,10 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), importAction, SLOT(setEnabled(bool)));
+  //connect(this, SIGNAL(mounted(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), removeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  //connect(this, SIGNAL(mounted(bool)), removeAction, SLOT(setEnabled(bool)));
+  //connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
