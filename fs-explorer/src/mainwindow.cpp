@@ -241,6 +241,16 @@ void MainWindow::about()
   aboutDialog->exec();
 }
 
+void MainWindow::address()
+{
+  QString text = addressBar->text();
+}
+
+void MainWindow::search()
+{
+  QString text = searchBar->text();
+}
+
 void MainWindow::showWidgets(bool show)
 {
   if (!searchToolBar || !vertSplitter || !bgLabel) {
@@ -525,14 +535,22 @@ void MainWindow::createToolBars()
 
   addToolBarBreak(Qt::TopToolBarArea);
 
+  addressAction = new QAction(QIcon(":/images/right.png"), QString(tr("address")), this);
+  connect(addressAction, SIGNAL(triggered()), this, SLOT(address()));
+
   addressBar = new QLineEdit();
   addressBar->setFrame(false);
-  addressBar->addAction(QIcon(":/images/right.png"), QLineEdit::TrailingPosition);
+  addressBar->addAction(addressAction, QLineEdit::TrailingPosition);
+  connect(addressBar, SIGNAL(returnPressed()), this, SLOT(address()));
+
+  searchAction = new QAction(QIcon(":/images/search.png"), QString(tr("search")), this);
+  connect(searchAction, SIGNAL(triggered()), this, SLOT(search()));
 
   searchBar = new QLineEdit();
   searchBar->setPlaceholderText(QString(tr("Search")));
   searchBar->setFrame(false);
-  searchBar->addAction(QIcon(":/images/search.png"), QLineEdit::TrailingPosition);
+  searchBar->addAction(searchAction, QLineEdit::TrailingPosition);
+  connect(searchBar, SIGNAL(returnPressed()), this, SLOT(search()));
 
   searchSplitter = new QSplitter(Qt::Horizontal);
   searchSplitter->addWidget(addressBar);

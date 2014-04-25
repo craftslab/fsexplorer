@@ -97,6 +97,8 @@ private slots:
   void goHome();
   void goUp();
   void about();
+  void address();
+  void search();
   void showWidgets(bool show);
 
   void pressTreeItem(QModelIndex index);
@@ -183,6 +185,8 @@ private:
   QAction *upAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
+  QAction *addressAction;
+  QAction *searchAction;
 
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
