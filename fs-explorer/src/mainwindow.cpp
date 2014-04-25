@@ -526,13 +526,12 @@ void MainWindow::createToolBars()
   addToolBarBreak(Qt::TopToolBarArea);
 
   addressBar = new QLineEdit();
-  addressBar->setFrame(true);
+  addressBar->setFrame(false);
   addressBar->addAction(QIcon(":/images/right.png"), QLineEdit::TrailingPosition);
 
   searchBar = new QLineEdit();
   searchBar->setPlaceholderText(QString(tr("Search")));
-  searchBar->setClearButtonEnabled(true);
-  searchBar->setFrame(true);
+  searchBar->setFrame(false);
   searchBar->addAction(QIcon(":/images/search.png"), QLineEdit::TrailingPosition);
 
   searchSplitter = new QSplitter(Qt::Horizontal);
