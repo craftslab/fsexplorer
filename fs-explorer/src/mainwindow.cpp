@@ -23,6 +23,7 @@
 
 static const QString mainWindowTitle = QObject::tr("FS Explorer");
 static const QString version = QObject::tr("14.04");
+static const QString addressSep = QObject::tr("/");
 
 #if 0 // DISUSED here
 static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
@@ -243,7 +244,20 @@ void MainWindow::about()
 
 void MainWindow::address()
 {
+  QModelIndex index = treeModel->index(0, 0);
   QString text = addressBar->text();
+  QStringList list = text.split(addressSep, QString::SkipEmptyParts);
+  struct fs_dirent root = fsEngine->getFileRoot();
+  bool result = false;
+
+  if (!index.isValid() || !mapTreeInoExpand[root.d_ino]) {
+    return;
+  }
+
+  result = findAddress(index, list, 0);
+  if (!result) {
+    confirmAddressStatus(text);
+  }
 }
 
 void MainWindow::search()
@@ -702,8 +716,8 @@ void MainWindow::confirmFileStatus(bool &status)
 {
   QMessageBox msgBox;
   msgBox.setIcon(QMessageBox::Information);
-  msgBox.setText("The fs image has been open.");
-  msgBox.setInformativeText("Do you want to close it?");
+  msgBox.setText(tr("The fs image has been open."));
+  msgBox.setInformativeText(tr("Do you want to close it?"));
   msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
   int ret = msgBox.exec();
@@ -714,6 +728,26 @@ void MainWindow::confirmFileStatus(bool &status)
     break;
 
   case QMessageBox::No:
+    // Do nothing here
+    break;
+
+  default:
+    // Do nothing here
+    break;
+  }
+}
+
+void MainWindow::confirmAddressStatus(const QString &text)
+{
+  QMessageBox msgBox;
+  msgBox.setIcon(QMessageBox::Warning);
+  msgBox.setText(tr("Invalid address has been found."));
+  msgBox.setInformativeText(text);
+  msgBox.setStandardButtons(QMessageBox::Close);
+
+  int ret = msgBox.exec();
+  switch (ret) {
+  case QMessageBox::Close:
     // Do nothing here
     break;
 
@@ -794,6 +828,12 @@ void MainWindow::showAddress(QModelIndex index) const
 
   addressBar->clear();
   addressBar->setText(address);
+}
+
+bool MainWindow::findAddress(QModelIndex modelIndex, const QStringList &list, int listIndex)
+{
+  // TODO
+  return true;
 }
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
