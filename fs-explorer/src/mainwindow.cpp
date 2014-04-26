@@ -244,18 +244,31 @@ void MainWindow::about()
 
 void MainWindow::address()
 {
-  QModelIndex index = treeModel->index(0, 0);
   QString text = addressBar->text();
   QStringList list = text.split(addressSep, QString::SkipEmptyParts);
+  QModelIndex index = treeModel->index(0, 0);
   struct fs_dirent root = fsEngine->getFileRoot();
-  bool result = false;
+  unsigned long long ino = root.d_ino;
+  bool found = false;
 
-  if (!index.isValid() || !mapTreeInoExpand[root.d_ino]) {
+  if (list.size() == 0 || !index.isValid() || !mapTreeInoExpand[ino]) {
     return;
   }
 
-  result = findAddress(index, list, 0);
-  if (!result) {
+  found = findTreeAddress(index, list, 0, list.size() - 1, ino);
+  if (found) {
+    found = findTreeAddress(mapTreeInoIndex[ino], list, list.size() - 1, 1, ino);
+  }
+  treeView->setCurrentIndex(mapTreeInoIndex[ino]);
+  treeView->expandAll();
+
+  syncListItem(ino);
+
+  if (!found) {
+   found = findListFile(list[list.size() - 1]);
+  }
+ 
+  if (!found) {
     confirmAddressStatus(text);
   }
 }
@@ -830,27 +843,43 @@ void MainWindow::showAddress(QModelIndex index) const
   addressBar->setText(address);
 }
 
-bool MainWindow::findAddress(QModelIndex modelIndex, const QStringList &list, int listIndex)
+bool MainWindow::findTreeAddress(QModelIndex modelIndex, const QStringList &list, int listIndex, int listSize, unsigned long long &ino)
 {
-  unsigned long long ino = treeModel->data(modelIndex, TREE_INO, Qt::DisplayRole).toULongLong();
   QModelIndex index;
   QString name;
-  bool result = false;
+  bool found = false;
 
+  if (listIndex >= listSize) {
+    return true;
+  }
+
+  ino = treeModel->data(modelIndex, TREE_INO, Qt::DisplayRole).toULongLong();
   if (!mapTreeInoExpand[ino]) {
-    // TODO
+    updateTreeItem(ino);
   }
 
   for (int i = 0; i < treeModel->rowCount(modelIndex); ++i) {
     index = treeModel->index(i, TREE_NAME, modelIndex);
     name = treeModel->data(index, TREE_NAME, Qt::DisplayRole).toString();
 
-    if ((listIndex > 0 && listIndex < list.size()) && !QString::compare(name, list[listIndex])) {
-      result = findAddress(index, list, ++listIndex);
+    if (!QString::compare(name, list[listIndex])) {
+      if (listIndex == listSize - 1) {
+        found = true;
+      } else {
+        found = findTreeAddress(index, list, ++listIndex, listSize, ino);
+      }
+
+      break;
     }
   }
 
-  return result;
+  return found;
+}
+
+bool MainWindow::findListFile(const QString &text)
+{
+  // TODO
+  return false;
 }
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)

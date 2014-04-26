@@ -125,7 +125,8 @@ private:
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
   void showAddress(QModelIndex index) const;
-  bool findAddress(QModelIndex modelIndex, const QStringList &list, int listIndex);
+  bool findTreeAddress(QModelIndex modelIndex, const QStringList &list, int listIndex, int listSize, unsigned long long &ino);
+  bool findListFile(const QString &text);
 
   void createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list);
   void createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList);
