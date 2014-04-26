@@ -743,11 +743,11 @@ void MainWindow::confirmAddressStatus(const QString &text)
   msgBox.setIcon(QMessageBox::Warning);
   msgBox.setText(tr("Invalid address has been found."));
   msgBox.setInformativeText(text);
-  msgBox.setStandardButtons(QMessageBox::Close);
+  msgBox.setStandardButtons(QMessageBox::Ok);
 
   int ret = msgBox.exec();
   switch (ret) {
-  case QMessageBox::Close:
+  case QMessageBox::Ok:
     // Do nothing here
     break;
 
@@ -763,7 +763,7 @@ void MainWindow::loadFile(QString &name)
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
 
-    addressBar->setText(QString(tr("/")));
+    addressBar->setText(addressSep);
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
 
@@ -822,7 +822,7 @@ void MainWindow::showAddress(QModelIndex index) const
     if (i == list.size() - 1) {
       address.append(list[i]);
     } else {
-      address.append(list[i]).append(tr("/"));
+      address.append(list[i]).append(addressSep);
     }
   }
 
@@ -832,8 +832,25 @@ void MainWindow::showAddress(QModelIndex index) const
 
 bool MainWindow::findAddress(QModelIndex modelIndex, const QStringList &list, int listIndex)
 {
-  // TODO
-  return true;
+  unsigned long long ino = treeModel->data(modelIndex, TREE_INO, Qt::DisplayRole).toULongLong();
+  QModelIndex index;
+  QString name;
+  bool result = false;
+
+  if (!mapTreeInoExpand[ino]) {
+    // TODO
+  }
+
+  for (int i = 0; i < treeModel->rowCount(modelIndex); ++i) {
+    index = treeModel->index(i, TREE_NAME, modelIndex);
+    name = treeModel->data(index, TREE_NAME, Qt::DisplayRole).toString();
+
+    if ((listIndex > 0 && listIndex < list.size()) && !QString::compare(name, list[listIndex])) {
+      result = findAddress(index, list, ++listIndex);
+    }
+  }
+
+  return result;
 }
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
@@ -1078,7 +1095,7 @@ void MainWindow::insertTreeChild(const QStringList &data, const QModelIndex &par
     child = model->index(0, column, parent);
     model->setData(child, QVariant(data[column]), Qt::DisplayRole);
     if (!model->headerData(column, Qt::Horizontal).isValid()) {
-      model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::DisplayRole);
+      model->setHeaderData(column, Qt::Horizontal, QVariant(tr("[No header]")), Qt::DisplayRole);
     }
   }
 
