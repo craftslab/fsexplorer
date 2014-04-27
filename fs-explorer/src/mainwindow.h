@@ -76,7 +76,7 @@ public:
 
 signals:
   void mounted(bool status);
-  void syncTree(unsigned long long ino);
+  void syncTree(const QString &name);
   void syncList(unsigned long long ino);
 
 protected:
@@ -102,7 +102,7 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem(QModelIndex index);
-  void syncTreeItem(unsigned long long ino);
+  void syncTreeItem(const QString &name);
 
   void clickListItem(QModelIndex index);
   void doubleClickListItem(QModelIndex index);
@@ -124,16 +124,17 @@ private:
   void confirmAddressStatus(const QString &text);
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
-  void showAddress(QModelIndex index) const;
-  bool findTreeAddress(QModelIndex modelIndex, const QStringList &list, int listIndex, int listSize, unsigned long long &ino);
+  bool findTreeAddress(const QStringList &list, int listIndex, int listSize, QModelIndex &modelIndex);
   bool findListFile(const QString &text);
+  void showTreeAddress(QModelIndex index) const;
+  void showFileStat(unsigned long long ino) const;
 
   void createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list);
   void createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList);
   void createTreeRoot(const char *name, unsigned long long ino);
-  void createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list);
+  void createTreeItem(const QList<struct fs_dirent> &list);
   void createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList);
-  void updateTreeItem(unsigned long long ino);
+  void updateTreeItem(QModelIndex index);
   void updateListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
@@ -144,8 +145,6 @@ private:
   void removeListAll();
   void removeListColumnsAll();
   void removeListRowsAll();
-
-  void showFileStat(unsigned long long ino) const;
 
   QSettings *settings;
 
@@ -202,8 +201,5 @@ private:
 
   QStringList treeHeader;
   QStringList listHeader;
-
-  QMap<unsigned long long, QModelIndex> mapTreeInoIndex;
-  QMap<unsigned long long, bool> mapTreeInoExpand;
 };
 #endif

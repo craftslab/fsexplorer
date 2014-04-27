@@ -209,31 +209,17 @@ void MainWindow::stats()
 
 void MainWindow::goHome()
 {
-  QModelIndex treeIndex = treeModel->index(0, 0);
-  pressTreeItem(treeIndex);
+  QModelIndex index = treeModel->index(0, 0);
+  pressTreeItem(index);
 }
 
 void MainWindow::goUp()
 {
-  unsigned long long ino = 0;
-  bool found = false;
+  QModelIndex index = treeView->selectionModel()->currentIndex();
 
-  for (int i = 0; i < fileDentList.size(); ++i) {
-    if (fileDentList[i].d_type == FT_DIR && !strcmp(fileDentList[i].d_name, FS_DNAME_DOTDOT)) {
-      ino = fileDentList[i].d_ino;
-      found = true;
-      break;
-    }
+  if (index.isValid() && index.parent().isValid()) {
+    pressTreeItem(index.parent());
   }
-
-  if (!found) {
-    return;
-  }
-
-  removeListAll();
-  updateListItem(ino);
-
-  emit syncTree(ino);
 }
 
 void MainWindow::about()
@@ -247,35 +233,41 @@ void MainWindow::address()
   QString text = addressBar->text();
   QStringList list = text.split(addressSep, QString::SkipEmptyParts);
   QModelIndex index = treeModel->index(0, 0);
-  struct fs_dirent root = fsEngine->getFileRoot();
-  unsigned long long ino = root.d_ino;
+  unsigned long long ino;
   bool found = false;
 
-  if (list.size() <= 0 || !index.isValid() || !mapTreeInoExpand[ino]) {
+  if (list.size() <= 0 || !index.isValid() || !treeView->isExpanded(index)) {
     return;
   }
 
   if (list.size() == 1) {
-    found = findTreeAddress(index, list, 0, 1, ino);
+    found = findTreeAddress(list, 0, 1, index);
+
+    ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
     syncListItem(ino);
+
     if (!found) {
       found = findListFile(list[0]);
     }
    } else {
-    found = findTreeAddress(index, list, 0, list.size() - 1, ino);
+    found = findTreeAddress(list, 0, list.size() - 1, index);
     if (found) {
-      found = findTreeAddress(mapTreeInoIndex[ino], list, list.size() - 1, 1, ino);
+      found = findTreeAddress(list, list.size() - 1, 1, index);
+
+      ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
       syncListItem(ino);
+
       if (!found) {
         found = findListFile(list[list.size() - 1]);
       }
     } else {
+      ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
       syncListItem(ino);
     }
   }
 
-  treeView->setCurrentIndex(mapTreeInoIndex[ino]);
-  treeView->expandAll();
+  treeView->setCurrentIndex(index);
+  treeView->expand(index);
 
   if (!found) {
     confirmAddressStatus(text);
@@ -285,6 +277,8 @@ void MainWindow::address()
 void MainWindow::search()
 {
   QString text = searchBar->text();
+
+  // TODO
 }
 
 void MainWindow::showWidgets(bool show)
@@ -308,44 +302,54 @@ void MainWindow::pressTreeItem(QModelIndex index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
-  if (!mapTreeInoExpand[ino]) {
-    updateTreeItem(ino);
+  if (!treeView->isExpanded(index)) {
+    updateTreeItem(index);
   }
 
   treeView->setCurrentIndex(index);
   treeView->expand(index);
 
-  showAddress(index);
+  showTreeAddress(index);
 
   emit syncList(ino);
 }
 
-void MainWindow::syncTreeItem(unsigned long long ino)
+void MainWindow::syncTreeItem(const QString &name)
 {
-  QModelIndex index = mapTreeInoIndex[ino];
-  unsigned long long parentIno = treeModel->data(index.parent(), TREE_INO, Qt::DisplayRole).toULongLong();
+  QModelIndex index = treeView->selectionModel()->currentIndex();
+  QModelIndex child;
+  QString childName;
+  bool found = false;
 
-  /* 
-   * Go up if 'parentIno == ino', otherwise, go down.
-   */
-  if (parentIno == ino) {
+  if (!QString::compare(name, QString(tr(FS_DNAME_DOTDOT)))) {
     treeView->setCurrentIndex(index.parent());
-    showAddress(index.parent());
+    showTreeAddress(index.parent());
   } else {
-    if (!mapTreeInoExpand[ino]) {
-      treeView->setCurrentIndex(index);
-      updateTreeItem(ino);
-    }
-    treeView->expandAll();
+    for (int i = 0; i < treeModel->rowCount(index); ++i) {
+      child = treeModel->index(i, TREE_NAME, index);
+      childName = treeModel->data(child, TREE_NAME, Qt::DisplayRole).toString();
 
-    showAddress(index);
+      if (!QString::compare(name, childName)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      if (!treeView->isExpanded(child)) {
+        treeView->setCurrentIndex(child);
+        updateTreeItem(child);
+      }
+      treeView->expand(child);
+
+      showTreeAddress(child);
+    }
   }
 }
 
 void MainWindow::clickListItem(QModelIndex index)
 {
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
-
   showFileStat(ino);
 }
 
@@ -353,6 +357,7 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 {
   enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+  QString name = listModel->data(index, LIST_NAME, Qt::DisplayRole).toString();
 
   if (type != FT_DIR) {
     return;
@@ -363,7 +368,7 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 
   showFileStat(ino);
 
-  emit syncTree(ino);
+  emit syncTree(name);
 }
 
 void MainWindow::syncListItem(unsigned long long ino)
@@ -730,7 +735,7 @@ void MainWindow::createConnections()
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(this, SIGNAL(syncTree(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
+  connect(this, SIGNAL(syncTree(const QString &)), this, SLOT(syncTreeItem(const QString &)));
   connect(this, SIGNAL(syncList(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
 }
 
@@ -796,7 +801,7 @@ void MainWindow::loadFile(QString &name)
     createFileStatList(fileDentList, fileStatList);
 
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
-    createTreeItem(treeRoot.d_ino, fileDentList);
+    createTreeItem(fileDentList);
     createListItem(fileDentList, fileStatList);
 
     treeView->setColumnHidden(TREE_INO, true);
@@ -825,7 +830,45 @@ void MainWindow::setOutput(const QString &text) const
   }
 }
 
-void MainWindow::showAddress(QModelIndex index) const
+bool MainWindow::findTreeAddress(const QStringList &list, int listIndex, int listSize, QModelIndex &modelIndex)
+{
+  QModelIndex index;
+  QString name;
+  bool found = false;
+
+  if (listSize > 0 && listIndex >= listSize) {
+    return true;
+  }
+
+  if (!treeView->isExpanded(modelIndex)) {
+    updateTreeItem(modelIndex);
+  }
+
+  for (int i = 0; i < treeModel->rowCount(modelIndex); ++i) {
+    index = treeModel->index(i, TREE_NAME, modelIndex);
+    name = treeModel->data(index, TREE_NAME, Qt::DisplayRole).toString();
+
+    if (!QString::compare(name, list[listIndex])) {
+      if (listIndex == listSize - 1) {
+        found = true;
+      } else {
+        found = findTreeAddress(list, ++listIndex, listSize, index);
+      }
+
+      break;
+    }
+  }
+
+  return found;
+}
+
+bool MainWindow::findListFile(const QString &text)
+{
+  // TODO
+  return false;
+}
+
+void MainWindow::showTreeAddress(QModelIndex index) const
 {
   QAbstractItemModel *model = treeView->model();
   QVariant data;
@@ -852,44 +895,35 @@ void MainWindow::showAddress(QModelIndex index) const
   addressBar->setText(address);
 }
 
-bool MainWindow::findTreeAddress(QModelIndex modelIndex, const QStringList &list, int listIndex, int listSize, unsigned long long &ino)
+void MainWindow::showFileStat(unsigned long long ino) const
 {
-  QModelIndex index;
-  QString name;
+  int i = 0;
   bool found = false;
 
-  if (listSize > 0 && listIndex >= listSize) {
-    return true;
+  for (i = 0; i < fileStatList.size(); ++i) {
+   if (fileStatList[i].ino == ino) {
+     found = true;
+     break;
+   }
   }
 
-  ino = treeModel->data(modelIndex, TREE_INO, Qt::DisplayRole).toULongLong();
-  if (!mapTreeInoExpand[ino]) {
-    updateTreeItem(ino);
+  if (!found) {
+    return;
   }
 
-  for (int i = 0; i < treeModel->rowCount(modelIndex); ++i) {
-    index = treeModel->index(i, TREE_NAME, modelIndex);
-    name = treeModel->data(index, TREE_NAME, Qt::DisplayRole).toString();
+  QString text = QObject::tr("inode: %1\n").arg(fileStatList[i].ino);
+  text.append(tr("mode: %1\n").arg(fileStatList[i].mode, 0, 8));
+  text.append(tr("nlink: %1\n").arg(fileStatList[i].nlink));
+  text.append(tr("uid: %1\n").arg(fileStatList[i].uid));
+  text.append(tr("gid: %1\n").arg(fileStatList[i].gid));
+  text.append(tr("size: %1\n").arg(fileStatList[i].size));
+  text.append(tr("atime: sec %1 nsec %2\n").arg(fileStatList[i].atime.tv_sec).arg(fileStatList[i].atime.tv_nsec));
+  text.append(tr("mtime: sec %1 nsec %2\n").arg(fileStatList[i].mtime.tv_sec).arg(fileStatList[i].mtime.tv_nsec));
+  text.append(tr("ctime: sec %1 nsec %2\n").arg(fileStatList[i].ctime.tv_sec).arg(fileStatList[i].ctime.tv_nsec));
+  text.append(tr("blksize: %1\n").arg(fileStatList[i].blksize));
+  text.append(tr("blocks: %1\n").arg(fileStatList[i].blocks));
 
-    if (!QString::compare(name, list[listIndex])) {
-      if (listIndex == listSize - 1) {
-        ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-        found = true;
-      } else {
-        found = findTreeAddress(index, list, ++listIndex, listSize, ino);
-      }
-
-      break;
-    }
-  }
-
-  return found;
-}
-
-bool MainWindow::findListFile(const QString &text)
-{
-  // TODO
-  return false;
+  setOutput(text);
 }
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
@@ -933,19 +967,12 @@ void MainWindow::createTreeRoot(const char *name, unsigned long long ino)
 
   QModelIndex index = treeModel->index(0, 0);
   treeView->setCurrentIndex(index);
-
-  mapTreeInoIndex[ino] = index;
-  mapTreeInoExpand[ino] = false;
 }
 
-void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_dirent> &list)
+void MainWindow::createTreeItem(const QList<struct fs_dirent> &list)
 {
   QModelIndex parent = treeView->selectionModel()->currentIndex();
-  QModelIndex index;
   struct fs_dirent dent;
-
-  mapTreeInoIndex[ino] = parent;
-  mapTreeInoExpand[ino] = true;
 
   for (int i = 0; i < list.size(); ++i) {
     dent = list[i];
@@ -967,12 +994,9 @@ void MainWindow::createTreeItem(unsigned long long ino, const QList<struct fs_di
     stringList[TREE_INO] = tr("%1").arg(dent.d_ino);
 
     insertTreeChild(stringList, parent);
-
-    index = treeView->selectionModel()->currentIndex();
-    mapTreeInoIndex[dent.d_ino] = index;
-    mapTreeInoExpand[dent.d_ino] = false;
   }
 
+  treeView->setCurrentIndex(parent);
   treeView->expand(parent);
 }
 
@@ -1064,15 +1088,17 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
   }
 }
 
-void MainWindow::updateTreeItem(unsigned long long ino)
+void MainWindow::updateTreeItem(QModelIndex index)
 {
+  unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
+
   fileDentList.clear();
   createFileDentList(ino, fileDentList);
 
   fileStatList.clear();
   createFileStatList(fileDentList, fileStatList);
 
-  createTreeItem(ino, fileDentList);
+  createTreeItem(fileDentList);
 }
 
 void MainWindow::updateListItem(unsigned long long ino)
@@ -1173,9 +1199,6 @@ void MainWindow::insertListRow(const QStringList &data)
 
 void MainWindow::removeTreeAll()
 {
-  mapTreeInoExpand.clear();
-  mapTreeInoIndex.clear();
-
   removeTreeColumnsAll();
 }
 
@@ -1210,35 +1233,4 @@ void MainWindow::removeListRowsAll()
   QModelIndex index = listModel->index(0, 0);
   QAbstractItemModel *model = listView->model();
   model->removeRows(0, model->rowCount(), index);
-}
-
-void MainWindow::showFileStat(unsigned long long ino) const
-{
-  int i = 0;
-  bool found = false;
-
-  for (i = 0; i < fileStatList.size(); ++i) {
-   if (fileStatList[i].ino == ino) {
-     found = true;
-     break;
-   }
-  }
-
-  if (!found) {
-    return;
-  }
-
-  QString text = QObject::tr("inode: %1\n").arg(fileStatList[i].ino);
-  text.append(tr("mode: %1\n").arg(fileStatList[i].mode, 0, 8));
-  text.append(tr("nlink: %1\n").arg(fileStatList[i].nlink));
-  text.append(tr("uid: %1\n").arg(fileStatList[i].uid));
-  text.append(tr("gid: %1\n").arg(fileStatList[i].gid));
-  text.append(tr("size: %1\n").arg(fileStatList[i].size));
-  text.append(tr("atime: sec %1 nsec %2\n").arg(fileStatList[i].atime.tv_sec).arg(fileStatList[i].atime.tv_nsec));
-  text.append(tr("mtime: sec %1 nsec %2\n").arg(fileStatList[i].mtime.tv_sec).arg(fileStatList[i].mtime.tv_nsec));
-  text.append(tr("ctime: sec %1 nsec %2\n").arg(fileStatList[i].ctime.tv_sec).arg(fileStatList[i].ctime.tv_nsec));
-  text.append(tr("blksize: %1\n").arg(fileStatList[i].blksize));
-  text.append(tr("blocks: %1\n").arg(fileStatList[i].blocks));
-
-  setOutput(text);
 }
