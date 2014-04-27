@@ -59,6 +59,7 @@ unix {
 #  inst_library.files += ../lib$$MACH/unix/libicudata.so.51.1
 #  inst_library.files += ../lib$$MACH/unix/libicui18n.so.51.1
 #  inst_library.files += ../lib$$MACH/unix/libicuuc.so.51.1
+  inst_ico.files +=
 }
 
 win32 {
@@ -70,6 +71,7 @@ win32 {
 #  inst_library.files += ../lib$$MACH/win/icuin51.dll
 #  inst_library.files += ../lib$$MACH/win/icuuc51.dll
 #  inst_library.files += ../lib$$MACH/win/libGLESv2.dll
+  inst_ico.files += ../src/images/icon.ico
 }
 
 inst_library.path = ../release/lib
@@ -78,6 +80,9 @@ INSTALLS += inst_library
 inst_releasenote.files = ../ReleaseNote.txt
 inst_releasenote.path = ../release
 INSTALLS += inst_releasenote
+
+inst_ico.path = ../release
+INSTALLS += inst_ico
 
 release {
   TARGET = fs-explorer
