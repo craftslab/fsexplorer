@@ -234,7 +234,7 @@ void MainWindow::address()
   unsigned long long ino;
   bool found = false;
 
-  if (list.size() <= 0 || !index.isValid() || !treeView->isExpanded(index)) {
+  if (list.size() <= 0 || !index.isValid() || !treeModel->hasChildren(index)) {
     return;
   }
 
@@ -300,7 +300,7 @@ void MainWindow::pressTreeItem(QModelIndex index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
-  if (!treeView->isExpanded(index)) {
+  if (!treeModel->hasChildren(index)) {
     updateTreeItem(index);
   }
 
@@ -334,7 +334,7 @@ void MainWindow::syncTreeItem(const QString &name)
     }
 
     if (found) {
-      if (!treeView->isExpanded(child)) {
+      if (!treeModel->hasChildren(child)) {
         treeView->setCurrentIndex(child);
         updateTreeItem(child);
       }
@@ -840,7 +840,7 @@ bool MainWindow::findTreeAddress(const QStringList &list, int listIndex, int lis
     return true;
   }
 
-  if (!treeView->isExpanded(modelIndex)) {
+  if (!treeModel->hasChildren(modelIndex)) {
     updateTreeItem(modelIndex);
   }
 
