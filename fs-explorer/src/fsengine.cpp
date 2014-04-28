@@ -23,7 +23,7 @@
 
 #define FS_LIB_NAME "libyafuse2"
 
-static const char* fileTypeList[] = {
+const char* FsEngine::fileTypeList[] = {
   FS_TYPE_EXT4,
   FS_TYPE_FAT,
 };
@@ -41,6 +41,8 @@ FsEngine::FsEngine(QWidget *parent)
   fileParent = NULL;
   fileChilds = NULL;
   fileChildsNum = 0;
+
+  readOnly = true;
 }
 
 FsEngine::~FsEngine()
@@ -157,6 +159,11 @@ bool FsEngine::closeFile()
   unloadLibrary();
 
   return true;
+}
+
+bool FsEngine::isReadOnly() const
+{
+  return readOnly;
 }
 
 QString FsEngine::getFileType() const

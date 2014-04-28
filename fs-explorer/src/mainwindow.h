@@ -76,6 +76,7 @@ public:
 
 signals:
   void mounted(bool status);
+  void mountedRW(bool status);
   void syncTree(const QString &name);
   void syncList(unsigned long long ino);
 
@@ -145,6 +146,13 @@ private:
   void removeListAll();
   void removeListColumnsAll();
   void removeListRowsAll();
+
+  static const QString title;
+  static const QString version;
+  static const QString separator;
+  static const QString label;
+  static const int columnWidthMax;
+  static const int columnWidthMin;
 
   QSettings *settings;
 

@@ -21,21 +21,18 @@
 
 #include "mainwindow.h"
 
-static const QString mainWindowTitle = QObject::tr("FS Explorer");
-static const QString version = QObject::tr("14.04");
-static const QString addressSep = QObject::tr("/");
+const QString MainWindow::title = QObject::tr("FS Explorer");
+const QString MainWindow::version = QObject::tr("14.05");
+const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here
-static const QString bgLabelText = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
+const QString MainWindow::label = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
 #else
-static const QString bgLabelText = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
+const QString MainWindow::label = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
 
-static int columnNameWidth = 224;
-static int columnSizeWidth = 96;
-static int columnMtimeWidth = 224;
-static int columnAtimeWidth = 224;
-static int columnCtimeWidth = 224;
+const int MainWindow::columnWidthMax = 224;
+const int MainWindow::columnWidthMin = 96;
 
 MainWindow::MainWindow()
 {
@@ -161,11 +158,12 @@ void MainWindow::closeFile()
   removeListAll();
 
   fsEngine->closeFile();
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
+  setWindowTitle(tr("%1").arg(title));
 
   fsStatus = false;
 
   emit mounted(fsStatus);
+  emit mountedRW(fsStatus);
 }
 
 void MainWindow::importFile()
@@ -231,7 +229,7 @@ void MainWindow::about()
 void MainWindow::address()
 {
   QString text = addressBar->text();
-  QStringList list = text.split(addressSep, QString::SkipEmptyParts);
+  QStringList list = text.split(separator, QString::SkipEmptyParts);
   QModelIndex index = treeModel->index(0, 0);
   unsigned long long ino;
   bool found = false;
@@ -397,9 +395,9 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
 void MainWindow::initSettings()
 {
-  QCoreApplication::setOrganizationName(mainWindowTitle);
-  QCoreApplication::setOrganizationDomain(mainWindowTitle);
-  QCoreApplication::setApplicationName(mainWindowTitle);
+  QCoreApplication::setOrganizationName(title);
+  QCoreApplication::setOrganizationDomain(title);
+  QCoreApplication::setApplicationName(title);
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
   settings = new QSettings(tr("settings.ini"), QSettings::IniFormat);
@@ -410,7 +408,7 @@ void MainWindow::initSettings()
 #endif /* Q_OS_LINUX */
 
   setWindowIcon(QPixmap(":/images/icon.png"));
-  setWindowTitle(tr("%1").arg(mainWindowTitle));
+  setWindowTitle(tr("%1").arg(title));
 
   setAcceptDrops(true);
 }
@@ -487,7 +485,7 @@ void MainWindow::createActions()
   propAction = new QAction(tr("&Properties"), this);
   propAction->setShortcut(QKeySequence(tr("Ctrl+P")));
   propAction->setStatusTip(tr("Show properties"));
-  propAction->setEnabled(true);
+  propAction->setEnabled(false);
   connect(propAction, SIGNAL(triggered()), this, SLOT(prop()));
 
   statsAction = new QAction(tr("&Stats"), this);
@@ -512,7 +510,7 @@ void MainWindow::createActions()
   connect(upAction, SIGNAL(triggered()), this, SLOT(goUp()));
 
   QString about = tr("&About ");
-  about.append(mainWindowTitle);
+  about.append(title);
   aboutAction = new QAction(about, this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -661,27 +659,27 @@ void MainWindow::createWidgets()
   /*
    * Set column width of 'Name'
    */
-  listView->setColumnWidth(0, columnNameWidth);
+  listView->setColumnWidth(0, columnWidthMax);
 
   /*
    * Set column width of 'Size'
    */
-  listView->setColumnWidth(1, columnSizeWidth);
+  listView->setColumnWidth(1, columnWidthMin);
 
   /*
    * Set column width of 'Data Modified'
    */
-  listView->setColumnWidth(2, columnMtimeWidth);
+  listView->setColumnWidth(2, columnWidthMax);
 
   /*
    * Set column width of 'Data Accessed'
    */
-  listView->setColumnWidth(3, columnAtimeWidth);
+  listView->setColumnWidth(3, columnWidthMax);
 
   /*
    * Set column width of 'Data Created'
    */
-  listView->setColumnWidth(4, columnCtimeWidth);
+  listView->setColumnWidth(4, columnWidthMax);
 
   for (int column = 5; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
@@ -708,7 +706,7 @@ void MainWindow::createWidgets()
   vertSplitter->setStretchFactor(1, 1);
   vertSplitter->setHandleWidth(1);
 
-  bgLabel = new QLabel(bgLabelText);
+  bgLabel = new QLabel(label);
   bgLabel->setVisible(false);
   bgLabel->setTextFormat(Qt::RichText);
 
@@ -725,10 +723,11 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  //connect(this, SIGNAL(mounted(bool)), importAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRW(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
-  //connect(this, SIGNAL(mounted(bool)), removeAction, SLOT(setEnabled(bool)));
-  //connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRW(bool)), removeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRW(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
@@ -788,9 +787,9 @@ void MainWindow::loadFile(QString &name)
 {
   bool ret = fsEngine->openFile(name);
   if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(mainWindowTitle).arg(name).arg(fsEngine->getFileType()));
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
 
-    addressBar->setText(addressSep);
+    addressBar->setText(separator);
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
 
@@ -820,6 +819,7 @@ void MainWindow::loadFile(QString &name)
   }
 
   emit mounted(fsStatus);
+  emit mountedRW(!fsEngine->isReadOnly());
 }
 
 void MainWindow::setOutput(const QString &text) const
@@ -887,7 +887,7 @@ void MainWindow::showTreeAddress(QModelIndex index) const
     if (i == list.size() - 1) {
       address.append(list[i]);
     } else {
-      address.append(list[i]).append(addressSep);
+      address.append(list[i]).append(separator);
     }
   }
 
@@ -1061,27 +1061,27 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
   /*
    * Set column width of 'Name'
    */
-  listView->setColumnWidth(0, columnNameWidth);
+  listView->setColumnWidth(0, columnWidthMax);
 
   /*
    * Set column width of 'Size'
    */
-  listView->setColumnWidth(1, columnSizeWidth);
+  listView->setColumnWidth(1, columnWidthMin);
 
   /*
    * Set column width of 'Data Modified'
    */
-  listView->setColumnWidth(2, columnMtimeWidth);
+  listView->setColumnWidth(2, columnWidthMax);
 
   /*
    * Set column width of 'Data Accessed'
    */
-  listView->setColumnWidth(3, columnAtimeWidth);
+  listView->setColumnWidth(3, columnWidthMax);
 
   /*
    * Set column width of 'Data Created'
    */
-  listView->setColumnWidth(4, columnCtimeWidth);
+  listView->setColumnWidth(4, columnWidthMax);
 
   for (int column = 5; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);

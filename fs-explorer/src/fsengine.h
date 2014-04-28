@@ -41,6 +41,7 @@ public:
 
   bool openFile(QString &name);
   bool closeFile();
+  bool isReadOnly() const;
   QString getFileType() const;
   struct fs_kstatfs getFileStat() const;
   QString getFileStatDetail() const;
@@ -56,6 +57,8 @@ private:
   bool loadLibrary();
   void unloadLibrary();
 
+  static const char* fileTypeList[];
+
   QLibrary *fileLib;
   fs_opt_t *fileOpt;
   QString *fileName;
@@ -65,5 +68,7 @@ private:
   struct fs_dirent *fileParent;
   struct fs_dirent *fileChilds;
   unsigned int fileChildsNum;
+
+  bool readOnly;
 };
 #endif
