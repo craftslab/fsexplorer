@@ -334,8 +334,8 @@ void MainWindow::syncTreeItem(const QString &name)
     }
 
     if (found) {
+      treeView->setCurrentIndex(child);
       if (!treeModel->hasChildren(child)) {
-        treeView->setCurrentIndex(child);
         updateTreeItem(child);
       }
       treeView->expand(child);
