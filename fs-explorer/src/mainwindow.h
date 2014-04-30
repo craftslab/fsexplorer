@@ -125,8 +125,8 @@ private:
   void confirmAddressStatus(const QString &text);
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
-  bool findTreeAddress(const QStringList &list, int listIndex, int listSize, QModelIndex &modelIndex);
-  bool findListFile(const QString &text);
+  bool findTreeAddress(const QString &name, QModelIndex &index);
+  bool findListFile(const QString &name);
   void showTreeAddress(QModelIndex index) const;
   void showFileStat(unsigned long long ino) const;
 
@@ -135,8 +135,8 @@ private:
   void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(const QList<struct fs_dirent> &list);
   void createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList);
-  void updateTreeItem(QModelIndex index);
-  void updateListItem(unsigned long long ino);
+  void expandTreeItem(QModelIndex index);
+  void expandListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
   void insertListRow(const QStringList &data);

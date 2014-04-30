@@ -232,40 +232,32 @@ void MainWindow::address()
   QStringList list = text.split(separator, QString::SkipEmptyParts);
   QModelIndex index = treeModel->index(0, 0);
   unsigned long long ino;
+  int i;
   bool found = false;
 
   if (list.size() <= 0 || !index.isValid() || !treeModel->hasChildren(index)) {
     return;
   }
 
-  if (list.size() == 1) {
-    found = findTreeAddress(list, 0, 1, index);
-
-    ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-    syncListItem(ino);
-
-    if (!found) {
-      found = findListFile(list[0]);
-    }
-   } else {
-    found = findTreeAddress(list, 0, list.size() - 1, index);
+  for (i = 0; i < list.size(); ++i) {
+    found = findTreeAddress(list[i], index);
     if (found) {
-      found = findTreeAddress(list, list.size() - 1, 1, index);
-
-      ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-      syncListItem(ino);
-
-      if (!found) {
-        found = findListFile(list[list.size() - 1]);
+      treeView->setCurrentIndex(index);
+      if (!treeModel->hasChildren(index)) {
+        expandTreeItem(index);
       }
+      treeView->expand(index);
     } else {
-      ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-      syncListItem(ino);
+      break;
     }
   }
 
-  treeView->setCurrentIndex(index);
-  treeView->expand(index);
+  ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
+  syncListItem(ino);
+
+  if (!found && (i == list.size() - 1)) {
+    found = findListFile(list[i]);
+  }
 
   if (!found) {
     confirmAddressStatus(text);
@@ -300,11 +292,10 @@ void MainWindow::pressTreeItem(QModelIndex index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
-  if (!treeModel->hasChildren(index)) {
-    updateTreeItem(index);
-  }
-
   treeView->setCurrentIndex(index);
+  if (!treeModel->hasChildren(index)) {
+    expandTreeItem(index);
+  }
   treeView->expand(index);
 
   showTreeAddress(index);
@@ -336,7 +327,7 @@ void MainWindow::syncTreeItem(const QString &name)
     if (found) {
       treeView->setCurrentIndex(child);
       if (!treeModel->hasChildren(child)) {
-        updateTreeItem(child);
+        expandTreeItem(child);
       }
       treeView->expand(child);
 
@@ -362,7 +353,7 @@ void MainWindow::doubleClickListItem(QModelIndex index)
   }
 
   removeListAll();
-  updateListItem(ino);
+  expandListItem(ino);
 
   showFileStat(ino);
 
@@ -372,7 +363,7 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 void MainWindow::syncListItem(unsigned long long ino)
 {
   removeListAll();
-  updateListItem(ino);
+  expandListItem(ino);
 }
 
 void MainWindow::showContextMenu(const QPoint &pos)
@@ -767,7 +758,7 @@ void MainWindow::confirmAddressStatus(const QString &text)
 {
   QMessageBox msgBox;
   msgBox.setIcon(QMessageBox::Warning);
-  msgBox.setText(tr("Invalid address has been found."));
+  msgBox.setText(tr("Invalid address!"));
   msgBox.setInformativeText(text);
   msgBox.setStandardButtons(QMessageBox::Ok);
 
@@ -830,31 +821,19 @@ void MainWindow::setOutput(const QString &text) const
   }
 }
 
-bool MainWindow::findTreeAddress(const QStringList &list, int listIndex, int listSize, QModelIndex &modelIndex)
+bool MainWindow::findTreeAddress(const QString &name, QModelIndex &index)
 {
-  QModelIndex index;
-  QString name;
+  QModelIndex childIndex;
+  QString childName;
   bool found = false;
 
-  if (listSize > 0 && listIndex >= listSize) {
-    return true;
-  }
+  for (int i = 0; i < treeModel->rowCount(index); ++i) {
+    childIndex = treeModel->index(i, TREE_NAME, index);
+    childName = treeModel->data(childIndex, TREE_NAME, Qt::DisplayRole).toString();
 
-  if (!treeModel->hasChildren(modelIndex)) {
-    updateTreeItem(modelIndex);
-  }
-
-  for (int i = 0; i < treeModel->rowCount(modelIndex); ++i) {
-    index = treeModel->index(i, TREE_NAME, modelIndex);
-    name = treeModel->data(index, TREE_NAME, Qt::DisplayRole).toString();
-
-    if (!QString::compare(name, list[listIndex])) {
-      if (listIndex == listSize - 1) {
-        found = true;
-      } else {
-        found = findTreeAddress(list, ++listIndex, listSize, index);
-      }
-
+    if (!QString::compare(childName, name)) {
+      index = childIndex;
+      found = true;
       break;
     }
   }
@@ -862,7 +841,7 @@ bool MainWindow::findTreeAddress(const QStringList &list, int listIndex, int lis
   return found;
 }
 
-bool MainWindow::findListFile(const QString &text)
+bool MainWindow::findListFile(const QString &name)
 {
   // TODO
   return false;
@@ -1088,7 +1067,7 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
   }
 }
 
-void MainWindow::updateTreeItem(QModelIndex index)
+void MainWindow::expandTreeItem(QModelIndex index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
@@ -1101,7 +1080,7 @@ void MainWindow::updateTreeItem(QModelIndex index)
   createTreeItem(fileDentList);
 }
 
-void MainWindow::updateListItem(unsigned long long ino)
+void MainWindow::expandListItem(unsigned long long ino)
 {
   fileDentList.clear();
   createFileDentList(ino, fileDentList);
