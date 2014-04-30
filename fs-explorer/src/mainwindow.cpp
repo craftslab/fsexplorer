@@ -279,8 +279,10 @@ void MainWindow::syncTreeItem(const QString &name)
   bool found = false;
 
   if (!QString::compare(name, QString(tr(FS_DNAME_DOTDOT)))) {
-    treeView->setCurrentIndex(index.parent());
-    showTreeAddress(index.parent());
+    if (index.isValid() && index.parent().isValid()) {
+      treeView->setCurrentIndex(index.parent());
+      showTreeAddress(index.parent());
+    }
   } else {
     for (int i = 0; i < treeModel->rowCount(index); ++i) {
       child = treeModel->index(i, TREE_NAME, index);
@@ -726,7 +728,7 @@ void MainWindow::confirmAddressStatus(const QString &text)
 {
   QMessageBox msgBox;
   msgBox.setIcon(QMessageBox::Warning);
-  msgBox.setText(tr("Invalid address!"));
+  msgBox.setText(tr("Invalid address found!"));
   msgBox.setInformativeText(text);
   msgBox.setStandardButtons(QMessageBox::Ok);
 
@@ -819,7 +821,6 @@ void MainWindow::address(const QString &name)
 
   if (!found && (i == list.size() - 1)) {
     index = listModel->index(0, 0);
-    qDebug() << list[i];
     found = findListFile(list[i], index);
     if (found) {
       listView->setCurrentIndex(index);
@@ -860,7 +861,6 @@ bool MainWindow::findListFile(const QString &name, QModelIndex &index)
   for (int i = 0; i < listModel->rowCount(); ++i) {
     childIndex = listModel->index(i, LIST_NAME);
     childName = listModel->data(childIndex, LIST_NAME, Qt::DisplayRole).toString();
-    qDebug() << listModel->rowCount() << childName << name;
     if (!QString::compare(childName, name)) {
       index = childIndex;
       found = true;
@@ -877,6 +877,10 @@ void MainWindow::showTreeAddress(QModelIndex index) const
   QVariant data;
   QStringList list;
   QString address;
+
+  if (!index.isValid()) {
+    return;
+  }
 
   while (index.isValid()) {
     data = model->data(index, Qt::DisplayRole);
