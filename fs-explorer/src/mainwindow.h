@@ -28,6 +28,7 @@
 #endif
 #include <QtCore>
 #include <QMap>
+#include <QRegExp>
 #include <QStyle>
 #include <QDateTime>
 #include <QSplitter>
@@ -126,6 +127,7 @@ private:
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
   void address(const QString &name);
+  QStringList parseAddress(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);
   bool findListFile(const QString &name, QModelIndex &index);
   void showTreeAddress(QModelIndex index) const;

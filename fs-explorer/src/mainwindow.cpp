@@ -793,13 +793,24 @@ void MainWindow::setOutput(const QString &text) const
 
 void MainWindow::address(const QString &name)
 {
-  QStringList list = name.split(separator, QString::SkipEmptyParts);
   QModelIndex index = treeModel->index(0, 0);
+  QStringList list;
   unsigned long long ino;
   int i;
   bool found = false;
 
-  if (list.size() <= 0 || !index.isValid() || !treeModel->hasChildren(index)) {
+  if (!index.isValid()) {
+    return;
+  }
+
+  list = parseAddress(name);
+
+  if (list.size() <= 0) {
+    return;
+  } else if ((list.size() == 1) && !QString::compare(separator, list[0])) {
+    treeView->setCurrentIndex(index);
+    ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
+    syncListItem(ino);
     return;
   }
 
@@ -830,6 +841,54 @@ void MainWindow::address(const QString &name)
   if (!found) {
     confirmAddressStatus(name);
   }
+}
+
+QStringList MainWindow::parseAddress(const QString &name)
+{
+  QString str;
+  QStringList list;
+  int firstIndex, lastIndex;
+
+  firstIndex = name.indexOf(QRegExp("\\S"), 0);
+  if (firstIndex < 0) {
+    list.clear();
+    return list;
+  }
+
+  lastIndex = name.lastIndexOf(QRegExp("\\S"));
+  if (lastIndex < 0) {
+    list.clear();
+    return list;
+  }
+
+  str.clear();
+  for (int i = firstIndex; i <= lastIndex; ++i) {
+    str += name[i];
+  }
+
+  if (str.size() == 1 && !QString::compare(separator, str)) {
+    list.clear();
+    list << str;
+    return list;
+  }
+
+  list.clear();
+  list = str.split(separator, QString::SkipEmptyParts);
+  for (int i = 0; i < list.size(); ++i) {
+    firstIndex = list[i].indexOf(QRegExp("\\S"), 0);
+    lastIndex = list[i].lastIndexOf(QRegExp("\\S"));
+
+    if (firstIndex >= 0 && lastIndex >= 0) {
+      str.clear();
+      for (int j = firstIndex; j <= lastIndex; ++j) {
+        str += list[i].at(j);
+      }
+
+      list[i] = str;
+    }
+  }
+
+  return list;
 }
 
 bool MainWindow::findTreeAddress(const QString &name, QModelIndex &index)
