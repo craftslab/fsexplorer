@@ -21,15 +21,50 @@
 
 #include "searchwindow.h"
 
-SearchWindow::SearchWindow(const QString &title, const QStringList &list, QWidget *parent)
+const int SearchWindow::width = 640;
+const int SearchWindow::height = 480;
+
+SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *parent)
     : QWidget(parent)
 {
+  tableModel = new QStandardItemModel();
+  tableModel->setColumnCount(2);
+
+  tableView = new QTableView();
+  tableView->setModel(tableModel);
+  connect(tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickItem(QModelIndex)));
+
+  closeButton = new QPushButton(tr("Close"));
+  connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
+
+  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
+
+  goButton = new QPushButton(tr("Go"));
+  connect(goButton, SIGNAL(clicked()), this, SLOT(go()));
+
+  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
+
+  vLayout = new QVBoxLayout;
+  vLayout->insertSpacing(0, 300);
+  vLayout->insertStretch(0, 1);
+  vLayout->addWidget(closeButton);
+  vLayout->addWidget(goButton);
+  vLayout->addWidget(copyToClipboardButton);
+
+  vLayoutWidget = new QWidget();
+  vLayoutWidget->setLayout(vLayout);
+
+  hLayout = new QHBoxLayout;
+  hLayout->addWidget(tableView);
+  hLayout->addWidget(vLayoutWidget);
+  setLayout(hLayout);
+
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  int width = 480;
-  int height = 640;
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
   if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
@@ -43,6 +78,11 @@ SearchWindow::SearchWindow(const QString &title, const QStringList &list, QWidge
 void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
+}
+
+void SearchWindow::go()
+{
+  // TODO
 }
 
 void SearchWindow::copyToClipboard()
@@ -61,4 +101,9 @@ void SearchWindow::copyToClipboard()
 #else
   // TODO
 #endif
+}
+
+void SearchWindow::doubleClickItem(QModelIndex index)
+{
+  // TODO
 }

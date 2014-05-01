@@ -40,6 +40,9 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private:
+  static const int width;
+  static const int height;
+
   QTextEdit *textEdit;
   QVBoxLayout *layout;
 };

@@ -21,6 +21,9 @@
 
 #include "statswindow.h"
 
+const int StatsWindow::width = 480;
+const int StatsWindow::height = 640;
+
 StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *parent)
     : QWidget(parent)
 {
@@ -64,8 +67,6 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  int width = 480;
-  int height = 640;
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
   if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {

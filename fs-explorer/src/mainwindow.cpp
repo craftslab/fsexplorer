@@ -223,7 +223,7 @@ void MainWindow::goUp()
 
 void MainWindow::about()
 {
-  AboutDialog *aboutDialog = new AboutDialog(version, this);
+  aboutDialog = new AboutDialog(version, this);
   aboutDialog->exec();
 }
 
@@ -235,6 +235,11 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
+  QString text = searchBar->text();
+
+  searchWindow = new SearchWindow(tr("Search Result"), text, this);
+  searchWindow->show();
+
   // TODO
 }
 
@@ -280,7 +285,7 @@ void MainWindow::syncTreeItem(unsigned long long ino)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QModelIndex parent, child;
-  unsigned long long parentIno, childIno;
+  unsigned long long childIno;
   bool found = false;
 
   if (ino == treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong()) {

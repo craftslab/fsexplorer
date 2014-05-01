@@ -21,6 +21,9 @@
 
 #include "consolewindow.h"
 
+const int ConsoleWindow::width = 640;
+const int ConsoleWindow::height = 480;
+
 ConsoleWindow::ConsoleWindow(QWidget *parent)
     : QWidget(parent)
 {
@@ -45,12 +48,13 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   layout->addWidget(textEdit);
   setLayout(layout);
 
+  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
+
   setWindowTitle(tr("FS Console"));
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
 
-  int width = 640;
-  int height = 480;
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
   if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {

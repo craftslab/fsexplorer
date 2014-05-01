@@ -36,24 +36,30 @@ class SearchWindow : public QWidget
   Q_OBJECT
 
 public:
-  SearchWindow(const QString &title, const QStringList &list, QWidget *parent = 0);
+  SearchWindow(const QString &title, const QString &text, QWidget *parent = 0);
 
 signals:
-  void syncSearch(const QString &name);
+  void selected(const QString &name);
 
 protected:
   void closeEvent(QCloseEvent *event);
 
 private slots:
+  void go();
   void copyToClipboard();
+  void doubleClickItem(QModelIndex index);
 
 private:
-  QFrame *frameHLine;
+  static const int width;
+  static const int height;
+
+  QTableView *tableView;
+  QStandardItemModel *tableModel; 
   QPushButton *closeButton;
   QPushButton *goButton;
   QPushButton *copyToClipboardButton;
-  QHBoxLayout *hLayout;
   QVBoxLayout *vLayout;
+  QHBoxLayout *hLayout;
   QWidget *vLayoutWidget;
 };
 #endif

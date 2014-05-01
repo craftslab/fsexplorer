@@ -203,8 +203,10 @@ private:
   QAction *addressAction;
   QAction *searchAction;
 
+  SearchWindow *searchWindow;
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
+  AboutDialog *aboutDialog;
 
   QStringList treeHeader;
   QStringList listHeader;

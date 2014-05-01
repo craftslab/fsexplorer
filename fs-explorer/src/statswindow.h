@@ -43,6 +43,9 @@ private slots:
   void copyToClipboard();
 
 private:
+  static const int width;
+  static const int height;
+
   QTextEdit *textEdit;
   QFrame *frameHLine;
   QPushButton *copyToClipboardButton;
