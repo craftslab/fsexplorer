@@ -163,7 +163,7 @@ void MainWindow::closeFile()
   fsStatus = false;
 
   emit mounted(fsStatus);
-  emit mountedRW(fsStatus);
+  emit mountedRw(fsStatus);
 }
 
 void MainWindow::importFile()
@@ -234,9 +234,20 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
+  SearchEngine searchEngine;
   QString text = searchBar->text();
+  bool ret;
 
-  // TODO
+  ret = searchEngine.load(fsEngine);
+  if (!ret) {
+    return;
+  }
+
+  searchEngine.search(text);
+  searchEngine.stop();
+  ret = searchEngine.searched();
+
+  searchEngine.unload();
 }
 
 void MainWindow::showWidgets(bool show)
@@ -684,10 +695,10 @@ void MainWindow::createWidgets()
 void MainWindow::createConnections()
 {
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mountedRW(bool)), importAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRw(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mountedRW(bool)), removeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mountedRW(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRw(bool)), removeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedRw(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
@@ -780,7 +791,7 @@ void MainWindow::loadFile(QString &name)
   }
 
   emit mounted(fsStatus);
-  emit mountedRW(!fsEngine->isReadOnly());
+  emit mountedRw(!fsEngine->isReadOnly());
 }
 
 void MainWindow::setOutput(const QString &text) const

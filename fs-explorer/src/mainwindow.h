@@ -44,9 +44,11 @@
 #include "fsengine.h"
 #include "fstreemodel.h"
 #include "fslistmodel.h"
+#include "searchengine.h"
 #include "statswindow.h"
 #include "consolewindow.h"
 #include "aboutdialog.h"
+#include "searchwindow.h"
 
 enum TreeHeader{
   TREE_NAME = 0,
@@ -77,7 +79,7 @@ public:
 
 signals:
   void mounted(bool status);
-  void mountedRW(bool status);
+  void mountedRw(bool status);
   void syncTree(const QString &name);
   void syncList(unsigned long long ino);
 
@@ -204,13 +206,13 @@ private:
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
 
+  QStringList treeHeader;
+  QStringList listHeader;
+
   FsEngine *fsEngine;
   QString fsPath;
   bool fsStatus;
   QList<struct fs_dirent> fileDentList;
   QList<struct fs_kstat> fileStatList;
-
-  QStringList treeHeader;
-  QStringList listHeader;
 };
 #endif

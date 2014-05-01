@@ -1,5 +1,5 @@
 /**
- * statswindow.cpp - The entry of statswindow
+ * searchwindow.cpp - The entry of searchwindow
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,47 +19,11 @@
  * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "statswindow.h"
+#include "searchwindow.h"
 
-StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *parent)
+SearchWindow::SearchWindow(const QString &title, const QStringList &list, QWidget *parent)
     : QWidget(parent)
 {
-  textEdit = new QTextEdit;
-  textEdit->setReadOnly(true);
-  textEdit->setLineWrapMode(QTextEdit::NoWrap);
-  textEdit->clear();
-  textEdit->setPlainText(stat);
-
-  frameHLine = new QFrame;
-  frameHLine->setFrameShape(QFrame::HLine);
-  frameHLine->setFrameShadow(QFrame::Sunken);
-  frameHLine->setLineWidth(1);
-  frameHLine->setMidLineWidth(0);
-
-  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
-  connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
-
-  closeButton = new QPushButton(tr("Close"));
-  connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-
-  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
-
-  hLayout = new QHBoxLayout;
-  hLayout->insertSpacing(0, 300);
-  hLayout->insertStretch(0, 1);
-  hLayout->addWidget(copyToClipboardButton);
-  hLayout->addWidget(closeButton);
-
-  hLayoutWidget = new QWidget();
-  hLayoutWidget->setLayout(hLayout);
-
-  vLayout = new QVBoxLayout;
-  vLayout->addWidget(textEdit);
-  vLayout->addWidget(frameHLine);
-  vLayout->addWidget(hLayoutWidget);
-  setLayout(vLayout);
-
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
@@ -76,12 +40,12 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   resize(width, height);
 }
 
-void StatsWindow::closeEvent(QCloseEvent *event)
+void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
 }
 
-void StatsWindow::copyToClipboard()
+void SearchWindow::copyToClipboard()
 {
 #if 0 // DISUSED here
   QClipboard *clipboard = QApplication::clipboard();
@@ -95,7 +59,6 @@ void StatsWindow::copyToClipboard()
 
   clipboard->setMimeData(mimeData);
 #else
-  textEdit->selectAll();
-  textEdit->copy();
+  // TODO
 #endif
 }

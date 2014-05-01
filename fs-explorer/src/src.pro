@@ -14,10 +14,12 @@ HEADERS += fstreeitem.h
 HEADERS += fstreemodel.h
 HEADERS += fslistitem.h
 HEADERS += fslistmodel.h
+HEADERS += searchengine.h
 HEADERS += statswindow.h
 HEADERS += consolethread.h
 HEADERS += consolewindow.h
 HEADERS += aboutdialog.h
+HEADERS += searchwindow.h
 HEADERS += mainwindow.h
 
 SOURCES += fsengine.cpp
@@ -25,10 +27,12 @@ SOURCES += fstreeitem.cpp
 SOURCES += fstreemodel.cpp
 SOURCES += fslistitem.cpp
 SOURCES += fslistmodel.cpp
+SOURCES += searchengine.cpp
 SOURCES += statswindow.cpp
 SOURCES += consolethread.cpp
 SOURCES += consolewindow.cpp
 SOURCES += aboutdialog.cpp
+SOURCES += searchwindow.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
