@@ -59,24 +59,9 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
     move(0, 0);
   }
   resize(width, height);
-
-  consoleThread = NULL;
-  startConsoleThread();
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
-  if (consoleThread) {
-    consoleThread->quitConsole();
-  }
-
   event->accept();
-}
-
-void ConsoleWindow::startConsoleThread()
-{
-  consoleThread = new ConsoleThread(this);
-  connect(consoleThread, SIGNAL(finished()), consoleThread, SLOT(deleteLater()));
-
-  // TODO: consoleThread->start();
 }

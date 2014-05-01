@@ -234,20 +234,7 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
-  SearchEngine searchEngine;
-  QString text = searchBar->text();
-  bool ret;
-
-  ret = searchEngine.load(fsEngine);
-  if (!ret) {
-    return;
-  }
-
-  searchEngine.search(text);
-  searchEngine.stop();
-  ret = searchEngine.searched();
-
-  searchEngine.unload();
+  // TODO
 }
 
 void MainWindow::showWidgets(bool show)
@@ -698,7 +685,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mountedRw(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedRw(bool)), removeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mountedRw(bool)), consoleAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));

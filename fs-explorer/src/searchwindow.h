@@ -29,6 +29,8 @@
 #include <QClipboard>
 #include <QMimeData>
 
+#include "searchengine.h"
+
 class SearchWindow : public QWidget
 {
   Q_OBJECT

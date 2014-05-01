@@ -27,7 +27,7 @@
 #include <QtWidgets>
 #endif
 
-#include "consolethread.h"
+#include "consoleengine.h"
 
 class ConsoleWindow : public QWidget
 {
@@ -40,11 +40,7 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private:
-  void startConsoleThread();
-
   QTextEdit *textEdit;
   QVBoxLayout *layout;
-
-  ConsoleThread *consoleThread;
 };
 #endif

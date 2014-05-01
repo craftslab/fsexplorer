@@ -44,11 +44,10 @@
 #include "fsengine.h"
 #include "fstreemodel.h"
 #include "fslistmodel.h"
-#include "searchengine.h"
-#include "statswindow.h"
-#include "consolewindow.h"
-#include "aboutdialog.h"
 #include "searchwindow.h"
+#include "consolewindow.h"
+#include "statswindow.h"
+#include "aboutdialog.h"
 
 enum TreeHeader{
   TREE_NAME = 0,

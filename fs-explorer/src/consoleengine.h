@@ -1,5 +1,5 @@
 /**
- * consolethread.cpp - The entry of consolethread
+ * consoleengine.h - Header of consoleengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,33 +19,27 @@
  * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "consolethread.h"
+#ifndef CONSOLEENGINE_H
+#define CONSOLEENGINE_H
 
-ConsoleThread::ConsoleThread(QObject *parent)
-    : QThread(parent)
-{
-  quit = false;
-}
+#include <QThread>
+#include <QMutex>
 
-ConsoleThread::~ConsoleThread()
+class ConsoleEngine : public QThread
 {
-  mutex.lock();
-  quit = true;
-  mutex.unlock();
-  wait();
-}
+  Q_OBJECT
 
-void ConsoleThread::quitConsole()
-{
-  mutex.lock();
-  quit = true;
-  mutex.unlock();
-}
+public:
+  ConsoleEngine(QObject *parent = 0);
+  ~ConsoleEngine();
 
-void ConsoleThread::run()
-{
-  while (!quit) {
-    // TODO
-    quit = quit;
-  }
-}
+public slots:
+  void stop();
+
+protected:
+  void run();
+
+private:
+  bool isRunning;
+};
+#endif
