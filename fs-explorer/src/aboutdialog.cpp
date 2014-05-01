@@ -26,8 +26,7 @@ AboutDialog::AboutDialog(const QString &version, QWidget *parent)
 {
   uiAbout.setupUi(this);
 
-  uiAbout.mVersion->setText(uiAbout.mVersion->text().arg(version));
+  uiAbout.mCopyright->setText(uiAbout.mCopyright->text().arg(version));
   QString url = "<a href=\"https://github.com/lemonjia/Fricando/\">https://github.com/lemonjia/Fricando/</a>";
   uiAbout.mHomepage->setText(uiAbout.mHomepage->text().arg(url));
-  connect(uiAbout.mButtons, SIGNAL(accepted()), this, SLOT(accept()));
 }

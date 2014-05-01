@@ -11,64 +11,17 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About FS Explorer</string>
+   <string>FS Explorer</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="mIcon">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap resource="src.qrc">:/images/icon.png</pixmap>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="mVersion">
-         <property name="text">
-          <string>Version %1</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QLabel" name="mName">
          <property name="text">
-          <string>FS Explorer - A explorer for filesystem image.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;FS Explorer&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -78,7 +31,7 @@
        <item>
         <widget class="QLabel" name="mCopyright">
          <property name="text">
-          <string>Copyright © 2014-2015 Lemonjia.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Copyright © 2014-2015 Lemonjia.&lt;br&gt;version %1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -88,8 +41,7 @@
        <item>
         <widget class="QLabel" name="mLicense">
          <property name="text">
-          <string>This program is licensed under the terms
-of the GNU Lesser General Public License version 3</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;This program is licensed under the terms&lt;br&gt;of the GNU Lesser General Public License version 3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -99,7 +51,7 @@ of the GNU Lesser General Public License version 3</string>
        <item>
         <widget class="QLabel" name="mHomepage">
          <property name="text">
-          <string>Visit FS Explorer at %1</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Visit FS Explorer at&lt;br&gt;%1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -113,53 +65,10 @@ of the GNU Lesser General Public License version 3</string>
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="mButtons">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources>
   <include location="src.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>mButtons</sender>
-   <signal>accepted()</signal>
-   <receiver>About</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mButtons</sender>
-   <signal>rejected()</signal>
-   <receiver>About</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
