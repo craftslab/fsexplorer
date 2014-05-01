@@ -79,7 +79,8 @@ public:
 signals:
   void mounted(bool status);
   void mountedRw(bool status);
-  void syncTree(const QString &name);
+  void mountedHome(bool status);
+  void syncTree(unsigned long long ino);
   void syncList(unsigned long long ino);
 
 protected:
@@ -105,7 +106,7 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem(QModelIndex index);
-  void syncTreeItem(const QString &name);
+  void syncTreeItem(unsigned long long ino);
 
   void clickListItem(QModelIndex index);
   void doubleClickListItem(QModelIndex index);

@@ -164,6 +164,7 @@ void MainWindow::closeFile()
 
   emit mounted(fsStatus);
   emit mountedRw(fsStatus);
+  emit mountedHome(fsStatus);
 }
 
 void MainWindow::importFile()
@@ -266,40 +267,69 @@ void MainWindow::pressTreeItem(QModelIndex index)
 
   showTreeAddress(index);
 
+  if (index.parent().isValid()) {
+    emit mountedHome(true);
+  } else {
+    emit mountedHome(false);
+  }
+
   emit syncList(ino);
 }
 
-void MainWindow::syncTreeItem(const QString &name)
+void MainWindow::syncTreeItem(unsigned long long ino)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
-  QModelIndex child;
-  QString childName;
+  QModelIndex parent, child;
+  unsigned long long parentIno, childIno;
   bool found = false;
 
-  if (!QString::compare(name, QString(tr(FS_DNAME_DOTDOT)))) {
-    if (index.isValid() && index.parent().isValid()) {
-      treeView->setCurrentIndex(index.parent());
-      showTreeAddress(index.parent());
-    }
-  } else {
-    for (int i = 0; i < treeModel->rowCount(index); ++i) {
-      child = treeModel->index(i, TREE_NAME, index);
-      childName = treeModel->data(child, TREE_NAME, Qt::DisplayRole).toString();
-
-      if (!QString::compare(name, childName)) {
-        found = true;
-        break;
-      }
+  if (ino == treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong()) {
+    if (index.parent().isValid()) {
+      emit mountedHome(true);
+    } else {
+      emit mountedHome(false);
     }
 
-    if (found) {
-      treeView->setCurrentIndex(child);
-      if (!treeModel->hasChildren(child)) {
-        expandTreeItem(child);
-      }
-      treeView->expand(child);
+    return;
+  }
 
-      showTreeAddress(child);
+  if (index.parent().isValid() &&
+      ino == treeModel->data(index.parent(), TREE_INO, Qt::DisplayRole).toULongLong()) {
+    treeView->setCurrentIndex(index.parent());
+    showTreeAddress(index.parent());
+
+    if (index.parent().parent().isValid()) {
+      emit mountedHome(true);
+    } else {
+      emit mountedHome(false);
+    }
+
+    return;
+  }
+
+  for (int i = 0; i < treeModel->rowCount(index); ++i) {
+    child = treeModel->index(i, TREE_NAME, index);
+    childIno = treeModel->data(child, TREE_INO, Qt::DisplayRole).toULongLong();
+
+    if (childIno == ino) {
+      found = true;
+      break;
+    }
+  }
+
+  if (found) {
+    treeView->setCurrentIndex(child);
+    if (!treeModel->hasChildren(child)) {
+      expandTreeItem(child);
+    }
+    treeView->expand(child);
+
+    showTreeAddress(child);
+
+    if (child.parent().isValid()) {
+      emit mountedHome(true);
+    } else {
+      emit mountedHome(false);
     }
   }
 }
@@ -314,7 +344,6 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 {
   enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
-  QString name = listModel->data(index, LIST_NAME, Qt::DisplayRole).toString();
 
   if (type != FT_DIR) {
     return;
@@ -325,7 +354,7 @@ void MainWindow::doubleClickListItem(QModelIndex index)
 
   showFileStat(ino);
 
-  emit syncTree(name);
+  emit syncTree(ino);
 }
 
 void MainWindow::syncListItem(unsigned long long ino)
@@ -688,12 +717,12 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), homeAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), upAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(this, SIGNAL(syncTree(const QString &)), this, SLOT(syncTreeItem(const QString &)));
+  connect(this, SIGNAL(syncTree(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
   connect(this, SIGNAL(syncList(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
 }
 
@@ -779,6 +808,7 @@ void MainWindow::loadFile(QString &name)
 
   emit mounted(fsStatus);
   emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedHome(false);
 }
 
 void MainWindow::setOutput(const QString &text) const
@@ -809,6 +839,13 @@ void MainWindow::address(const QString &name)
     treeView->setCurrentIndex(index);
     ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
     syncListItem(ino);
+
+    if (index.parent().isValid()) {
+      emit mountedHome(true);
+    } else {
+      emit mountedHome(false);
+    }
+
     return;
   }
 
@@ -827,6 +864,12 @@ void MainWindow::address(const QString &name)
 
   ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
   syncListItem(ino);
+
+  if (index.parent().isValid()) {
+    emit mountedHome(true);
+  } else {
+    emit mountedHome(false);
+  }
 
   if (!found && (i == list.size() - 1)) {
     index = listModel->index(0, 0);
