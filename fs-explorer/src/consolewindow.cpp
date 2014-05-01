@@ -46,8 +46,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   setLayout(layout);
 
   setWindowTitle(tr("FS Console"));
-  Qt::WindowFlags flags = Qt::Window | Qt::WindowStaysOnTopHint;
-  setWindowFlags(flags);
+  setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
 
   int width = 640;

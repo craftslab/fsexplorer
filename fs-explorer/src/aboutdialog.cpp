@@ -29,4 +29,6 @@ AboutDialog::AboutDialog(const QString &version, QWidget *parent)
   uiAbout.mCopyright->setText(uiAbout.mCopyright->text().arg(version));
   QString url = "<a href=\"https://github.com/lemonjia/Fricando/\">https://github.com/lemonjia/Fricando/</a>";
   uiAbout.mHomepage->setText(uiAbout.mHomepage->text().arg(url));
+
+  setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }

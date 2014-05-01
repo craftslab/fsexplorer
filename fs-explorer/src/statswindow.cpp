@@ -42,6 +42,9 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   closeButton = new QPushButton(tr("Close"));
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
+  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
+
   hLayout = new QHBoxLayout;
   hLayout->insertSpacing(0, 300);
   hLayout->insertStretch(0, 1);
