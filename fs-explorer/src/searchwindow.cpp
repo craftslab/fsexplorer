@@ -22,17 +22,28 @@
 #include "searchwindow.h"
 
 const int SearchWindow::width = 640;
-const int SearchWindow::height = 480;
+const int SearchWindow::height = 240;
 
 SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *parent)
     : QWidget(parent)
 {
-  tableModel = new QStandardItemModel();
-  tableModel->setColumnCount(2);
+  listModel = new QStandardItemModel();
 
-  tableView = new QTableView();
-  tableView->setModel(tableModel);
-  connect(tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickItem(QModelIndex)));
+  listView = new QListView();
+  listView->setModel(listModel);
+  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickItem(QModelIndex)));
+
+  frameHLine = new QFrame;
+  frameHLine->setFrameShape(QFrame::HLine);
+  frameHLine->setFrameShadow(QFrame::Sunken);
+  frameHLine->setLineWidth(1);
+  frameHLine->setMidLineWidth(0);
+
+  goButton = new QPushButton(tr("Go to"));
+  connect(goButton, SIGNAL(clicked()), this, SLOT(go()));
+
+  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
 
   closeButton = new QPushButton(tr("Close"));
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -40,26 +51,21 @@ SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *p
   QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
-  goButton = new QPushButton(tr("Go"));
-  connect(goButton, SIGNAL(clicked()), this, SLOT(go()));
+  hLayout = new QHBoxLayout;
+  hLayout->insertSpacing(0, 300);
+  hLayout->insertStretch(0, 1);
+  hLayout->addWidget(goButton);
+  hLayout->addWidget(copyToClipboardButton);
+  hLayout->addWidget(closeButton);
 
-  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
-  connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
+  hLayoutWidget = new QWidget();
+  hLayoutWidget->setLayout(hLayout);
 
   vLayout = new QVBoxLayout;
-  vLayout->insertSpacing(0, 300);
-  vLayout->insertStretch(0, 1);
-  vLayout->addWidget(closeButton);
-  vLayout->addWidget(goButton);
-  vLayout->addWidget(copyToClipboardButton);
-
-  vLayoutWidget = new QWidget();
-  vLayoutWidget->setLayout(vLayout);
-
-  hLayout = new QHBoxLayout;
-  hLayout->addWidget(tableView);
-  hLayout->addWidget(vLayoutWidget);
-  setLayout(hLayout);
+  vLayout->addWidget(listView);
+  vLayout->addWidget(frameHLine);
+  vLayout->addWidget(hLayoutWidget);
+  setLayout(vLayout);
 
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);

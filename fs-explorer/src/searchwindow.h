@@ -53,13 +53,14 @@ private:
   static const int width;
   static const int height;
 
-  QTableView *tableView;
-  QStandardItemModel *tableModel; 
-  QPushButton *closeButton;
+  QListView *listView;
+  QStandardItemModel *listModel;
+  QFrame *frameHLine;
   QPushButton *goButton;
   QPushButton *copyToClipboardButton;
+  QPushButton *closeButton;
   QVBoxLayout *vLayout;
   QHBoxLayout *hLayout;
-  QWidget *vLayoutWidget;
+  QWidget *hLayoutWidget;
 };
 #endif
