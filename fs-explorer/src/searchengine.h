@@ -35,13 +35,13 @@ public:
   SearchEngine(QWidget *parent = 0);
   ~SearchEngine();
 
-  bool load(FsEngine *fsEngine);
-  void unload();
-
-  void search(const QString &name);
-  void stop();
   bool searched() const;
 
+public slots:
+  void search(const QString &name);
+  void stop();
+
 private:
+  FsEngine *fsEngine;
 };
 #endif

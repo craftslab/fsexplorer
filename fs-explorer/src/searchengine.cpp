@@ -33,15 +33,10 @@ SearchEngine::~SearchEngine()
   // TODO
 }
 
-bool SearchEngine::load(FsEngine *fsEngine)
+bool SearchEngine::searched() const
 {
   // TODO
   return true;
-}
-
-void SearchEngine::unload()
-{
-  // TODO
 }
 
 void SearchEngine::search(const QString &name)
@@ -52,10 +47,4 @@ void SearchEngine::search(const QString &name)
 void SearchEngine::stop()
 {
   // TODO
-}
-
-bool SearchEngine::searched() const
-{
-  // TODO
-  return true;
 }

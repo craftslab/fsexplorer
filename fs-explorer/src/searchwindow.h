@@ -39,6 +39,8 @@ public:
   SearchWindow(const QString &title, const QString &text, QWidget *parent = 0);
 
 signals:
+  void search(const QString &name);
+  void stop();
   void selected(const QString &name);
 
 protected:
@@ -62,5 +64,7 @@ private:
   QVBoxLayout *vLayout;
   QHBoxLayout *hLayout;
   QWidget *hLayoutWidget;
+
+  SearchEngine *searchEngine;
 };
 #endif

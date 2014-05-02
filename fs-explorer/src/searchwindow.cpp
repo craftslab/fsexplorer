@@ -79,11 +79,15 @@ SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *p
     move(0, 0);
   }
   resize(width, height);
+
+  searchEngine = new SearchEngine;
+  emit search(text);
 }
 
 void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
+  delete searchEngine;
 }
 
 void SearchWindow::go()
