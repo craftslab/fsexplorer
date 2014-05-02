@@ -33,12 +33,6 @@ SearchEngine::~SearchEngine()
   // TODO
 }
 
-bool SearchEngine::searched() const
-{
-  // TODO
-  return true;
-}
-
 void SearchEngine::search(const QString &name)
 {
   // TODO

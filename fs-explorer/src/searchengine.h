@@ -35,7 +35,9 @@ public:
   SearchEngine(QWidget *parent = 0);
   ~SearchEngine();
 
-  bool searched() const;
+signals:
+  void completed(bool &status);
+  void found(QString &name);
 
 public slots:
   void search(const QString &name);

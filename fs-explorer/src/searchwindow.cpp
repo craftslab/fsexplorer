@@ -21,6 +21,9 @@
 
 #include "searchwindow.h"
 
+const QString switchStop = QObject::tr("Stop");
+const QString switchStart = QObject::tr("Search again");
+
 const int SearchWindow::width = 640;
 const int SearchWindow::height = 240;
 
@@ -39,13 +42,20 @@ SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *p
   frameHLine->setLineWidth(1);
   frameHLine->setMidLineWidth(0);
 
-  goButton = new QPushButton(tr("Go to"));
+  goButton = new QPushButton(tr("Go"));
+  goButton->setEnabled(false);
   connect(goButton, SIGNAL(clicked()), this, SLOT(go()));
 
   copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  copyToClipboardButton->setEnabled(false);
   connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
 
+  switchButton = new QPushButton(switchStop);
+  switchButton->setEnabled(true);
+  connect(switchButton, SIGNAL(clicked()), this, SLOT(stopStart()));
+
   closeButton = new QPushButton(tr("Close"));
+  closeButton->setEnabled(true);
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
   QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
@@ -56,6 +66,7 @@ SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *p
   hLayout->insertStretch(0, 1);
   hLayout->addWidget(goButton);
   hLayout->addWidget(copyToClipboardButton);
+  hLayout->addWidget(switchButton);
   hLayout->addWidget(closeButton);
 
   hLayoutWidget = new QWidget();
@@ -111,6 +122,25 @@ void SearchWindow::copyToClipboard()
 #else
   // TODO
 #endif
+}
+
+void SearchWindow::stopStart()
+{
+  static bool isStopped = true;
+
+  if (isStopped) {
+    goButton->setEnabled(true);
+    copyToClipboardButton->setEnabled(true);
+
+    switchButton->setText(switchStart);
+  } else {
+    goButton->setEnabled(false);
+    copyToClipboardButton->setEnabled(false);
+
+    switchButton->setText(switchStop);
+  }
+
+  isStopped = !isStopped;
 }
 
 void SearchWindow::doubleClickItem(QModelIndex index)

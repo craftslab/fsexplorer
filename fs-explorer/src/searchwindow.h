@@ -49,6 +49,7 @@ protected:
 private slots:
   void go();
   void copyToClipboard();
+  void stopStart();
   void doubleClickItem(QModelIndex index);
 
 private:
@@ -60,6 +61,7 @@ private:
   QFrame *frameHLine;
   QPushButton *goButton;
   QPushButton *copyToClipboardButton;
+  QPushButton *switchButton;
   QPushButton *closeButton;
   QVBoxLayout *vLayout;
   QHBoxLayout *hLayout;

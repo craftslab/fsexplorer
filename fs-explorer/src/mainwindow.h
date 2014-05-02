@@ -49,13 +49,13 @@
 #include "statswindow.h"
 #include "aboutdialog.h"
 
-enum TreeHeader{
+enum TreeHeader {
   TREE_NAME = 0,
   TREE_INO,
   TREE_MAX
 };
 
-enum ListHeader{
+enum ListHeader {
   LIST_NAME = 0,
   LIST_SIZE,
   LIST_MTIME,
