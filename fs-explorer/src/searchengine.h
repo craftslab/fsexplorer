@@ -24,24 +24,50 @@
 
 #include <QObject>
 #include <QLibrary>  
+#include <QThread>
+#include <QMutex>
 
 #include "fsengine.h"
+
+class SearchThread;
 
 class SearchEngine : public QObject
 {
   Q_OBJECT
 
 public:
-  SearchEngine(QWidget *parent = 0);
+  SearchEngine(FsEngine *engine, QObject *parent = 0);
   ~SearchEngine();
 
 signals:
-  void completed(bool &status);
-  void found(QString &name);
+  void found(const QString &name);
+  void finished();
 
 public slots:
   void search(const QString &name);
   void stop();
+
+private slots:
+  void handleFound(const QString &name);
+  void handleFinished();
+
+private:
+  SearchThread *searchThread;
+};
+
+class SearchThread : public QThread
+{
+  Q_OBJECT
+
+public:
+  SearchThread(FsEngine *engine, QObject *parent = 0);
+  ~SearchThread();
+
+signals:
+  void found(const QString &name);
+
+protected:
+  void run();
 
 private:
   FsEngine *fsEngine;

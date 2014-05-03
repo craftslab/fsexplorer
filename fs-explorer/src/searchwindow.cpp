@@ -27,7 +27,7 @@ const QString switchStart = QObject::tr("Search again");
 const int SearchWindow::width = 640;
 const int SearchWindow::height = 240;
 
-SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *parent)
+SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent)
     : QWidget(parent)
 {
   listModel = new QStandardItemModel();
@@ -91,14 +91,22 @@ SearchWindow::SearchWindow(const QString &title, const QString &text, QWidget *p
   }
   resize(width, height);
 
-  searchEngine = new SearchEngine;
-  emit search(text);
+  searchName = text;
+
+  searchEngine = new SearchEngine(engine);
+  emit search(searchName);
 }
 
 void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
-  delete searchEngine;
+
+  emit stop();
+
+  if (searchEngine) {
+    delete searchEngine;
+    searchEngine = NULL;
+  }
 }
 
 void SearchWindow::go()
@@ -131,13 +139,15 @@ void SearchWindow::stopStart()
   if (isStopped) {
     goButton->setEnabled(true);
     copyToClipboardButton->setEnabled(true);
-
     switchButton->setText(switchStart);
+
+    emit stop();
   } else {
     goButton->setEnabled(false);
     copyToClipboardButton->setEnabled(false);
-
     switchButton->setText(switchStop);
+
+    emit search(searchName);
   }
 
   isStopped = !isStopped;

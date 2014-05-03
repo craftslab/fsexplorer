@@ -36,7 +36,7 @@ class SearchWindow : public QWidget
   Q_OBJECT
 
 public:
-  SearchWindow(const QString &title, const QString &text, QWidget *parent = 0);
+  SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent = 0);
 
 signals:
   void search(const QString &name);
@@ -67,6 +67,7 @@ private:
   QHBoxLayout *hLayout;
   QWidget *hLayoutWidget;
 
+  QString searchName;
   SearchEngine *searchEngine;
 };
 #endif

@@ -237,7 +237,7 @@ void MainWindow::search()
 {
   QString text = searchBar->text();
 
-  searchWindow = new SearchWindow(tr("Search Result"), text, this);
+  searchWindow = new SearchWindow(tr("Search Result"), fsEngine, text, this);
   searchWindow->show();
 
   // TODO

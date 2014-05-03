@@ -21,16 +21,18 @@
 
 #include "searchengine.h"
 
-SearchEngine::SearchEngine(QWidget *parent)
+SearchEngine::SearchEngine(FsEngine *engine, QObject *parent)
 {
   parent = parent;
-
-  // TODO
+  searchThread = new SearchThread(engine);
 }
 
 SearchEngine::~SearchEngine()
 {
-  // TODO
+  if (searchThread) {
+    delete searchThread;
+    searchThread = NULL;
+  }
 }
 
 void SearchEngine::search(const QString &name)
@@ -41,4 +43,29 @@ void SearchEngine::search(const QString &name)
 void SearchEngine::stop()
 {
   // TODO
+}
+
+void SearchEngine::handleFound(const QString &name)
+{
+  // TODO
+}
+
+void SearchEngine::handleFinished()
+{
+  // TODO
+}
+
+SearchThread::SearchThread(FsEngine *engine, QObject *parent)
+{
+  fsEngine = engine;
+  parent = parent;
+}
+
+SearchThread::~SearchThread()
+{
+  // TODO
+}
+
+void SearchThread::run()
+{
 }
