@@ -22,24 +22,17 @@
 #ifndef CONSOLEENGINE_H
 #define CONSOLEENGINE_H
 
+#include <QObject>
+#include <QLibrary>  
 #include <QThread>
 #include <QMutex>
 
-class ConsoleEngine : public QThread
+class ConsoleEngine : public QObject
 {
   Q_OBJECT
 
 public:
   ConsoleEngine(QObject *parent = 0);
   ~ConsoleEngine();
-
-public slots:
-  void stop();
-
-protected:
-  void run();
-
-private:
-  bool isRunning;
 };
 #endif

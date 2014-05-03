@@ -22,22 +22,13 @@
 #include "consoleengine.h"
 
 ConsoleEngine::ConsoleEngine(QObject *parent)
-    : QThread(parent)
 {
-  isRunning = false;
+  parent = parent;
+
+  // TODO
 }
 
 ConsoleEngine::~ConsoleEngine()
-{
-  // TODO
-}
-
-void ConsoleEngine::stop()
-{
-  // TODO
-}
-
-void ConsoleEngine::run()
 {
   // TODO
 }
