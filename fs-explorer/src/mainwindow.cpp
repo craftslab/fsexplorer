@@ -235,7 +235,7 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
-  QString text = filterString(searchBar->text());
+  QString text = stripString(searchBar->text());
 
   if (text.isEmpty()) {
     return;
@@ -828,7 +828,7 @@ void MainWindow::setOutput(const QString &text) const
   }
 }
 
-QString MainWindow::filterString(const QString &name)
+QString MainWindow::stripString(const QString &name)
 {
   QString str;
   int firstIndex, lastIndex;
@@ -849,7 +849,7 @@ QString MainWindow::filterString(const QString &name)
 
 QStringList MainWindow::parseAddress(const QString &name)
 {
-  QString str = filterString(name);
+  QString str = stripString(name);
   QStringList list;
 
   list.clear();
@@ -865,7 +865,7 @@ QStringList MainWindow::parseAddress(const QString &name)
 
   list = str.split(separator, QString::SkipEmptyParts);
   for (int i = 0; i < list.size(); ++i) {
-    list[i] = filterString(list[i]);
+    list[i] = stripString(list[i]);
   }
 
   return list;
