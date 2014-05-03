@@ -23,21 +23,23 @@
 
 SearchEngine::SearchEngine(FsEngine *engine, QObject *parent)
 {
+  fsEngine = engine;
   parent = parent;
-  searchThread = new SearchThread(engine);
 }
 
 SearchEngine::~SearchEngine()
 {
-  if (searchThread) {
-    delete searchThread;
-    searchThread = NULL;
-  }
+  // Do nothing here
 }
 
 void SearchEngine::search(const QString &name)
 {
-  searchThread->setup(name);
+  if (name.isEmpty()) {
+    return;
+  }
+
+  searchName = name;
+  start();
 }
 
 void SearchEngine::stop()
@@ -45,40 +47,13 @@ void SearchEngine::stop()
   // TODO
 }
 
-void SearchEngine::handleFound(const QString &name)
-{
-  // TODO
-}
-
-void SearchEngine::handleFinished()
-{
-  // TODO
-}
-
-SearchThread::SearchThread(FsEngine *engine, QObject *parent)
-{
-  fsEngine = engine;
-  parent = parent;
-}
-
-SearchThread::~SearchThread()
-{
-  // TODO
-}
-
-void SearchThread::setup(const QString &name)
-{
-  searchName = name;
-}
-
-void SearchThread::run()
+void SearchEngine::run()
 {
   unsigned long long ino = fsEngine->getFileRoot().d_ino;
-
   traverse(ino);
 }
 
-void SearchThread::traverse(unsigned long long ino)
+void SearchEngine::traverse(unsigned long long ino)
 {
   fsEngine->initFileChilds(ino);
 

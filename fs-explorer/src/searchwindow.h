@@ -39,9 +39,10 @@ public:
   SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent = 0);
 
 signals:
+  void selected(const QString &name);
+
   void search(const QString &name);
   void stop();
-  void selected(const QString &name);
 
 protected:
   void closeEvent(QCloseEvent *event);
@@ -50,6 +51,10 @@ private slots:
   void go();
   void copyToClipboard();
   void stopStart();
+
+  void handleStarted();
+  void handleFinished();
+  void handleFound(const QString &name);
   void doubleClickItem(QModelIndex index);
 
 private:

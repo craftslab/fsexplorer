@@ -29,9 +29,7 @@
 
 #include "fsengine.h"
 
-class SearchThread;
-
-class SearchEngine : public QObject
+class SearchEngine : public QThread
 {
   Q_OBJECT
 
@@ -41,32 +39,10 @@ public:
 
 signals:
   void found(const QString &name);
-  void finished();
 
 public slots:
   void search(const QString &name);
   void stop();
-
-private slots:
-  void handleFound(const QString &name);
-  void handleFinished();
-
-private:
-  SearchThread *searchThread;
-};
-
-class SearchThread : public QThread
-{
-  Q_OBJECT
-
-public:
-  SearchThread(FsEngine *engine, QObject *parent = 0);
-  ~SearchThread();
-
-  void setup(const QString &name);
-
-signals:
-  void found(const QString &name);
 
 protected:
   void run();

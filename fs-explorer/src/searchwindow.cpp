@@ -92,8 +92,16 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   resize(width, height);
 
   searchName = text;
-
   searchEngine = new SearchEngine(engine);
+
+  connect(searchEngine, SIGNAL(started()), this, SLOT(handleStarted()));
+  connect(searchEngine, SIGNAL(finished()), this, SLOT(handleFinished()));
+  connect(searchEngine, SIGNAL(finished()), searchEngine, SLOT(deleteLater()));
+  connect(searchEngine, SIGNAL(found(const QString &)), this, SLOT(handleFound(const QString &)));
+
+  connect(this, SIGNAL(search(const QString &)), searchEngine, SLOT(search(const QString &)));
+  connect(this, SIGNAL(stop()), searchEngine, SLOT(stop()));
+
   emit search(searchName);
 }
 
@@ -151,6 +159,21 @@ void SearchWindow::stopStart()
   }
 
   isStopped = !isStopped;
+}
+
+void SearchWindow::handleStarted()
+{
+  // TODO
+}
+
+void SearchWindow::handleFinished()
+{
+  // TODO
+}
+
+void SearchWindow::handleFound(const QString &name)
+{
+  // TODO
 }
 
 void SearchWindow::doubleClickItem(QModelIndex index)
