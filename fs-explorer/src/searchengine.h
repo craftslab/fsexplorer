@@ -63,6 +63,8 @@ public:
   SearchThread(FsEngine *engine, QObject *parent = 0);
   ~SearchThread();
 
+  void setup(const QString &name);
+
 signals:
   void found(const QString &name);
 
@@ -70,6 +72,9 @@ protected:
   void run();
 
 private:
+  void traverse(unsigned long long ino);
+
   FsEngine *fsEngine;
+  QString searchName;
 };
 #endif

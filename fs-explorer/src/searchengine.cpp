@@ -37,7 +37,7 @@ SearchEngine::~SearchEngine()
 
 void SearchEngine::search(const QString &name)
 {
-  // TODO
+  searchThread->setup(name);
 }
 
 void SearchEngine::stop()
@@ -66,6 +66,38 @@ SearchThread::~SearchThread()
   // TODO
 }
 
+void SearchThread::setup(const QString &name)
+{
+  searchName = name;
+}
+
 void SearchThread::run()
 {
+  unsigned long long ino = fsEngine->getFileRoot().d_ino;
+
+  traverse(ino);
+}
+
+void SearchThread::traverse(unsigned long long ino)
+{
+  fsEngine->initFileChilds(ino);
+
+  unsigned int childsNum = fsEngine->getFileChildsNum();
+  if (childsNum == 0) {
+    fsEngine->deinitFileChilds();
+    return;
+  }
+
+  for (int i = (int)childsNum - 1; i >= 0; --i) {
+    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
+    QString childName = child.d_name;
+
+    if (!QString::compare(childName, searchName)) {
+      emit found(childName);
+    }
+
+    traverse(child.d_ino);
+  }
+
+  fsEngine->deinitFileChilds();
 }
