@@ -235,7 +235,11 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
-  QString text = searchBar->text();
+  QString text = filterString(searchBar->text());
+
+  if (text.isEmpty()) {
+    return;
+  }
 
   searchWindow = new SearchWindow(tr("Search Result"), fsEngine, text, this);
   searchWindow->show();
@@ -824,6 +828,49 @@ void MainWindow::setOutput(const QString &text) const
   }
 }
 
+QString MainWindow::filterString(const QString &name)
+{
+  QString str;
+  int firstIndex, lastIndex;
+
+  firstIndex = name.indexOf(QRegExp("\\S"), 0);
+  lastIndex = name.lastIndexOf(QRegExp("\\S"));
+
+  str.clear();
+
+  if (firstIndex >= 0 && lastIndex >= 0) {
+    for (int i = firstIndex; i <= lastIndex; ++i) {
+      str += name[i];
+    }
+  }
+
+  return str;
+}
+
+QStringList MainWindow::parseAddress(const QString &name)
+{
+  QString str = filterString(name);
+  QStringList list;
+
+  list.clear();
+
+  if (str.isEmpty()) {
+    return list;
+  }
+
+  if (str.size() == 1 && !QString::compare(separator, str)) {
+    list << str;
+    return list;
+  }
+
+  list = str.split(separator, QString::SkipEmptyParts);
+  for (int i = 0; i < list.size(); ++i) {
+    list[i] = filterString(list[i]);
+  }
+
+  return list;
+}
+
 void MainWindow::address(const QString &name)
 {
   QModelIndex index = treeModel->index(0, 0);
@@ -887,54 +934,6 @@ void MainWindow::address(const QString &name)
   if (!found) {
     confirmAddressStatus(name);
   }
-}
-
-QStringList MainWindow::parseAddress(const QString &name)
-{
-  QString str;
-  QStringList list;
-  int firstIndex, lastIndex;
-
-  firstIndex = name.indexOf(QRegExp("\\S"), 0);
-  if (firstIndex < 0) {
-    list.clear();
-    return list;
-  }
-
-  lastIndex = name.lastIndexOf(QRegExp("\\S"));
-  if (lastIndex < 0) {
-    list.clear();
-    return list;
-  }
-
-  str.clear();
-  for (int i = firstIndex; i <= lastIndex; ++i) {
-    str += name[i];
-  }
-
-  if (str.size() == 1 && !QString::compare(separator, str)) {
-    list.clear();
-    list << str;
-    return list;
-  }
-
-  list.clear();
-  list = str.split(separator, QString::SkipEmptyParts);
-  for (int i = 0; i < list.size(); ++i) {
-    firstIndex = list[i].indexOf(QRegExp("\\S"), 0);
-    lastIndex = list[i].lastIndexOf(QRegExp("\\S"));
-
-    if (firstIndex >= 0 && lastIndex >= 0) {
-      str.clear();
-      for (int j = firstIndex; j <= lastIndex; ++j) {
-        str += list[i].at(j);
-      }
-
-      list[i] = str;
-    }
-  }
-
-  return list;
 }
 
 bool MainWindow::findTreeAddress(const QString &name, QModelIndex &index)

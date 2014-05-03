@@ -128,8 +128,9 @@ private:
   void confirmAddressStatus(const QString &text);
   void loadFile(QString &name);
   void setOutput(const QString &text) const;
-  void address(const QString &name);
+  QString filterString(const QString &name);
   QStringList parseAddress(const QString &name);
+  void address(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);
   bool findListFile(const QString &name, QModelIndex &index);
   void showTreeAddress(QModelIndex index) const;
