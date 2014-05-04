@@ -257,6 +257,8 @@ void MainWindow::showWidgets(bool show)
     return;
   }
 
+  searchBar->setText(QString(tr("")));
+
   if (show) {
     searchToolBar->setVisible(true);
     vertSplitter->setVisible(true);
