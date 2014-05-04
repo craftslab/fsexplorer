@@ -96,8 +96,11 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
 
   connect(searchEngine, SIGNAL(started()), this, SLOT(handleStarted()));
   connect(searchEngine, SIGNAL(finished()), this, SLOT(handleFinished()));
-  connect(searchEngine, SIGNAL(finished()), searchEngine, SLOT(deleteLater()));
   connect(searchEngine, SIGNAL(found(const QString &)), this, SLOT(handleFound(const QString &)));
+
+#if 0 // DISUSED here
+  connect(searchEngine, SIGNAL(finished()), searchEngine, SLOT(deleteLater()));
+#endif
 
   connect(this, SIGNAL(search(const QString &)), searchEngine, SLOT(search(const QString &)));
   connect(this, SIGNAL(stop()), searchEngine, SLOT(stop()));
@@ -108,8 +111,6 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
 void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
-
-  emit stop();
 
   if (searchEngine) {
     delete searchEngine;

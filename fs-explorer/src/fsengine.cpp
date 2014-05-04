@@ -38,9 +38,6 @@ FsEngine::FsEngine(QWidget *parent)
   fileMount = NULL;
   fileType = NULL;
   fileRoot = NULL;
-  fileParent = NULL;
-  fileChilds = NULL;
-  fileChildsNum = 0;
 
   readOnly = true;
 }
@@ -104,12 +101,6 @@ bool FsEngine::openFile(QString &name)
     goto openFileFail;
   }
 
-  fileParent = new fs_dirent;
-  if (!fileParent) {
-    goto openFileFail;
-  }
-  memset((void *)fileParent, 0, sizeof(struct fs_dirent));
-
   return true;
 
 openFileFail:
@@ -144,17 +135,6 @@ bool FsEngine::closeFile()
     delete fileRoot;
     fileRoot = NULL;
   }
-
-  if (fileParent) {
-    delete fileParent;
-    fileParent = NULL;
-  }
-
-  if (fileChilds) {
-    delete[] fileChilds;
-    fileChilds = NULL;
-  }
-  fileChildsNum = 0;
 
   unloadLibrary();
 
@@ -219,74 +199,36 @@ struct fs_dirent FsEngine::getFileRoot() const
   return dent;
 }
 
-void FsEngine::initFileChilds(unsigned long long ino)
+unsigned int FsEngine::getFileChildsNum(unsigned long long ino) const
 {
-  int32_t ret;
+  struct fs_dirent parent;
 
-  if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents || !fileParent || fileChilds) {
-    return;
+  if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents) {
+    return 0;
   }
 
-  memset((void *)fileParent, 0, sizeof(struct fs_dirent));
+  memset((void *)&parent, 0, sizeof(struct fs_dirent));
 
-  ret = fileOpt->querydent(ino, fileParent);
+  int32_t ret = fileOpt->querydent(ino, &parent);
   if (ret != 0) {
-    goto initFileChildsFail;
+    return 0;
   }
 
-  fileChildsNum = fileParent->d_childnum;
+  return parent.d_childnum;
+}
 
-  fileChilds = new fs_dirent[fileChildsNum];
-  if (!fileChilds) {
-    goto initFileChildsFail;
+bool FsEngine::getFileChilds(unsigned long long ino, struct fs_dirent *childs, unsigned int num)
+{
+  if (!childs || num == 0) {
+    return false;
   }
-  memset((void *)fileChilds, 0, sizeof(struct fs_dirent) * fileChildsNum);
 
-  ret = fileOpt->getdents(ino, fileChilds, fileChildsNum);
+  int32_t ret = fileOpt->getdents(ino, childs, num);
   if (ret != 0) {
-    goto initFileChildsFail;
+    return false;
   }
 
-  return;
-
-initFileChildsFail:
-
-  if (fileChilds) {
-    delete[] fileChilds;
-    fileChilds = NULL;
-  }
-
-  fileChildsNum = 0;
-
-  return;
-}
-
-void FsEngine::deinitFileChilds()
-{
-  if (fileChilds) {
-    delete[] fileChilds;
-    fileChilds = NULL;
-  }
-
-  fileChildsNum = 0;
-}
-
-unsigned int FsEngine::getFileChildsNum() const
-{
-  return fileChildsNum;
-}
-
-struct fs_dirent FsEngine::getFileChilds(unsigned int index) const
-{
-  struct fs_dirent ret;
-
-  memset((void *)&ret, 0, sizeof(struct fs_dirent));
-
-  if (index >= fileChildsNum || !fileChilds) {
-    return ret;
-  }
-
-  return fileChilds[index];
+  return true;
 }
 
 struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino) const

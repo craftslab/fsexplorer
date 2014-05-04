@@ -29,7 +29,7 @@ SearchEngine::SearchEngine(FsEngine *engine, QObject *parent)
 
 SearchEngine::~SearchEngine()
 {
-  // Do nothing here
+  stop();
 }
 
 void SearchEngine::search(const QString &name)
@@ -55,24 +55,41 @@ void SearchEngine::run()
 
 void SearchEngine::traverse(unsigned long long ino)
 {
-  fsEngine->initFileChilds(ino);
-
-  unsigned int childsNum = fsEngine->getFileChildsNum();
-  if (childsNum == 0) {
-    fsEngine->deinitFileChilds();
+  unsigned int num = fsEngine->getFileChildsNum(ino);
+  if (num == 0) {
     return;
   }
 
-  for (int i = (int)childsNum - 1; i >= 0; --i) {
-    struct fs_dirent child = fsEngine->getFileChilds((unsigned int)i);
-    QString childName = child.d_name;
+  struct fs_dirent *childs = new fs_dirent[num];
+  if (!childs) {
+    return;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
 
-    if (!QString::compare(childName, searchName)) {
-      emit found(childName);
-    }
-
-    traverse(child.d_ino);
+  bool ret = fsEngine->getFileChilds(ino, childs, num);
+  if (!ret) {
+    goto traverseFail;
   }
 
-  fsEngine->deinitFileChilds();
+  for (int i = (int)num - 1; i >= 0; --i) {
+    QString name = childs[i].d_name;
+
+    if (!QString::compare(name, QString(FS_DNAME_DOT))
+        || !QString::compare(name, QString(FS_DNAME_DOTDOT))) {
+      continue;
+    }
+
+    if (!QString::compare(name, searchName)) {
+      emit found(name);
+    }
+
+    traverse(childs[i].d_ino);
+  }
+
+traverseFail:
+
+  if (childs) {
+    delete[] childs;
+    childs = NULL;
+  }
 }

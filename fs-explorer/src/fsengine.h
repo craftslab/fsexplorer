@@ -46,10 +46,8 @@ public:
   struct fs_kstatfs getFileStat() const;
   QString getFileStatDetail() const;
   struct fs_dirent getFileRoot() const;
-  void initFileChilds(unsigned long long ino);
-  void deinitFileChilds();
-  unsigned int getFileChildsNum() const;
-  struct fs_dirent getFileChilds(unsigned int index) const;
+  unsigned int getFileChildsNum(unsigned long long ino) const;
+  bool getFileChilds(unsigned long long ino, struct fs_dirent *childs, unsigned int num);
   struct fs_kstat getFileChildsStat(unsigned long long ino) const;
   QString getFileChildsStatDetail(unsigned long long ino) const;
 
@@ -65,9 +63,6 @@ private:
   QString *fileMount;
   QString *fileType;
   struct fs_dirent *fileRoot;
-  struct fs_dirent *fileParent;
-  struct fs_dirent *fileChilds;
-  unsigned int fileChildsNum;
 
   bool readOnly;
 };

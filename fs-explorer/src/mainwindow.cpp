@@ -235,7 +235,11 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
+#if 0 // DISUSED herer
   QString text = stripString(searchBar->text());
+#else
+  QString text = searchBar->text();
+#endif
 
   if (text.isEmpty()) {
     return;
@@ -849,7 +853,12 @@ QString MainWindow::stripString(const QString &name)
 
 QStringList MainWindow::parseAddress(const QString &name)
 {
+#if 0 // DISUSED herer
   QString str = stripString(name);
+#else
+  QString str = name;
+#endif
+
   QStringList list;
 
   list.clear();
@@ -864,9 +873,12 @@ QStringList MainWindow::parseAddress(const QString &name)
   }
 
   list = str.split(separator, QString::SkipEmptyParts);
+
+#if 0 // DISUSED herer
   for (int i = 0; i < list.size(); ++i) {
     list[i] = stripString(list[i]);
   }
+#endif
 
   return list;
 }
@@ -1039,22 +1051,32 @@ void MainWindow::showFileStat(unsigned long long ino) const
 
 void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list)
 {
-  struct fs_dirent child;
-
-  fsEngine->initFileChilds(ino);
-
-  unsigned int childsNum = fsEngine->getFileChildsNum();
-  if (childsNum == 0) {
-    fsEngine->deinitFileChilds();
+  unsigned int num = fsEngine->getFileChildsNum(ino);
+  if (num == 0) {
     return;
   }
 
-  for (int i = (int)childsNum - 1; i >= 0; --i) {
-    child = fsEngine->getFileChilds((unsigned int)i);
-    list << child;
+  struct fs_dirent *childs = new fs_dirent[num];
+  if (!childs) {
+    return;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
+
+  bool ret = fsEngine->getFileChilds(ino, childs, num);
+  if (!ret) {
+    goto createFileDentListFail;
   }
 
-  fsEngine->deinitFileChilds();
+  for (int i = (int)num - 1; i >= 0; --i) {
+    list << childs[i];
+  }
+
+createFileDentListFail:
+
+  if (childs) {
+    delete[] childs;
+    childs = NULL;
+  }
 }
 
 void MainWindow::createFileStatList(QList<struct fs_dirent> &dentList, QList<struct fs_kstat> &statList)
