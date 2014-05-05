@@ -33,6 +33,7 @@
 #include <QDateTime>
 #include <QSplitter>
 #include <QHBoxLayout>
+#include <QItemSelectionModel>
 #include <QFileSystemModel>
 #include <QFileDialog>
 #include <QLineEdit>
@@ -110,6 +111,8 @@ private slots:
 
   void clickListItem(QModelIndex index);
   void doubleClickListItem(QModelIndex index);
+  void currentListItem(const QModelIndex &current, const QModelIndex &previous);
+  void activateListItem(const QModelIndex &index);
   void syncListItem(unsigned long long ino);
   void showContextMenu(const QPoint &pos);
 
@@ -168,6 +171,7 @@ private:
   FsListModel *listModel;
   QTreeView *treeView;
   QTreeView *listView;
+  QItemSelectionModel *listItemSelectionModel;
   QTextEdit *outputView;
   QSplitter *vertSplitter;
   QSplitter *horiSplitter;
