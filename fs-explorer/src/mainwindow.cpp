@@ -1,3 +1,4 @@
+
 /**
  * mainwindow.cpp - The entry of mainwindow
  *
@@ -291,15 +292,13 @@ void MainWindow::pressTreeItem(const QModelIndex &index)
   emit syncList(ino);
 }
 
-void MainWindow::currentTreeItem(const QModelIndex &current, const QModelIndex &previous)
+void MainWindow::selectTreeItem(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  QModelIndex dummy = previous;
-  unsigned long long ino = treeModel->data(current, TREE_INO, Qt::DisplayRole).toULongLong();
+  QItemSelection dummy = deselected;
 
   dummy = dummy;
 
-  showTreeAddress(current);
-  showFileStat(ino);
+  // TODO
 }
 
 void MainWindow::syncTreeItem(unsigned long long ino)
@@ -383,17 +382,17 @@ void MainWindow::doubleClickListItem(const QModelIndex &index)
   emit syncTree(ino);
 }
 
+void MainWindow::activateListItem(const QModelIndex &index)
+{
+  doubleClickListItem(index);
+}
+
 void MainWindow::currentListItem(const QModelIndex &current, const QModelIndex &previous)
 {
   QModelIndex dummy = previous;
   dummy = dummy;
 
   clickListItem(current);
-}
-
-void MainWindow::activateListItem(const QModelIndex &index)
-{
-  doubleClickListItem(index);
 }
 
 void MainWindow::syncListItem(unsigned long long ino)
@@ -660,8 +659,8 @@ void MainWindow::createWidgets()
   }
 
   connect(treeView, SIGNAL(pressed(const QModelIndex &)), this, SLOT(pressTreeItem(const QModelIndex &)));
-  connect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-          this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
+  connect(treeItemSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          this, SLOT(selectTreeItem(const QItemSelection &, const QItemSelection &)));
 
   for (int i = 0; i < LIST_MAX; ++i) {
     listHeader << tr("");
@@ -720,9 +719,9 @@ void MainWindow::createWidgets()
 
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
+  connect(listView, SIGNAL(activated(const QModelIndex &)), this, SLOT(activateListItem(const QModelIndex &)));
   connect(listItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentListItem(const QModelIndex &, const QModelIndex &)));
-  connect(listView, SIGNAL(activated(const QModelIndex &)), this, SLOT(activateListItem(const QModelIndex &)));
   connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
 
   horiSplitter = new QSplitter(Qt::Horizontal);

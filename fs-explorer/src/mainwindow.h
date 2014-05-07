@@ -107,13 +107,13 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem(const QModelIndex &index);
-  void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
+  void selectTreeItem(const QItemSelection &selected, const QItemSelection &deselected);
   void syncTreeItem(unsigned long long ino);
 
   void clickListItem(const QModelIndex &index);
   void doubleClickListItem(const QModelIndex &index);
-  void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void activateListItem(const QModelIndex &index);
+  void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void syncListItem(unsigned long long ino);
   void showContextMenu(const QPoint &pos);
 
