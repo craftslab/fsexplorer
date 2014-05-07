@@ -270,7 +270,7 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
-void MainWindow::pressTreeItem(QModelIndex index)
+void MainWindow::pressTreeItem(const QModelIndex &index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
@@ -289,6 +289,17 @@ void MainWindow::pressTreeItem(QModelIndex index)
   }
 
   emit syncList(ino);
+}
+
+void MainWindow::currentTreeItem(const QModelIndex &current, const QModelIndex &previous)
+{
+  QModelIndex dummy = previous;
+  unsigned long long ino = treeModel->data(current, TREE_INO, Qt::DisplayRole).toULongLong();
+
+  dummy = dummy;
+
+  showTreeAddress(current);
+  showFileStat(ino);
 }
 
 void MainWindow::syncTreeItem(unsigned long long ino)
@@ -349,13 +360,13 @@ void MainWindow::syncTreeItem(unsigned long long ino)
   }
 }
 
-void MainWindow::clickListItem(QModelIndex index)
+void MainWindow::clickListItem(const QModelIndex &index)
 {
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
   showFileStat(ino);
 }
 
-void MainWindow::doubleClickListItem(QModelIndex index)
+void MainWindow::doubleClickListItem(const QModelIndex &index)
 {
   enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
@@ -636,16 +647,21 @@ void MainWindow::createWidgets()
   treeModel = new FsTreeModel(treeHeader);
   treeView = new QTreeView();
   treeView->setModel(treeModel);
+  treeItemSelectionModel = treeView->selectionModel();
   QModelIndex treeIndex = treeModel->index(0, 0);
   treeView->scrollTo(treeIndex);
   treeView->expand(treeIndex);
   treeView->setCurrentIndex(treeIndex);
   treeView->setHeaderHidden(true);
   treeView->setColumnHidden(TREE_INO, true);
+
   for (int column = 0; column < treeModel->columnCount(); ++column) {
     treeView->resizeColumnToContents(column);
   }
-  connect(treeView, SIGNAL(pressed(QModelIndex)), this, SLOT(pressTreeItem(QModelIndex)));
+
+  connect(treeView, SIGNAL(pressed(const QModelIndex &)), this, SLOT(pressTreeItem(const QModelIndex &)));
+  connect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+          this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
 
   for (int i = 0; i < LIST_MAX; ++i) {
     listHeader << tr("");
@@ -803,7 +819,7 @@ void MainWindow::confirmAddressStatus(const QString &text)
   }
 }
 
-void MainWindow::loadFile(QString &name)
+void MainWindow::loadFile(const QString &name)
 {
   bool ret = fsEngine->openFile(name);
   if (ret) {
@@ -1006,22 +1022,23 @@ bool MainWindow::findListFile(const QString &name, QModelIndex &index)
   return found;
 }
 
-void MainWindow::showTreeAddress(QModelIndex index) const
+void MainWindow::showTreeAddress(const QModelIndex &index) const
 {
   QAbstractItemModel *model = treeView->model();
+  QModelIndex parent = index;
   QVariant data;
   QStringList list;
   QString address;
 
-  if (!index.isValid()) {
+  if (!parent.isValid()) {
     return;
   }
 
-  while (index.isValid()) {
-    data = model->data(index, Qt::DisplayRole);
+  while (parent.isValid()) {
+    data = model->data(parent, Qt::DisplayRole);
     list << data.toString();
 
-    index = index.parent();
+    parent = parent.parent();
   }
 
   address.clear();
@@ -1240,7 +1257,7 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
   }
 }
 
-void MainWindow::expandTreeItem(QModelIndex index)
+void MainWindow::expandTreeItem(const QModelIndex &index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 

@@ -47,7 +47,7 @@ FsEngine::~FsEngine()
   closeFile();
 }
 
-bool FsEngine::openFile(QString &name)
+bool FsEngine::openFile(const QString &name)
 {
   const char *dev = NULL, *dir = NULL, *type = NULL;
   QByteArray ba;

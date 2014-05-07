@@ -106,11 +106,12 @@ private slots:
   void search();
   void showWidgets(bool show);
 
-  void pressTreeItem(QModelIndex index);
+  void pressTreeItem(const QModelIndex &index);
+  void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
   void syncTreeItem(unsigned long long ino);
 
-  void clickListItem(QModelIndex index);
-  void doubleClickListItem(QModelIndex index);
+  void clickListItem(const QModelIndex &index);
+  void doubleClickListItem(const QModelIndex &index);
   void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void activateListItem(const QModelIndex &index);
   void syncListItem(unsigned long long ino);
@@ -129,14 +130,14 @@ private:
   void createConnections();
   void confirmFileStatus(bool &status);
   void confirmAddressStatus(const QString &text);
-  void loadFile(QString &name);
+  void loadFile(const QString &name);
   void setOutput(const QString &text) const;
   QString stripString(const QString &name);
   QStringList parseAddress(const QString &name);
   void address(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);
   bool findListFile(const QString &name, QModelIndex &index);
-  void showTreeAddress(QModelIndex index) const;
+  void showTreeAddress(const QModelIndex &index) const;
   void showFileStat(unsigned long long ino) const;
 
   void createFileDentList(unsigned long long ino, QList<struct fs_dirent> &list);
@@ -144,7 +145,7 @@ private:
   void createTreeRoot(const char *name, unsigned long long ino);
   void createTreeItem(const QList<struct fs_dirent> &list);
   void createListItem(const QList<struct fs_dirent> &dentList, const QList<struct fs_kstat> &statList);
-  void expandTreeItem(QModelIndex index);
+  void expandTreeItem(const QModelIndex &index);
   void expandListItem(unsigned long long ino);
   void insertTreeRow(const QStringList &data);
   void insertTreeChild(const QStringList &data, const QModelIndex &parent);
@@ -171,6 +172,7 @@ private:
   FsListModel *listModel;
   QTreeView *treeView;
   QTreeView *listView;
+  QItemSelectionModel *treeItemSelectionModel;
   QItemSelectionModel *listItemSelectionModel;
   QTextEdit *outputView;
   QSplitter *vertSplitter;

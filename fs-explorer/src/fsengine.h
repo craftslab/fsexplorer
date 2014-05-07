@@ -39,7 +39,7 @@ public:
   FsEngine(QWidget *parent = 0);
   ~FsEngine();
 
-  bool openFile(QString &name);
+  bool openFile(const QString &name);
   bool closeFile();
   bool isReadOnly() const;
   QString getFileType() const;
