@@ -248,8 +248,6 @@ void MainWindow::search()
 
   searchWindow = new SearchWindow(tr("Search Result"), fsEngine, text, this);
   searchWindow->show();
-
-  // TODO
 }
 
 void MainWindow::showWidgets(bool show)
@@ -273,32 +271,30 @@ void MainWindow::showWidgets(bool show)
 
 void MainWindow::pressTreeItem(const QModelIndex &index)
 {
-  unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-
   treeView->setCurrentIndex(index);
   if (!treeModel->hasChildren(index)) {
     expandTreeItem(index);
   }
   treeView->expand(index);
+}
 
-  showTreeAddress(index);
+void MainWindow::currentTreeItem(const QModelIndex &current, const QModelIndex &previous)
+{
+  unsigned long long ino = treeModel->data(current, TREE_INO, Qt::DisplayRole).toULongLong();
+  QModelIndex dummy = previous;
 
-  if (index.parent().isValid()) {
+  dummy = dummy;
+
+  if (current.parent().isValid()) {
     emit mountedHome(true);
   } else {
     emit mountedHome(false);
   }
 
   emit syncList(ino);
-}
 
-void MainWindow::selectTreeItem(const QItemSelection &selected, const QItemSelection &deselected)
-{
-  QItemSelection dummy = deselected;
-
-  dummy = dummy;
-
-  // TODO
+  showTreeAddress(current);
+  showFileStat(ino);
 }
 
 void MainWindow::syncTreeItem(unsigned long long ino)
@@ -659,8 +655,6 @@ void MainWindow::createWidgets()
   }
 
   connect(treeView, SIGNAL(pressed(const QModelIndex &)), this, SLOT(pressTreeItem(const QModelIndex &)));
-  connect(treeItemSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          this, SLOT(selectTreeItem(const QItemSelection &, const QItemSelection &)));
 
   for (int i = 0; i < LIST_MAX; ++i) {
     listHeader << tr("");
@@ -828,17 +822,25 @@ void MainWindow::loadFile(const QString &name)
 
     struct fs_dirent treeRoot = fsEngine->getFileRoot();
 
-    fileDentList.clear();
-    createFileDentList(treeRoot.d_ino, fileDentList);
+    treeFileDentList.clear();
+    createFileDentList(treeRoot.d_ino, treeFileDentList);
 
-    fileStatList.clear();
-    createFileStatList(fileDentList, fileStatList);
+    listFileDentList.clear();
+    listFileDentList = treeFileDentList;
+
+    treeFileStatList.clear();
+    createFileStatList(treeFileDentList, treeFileStatList);
+
+    listFileStatList.clear();
+    listFileStatList = treeFileStatList;
 
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
-    createTreeItem(fileDentList);
-    createListItem(fileDentList, fileStatList);
+    createTreeItem(treeFileDentList);
+    createListItem(listFileDentList, listFileStatList);
 
     treeView->setColumnHidden(TREE_INO, true);
+    connect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
 
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
@@ -1058,8 +1060,8 @@ void MainWindow::showFileStat(unsigned long long ino) const
   int i = 0;
   bool found = false;
 
-  for (i = 0; i < fileStatList.size(); ++i) {
-   if (fileStatList[i].ino == ino) {
+  for (i = 0; i < listFileStatList.size(); ++i) {
+   if (listFileStatList[i].ino == ino) {
      found = true;
      break;
    }
@@ -1069,17 +1071,17 @@ void MainWindow::showFileStat(unsigned long long ino) const
     return;
   }
 
-  QString text = QObject::tr("inode: %1\n").arg(fileStatList[i].ino);
-  text.append(tr("mode: %1\n").arg(fileStatList[i].mode, 0, 8));
-  text.append(tr("nlink: %1\n").arg(fileStatList[i].nlink));
-  text.append(tr("uid: %1\n").arg(fileStatList[i].uid));
-  text.append(tr("gid: %1\n").arg(fileStatList[i].gid));
-  text.append(tr("size: %1\n").arg(fileStatList[i].size));
-  text.append(tr("atime: sec %1 nsec %2\n").arg(fileStatList[i].atime.tv_sec).arg(fileStatList[i].atime.tv_nsec));
-  text.append(tr("mtime: sec %1 nsec %2\n").arg(fileStatList[i].mtime.tv_sec).arg(fileStatList[i].mtime.tv_nsec));
-  text.append(tr("ctime: sec %1 nsec %2\n").arg(fileStatList[i].ctime.tv_sec).arg(fileStatList[i].ctime.tv_nsec));
-  text.append(tr("blksize: %1\n").arg(fileStatList[i].blksize));
-  text.append(tr("blocks: %1\n").arg(fileStatList[i].blocks));
+  QString text = QObject::tr("inode: %1\n").arg(listFileStatList[i].ino);
+  text.append(tr("mode: %1\n").arg(listFileStatList[i].mode, 0, 8));
+  text.append(tr("nlink: %1\n").arg(listFileStatList[i].nlink));
+  text.append(tr("uid: %1\n").arg(listFileStatList[i].uid));
+  text.append(tr("gid: %1\n").arg(listFileStatList[i].gid));
+  text.append(tr("size: %1\n").arg(listFileStatList[i].size));
+  text.append(tr("atime: sec %1 nsec %2\n").arg(listFileStatList[i].atime.tv_sec).arg(listFileStatList[i].atime.tv_nsec));
+  text.append(tr("mtime: sec %1 nsec %2\n").arg(listFileStatList[i].mtime.tv_sec).arg(listFileStatList[i].mtime.tv_nsec));
+  text.append(tr("ctime: sec %1 nsec %2\n").arg(listFileStatList[i].ctime.tv_sec).arg(listFileStatList[i].ctime.tv_nsec));
+  text.append(tr("blksize: %1\n").arg(listFileStatList[i].blksize));
+  text.append(tr("blocks: %1\n").arg(listFileStatList[i].blocks));
 
   setOutput(text);
 }
@@ -1260,24 +1262,24 @@ void MainWindow::expandTreeItem(const QModelIndex &index)
 {
   unsigned long long ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
 
-  fileDentList.clear();
-  createFileDentList(ino, fileDentList);
+  treeFileDentList.clear();
+  createFileDentList(ino, treeFileDentList);
 
-  fileStatList.clear();
-  createFileStatList(fileDentList, fileStatList);
+  treeFileStatList.clear();
+  createFileStatList(treeFileDentList, treeFileStatList);
 
-  createTreeItem(fileDentList);
+  createTreeItem(treeFileDentList);
 }
 
 void MainWindow::expandListItem(unsigned long long ino)
 {
-  fileDentList.clear();
-  createFileDentList(ino, fileDentList);
+  listFileDentList.clear();
+  createFileDentList(ino, listFileDentList);
 
-  fileStatList.clear();
-  createFileStatList(fileDentList, fileStatList);
+  listFileStatList.clear();
+  createFileStatList(listFileDentList, listFileStatList);
 
-  createListItem(fileDentList, fileStatList);
+  createListItem(listFileDentList, listFileStatList);
 }
 
 void MainWindow::insertTreeRow(const QStringList &data)

@@ -107,7 +107,7 @@ private slots:
   void showWidgets(bool show);
 
   void pressTreeItem(const QModelIndex &index);
-  void selectTreeItem(const QItemSelection &selected, const QItemSelection &deselected);
+  void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
   void syncTreeItem(unsigned long long ino);
 
   void clickListItem(const QModelIndex &index);
@@ -221,7 +221,9 @@ private:
   FsEngine *fsEngine;
   QString fsPath;
   bool fsStatus;
-  QList<struct fs_dirent> fileDentList;
-  QList<struct fs_kstat> fileStatList;
+  QList<struct fs_dirent> treeFileDentList;
+  QList<struct fs_kstat> treeFileStatList;
+  QList<struct fs_dirent> listFileDentList;
+  QList<struct fs_kstat> listFileStatList;
 };
 #endif
