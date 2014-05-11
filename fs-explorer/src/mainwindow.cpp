@@ -1,4 +1,3 @@
-
 /**
  * mainwindow.cpp - The entry of mainwindow
  *
@@ -741,7 +740,7 @@ void MainWindow::createWidgets()
   bgLabel->setVisible(false);
   bgLabel->setTextFormat(Qt::RichText);
 
-  hBoxLayout = new QHBoxLayout(this);
+  hBoxLayout = new QHBoxLayout();
   hBoxLayout->addWidget(vertSplitter);
   hBoxLayout->addWidget(bgLabel);
 
