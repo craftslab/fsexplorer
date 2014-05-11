@@ -84,19 +84,6 @@ void StatsWindow::closeEvent(QCloseEvent *event)
 
 void StatsWindow::copyToClipboard()
 {
-#if 0 // DISUSED here
-  QClipboard *clipboard = QApplication::clipboard();
-  if (!clipboard) {
-    return;
-  }
-
-  QMimeData *mimeData = new QMimeData();
-  const QString text = QString(tr("Foo"));
-  mimeData->setText(text);
-
-  clipboard->setMimeData(mimeData);
-#else
   textEdit->selectAll();
   textEdit->copy();
-#endif
 }
