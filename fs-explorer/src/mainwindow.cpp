@@ -155,6 +155,9 @@ void MainWindow::closeFile()
 {
   addressBar->clear();
 
+  disconnect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+             this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
+
   removeTreeAll();
   removeListAll();
 
@@ -162,7 +165,6 @@ void MainWindow::closeFile()
   setWindowTitle(tr("%1").arg(title));
 
   fsStatus = false;
-
   emit mounted(fsStatus);
   emit mountedRw(fsStatus);
   emit mountedHome(fsStatus);
@@ -834,8 +836,11 @@ void MainWindow::loadFile(const QString &name)
     listFileStatList.clear();
     listFileStatList = treeFileStatList;
 
+    removeTreeAll();
     createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
     createTreeItem(treeFileDentList);
+
+    removeListAll();
     createListItem(listFileDentList, listFileStatList);
 
     treeView->setColumnHidden(TREE_INO, true);
