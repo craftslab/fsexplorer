@@ -27,37 +27,37 @@ const int StatsWindow::height = 640;
 StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *parent)
     : QWidget(parent)
 {
-  textEdit = new QTextEdit;
+  textEdit = new QTextEdit(this);
   textEdit->setReadOnly(true);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
   textEdit->clear();
   textEdit->setPlainText(stat);
 
-  frameHLine = new QFrame;
+  frameHLine = new QFrame(this);
   frameHLine->setFrameShape(QFrame::HLine);
   frameHLine->setFrameShadow(QFrame::Sunken);
   frameHLine->setLineWidth(1);
   frameHLine->setMidLineWidth(0);
 
-  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"), this);
   connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
 
-  closeButton = new QPushButton(tr("Close"));
+  closeButton = new QPushButton(tr("Close"), this);
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
   QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
-  hLayout = new QHBoxLayout;
+  hLayout = new QHBoxLayout(this);
   hLayout->insertSpacing(0, 300);
   hLayout->insertStretch(0, 1);
   hLayout->addWidget(copyToClipboardButton);
   hLayout->addWidget(closeButton);
 
-  hLayoutWidget = new QWidget();
+  hLayoutWidget = new QWidget(this);
   hLayoutWidget->setLayout(hLayout);
 
-  vLayout = new QVBoxLayout;
+  vLayout = new QVBoxLayout(this);
   vLayout->addWidget(textEdit);
   vLayout->addWidget(frameHLine);
   vLayout->addWidget(hLayoutWidget);

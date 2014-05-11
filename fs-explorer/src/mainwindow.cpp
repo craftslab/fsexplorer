@@ -48,7 +48,7 @@ MainWindow::MainWindow()
   createConnections();
   showWidgets(false);
 
-  fsEngine = new FsEngine;
+  fsEngine = new FsEngine(this);
   fsPath = fsPath;
   fsStatus = false;
 }
@@ -601,7 +601,7 @@ void MainWindow::createToolBars()
   addressAction = new QAction(QIcon(":/images/right.png"), QString(tr("address")), this);
   connect(addressAction, SIGNAL(triggered()), this, SLOT(address()));
 
-  addressBar = new QLineEdit();
+  addressBar = new QLineEdit(this);
   addressBar->setFrame(false);
   addressBar->addAction(addressAction, QLineEdit::TrailingPosition);
   connect(addressBar, SIGNAL(returnPressed()), this, SLOT(address()));
@@ -609,13 +609,13 @@ void MainWindow::createToolBars()
   searchAction = new QAction(QIcon(":/images/search.png"), QString(tr("search")), this);
   connect(searchAction, SIGNAL(triggered()), this, SLOT(search()));
 
-  searchBar = new QLineEdit();
+  searchBar = new QLineEdit(this);
   searchBar->setPlaceholderText(QString(tr("Search")));
   searchBar->setFrame(false);
   searchBar->addAction(searchAction, QLineEdit::TrailingPosition);
   connect(searchBar, SIGNAL(returnPressed()), this, SLOT(search()));
 
-  searchSplitter = new QSplitter(Qt::Horizontal);
+  searchSplitter = new QSplitter(Qt::Horizontal, this);
   searchSplitter->addWidget(addressBar);
   searchSplitter->addWidget(searchBar);
   searchSplitter->setStretchFactor(1, 1);
@@ -629,7 +629,7 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-  readyLabel = new QLabel(tr(" Ready"));
+  readyLabel = new QLabel(tr(" Ready"), this);
   statusBar()->addWidget(readyLabel, 1);
 }
 
@@ -641,8 +641,8 @@ void MainWindow::createWidgets()
   treeHeader[TREE_NAME] = tr("Name");
   treeHeader[TREE_INO] = tr("Ino");
 
-  treeModel = new FsTreeModel(treeHeader);
-  treeView = new QTreeView();
+  treeModel = new FsTreeModel(treeHeader, this);
+  treeView = new QTreeView(this);
   treeView->setModel(treeModel);
   treeItemSelectionModel = treeView->selectionModel();
   QModelIndex treeIndex = treeModel->index(0, 0);
@@ -672,8 +672,8 @@ void MainWindow::createWidgets()
   listHeader[LIST_GID] = tr("GID");
   listHeader[LIST_TYPE] = tr("Type");
 
-  listModel = new FsListModel(listHeader);
-  listView = new QTreeView();
+  listModel = new FsListModel(listHeader, this);
+  listView = new QTreeView(this);
   listView->setModel(listModel);
   listItemSelectionModel = listView->selectionModel();
   QModelIndex listIndex = listModel->index(0, 0);
@@ -720,32 +720,32 @@ void MainWindow::createWidgets()
           this, SLOT(currentListItem(const QModelIndex &, const QModelIndex &)));
   connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
 
-  horiSplitter = new QSplitter(Qt::Horizontal);
+  horiSplitter = new QSplitter(Qt::Horizontal, this);
   horiSplitter->addWidget(treeView);
   horiSplitter->addWidget(listView);
   horiSplitter->setStretchFactor(1, 1);
   horiSplitter->setHandleWidth(1);
 
-  outputView = new QTextEdit();
+  outputView = new QTextEdit(this);
   outputView->setReadOnly(true);
   outputView->setLineWrapMode(QTextEdit::NoWrap);
 
-  vertSplitter = new QSplitter(Qt::Vertical);
+  vertSplitter = new QSplitter(Qt::Vertical, this);
   vertSplitter->setVisible(false);
   vertSplitter->addWidget(horiSplitter);
   vertSplitter->addWidget(outputView);
   vertSplitter->setStretchFactor(1, 1);
   vertSplitter->setHandleWidth(1);
 
-  bgLabel = new QLabel(label);
+  bgLabel = new QLabel(label, this);
   bgLabel->setVisible(false);
   bgLabel->setTextFormat(Qt::RichText);
 
-  hBoxLayout = new QHBoxLayout();
+  hBoxLayout = new QHBoxLayout(this);
   hBoxLayout->addWidget(vertSplitter);
   hBoxLayout->addWidget(bgLabel);
 
-  layoutWidget = new QWidget();
+  layoutWidget = new QWidget(this);
   layoutWidget->setLayout(hBoxLayout);
 
   setCentralWidget(layoutWidget);

@@ -55,14 +55,13 @@ private slots:
   void handleStarted();
   void handleFinished();
   void handleFound(const QString &name);
-  void doubleClickItem(QModelIndex index);
+  void handleItemDoubleClicked(QListWidgetItem *item);
 
 private:
   static const int width;
   static const int height;
 
-  QListView *listView;
-  QStandardItemModel *listModel;
+  QListWidget *listWidget;
   QFrame *frameHLine;
   QPushButton *goButton;
   QPushButton *copyToClipboardButton;

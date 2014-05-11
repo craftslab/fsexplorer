@@ -27,7 +27,7 @@ const int ConsoleWindow::height = 480;
 ConsoleWindow::ConsoleWindow(QWidget *parent)
     : QWidget(parent)
 {
-  textEdit = new QTextEdit;
+  textEdit = new QTextEdit(this);
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
@@ -44,7 +44,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   textEdit->clear();
   textEdit->setPlainText(tr("ongoing..."));  
 
-  layout = new QVBoxLayout;
+  layout = new QVBoxLayout(this);
   layout->addWidget(textEdit);
   setLayout(layout);
 

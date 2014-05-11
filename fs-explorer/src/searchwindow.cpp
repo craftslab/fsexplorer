@@ -30,38 +30,35 @@ const int SearchWindow::height = 240;
 SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent)
     : QWidget(parent)
 {
-  listModel = new QStandardItemModel();
+  listWidget = new QListWidget(this);
+  connect(listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(handleItemDoubleClicked(QListWidgetItem *)));
 
-  listView = new QListView();
-  listView->setModel(listModel);
-  connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickItem(QModelIndex)));
-
-  frameHLine = new QFrame;
+  frameHLine = new QFrame(this);
   frameHLine->setFrameShape(QFrame::HLine);
   frameHLine->setFrameShadow(QFrame::Sunken);
   frameHLine->setLineWidth(1);
   frameHLine->setMidLineWidth(0);
 
-  goButton = new QPushButton(tr("Go"));
+  goButton = new QPushButton(tr("Go"), this);
   goButton->setEnabled(false);
   connect(goButton, SIGNAL(clicked()), this, SLOT(go()));
 
-  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"));
+  copyToClipboardButton = new QPushButton(tr("Copy to Clipboard"), this);
   copyToClipboardButton->setEnabled(false);
   connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
 
-  switchButton = new QPushButton(switchStop);
+  switchButton = new QPushButton(switchStop, this);
   switchButton->setEnabled(true);
   connect(switchButton, SIGNAL(clicked()), this, SLOT(stopStart()));
 
-  closeButton = new QPushButton(tr("Close"));
+  closeButton = new QPushButton(tr("Close"), this);
   closeButton->setEnabled(true);
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
   QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
-  hLayout = new QHBoxLayout;
+  hLayout = new QHBoxLayout(this);
   hLayout->insertSpacing(0, 300);
   hLayout->insertStretch(0, 1);
   hLayout->addWidget(goButton);
@@ -69,11 +66,11 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   hLayout->addWidget(switchButton);
   hLayout->addWidget(closeButton);
 
-  hLayoutWidget = new QWidget();
+  hLayoutWidget = new QWidget(this);
   hLayoutWidget->setLayout(hLayout);
 
-  vLayout = new QVBoxLayout;
-  vLayout->addWidget(listView);
+  vLayout = new QVBoxLayout(this);
+  vLayout->addWidget(listWidget);
   vLayout->addWidget(frameHLine);
   vLayout->addWidget(hLayoutWidget);
   setLayout(vLayout);
@@ -92,7 +89,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   resize(width, height);
 
   searchName = text;
-  searchEngine = new SearchEngine(engine);
+  searchEngine = new SearchEngine(engine, this);
 
   connect(searchEngine, SIGNAL(started()), this, SLOT(handleStarted()));
   connect(searchEngine, SIGNAL(finished()), this, SLOT(handleFinished()));
@@ -177,7 +174,7 @@ void SearchWindow::handleFound(const QString &name)
   // TODO
 }
 
-void SearchWindow::doubleClickItem(QModelIndex index)
+void SearchWindow::handleItemDoubleClicked(QListWidgetItem *item)
 {
   // TODO
 }
