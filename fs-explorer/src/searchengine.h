@@ -26,6 +26,7 @@
 #include <QLibrary>  
 #include <QThread>
 #include <QMutex>
+#include <QStringList>
 
 #include "fsengine.h"
 
@@ -38,7 +39,7 @@ public:
   ~SearchEngine();
 
 signals:
-  void found(const QString &name);
+  void found(const QStringList &address);
 
 public slots:
   void search(const QString &name);
@@ -48,7 +49,7 @@ protected:
   void run();
 
 private:
-  void traverse(unsigned long long ino);
+  void traverse(const struct fs_dirent &dent, const QStringList &address);
 
   FsEngine *fsEngine;
   QString searchName;

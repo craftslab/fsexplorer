@@ -25,6 +25,8 @@ SearchEngine::SearchEngine(FsEngine *engine, QObject *parent)
 {
   fsEngine = engine;
   parent = parent;
+
+  searchName.clear();
 }
 
 SearchEngine::~SearchEngine()
@@ -39,6 +41,7 @@ void SearchEngine::search(const QString &name)
   }
 
   searchName = name;
+
   start();
 }
 
@@ -49,13 +52,19 @@ void SearchEngine::stop()
 
 void SearchEngine::run()
 {
-  unsigned long long ino = fsEngine->getFileRoot().d_ino;
-  traverse(ino);
+  struct fs_dirent root = fsEngine->getFileRoot();
+  QStringList address;
+
+  address << QString(tr(root.d_name));
+  traverse(root, address);
 }
 
-void SearchEngine::traverse(unsigned long long ino)
+void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &address)
 {
+  QStringList list = address;
+  unsigned long long ino = dent.d_ino;
   unsigned int num = fsEngine->getFileChildsNum(ino);
+
   if (num == 0) {
     return;
   }
@@ -72,7 +81,7 @@ void SearchEngine::traverse(unsigned long long ino)
   }
 
   for (int i = (int)num - 1; i >= 0; --i) {
-    QString name = childs[i].d_name;
+    QString name = QObject::tr(childs[i].d_name);
 
     if (!QString::compare(name, QString(FS_DNAME_DOT))
         || !QString::compare(name, QString(FS_DNAME_DOTDOT))) {
@@ -80,10 +89,10 @@ void SearchEngine::traverse(unsigned long long ino)
     }
 
     if (!QString::compare(name, searchName)) {
-      emit found(name);
+      emit found(list << name);
     }
 
-    traverse(childs[i].d_ino);
+    traverse(childs[i], list << name);
   }
 
 traverseFail:

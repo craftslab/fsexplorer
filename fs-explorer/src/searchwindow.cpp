@@ -21,9 +21,9 @@
 
 #include "searchwindow.h"
 
-const QString switchStop = QObject::tr("Stop");
-const QString switchStart = QObject::tr("Search again");
-
+const QString SearchWindow::separator = QObject::tr("/");
+const QString SearchWindow::stopstr = QObject::tr("Stop");
+const QString SearchWindow::startstr = QObject::tr("Search again");
 const int SearchWindow::width = 640;
 const int SearchWindow::height = 240;
 
@@ -47,7 +47,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   copyToClipboardButton->setEnabled(false);
   connect(copyToClipboardButton, SIGNAL(clicked()), this, SLOT(copyToClipboard()));
 
-  switchButton = new QPushButton(switchStop, this);
+  switchButton = new QPushButton(stopstr, this);
   switchButton->setEnabled(true);
   connect(switchButton, SIGNAL(clicked()), this, SLOT(stopStart()));
 
@@ -93,7 +93,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
 
   connect(searchEngine, SIGNAL(started()), this, SLOT(handleStarted()));
   connect(searchEngine, SIGNAL(finished()), this, SLOT(handleFinished()));
-  connect(searchEngine, SIGNAL(found(const QString &)), this, SLOT(handleFound(const QString &)));
+  connect(searchEngine, SIGNAL(found(const QStringList &)), this, SLOT(handleFound(const QStringList &)));
 
 #if 0 // DISUSED here
   connect(searchEngine, SIGNAL(finished()), searchEngine, SLOT(deleteLater()));
@@ -117,25 +117,28 @@ void SearchWindow::closeEvent(QCloseEvent *event)
 
 void SearchWindow::go()
 {
-  // TODO
+  handleItemDoubleClicked(listWidget->currentItem());
 }
 
 void SearchWindow::copyToClipboard()
 {
-#if 0 // DISUSED here
   QClipboard *clipboard = QApplication::clipboard();
-  if (!clipboard) {
+  QMimeData *mimeData = new QMimeData();
+  QString text;
+  
+  if (listWidget->count() == 0 || !clipboard) {
     return;
   }
 
-  QMimeData *mimeData = new QMimeData();
-  const QString text = QString(tr("Foo"));
-  mimeData->setText(text);
+  text.clear();
 
+  for (int i = 0; i < listWidget->count() - 1; ++i) {
+    text.append(listWidget->item(i)->text()).append('\n');
+  }
+  text.append(listWidget->item(listWidget->count() - 1)->text());
+
+  mimeData->setText(text);
   clipboard->setMimeData(mimeData);
-#else
-  // TODO
-#endif
 }
 
 void SearchWindow::stopStart()
@@ -145,13 +148,15 @@ void SearchWindow::stopStart()
   if (isStopped) {
     goButton->setEnabled(true);
     copyToClipboardButton->setEnabled(true);
-    switchButton->setText(switchStart);
+    switchButton->setText(startstr);
 
     emit stop();
   } else {
+    listWidget->clear();
+
     goButton->setEnabled(false);
     copyToClipboardButton->setEnabled(false);
-    switchButton->setText(switchStop);
+    switchButton->setText(stopstr);
 
     emit search(searchName);
   }
@@ -166,15 +171,36 @@ void SearchWindow::handleStarted()
 
 void SearchWindow::handleFinished()
 {
-  // TODO
+  stopStart();
 }
 
-void SearchWindow::handleFound(const QString &name)
+void SearchWindow::handleFound(const QStringList &address)
 {
-  // TODO
+  QString item;
+  int i;
+
+  if (address.size() <= 0) {
+    return;
+  }
+
+  item.clear();
+  item.append(address[0]);
+
+  if (address.size() > 1) {
+    for (i = 1; i < address.size() - 1; ++i) {
+      item.append(address[i]).append(separator);
+    }
+    item.append(address[i]);
+  }
+
+  listWidget->addItem(item);
 }
 
 void SearchWindow::handleItemDoubleClicked(QListWidgetItem *item)
 {
-  // TODO
+  if (!item) {
+    return;
+  }
+
+  emit selected(item->text());
 }

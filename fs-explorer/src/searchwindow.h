@@ -39,7 +39,7 @@ public:
   SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent = 0);
 
 signals:
-  void selected(const QString &name);
+  void selected(const QString &address);
 
   void search(const QString &name);
   void stop();
@@ -54,10 +54,13 @@ private slots:
 
   void handleStarted();
   void handleFinished();
-  void handleFound(const QString &name);
+  void handleFound(const QStringList &address);
   void handleItemDoubleClicked(QListWidgetItem *item);
 
 private:
+  static const QString separator;
+  static const QString stopstr;
+  static const QString startstr;
   static const int width;
   static const int height;
 
