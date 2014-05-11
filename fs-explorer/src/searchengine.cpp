@@ -61,7 +61,6 @@ void SearchEngine::run()
 
 void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &address)
 {
-  QStringList list = address;
   unsigned long long ino = dent.d_ino;
   unsigned int num = fsEngine->getFileChildsNum(ino);
 
@@ -80,7 +79,7 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
     goto traverseFail;
   }
 
-  for (int i = (int)num - 1; i >= 0; --i) {
+  for (int i = 0; i < (int)num; ++i) {
     QString name = QObject::tr(childs[i].d_name);
 
     if (!QString::compare(name, QString(FS_DNAME_DOT))
@@ -88,11 +87,14 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
       continue;
     }
 
+    QStringList list = address;
+    list << name;
+
     if (!QString::compare(name, searchName)) {
-      emit found(list << name);
+      emit found(list);
     }
 
-    traverse(childs[i], list << name);
+    traverse(childs[i], list);
   }
 
 traverseFail:

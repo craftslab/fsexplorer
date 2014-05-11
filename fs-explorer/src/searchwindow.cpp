@@ -146,17 +146,16 @@ void SearchWindow::stopStart()
   static bool isStopped = true;
 
   if (isStopped) {
-    goButton->setEnabled(true);
-    copyToClipboardButton->setEnabled(true);
     switchButton->setText(startstr);
 
     emit stop();
   } else {
     listWidget->clear();
 
+    switchButton->setText(stopstr);
+
     goButton->setEnabled(false);
     copyToClipboardButton->setEnabled(false);
-    switchButton->setText(stopstr);
 
     emit search(searchName);
   }
@@ -194,6 +193,9 @@ void SearchWindow::handleFound(const QStringList &address)
   }
 
   listWidget->addItem(item);
+
+  goButton->setEnabled(true);
+  copyToClipboardButton->setEnabled(true);
 }
 
 void SearchWindow::handleItemDoubleClicked(QListWidgetItem *item)
