@@ -140,13 +140,14 @@ static int32_t fs_dentry2dirent(struct dentry *dentry, struct fs_dirent *dirent)
 static int32_t fs_traverse_dentry(struct dentry **dentry)
 {
   struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct inode *inode = (*dentry)->d_inode;
   int32_t ret;
 
   if (!sb || !sb->s_op || !sb->s_op->traverse_dentry) {
     return -1;
   }
 
-  if (!list_empty(&(*dentry)->d_subdirs)) {
+  if (!(inode->i_mode & IFDIR) || !list_empty(&(*dentry)->d_subdirs)) {
     return 0;
   }
 

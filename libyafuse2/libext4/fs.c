@@ -865,13 +865,18 @@ static int32_t fs_umount(const char *name, int32_t flags)
 static int32_t fs_traverse_dentry(struct dentry **dentry)
 {
   struct super_block *sb = (*dentry)->d_sb;
+  struct inode *inode = (*dentry)->d_inode;
   struct dentry *child = NULL;
   struct ext4_dir_entry_2 *ext4_dentries = NULL;
   uint32_t ext4_dentries_num, i;
   int32_t ret;
 
-  if (!dentry || !*dentry) {
+  if (!dentry || !*dentry || !inode) {
     return -1;
+  }
+
+  if (!(inode->i_mode & EXT4_INODE_MODE_S_IFDIR)) {
+    return 0;
   }
 
   /*
