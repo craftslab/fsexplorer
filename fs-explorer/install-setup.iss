@@ -24,3 +24,7 @@ Source: ".\release\icon.ico"; DestDir: "{app}"
 [Icons]
 Name: "{group}\FS Explorer"; Filename: "{app}\bin\fs-explorer.exe"; IconFilename: "{app}\icon.ico"
 Name: "{group}\Uninstall FS Explorer"; Filename: "{uninstallexe}"
+Name: "{group}\Release Note"; Filename: "{app}\ReleaseNote.txt"
+
+[UninstallDelete]
+Type: files; Name: "{app}\bin\settings.ini"
