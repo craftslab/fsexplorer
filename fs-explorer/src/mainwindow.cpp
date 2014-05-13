@@ -237,11 +237,7 @@ void MainWindow::address()
 
 void MainWindow::search()
 {
-#if 0 // DISUSED herer
   QString text = stripString(searchBar->text());
-#else
-  QString text = searchBar->text();
-#endif
 
   if (text.isEmpty()) {
     return;
