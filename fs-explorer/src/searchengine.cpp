@@ -90,9 +90,17 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
     QStringList list = address;
     list << name;
 
+#if 0 // DISUSED here
     if (!QString::compare(name, searchName)) {
       emit found(list);
     }
+#else
+    QRegExp rx(searchName);
+    rx.setPatternSyntax(QRegExp::Wildcard);
+    if (rx.exactMatch(name)) {
+      emit found(list);
+    }
+#endif
 
     traverse(childs[i], list);
   }
