@@ -39,10 +39,9 @@ public:
   SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent = 0);
 
 signals:
-  void selected(const QString &address);
-
   void search(const QString &name);
   void stop();
+  void selected(const QString &address);
 
 protected:
   void closeEvent(QCloseEvent *event);

@@ -101,6 +101,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
 
   connect(this, SIGNAL(search(const QString &)), searchEngine, SLOT(search(const QString &)));
   connect(this, SIGNAL(stop()), searchEngine, SLOT(stop()));
+  connect(this, SIGNAL(selected(const QString &)), parent, SLOT(address(const QString &)));
 
   emit search(searchName);
 }

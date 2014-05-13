@@ -103,6 +103,7 @@ private slots:
   void goUp();
   void about();
   void address();
+  void address(const QString &name);
   void search();
   void showWidgets(bool show);
 
@@ -134,7 +135,6 @@ private:
   void setOutput(const QString &text) const;
   QString stripString(const QString &name);
   QStringList parseAddress(const QString &name);
-  void address(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);
   bool findListFile(const QString &name, QModelIndex &index);
   void showTreeAddress(const QModelIndex &index) const;
