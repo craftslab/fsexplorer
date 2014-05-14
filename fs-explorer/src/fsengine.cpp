@@ -155,8 +155,9 @@ QString FsEngine::getFileType() const
   return *fileType;
 }
 
-struct fs_kstatfs FsEngine::getFileStat() const
+struct fs_kstatfs FsEngine::getFileStat()
 {
+  QMutexLocker locker(&mutex);
   struct fs_kstatfs ret;
 
   memset((void *)&ret, 0, sizeof(struct fs_kstatfs));
@@ -166,8 +167,9 @@ struct fs_kstatfs FsEngine::getFileStat() const
   return ret;
 }
 
-QString FsEngine::getFileStatDetail() const
+QString FsEngine::getFileStatDetail()
 {
+  QMutexLocker locker(&mutex);
   QString str;
   const char *buf = NULL;
   int32_t ret;
@@ -199,8 +201,9 @@ struct fs_dirent FsEngine::getFileRoot() const
   return dent;
 }
 
-unsigned int FsEngine::getFileChildsNum(unsigned long long ino) const
+unsigned int FsEngine::getFileChildsNum(unsigned long long ino)
 {
+  QMutexLocker locker(&mutex);
   struct fs_dirent parent;
 
   if (!fileOpt || !fileOpt->querydent || !fileOpt->getdents) {
@@ -219,6 +222,7 @@ unsigned int FsEngine::getFileChildsNum(unsigned long long ino) const
 
 bool FsEngine::getFileChilds(unsigned long long ino, struct fs_dirent *childs, unsigned int num)
 {
+  QMutexLocker locker(&mutex);
   if (!childs || num == 0) {
     return false;
   }
@@ -231,8 +235,9 @@ bool FsEngine::getFileChilds(unsigned long long ino, struct fs_dirent *childs, u
   return true;
 }
 
-struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino) const
+struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino)
 {
+  QMutexLocker locker(&mutex);
   struct fs_kstat ret;
 
   memset((void *)&ret, 0, sizeof(struct fs_kstat));
@@ -241,8 +246,9 @@ struct fs_kstat FsEngine::getFileChildsStat(unsigned long long ino) const
   return ret;
 }
 
-QString FsEngine::getFileChildsStatDetail(unsigned long long ino) const
+QString FsEngine::getFileChildsStatDetail(unsigned long long ino)
 {
+  QMutexLocker locker(&mutex);
   QString str;
   const char *buf = NULL;
   int32_t ret;

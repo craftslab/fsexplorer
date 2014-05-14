@@ -23,7 +23,8 @@
 #define FSENGINE_H
 
 #include <QObject>
-#include <QLibrary>  
+#include <QLibrary>
+#include <QMutexLocker>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,13 +44,13 @@ public:
   bool closeFile();
   bool isReadOnly() const;
   QString getFileType() const;
-  struct fs_kstatfs getFileStat() const;
-  QString getFileStatDetail() const;
+  struct fs_kstatfs getFileStat();
+  QString getFileStatDetail();
   struct fs_dirent getFileRoot() const;
-  unsigned int getFileChildsNum(unsigned long long ino) const;
+  unsigned int getFileChildsNum(unsigned long long ino);
   bool getFileChilds(unsigned long long ino, struct fs_dirent *childs, unsigned int num);
-  struct fs_kstat getFileChildsStat(unsigned long long ino) const;
-  QString getFileChildsStatDetail(unsigned long long ino) const;
+  struct fs_kstat getFileChildsStat(unsigned long long ino);
+  QString getFileChildsStatDetail(unsigned long long ino);
 
 private:
   bool loadLibrary();
@@ -64,6 +65,7 @@ private:
   QString *fileType;
   struct fs_dirent *fileRoot;
 
+  QMutex mutex;
   bool readOnly;
 };
 #endif
