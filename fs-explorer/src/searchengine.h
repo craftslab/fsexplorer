@@ -53,5 +53,6 @@ private:
 
   FsEngine *fsEngine;
   QString searchName;
+  bool searchStopped;
 };
 #endif

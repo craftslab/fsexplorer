@@ -27,6 +27,7 @@ SearchEngine::SearchEngine(FsEngine *engine, QObject *parent)
   parent = parent;
 
   searchName.clear();
+  searchStopped = true;
 }
 
 SearchEngine::~SearchEngine()
@@ -41,13 +42,14 @@ void SearchEngine::search(const QString &name)
   }
 
   searchName = name;
+  searchStopped = false;
 
   start();
 }
 
 void SearchEngine::stop()
 {
-  // TODO
+  searchStopped = true;
 }
 
 void SearchEngine::run()
@@ -80,6 +82,10 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
   }
 
   for (int i = 0; i < (int)num; ++i) {
+    if (searchStopped) {
+      break;
+    }
+
     QString name = QObject::tr(childs[i].d_name);
 
     if (!QString::compare(name, QString(FS_DNAME_DOT))
