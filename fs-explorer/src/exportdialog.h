@@ -1,5 +1,5 @@
 /**
- * aboutdialog.h - Header of aboutdialog
+ * exportdialog.h - Header of exportdialog
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,23 +19,20 @@
  * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef EXPORTDIALOG_H
+#define EXPORTDIALOG_H
 
 #include <QString>
-#include <QDialog>
 #include <QWidget>
+#include <QProgressDialog>
 
-#include "ui_aboutdialog.h"
+#include "fsengine.h"
 
-class AboutDialog : public QDialog
+class ExportDialog : public QProgressDialog
 {
   Q_OBJECT
 
 public:
-  AboutDialog(const QString &version, QWidget *parent = 0);
-
-private:
-    Ui::About uiAbout;
+  ExportDialog(const QString &title, unsigned long long ino, FsEngine *engine, const QString &name, QWidget *parent = 0);
 };
 #endif

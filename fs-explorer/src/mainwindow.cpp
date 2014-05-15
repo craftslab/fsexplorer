@@ -183,6 +183,12 @@ void MainWindow::exportFile()
   if (dir.isEmpty()) {
     return;
   }
+
+  QModelIndex index = listView->selectionModel()->currentIndex();
+  unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+
+  exportDialog = new ExportDialog(tr("Export files..."), ino, fsEngine, dir, this);
+  exportDialog->show();
 }
 
 void MainWindow::removeFile()

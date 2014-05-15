@@ -48,6 +48,7 @@
 #include "searchwindow.h"
 #include "consolewindow.h"
 #include "statswindow.h"
+#include "exportdialog.h"
 #include "aboutdialog.h"
 
 enum TreeHeader {
@@ -106,6 +107,7 @@ private slots:
   void address(const QString &name);
   void search();
   void showWidgets(bool show);
+  void showContextMenu(const QPoint &pos);
 
   void pressTreeItem(const QModelIndex &index);
   void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
@@ -116,7 +118,6 @@ private slots:
   void activateListItem(const QModelIndex &index);
   void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void syncListItem(unsigned long long ino);
-  void showContextMenu(const QPoint &pos);
 
 private:
   void initSettings();
@@ -213,6 +214,7 @@ private:
   SearchWindow *searchWindow;
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
+  QProgressDialog *exportDialog;
   AboutDialog *aboutDialog;
 
   QStringList treeHeader;
