@@ -134,8 +134,8 @@ void MainWindow::openFile()
   QString filter = tr("FS Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
-  QString name = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPath, filter);
-  if (name.isEmpty()) {
+  QString file = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPath, filter);
+  if (file.isEmpty()) {
     return;
   }
 
@@ -144,7 +144,7 @@ void MainWindow::openFile()
   }
 
   if (!fsStatus) {
-    fsPath = QDir::toNativeSeparators(name);
+    fsPath = QDir::toNativeSeparators(file);
     writeSettings();
     loadFile(fsPath);
   }
@@ -176,7 +176,13 @@ void MainWindow::importFile()
 
 void MainWindow::exportFile()
 {
-  // TODO
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Export to..."),
+                                                  fsPath,
+                                                  QFileDialog::ShowDirsOnly
+                                                  | QFileDialog::DontResolveSymlinks);
+  if (dir.isEmpty()) {
+    return;
+  }
 }
 
 void MainWindow::removeFile()
