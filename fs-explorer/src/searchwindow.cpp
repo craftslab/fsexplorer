@@ -78,6 +78,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
+  setWindowModality(Qt::NonModal);
 
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
@@ -152,11 +153,10 @@ void SearchWindow::stopStart()
     emit stop();
   } else {
     listWidget->clear();
-
-    switchButton->setText(stopstr);
-
     goButton->setEnabled(false);
     copyToClipboardButton->setEnabled(false);
+
+    switchButton->setText(stopstr);
 
     emit search(searchName);
   }

@@ -54,6 +54,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   setWindowTitle(tr("FS Console"));
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
+  setWindowModality(Qt::WindowModal);
 
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();

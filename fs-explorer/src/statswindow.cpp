@@ -66,6 +66,7 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
+  setWindowModality(Qt::WindowModal);
 
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
@@ -84,6 +85,9 @@ void StatsWindow::closeEvent(QCloseEvent *event)
 
 void StatsWindow::copyToClipboard()
 {
-  textEdit->selectAll();
-  textEdit->copy();
+  QClipboard *clipboard = QApplication::clipboard();
+  QMimeData *mimeData = new QMimeData();
+  
+  mimeData->setText(textEdit->toPlainText());
+  clipboard->setMimeData(mimeData);
 }
