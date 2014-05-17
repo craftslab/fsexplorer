@@ -48,7 +48,7 @@
 #include "searchwindow.h"
 #include "consolewindow.h"
 #include "statswindow.h"
-#include "exportdialog.h"
+#include "exportengine.h"
 #include "aboutdialog.h"
 
 enum TreeHeader {
@@ -214,14 +214,15 @@ private:
   SearchWindow *searchWindow;
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
-  QProgressDialog *exportDialog;
+  ExportEngine *exportEngine;
   AboutDialog *aboutDialog;
 
   QStringList treeHeader;
   QStringList listHeader;
 
   FsEngine *fsEngine;
-  QString fsPath;
+  QString fsPathOpen;
+  QString fsPathExport;
   bool fsStatus;
   QList<struct fs_dirent> treeFileDentList;
   QList<struct fs_kstat> treeFileStatList;

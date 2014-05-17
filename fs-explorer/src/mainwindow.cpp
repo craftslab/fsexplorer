@@ -48,7 +48,8 @@ MainWindow::MainWindow()
   showWidgets(false);
 
   fsEngine = new FsEngine(this);
-  fsPath = fsPath;
+  fsPathOpen = fsPathOpen;
+  fsPathExport = fsPathExport;
   fsStatus = false;
 }
 
@@ -114,8 +115,8 @@ void MainWindow::dropEvent(QDropEvent *event)
   }
 
   if (!fsStatus) {
-    fsPath = QDir::toNativeSeparators(name);
-    loadFile(fsPath);
+    fsPathOpen = QDir::toNativeSeparators(name);
+    loadFile(fsPathOpen);
   }
 
   event->acceptProposedAction();
@@ -134,7 +135,7 @@ void MainWindow::openFile()
   QString filter = tr("FS Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
-  QString file = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPath, filter);
+  QString file = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPathOpen, filter);
   if (file.isEmpty()) {
     return;
   }
@@ -144,9 +145,9 @@ void MainWindow::openFile()
   }
 
   if (!fsStatus) {
-    fsPath = QDir::toNativeSeparators(file);
+    fsPathOpen = QDir::toNativeSeparators(file);
     writeSettings();
-    loadFile(fsPath);
+    loadFile(fsPathOpen);
   }
 }
 
@@ -176,19 +177,28 @@ void MainWindow::importFile()
 
 void MainWindow::exportFile()
 {
+  QString title;
+  QModelIndex index;
+  QList<unsigned long long> list;
+
   QString dir = QFileDialog::getExistingDirectory(this, tr("Export to..."),
-                                                  fsPath,
+                                                  fsPathExport,
                                                   QFileDialog::ShowDirsOnly
                                                   | QFileDialog::DontResolveSymlinks);
   if (dir.isEmpty()) {
     return;
   }
 
-  QModelIndex index = listView->selectionModel()->currentIndex();
-  unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+  fsPathExport = QDir::toNativeSeparators(dir);
+  writeSettings();
 
-  exportDialog = new ExportDialog(tr("Export files..."), ino, fsEngine, dir, this);
-  exportDialog->show();
+  title = QObject::tr("Export to ");
+  title.append(fsPathExport);
+
+  index = listView->selectionModel()->currentIndex();
+  list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+
+  exportEngine = new ExportEngine(title, list, dir, fsEngine, this);
 }
 
 void MainWindow::removeFile()
@@ -447,7 +457,8 @@ void MainWindow::initSettings()
 void MainWindow::writeSettings()
 {
   settings->beginGroup(tr("MainWindow"));
-  settings->setValue(tr("fsPath"), fsPath);
+  settings->setValue(tr("fsPathOpen"), fsPathOpen);
+  settings->setValue(tr("fsPathExport"), fsPathExport);
   settings->endGroup();
 
   settings->sync();
@@ -456,7 +467,8 @@ void MainWindow::writeSettings()
 void MainWindow::readSettings()
 {
   settings->beginGroup(tr("MainWindow"));
-  fsPath = settings->value(tr("fsPath"), QString(QDir::homePath())).value<QString>();
+  fsPathOpen = settings->value(tr("fsPathOpen"), QString(QDir::homePath())).value<QString>();
+  fsPathExport = settings->value(tr("fsPathExport"), QString(QDir::homePath())).value<QString>();
   settings->endGroup();
 }
 

@@ -19,7 +19,7 @@ HEADERS += searchwindow.h
 HEADERS += consoleengine.h
 HEADERS += consolewindow.h
 HEADERS += statswindow.h
-HEADERS += exportdialog.h
+HEADERS += exportengine.h
 HEADERS += aboutdialog.h
 HEADERS += mainwindow.h
 
@@ -33,7 +33,7 @@ SOURCES += searchwindow.cpp
 SOURCES += consoleengine.cpp
 SOURCES += consolewindow.cpp
 SOURCES += statswindow.cpp
-SOURCES += exportdialog.cpp
+SOURCES += exportengine.cpp
 SOURCES += aboutdialog.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp

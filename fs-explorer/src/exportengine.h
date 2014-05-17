@@ -1,5 +1,5 @@
 /**
- * exportdialog.cpp - The entry of exportdialog
+ * exportengine.h - Header of exportengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,9 +19,26 @@
  * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "exportdialog.h"
+#ifndef EXPORTENGINE_H
+#define EXPORTENGINE_H
 
-ExportDialog::ExportDialog(const QString &title, unsigned long long ino, FsEngine *engine, const QString &name, QWidget *parent)
-  : QProgressDialog(parent)
+#include <QString>
+#include <QProgressDialog>
+
+#include "fsengine.h"
+
+class ExportEngine : public QObject
 {
-}
+  Q_OBJECT
+
+public:
+  ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent = 0);
+
+private:
+  void traverse(const QList<unsigned long long> &list);
+
+  QProgressDialog *progress;
+  FsEngine *fsEngine;
+  QString exportName;
+};
+#endif
