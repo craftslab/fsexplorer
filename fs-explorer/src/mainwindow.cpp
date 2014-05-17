@@ -1123,7 +1123,7 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
   }
   memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
 
-  bool ret = fsEngine->getFileChilds(ino, childs, num);
+  bool ret = fsEngine->getFileChildsList(ino, childs, num);
   if (!ret) {
     goto createFileDentListFail;
   }

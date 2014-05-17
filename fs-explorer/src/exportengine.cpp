@@ -23,6 +23,8 @@
 
 ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent)
 {
+  bool ret;
+
   progress = new QProgressDialog(parent);
 
   progress->setWindowTitle(title);
@@ -35,22 +37,81 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   fsEngine = engine;
   exportName = name;
 
-  traverse(list);
+  for (int i = 0; i < list.size(); ++i) {
+    ret = traverse(list[i]);
+    if (!ret) {
+      break;
+    }
+  }
 }
 
-void ExportEngine::traverse(const QList<unsigned long long> &list)
+ExportEngine::~ExportEngine()
 {
-  int numFiles = 100000;
+  if (progress) {
+    delete progress;
+    progress = NULL;
+  }
+}
 
-  //progress->setLabelText(title);
-  progress->setMinimum(0);
-  progress->setMaximum(numFiles);
+bool ExportEngine::traverse(unsigned long long ino)
+{
+  unsigned int num;
+  bool ret;
 
-  for (int i = 0; i < numFiles; i++) {
+  ret = exportFile(ino);
+  if (!ret) {
+    return false;
+  }
+
+  num = fsEngine->getFileChildsNum(ino);
+  if (num == 0) {
+    return true;
+  }
+
+  struct fs_dirent *childs = new fs_dirent[num];
+  if (!childs) {
+    return false;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
+
+  ret = fsEngine->getFileChildsList(ino, childs, num);
+  if (!ret) {
+    goto traverseExit;
+  }
+
+  for (int i = 0; i < (int)num; ++i) {
+    ret = traverse(childs[i].d_ino);
+    if (!ret) {
+      break;
+    }
+  }
+
+traverseExit:
+
+  if (childs) {
+    delete[] childs;
+    childs = NULL;
+  }
+
+  return ret;
+}
+
+bool ExportEngine::exportFile(unsigned long long ino)
+{
+  struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  int size = static_cast<int> (stat.size);
+
+  progress->setLabelText(QString(tr(dent.d_name)));
+  progress->setRange(0, size);
+
+  for (int i = 0; i < size; i++) {
     progress->setValue(i);
     if (progress->wasCanceled()) {
       break;
     }
   }
-  progress->setValue(numFiles);
+  progress->setValue(size);
+
+  return true;
 }

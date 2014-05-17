@@ -33,9 +33,11 @@ class ExportEngine : public QObject
 
 public:
   ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent = 0);
+  ~ExportEngine();
 
 private:
-  void traverse(const QList<unsigned long long> &list);
+  bool traverse(unsigned long long ino);
+  bool exportFile(unsigned long long ino);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;

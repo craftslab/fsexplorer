@@ -76,9 +76,9 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
   }
   memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
 
-  bool ret = fsEngine->getFileChilds(ino, childs, num);
+  bool ret = fsEngine->getFileChildsList(ino, childs, num);
   if (!ret) {
-    goto traverseFail;
+    goto traverseExit;
   }
 
   for (int i = 0; i < (int)num; ++i) {
@@ -111,7 +111,7 @@ void SearchEngine::traverse(const struct fs_dirent &dent, const QStringList &add
     traverse(childs[i], list);
   }
 
-traverseFail:
+traverseExit:
 
   if (childs) {
     delete[] childs;

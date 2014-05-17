@@ -42,13 +42,17 @@ public:
 
   bool openFile(const QString &name);
   bool closeFile();
+
   bool isReadOnly() const;
+
   QString getFileType() const;
   struct fs_kstatfs getFileStat();
   QString getFileStatDetail();
   struct fs_dirent getFileRoot() const;
+
   unsigned int getFileChildsNum(unsigned long long ino);
-  bool getFileChilds(unsigned long long ino, struct fs_dirent *childs, unsigned int num);
+  bool getFileChildsList(unsigned long long ino, struct fs_dirent *childs, unsigned int num);
+  struct fs_dirent getFileChildsDent(unsigned long long ino);
   struct fs_kstat getFileChildsStat(unsigned long long ino);
   QString getFileChildsStatDetail(unsigned long long ino);
 
