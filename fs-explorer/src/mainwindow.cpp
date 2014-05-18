@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 
 const QString MainWindow::title = QObject::tr("FS Explorer");
-const QString MainWindow::version = QObject::tr("14.05");
+const QString MainWindow::version = QObject::tr("14.06");
 const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here
@@ -177,10 +177,6 @@ void MainWindow::importFile()
 
 void MainWindow::exportFile()
 {
-  QString title;
-  QModelIndex index;
-  QList<unsigned long long> list;
-
   QString dir = QFileDialog::getExistingDirectory(this, tr("Export to..."),
                                                   fsPathExport,
                                                   QFileDialog::ShowDirsOnly
@@ -192,13 +188,7 @@ void MainWindow::exportFile()
   fsPathExport = QDir::toNativeSeparators(dir);
   writeSettings();
 
-  title = QObject::tr("Export to ");
-  title.append(fsPathExport);
-
-  index = listView->selectionModel()->currentIndex();
-  list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
-
-  exportEngine = new ExportEngine(title, list, dir, fsEngine, this);
+  emit exportFileList(fsPathExport);
 }
 
 void MainWindow::removeFile()
@@ -257,6 +247,71 @@ void MainWindow::address()
   address(text);
 }
 
+void MainWindow::address(const QString &name)
+{
+  QModelIndex index = treeModel->index(0, 0);
+  QStringList list;
+  unsigned long long ino;
+  int i;
+  bool found = false;
+
+  if (!index.isValid()) {
+    return;
+  }
+
+  list = parseAddress(name);
+
+  if (list.size() <= 0) {
+    return;
+  } else if ((list.size() == 1) && !QString::compare(separator, list[0])) {
+    treeView->setCurrentIndex(index);
+    ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
+    handleSyncListItem(ino);
+
+    if (index.parent().isValid()) {
+      emit mountedHome(true);
+    } else {
+      emit mountedHome(false);
+    }
+
+    return;
+  }
+
+  for (i = 0; i < list.size(); ++i) {
+    found = findTreeAddress(list[i], index);
+    if (found) {
+      treeView->setCurrentIndex(index);
+      if (!treeModel->hasChildren(index)) {
+        expandTreeItem(index);
+      }
+      treeView->expand(index);
+    } else {
+      break;
+    }
+  }
+
+  ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
+  handleSyncListItem(ino);
+
+  if (index.parent().isValid()) {
+    emit mountedHome(true);
+  } else {
+    emit mountedHome(false);
+  }
+
+  if (!found && (i == list.size() - 1)) {
+    index = listModel->index(0, 0);
+    found = findListFile(list[i], index);
+    if (found) {
+      listView->setCurrentIndex(index);
+    }
+  }
+
+  if (!found) {
+    confirmAddressStatus(name);
+  }
+}
+
 void MainWindow::search()
 {
   QString text = stripString(searchBar->text());
@@ -288,6 +343,24 @@ void MainWindow::showWidgets(bool show)
   }
 }
 
+void MainWindow::showContextMenu(const QPoint &pos)
+{
+  QPoint globalPos = listView->mapToGlobal(pos);
+
+  QMenu menu;
+  menu.addAction(exportAction);
+  menu.addAction(removeAction);
+  menu.addSeparator();
+  menu.addAction(consoleAction);
+  menu.addSeparator();
+  menu.addAction(propAction);
+
+  QAction *selectedItem = menu.exec(globalPos);
+  if (selectedItem) {
+    // Do nothing here
+  }
+}
+
 void MainWindow::pressTreeItem(const QModelIndex &index)
 {
   treeView->setCurrentIndex(index);
@@ -310,13 +383,13 @@ void MainWindow::currentTreeItem(const QModelIndex &current, const QModelIndex &
     emit mountedHome(false);
   }
 
-  emit syncList(ino);
+  emit syncListItem(ino);
 
   showTreeAddress(current);
   showFileStat(ino);
 }
 
-void MainWindow::syncTreeItem(unsigned long long ino)
+void MainWindow::handleSyncTreeItem(unsigned long long ino)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QModelIndex parent, child;
@@ -394,7 +467,7 @@ void MainWindow::doubleClickListItem(const QModelIndex &index)
 
   showFileStat(ino);
 
-  emit syncTree(ino);
+  emit syncTreeItem(ino);
 }
 
 void MainWindow::activateListItem(const QModelIndex &index)
@@ -410,28 +483,23 @@ void MainWindow::currentListItem(const QModelIndex &current, const QModelIndex &
   clickListItem(current);
 }
 
-void MainWindow::syncListItem(unsigned long long ino)
+void MainWindow::handleSyncListItem(unsigned long long ino)
 {
   removeListAll();
   expandListItem(ino);
 }
 
-void MainWindow::showContextMenu(const QPoint &pos)
+void MainWindow::handleExportFileList(const QString &name)
 {
-  QPoint globalPos = listView->mapToGlobal(pos);
+  QString title = QObject::tr("Export to ");
+  title.append(name);
 
-  QMenu menu;
-  menu.addAction(exportAction);
-  menu.addAction(removeAction);
-  menu.addSeparator();
-  menu.addAction(consoleAction);
-  menu.addSeparator();
-  menu.addAction(propAction);
+  QModelIndex index = listView->selectionModel()->currentIndex();
 
-  QAction *selectedItem = menu.exec(globalPos);
-  if (selectedItem) {
-    // Do nothing here
-  }
+  QList<unsigned long long> list;
+  list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+
+  exportEngine = new ExportEngine(title, list, name, fsEngine, this);
 }
 
 void MainWindow::initSettings()
@@ -510,6 +578,7 @@ void MainWindow::createActions()
   exportAction->setStatusTip(tr("Export file"));
   exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
+  connect(this, SIGNAL(exportFileList(const QString &)), this, SLOT(handleExportFileList(const QString &)));
 
   removeAction = new QAction(tr("&Remove"), this);
   removeAction->setIcon(QIcon(":/images/remove.png"));
@@ -784,8 +853,8 @@ void MainWindow::createConnections()
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
-  connect(this, SIGNAL(syncTree(unsigned long long)), this, SLOT(syncTreeItem(unsigned long long)));
-  connect(this, SIGNAL(syncList(unsigned long long)), this, SLOT(syncListItem(unsigned long long)));
+  connect(this, SIGNAL(syncTreeItem(unsigned long long)), this, SLOT(handleSyncTreeItem(unsigned long long)));
+  connect(this, SIGNAL(syncListItem(unsigned long long)), this, SLOT(handleSyncListItem(unsigned long long)));
 }
 
 void MainWindow::confirmFileStatus(bool &status)
@@ -941,71 +1010,6 @@ QStringList MainWindow::parseAddress(const QString &name)
 #endif
 
   return list;
-}
-
-void MainWindow::address(const QString &name)
-{
-  QModelIndex index = treeModel->index(0, 0);
-  QStringList list;
-  unsigned long long ino;
-  int i;
-  bool found = false;
-
-  if (!index.isValid()) {
-    return;
-  }
-
-  list = parseAddress(name);
-
-  if (list.size() <= 0) {
-    return;
-  } else if ((list.size() == 1) && !QString::compare(separator, list[0])) {
-    treeView->setCurrentIndex(index);
-    ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-    syncListItem(ino);
-
-    if (index.parent().isValid()) {
-      emit mountedHome(true);
-    } else {
-      emit mountedHome(false);
-    }
-
-    return;
-  }
-
-  for (i = 0; i < list.size(); ++i) {
-    found = findTreeAddress(list[i], index);
-    if (found) {
-      treeView->setCurrentIndex(index);
-      if (!treeModel->hasChildren(index)) {
-        expandTreeItem(index);
-      }
-      treeView->expand(index);
-    } else {
-      break;
-    }
-  }
-
-  ino = treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong();
-  syncListItem(ino);
-
-  if (index.parent().isValid()) {
-    emit mountedHome(true);
-  } else {
-    emit mountedHome(false);
-  }
-
-  if (!found && (i == list.size() - 1)) {
-    index = listModel->index(0, 0);
-    found = findListFile(list[i], index);
-    if (found) {
-      listView->setCurrentIndex(index);
-    }
-  }
-
-  if (!found) {
-    confirmAddressStatus(name);
-  }
 }
 
 bool MainWindow::findTreeAddress(const QString &name, QModelIndex &index)

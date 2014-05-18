@@ -82,8 +82,9 @@ signals:
   void mounted(bool status);
   void mountedRw(bool status);
   void mountedHome(bool status);
-  void syncTree(unsigned long long ino);
-  void syncList(unsigned long long ino);
+  void syncTreeItem(unsigned long long ino);
+  void syncListItem(unsigned long long ino);
+  void exportFileList(const QString &name);
 
 protected:
   void resizeEvent(QResizeEvent *event);
@@ -111,13 +112,15 @@ private slots:
 
   void pressTreeItem(const QModelIndex &index);
   void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
-  void syncTreeItem(unsigned long long ino);
+  void handleSyncTreeItem(unsigned long long ino);
 
   void clickListItem(const QModelIndex &index);
   void doubleClickListItem(const QModelIndex &index);
   void activateListItem(const QModelIndex &index);
   void currentListItem(const QModelIndex &current, const QModelIndex &previous);
-  void syncListItem(unsigned long long ino);
+  void handleSyncListItem(unsigned long long ino);
+
+  void handleExportFileList(const QString &name);
 
 private:
   void initSettings();
