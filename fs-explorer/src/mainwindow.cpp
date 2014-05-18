@@ -199,7 +199,7 @@ void MainWindow::exportFile()
 
 void MainWindow::exportFileAll()
 {
-  QString dir = QFileDialog::getExistingDirectory(this, tr("Export All to..."),
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Export all to..."),
                                                   fsPathExport,
                                                   QFileDialog::ShowDirsOnly
                                                   | QFileDialog::DontResolveSymlinks);
@@ -587,7 +587,7 @@ void MainWindow::createActions()
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-  importAction = new QAction(tr("&Import from..."), this);
+  importAction = new QAction(tr("&Import file from..."), this);
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
   importAction->setStatusTip(tr("Import file"));
@@ -601,10 +601,10 @@ void MainWindow::createActions()
   exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
 
-  exportAllAction = new QAction(tr("&Export All to..."), this);
+  exportAllAction = new QAction(tr("&Export all to..."), this);
   exportAllAction->setIcon(QIcon(":/images/export.png"));
   exportAllAction->setShortcut(QKeySequence(tr("Ctrl+X")));
-  exportAllAction->setStatusTip(tr("Export All"));
+  exportAllAction->setStatusTip(tr("Export all"));
   exportAllAction->setEnabled(false);
   connect(exportAllAction, SIGNAL(triggered()), this, SLOT(exportFileAll()));
 
