@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   }
 
   if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
-    mainWin.move((screenRect.width() - width) / 2, (screenRect.height() - height) / 2);
+    mainWin.move((screenRect.width() - width) >> 1, (screenRect.height() - height) >> 1);
   } else {
     mainWin.move(0, 0);
   }

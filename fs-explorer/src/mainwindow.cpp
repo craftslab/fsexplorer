@@ -499,7 +499,7 @@ void MainWindow::handleExportFileList(const QString &name)
   QList<unsigned long long> list;
   list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
 
-  exportEngine = new ExportEngine(title, list, name, fsEngine, this);
+  ExportEngine exportEngine(title, list, name, fsEngine, this);
 }
 
 void MainWindow::initSettings()

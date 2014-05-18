@@ -33,8 +33,13 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   progress->setMinimumDuration(0);
 
   QSize sizeProgress = progress->size();
-  sizeProgress.setWidth(sizeProgress.width() << 1);
+  sizeProgress.setWidth(parent->width() >> 1);
   progress->resize(sizeProgress);
+
+  QPoint pointProgress = parent->pos();
+  pointProgress.setX(pointProgress.x() + ((parent->width() - sizeProgress.width()) >> 1));
+  pointProgress.setY(pointProgress.y() + ((parent->height() - sizeProgress.height()) >> 1));
+  progress->move(pointProgress);
 
   fsEngine = engine;
   fileList = list;

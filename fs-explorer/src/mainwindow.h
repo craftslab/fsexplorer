@@ -217,7 +217,6 @@ private:
   SearchWindow *searchWindow;
   StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
-  ExportEngine *exportEngine;
   AboutDialog *aboutDialog;
 
   QStringList treeHeader;
