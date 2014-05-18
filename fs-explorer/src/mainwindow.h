@@ -133,7 +133,7 @@ private:
   void createStatusBar();
   void createWidgets();
   void createConnections();
-  void confirmFileStatus(bool &status);
+  bool confirmFileStatus();
   void confirmAddressStatus(const QString &text);
   void loadFile(const QString &name);
   void setOutput(const QString &text) const;

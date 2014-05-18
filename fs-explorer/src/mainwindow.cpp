@@ -111,11 +111,12 @@ void MainWindow::dropEvent(QDropEvent *event)
   }
 
   if (fsStatus) {
-    confirmFileStatus(fsStatus);
+    fsStatus = confirmFileStatus();
   }
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(name);
+    writeSettings();
     loadFile(fsPathOpen);
   }
 
@@ -141,7 +142,7 @@ void MainWindow::openFile()
   }
 
   if (fsStatus) {
-    confirmFileStatus(fsStatus);
+    fsStatus = confirmFileStatus();
   }
 
   if (!fsStatus) {
@@ -857,12 +858,14 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(syncListItem(unsigned long long)), this, SLOT(handleSyncListItem(unsigned long long)));
 }
 
-void MainWindow::confirmFileStatus(bool &status)
+bool MainWindow::confirmFileStatus()
 {
+  bool status;
   QMessageBox msgBox;
+
   msgBox.setIcon(QMessageBox::Information);
-  msgBox.setText(tr("The fs image has been open."));
-  msgBox.setInformativeText(tr("Do you want to close it?"));
+  msgBox.setText(QString(tr("The fs image has been open.")));
+  msgBox.setInformativeText(QString(tr("Do you want to close it?")));
   msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
   int ret = msgBox.exec();
@@ -873,13 +876,12 @@ void MainWindow::confirmFileStatus(bool &status)
     break;
 
   case QMessageBox::No:
-    // Do nothing here
-    break;
-
   default:
-    // Do nothing here
+    status = true;
     break;
   }
+
+  return status;
 }
 
 void MainWindow::confirmAddressStatus(const QString &text)
