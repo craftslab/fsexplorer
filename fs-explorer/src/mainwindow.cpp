@@ -186,10 +186,36 @@ void MainWindow::exportFile()
     return;
   }
 
+  QModelIndex index = listView->selectionModel()->currentIndex();
+  QList<unsigned long long> list;
+  list.clear();
+  list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
+
   fsPathExport = QDir::toNativeSeparators(dir);
   writeSettings();
 
-  emit exportFileList(fsPathExport);
+  emit exportFileList(list, fsPathExport);
+}
+
+void MainWindow::exportFileAll()
+{
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Export All to..."),
+                                                  fsPathExport,
+                                                  QFileDialog::ShowDirsOnly
+                                                  | QFileDialog::DontResolveSymlinks);
+  if (dir.isEmpty()) {
+    return;
+  }
+
+  struct fs_dirent fsRoot = fsEngine->getFileRoot();
+  QList<unsigned long long> list;
+  list.clear();
+  list << fsRoot.d_ino;
+
+  fsPathExport = QDir::toNativeSeparators(dir);
+  writeSettings();
+
+  emit exportFileList(list, fsPathExport);
 }
 
 void MainWindow::removeFile()
@@ -490,17 +516,12 @@ void MainWindow::handleSyncListItem(unsigned long long ino)
   expandListItem(ino);
 }
 
-void MainWindow::handleExportFileList(const QString &name)
+void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
 {
   QString title = QObject::tr("Export to ");
-  title.append(name);
+  title.append(path);
 
-  QModelIndex index = listView->selectionModel()->currentIndex();
-
-  QList<unsigned long long> list;
-  list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
-
-  ExportEngine exportEngine(title, list, name, fsEngine, this);
+  ExportEngine exportEngine(title, list, path, fsEngine, this);
 }
 
 void MainWindow::initSettings()
@@ -579,7 +600,15 @@ void MainWindow::createActions()
   exportAction->setStatusTip(tr("Export file"));
   exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
-  connect(this, SIGNAL(exportFileList(const QString &)), this, SLOT(handleExportFileList(const QString &)));
+
+  exportAllAction = new QAction(tr("&Export All to..."), this);
+  exportAllAction->setIcon(QIcon(":/images/export.png"));
+  exportAllAction->setShortcut(QKeySequence(tr("Ctrl+X")));
+  exportAllAction->setStatusTip(tr("Export All"));
+  exportAllAction->setEnabled(false);
+  connect(exportAllAction, SIGNAL(triggered()), this, SLOT(exportFileAll()));
+
+  connect(this, SIGNAL(exportFileList(const QList<unsigned long long> &, const QString &)), this, SLOT(handleExportFileList(const QList<unsigned long long> &, const QString &)));
 
   removeAction = new QAction(tr("&Remove"), this);
   removeAction->setIcon(QIcon(":/images/remove.png"));
@@ -643,7 +672,7 @@ void MainWindow::createMenus()
 
   optionsMenu = menuBar()->addMenu(tr("&Options"));
   optionsMenu->addAction(importAction);
-  optionsMenu->addAction(exportAction);
+  optionsMenu->addAction(exportAllAction);
   optionsMenu->addAction(removeAction);
   optionsMenu->addSeparator();
   optionsMenu->addAction(consoleAction);
@@ -673,7 +702,7 @@ void MainWindow::createToolBars()
   optionsToolBar->setMovable(false);
   optionsToolBar->setIconSize(QSize(16, 16));
   optionsToolBar->addAction(importAction);
-  optionsToolBar->addAction(exportAction);
+  optionsToolBar->addAction(exportAllAction);
   optionsToolBar->addAction(removeAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addAction(statsAction);
@@ -845,6 +874,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedRw(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), exportAllAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedRw(bool)), removeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
@@ -860,8 +890,8 @@ void MainWindow::createConnections()
 
 bool MainWindow::confirmFileStatus()
 {
-  bool status;
   QMessageBox msgBox;
+  bool status;
 
   msgBox.setIcon(QMessageBox::Information);
   msgBox.setText(QString(tr("The fs image has been open.")));

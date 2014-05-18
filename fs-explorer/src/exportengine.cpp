@@ -21,7 +21,7 @@
 
 #include "exportengine.h"
 
-ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent)
+ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent)
 {
   QStringList address;
   int num = 0;
@@ -43,7 +43,7 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   progress->move(pointProgress);
 
   fsEngine = engine;
-  filePath = new QDir(name);
+  filePath = new QDir(path);
   fileCounter = 0;
 
   for (int i = 0; i < list.size(); ++i) {
@@ -214,12 +214,12 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
 
 bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
 {
-  bool status;
   QMessageBox msgBox;
+  bool status;
 
   msgBox.setIcon(QMessageBox::Information);
   msgBox.setText(name + QString(tr(" already exists.")));
-  msgBox.setInformativeText(tr("Do you want to overwrite it?"));
+  msgBox.setInformativeText(QString(tr("Do you want to overwrite it?")));
   msgBox.setStandardButtons(QMessageBox::Apply | QMessageBox::Ignore | QMessageBox::Abort);
 
   int ret = msgBox.exec();

@@ -84,7 +84,7 @@ signals:
   void mountedHome(bool status);
   void syncTreeItem(unsigned long long ino);
   void syncListItem(unsigned long long ino);
-  void exportFileList(const QString &name);
+  void exportFileList(const QList<unsigned long long> &list, const QString &path);
 
 protected:
   void resizeEvent(QResizeEvent *event);
@@ -97,6 +97,7 @@ private slots:
   void closeFile();
   void importFile();
   void exportFile();
+  void exportFileAll();
   void removeFile();
   void prop();
   void stats();
@@ -120,7 +121,7 @@ private slots:
   void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void handleSyncListItem(unsigned long long ino);
 
-  void handleExportFileList(const QString &name);
+  void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
 
 private:
   void initSettings();
@@ -203,6 +204,7 @@ private:
   QAction *exitAction;
   QAction *importAction;
   QAction *exportAction;
+  QAction *exportAllAction;
   QAction *removeAction;
   QAction *consoleAction;
   QAction *propAction;

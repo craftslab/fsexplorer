@@ -34,7 +34,7 @@ class ExportEngine : public QObject
   Q_OBJECT
 
 public:
-  ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent = 0);
+  ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent = 0);
   ~ExportEngine();
 
 private:
