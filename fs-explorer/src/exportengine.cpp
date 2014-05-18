@@ -23,6 +23,7 @@
 
 ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &name, FsEngine *engine, QWidget *parent)
 {
+  QStringList address;
   int num = 0;
   int ret;
 
@@ -42,17 +43,18 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   progress->move(pointProgress);
 
   fsEngine = engine;
-  fileList = list;
-  filePath = name;
+  filePath = new QDir(name);
   fileCounter = 0;
 
-  for (int i = 0; i < fileList.size(); ++i) {
-    num += (int)count(fileList[i]);
+  for (int i = 0; i < list.size(); ++i) {
+    num += (int)count(list[i]);
   }
   progress->setRange(0, num);
 
-  for (int i = 0; i < fileList.size(); ++i) {
-    ret = traverse(fileList[i]);
+  for (int i = 0; i < list.size(); ++i) {
+    address.clear();
+    address << QDir::separator();
+    ret = traverse(list[i], address);
     if (!ret) {
       break;
     }
@@ -62,6 +64,11 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
 
 ExportEngine::~ExportEngine()
 {
+  if (filePath) {
+    delete filePath;
+    filePath = NULL;
+  }
+
   if (progress) {
     delete progress;
     progress = NULL;
@@ -70,11 +77,9 @@ ExportEngine::~ExportEngine()
 
 unsigned int ExportEngine::count(unsigned long long ino)
 {
-  struct fs_dirent dent;
-  unsigned int num, len;
-
-  dent = fsEngine->getFileChildsDent(ino);
-  num = fsEngine->getFileChildsNum(ino);
+  struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  unsigned int num = fsEngine->getFileChildsNum(ino);
+  unsigned int len = num;
 
   if ((dent.d_type == FT_DIR && num == 2)
       || (dent.d_type != FT_DIR && num == 0)) {
@@ -92,7 +97,6 @@ unsigned int ExportEngine::count(unsigned long long ino)
     goto countExit;
   }
 
-  len = num;
   for (unsigned int i = 0; i < len; ++i) {
     if (!strcmp((const char *)childs[i].d_name, (const char *)FS_DNAME_DOT)
         || !strcmp((const char *)childs[i].d_name, (const char *)FS_DNAME_DOTDOT)) {
@@ -112,19 +116,21 @@ countExit:
   return num;
 }
 
-bool ExportEngine::traverse(unsigned long long ino)
+bool ExportEngine::traverse(unsigned long long ino, const QStringList &address)
 {
-  struct fs_dirent dent;
-  unsigned int num;
   bool ret;
 
-  ret = handleExport(ino);
+  if (progress->wasCanceled()) {
+    return false;
+  }
+
+  ret = handleExport(ino, address);
   if (!ret) {
     return false;
   }
 
-  dent = fsEngine->getFileChildsDent(ino);
-  num = fsEngine->getFileChildsNum(ino);
+  struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  unsigned int num = fsEngine->getFileChildsNum(ino);
 
   if ((dent.d_type == FT_DIR && num == 2)
       || (dent.d_type != FT_DIR && num == 0)) {
@@ -148,7 +154,10 @@ bool ExportEngine::traverse(unsigned long long ino)
       continue;
     }
 
-    ret = traverse(childs[i].d_ino);
+    QStringList list = address;
+    list << QString(tr(childs[i].d_name));
+
+    ret = traverse(childs[i].d_ino, list);
     if (!ret) {
       break;
     }
@@ -164,11 +173,23 @@ traverseExit:
   return ret;
 }
 
-bool ExportEngine::handleExport(unsigned long long ino)
+bool ExportEngine::handleExport(unsigned long long ino, const QStringList &address)
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   int size = static_cast<int> (stat.size);
+  QString relativePath;
+  int i;
+
+  relativePath.clear();
+  relativePath.append(address[0]);
+
+  if (address.size() > 1) {
+    for (i = 1; i < address.size() - 1; ++i) {
+      relativePath.append(address[i]).append(QDir::separator());
+    }
+    relativePath.append(address[i]);
+  }
 
   progress->setLabelText(QString(tr(dent.d_name)));
   progress->setValue(++fileCounter);

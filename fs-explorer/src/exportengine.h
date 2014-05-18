@@ -23,6 +23,7 @@
 #define EXPORTENGINE_H
 
 #include <QString>
+#include <QDir>
 #include <QProgressDialog>
 
 #include "fsengine.h"
@@ -37,13 +38,12 @@ public:
 
 private:
   unsigned int count(unsigned long long ino);
-  bool traverse(unsigned long long ino);
-  bool handleExport(unsigned long long ino);
+  bool traverse(unsigned long long ino, const QStringList &address);
+  bool handleExport(unsigned long long ino, const QStringList &address);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;
-  QList<unsigned long long> fileList;
-  QString filePath;
+  QDir *filePath;
   int fileCounter;
 };
 #endif
