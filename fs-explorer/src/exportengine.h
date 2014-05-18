@@ -36,11 +36,14 @@ public:
   ~ExportEngine();
 
 private:
+  unsigned int count(unsigned long long ino);
   bool traverse(unsigned long long ino);
-  bool exportFile(unsigned long long ino);
+  bool handleExport(unsigned long long ino);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;
-  QString exportName;
+  QList<unsigned long long> fileList;
+  QString filePath;
+  int fileCounter;
 };
 #endif
