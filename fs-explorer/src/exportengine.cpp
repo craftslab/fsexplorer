@@ -177,10 +177,12 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  int size = static_cast<int> (stat.size);
-  QString relativePath;
   int i;
 
+  progress->setLabelText(QString(tr(dent.d_name)));
+  progress->setValue(++fileCounter);
+
+  QString relativePath;
   relativePath.clear();
   relativePath.append(address[0]);
 
@@ -191,8 +193,58 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
     relativePath.append(address[i]);
   }
 
-  progress->setLabelText(QString(tr(dent.d_name)));
-  progress->setValue(++fileCounter);
+  QString absolutePath = filePath->path();
+  absolutePath.append(relativePath);
+
+  if (filePath->exists(absolutePath)) {
+    bool status = confirm(absolutePath, dent.d_type);
+    if (!status) {
+      return false;
+    }
+  } else {
+    if (dent.d_type == FT_DIR) {
+      filePath->mkpath(absolutePath);
+    } else {
+      // TODO
+    }
+  }
 
   return true;
+}
+
+bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
+{
+  bool status;
+  QMessageBox msgBox;
+
+  msgBox.setIcon(QMessageBox::Information);
+  msgBox.setText(name + QString(tr(" already exists.")));
+  msgBox.setInformativeText(tr("Do you want to overwrite it?"));
+  msgBox.setStandardButtons(QMessageBox::Apply | QMessageBox::Ignore | QMessageBox::Abort);
+
+  int ret = msgBox.exec();
+  switch (ret) {
+  case QMessageBox::Apply:
+    if (type == FT_DIR) {
+      filePath->setPath(name);
+      filePath->removeRecursively();
+      filePath->mkpath(name);
+    } else {
+      filePath->remove(name);
+      // TODO
+    }
+    status = true;
+    break;
+
+  case QMessageBox::Ignore:
+    status = true;
+    break;
+
+  case QMessageBox::Abort:
+  default:
+    status = false;
+    break;
+  }
+
+  return status;
 }

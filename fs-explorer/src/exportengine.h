@@ -25,6 +25,7 @@
 #include <QString>
 #include <QDir>
 #include <QProgressDialog>
+#include <QMessageBox>
 
 #include "fsengine.h"
 
@@ -40,6 +41,7 @@ private:
   unsigned int count(unsigned long long ino);
   bool traverse(unsigned long long ino, const QStringList &address);
   bool handleExport(unsigned long long ino, const QStringList &address);
+  bool confirm(const QString &name, enum libfs_ftype type);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;
