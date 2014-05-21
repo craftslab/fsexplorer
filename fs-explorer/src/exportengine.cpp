@@ -184,6 +184,7 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   struct fs_dirent root = fsEngine->getFileRoot();
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  bool ret = true;
 
   if (address.size() == 0
       || (address.size() == 1 && !QString::compare(address[0], QString(root.d_name)))) {
@@ -204,24 +205,26 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   absolutePath.append(QDir::separator()).append(relativePath);
 
   if (filePath->exists(absolutePath)) {
-    bool status = confirm(absolutePath, dent.d_type);
-    if (!status) {
-      return false;
+    if (!confirm(absolutePath, dent.d_type)) {
+      ret = false;
     }
   } else {
     if (dent.d_type == FT_DIR) {
-      filePath->mkpath(absolutePath);
+      if (!filePath->mkpath(absolutePath)) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + absolutePath);
+        ret = false;
+      }
     } else {
       // TODO
     }
   }
 
-  return true;
+  return ret;
 }
 
 bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
 {
-  QMessageBox msgBox;
+  QMessageBox msgBox(progress);
   bool status;
 
   msgBox.setIcon(QMessageBox::Information);
@@ -234,12 +237,23 @@ bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
   case QMessageBox::Apply:
     if (type == FT_DIR) {
       filePath->setPath(name);
-      filePath->removeRecursively();
-      filePath->mkpath(name);
+      if (!filePath->removeRecursively()) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        return false;
+      }
+      if (!filePath->mkpath(name)) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+        return false;
+      }
     } else {
-      filePath->remove(name);
+      if (!filePath->remove(name)) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        return false;
+      }
+
       // TODO
     }
+
     status = true;
     break;
 
