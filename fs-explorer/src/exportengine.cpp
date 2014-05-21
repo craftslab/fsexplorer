@@ -186,7 +186,7 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   bool ret = true;
 
-  if (address.size() == 0
+  if (address.size() <= 0
       || (address.size() == 1 && !QString::compare(address[0], QString(root.d_name)))) {
     return true;
   }
@@ -194,15 +194,11 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   progress->setLabelText(QString(tr(dent.d_name)));
   progress->setValue(++fileCounter);
 
-  QString relativePath;
-  relativePath.clear();
-
-  for (int i = 0; i < address.size(); ++i) {
-    relativePath.append(address[i]).append(QDir::separator());
-  }
-
   QString absolutePath = filePath->path();
-  absolutePath.append(QDir::separator()).append(relativePath);
+
+  for (int i = 1; i < address.size(); ++i) {
+    absolutePath.append(QDir::separator()).append(address[i]);
+  }
 
   if (filePath->exists(absolutePath)) {
     if (!confirm(absolutePath, dent.d_type)) {
