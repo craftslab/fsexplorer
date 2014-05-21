@@ -23,6 +23,7 @@
 
 ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent)
 {
+  struct fs_dirent dent;
   QStringList address;
   int num = 0;
   int ret;
@@ -49,16 +50,21 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   for (int i = 0; i < list.size(); ++i) {
     num += (int)count(list[i]);
   }
+
   progress->setRange(0, num);
 
   for (int i = 0; i < list.size(); ++i) {
+    dent = fsEngine->getFileChildsDent(list[i]);
+
     address.clear();
-    address << QDir::separator();
+    address << dent.d_name;
+
     ret = traverse(list[i], address);
     if (!ret) {
       break;
     }
   }
+
   progress->setValue(num);
 }
 
@@ -175,26 +181,27 @@ traverseExit:
 
 bool ExportEngine::handleExport(unsigned long long ino, const QStringList &address)
 {
+  struct fs_dirent root = fsEngine->getFileRoot();
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  int i;
+
+  if (address.size() == 0
+      || (address.size() == 1 && !QString::compare(address[0], QString(root.d_name)))) {
+    return true;
+  }
 
   progress->setLabelText(QString(tr(dent.d_name)));
   progress->setValue(++fileCounter);
 
   QString relativePath;
   relativePath.clear();
-  relativePath.append(address[0]);
 
-  if (address.size() > 1) {
-    for (i = 1; i < address.size() - 1; ++i) {
-      relativePath.append(address[i]).append(QDir::separator());
-    }
-    relativePath.append(address[i]);
+  for (int i = 0; i < address.size(); ++i) {
+    relativePath.append(address[i]).append(QDir::separator());
   }
 
   QString absolutePath = filePath->path();
-  absolutePath.append(relativePath);
+  absolutePath.append(QDir::separator()).append(relativePath);
 
   if (filePath->exists(absolutePath)) {
     bool status = confirm(absolutePath, dent.d_type);
