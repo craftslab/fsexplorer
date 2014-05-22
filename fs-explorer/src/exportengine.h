@@ -41,7 +41,8 @@ private:
   unsigned int count(unsigned long long ino);
   bool traverse(unsigned long long ino, const QStringList &address);
   bool handleExport(unsigned long long ino, const QStringList &address);
-  bool confirm(const QString &name, enum libfs_ftype type);
+  bool exportNoConfirm(const QString &name, enum libfs_ftype type);
+  bool exportWithConfirm(const QString &name, enum libfs_ftype type);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;

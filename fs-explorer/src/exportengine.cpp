@@ -186,8 +186,7 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   bool ret = true;
 
-  if (address.size() <= 0
-      || (address.size() == 1 && !QString::compare(address[0], QString(root.d_name)))) {
+  if (address.size() == 1 && !QString::compare(address[0], QString(root.d_name))) {
     return true;
   }
 
@@ -196,40 +195,55 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
 
   QString absolutePath = filePath->path();
 
-  for (int i = 1; i < address.size(); ++i) {
-    absolutePath.append(QDir::separator()).append(address[i]);
+  if (!QString::compare(address[0], QString(root.d_name))) {
+    for (int i = 1; i < address.size(); ++i) {
+      absolutePath.append(QDir::separator()).append(address[i]);
+    }
+  } else {
+    for (int i = 0; i < address.size(); ++i) {
+      absolutePath.append(QDir::separator()).append(address[i]);
+    }
   }
 
   if (filePath->exists(absolutePath)) {
-    if (!confirm(absolutePath, dent.d_type)) {
+    if (!exportWithConfirm(absolutePath, dent.d_type)) {
       ret = false;
     }
   } else {
-    if (dent.d_type == FT_DIR) {
-      if (!filePath->mkpath(absolutePath)) {
-        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + absolutePath);
-        ret = false;
-      }
-    } else {
-      // TODO
+    if (!exportNoConfirm(absolutePath, dent.d_type)) {
+      ret = false;
     }
   }
 
   return ret;
 }
 
-bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
+bool ExportEngine::exportNoConfirm(const QString &name, enum libfs_ftype type)
+{
+  if (type == FT_DIR) {
+    if (!filePath->mkpath(name)) {
+      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+      return false;
+    }
+  } else {
+      // TODO
+  }
+
+   return true;
+ }
+
+bool ExportEngine::exportWithConfirm(const QString &name, enum libfs_ftype type)
 {
   QMessageBox msgBox(progress);
-  bool status;
+  bool ret;
 
   msgBox.setIcon(QMessageBox::Information);
   msgBox.setText(name + QString(tr(" already exists.")));
   msgBox.setInformativeText(QString(tr("Do you want to overwrite it?")));
   msgBox.setStandardButtons(QMessageBox::Apply | QMessageBox::Ignore | QMessageBox::Abort);
 
-  int ret = msgBox.exec();
-  switch (ret) {
+  int select = msgBox.exec();
+  switch (select) {
   case QMessageBox::Apply:
     if (type == FT_DIR) {
       filePath->setPath(name);
@@ -250,18 +264,18 @@ bool ExportEngine::confirm(const QString &name, enum libfs_ftype type)
       // TODO
     }
 
-    status = true;
+    ret = true;
     break;
 
   case QMessageBox::Ignore:
-    status = true;
+    ret = true;
     break;
 
   case QMessageBox::Abort:
   default:
-    status = false;
+    ret = false;
     break;
   }
 
-  return status;
+  return ret;
 }
