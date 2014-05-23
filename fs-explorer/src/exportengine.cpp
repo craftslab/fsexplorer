@@ -36,7 +36,7 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
 
   QSize sizeProgress = progress->size();
   sizeProgress.setWidth(parent->width() >> 1);
-  progress->resize(sizeProgress);
+  progress->setFixedSize(sizeProgress);
 
   QPoint pointProgress = parent->pos();
   pointProgress.setX(pointProgress.x() + ((parent->width() - sizeProgress.width()) >> 1));
