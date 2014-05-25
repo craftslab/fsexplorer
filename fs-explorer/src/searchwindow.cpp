@@ -87,7 +87,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   } else {
     move(0, 0);
   }
-  resize(width, height);
+  setFixedSize(width, height);
 
   searchName = text;
   searchEngine = new SearchEngine(engine, this);

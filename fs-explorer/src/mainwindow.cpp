@@ -31,9 +31,6 @@ const QString MainWindow::label = QObject::tr("<p align=\"center\" style=\" marg
 const QString MainWindow::label = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
 
-const int MainWindow::columnWidthMax = 224;
-const int MainWindow::columnWidthMin = 96;
-
 MainWindow::MainWindow()
 {
   initSettings();
@@ -760,19 +757,8 @@ void MainWindow::createWidgets()
   treeHeader[TREE_INO] = tr("Ino");
 
   treeModel = new FsTreeModel(treeHeader, this);
-  treeView = new QTreeView(this);
-  treeView->setModel(treeModel);
+  treeView = new FsTreeView(treeModel, this);
   treeItemSelectionModel = treeView->selectionModel();
-  QModelIndex treeIndex = treeModel->index(0, 0);
-  treeView->scrollTo(treeIndex);
-  treeView->expand(treeIndex);
-  treeView->setCurrentIndex(treeIndex);
-  treeView->setHeaderHidden(true);
-  treeView->setColumnHidden(TREE_INO, true);
-
-  for (int column = 0; column < treeModel->columnCount(); ++column) {
-    treeView->resizeColumnToContents(column);
-  }
 
   connect(treeView, SIGNAL(pressed(const QModelIndex &)), this, SLOT(pressTreeItem(const QModelIndex &)));
 
@@ -791,45 +777,8 @@ void MainWindow::createWidgets()
   listHeader[LIST_TYPE] = tr("Type");
 
   listModel = new FsListModel(listHeader, this);
-  listView = new QTreeView(this);
-  listView->setModel(listModel);
+  listView = new FsListView(listModel, this);
   listItemSelectionModel = listView->selectionModel();
-  QModelIndex listIndex = listModel->index(0, 0);
-  listView->scrollTo(listIndex);
-  listView->expand(listIndex);
-  listView->setCurrentIndex(listIndex);
-  listView->setHeaderHidden(false);
-  listView->setColumnHidden(listModel->columnCount() - 1, true);
-  listView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-  /*
-   * Set column width of 'Name'
-   */
-  listView->setColumnWidth(0, columnWidthMax);
-
-  /*
-   * Set column width of 'Size'
-   */
-  listView->setColumnWidth(1, columnWidthMin);
-
-  /*
-   * Set column width of 'Data Modified'
-   */
-  listView->setColumnWidth(2, columnWidthMax);
-
-  /*
-   * Set column width of 'Data Accessed'
-   */
-  listView->setColumnWidth(3, columnWidthMax);
-
-  /*
-   * Set column width of 'Data Created'
-   */
-  listView->setColumnWidth(4, columnWidthMax);
-
-  for (int column = 5; column < listModel->columnCount(); ++column) {
-    listView->resizeColumnToContents(column);
-  }
 
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
@@ -1288,32 +1237,13 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
 
-  /*
-   * Set column width of 'Name'
-   */
-  listView->setColumnWidth(0, columnWidthMax);
+  listView->setColumnWidth(LIST_NAME, FsListView::columnWidthMax);
+  listView->setColumnWidth(LIST_SIZE, FsListView::columnWidthMin);
+  listView->setColumnWidth(LIST_MTIME, FsListView::columnWidthMax);
+  listView->setColumnWidth(LIST_ATIME, FsListView::columnWidthMax);
+  listView->setColumnWidth(LIST_CTIME, FsListView::columnWidthMax);
 
-  /*
-   * Set column width of 'Size'
-   */
-  listView->setColumnWidth(1, columnWidthMin);
-
-  /*
-   * Set column width of 'Data Modified'
-   */
-  listView->setColumnWidth(2, columnWidthMax);
-
-  /*
-   * Set column width of 'Data Accessed'
-   */
-  listView->setColumnWidth(3, columnWidthMax);
-
-  /*
-   * Set column width of 'Data Created'
-   */
-  listView->setColumnWidth(4, columnWidthMax);
-
-  for (int column = 5; column < listModel->columnCount(); ++column) {
+  for (int column = LIST_INO; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);
   }
 }

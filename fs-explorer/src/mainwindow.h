@@ -37,7 +37,6 @@
 #include <QFileSystemModel>
 #include <QFileDialog>
 #include <QLineEdit>
-#include <QTreeView>
 #include <QTextEdit>
 #include <QSettings>
 #include <QMainWindow>
@@ -45,31 +44,13 @@
 #include "fsengine.h"
 #include "fstreemodel.h"
 #include "fslistmodel.h"
+#include "fstreeview.h"
+#include "fslistview.h"
 #include "searchwindow.h"
 #include "consolewindow.h"
 #include "statswindow.h"
 #include "exportengine.h"
 #include "aboutdialog.h"
-
-enum TreeHeader {
-  TREE_NAME = 0,
-  TREE_INO,
-  TREE_MAX
-};
-
-enum ListHeader {
-  LIST_NAME = 0,
-  LIST_SIZE,
-  LIST_MTIME,
-  LIST_ATIME,
-  LIST_CTIME,
-  LIST_INO,
-  LIST_MODE,
-  LIST_UID,
-  LIST_GID,
-  LIST_TYPE,
-  LIST_MAX
-};
 
 class MainWindow : public QMainWindow
 {
@@ -166,8 +147,6 @@ private:
   static const QString version;
   static const QString separator;
   static const QString label;
-  static const int columnWidthMax;
-  static const int columnWidthMin;
 
   QSettings *settings;
 
