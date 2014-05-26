@@ -87,6 +87,7 @@ static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
 static int32_t fs_statraw(struct inode *inode, const char **buf);
+static ssize_t fs_readfile(struct dentry *dentry, char *buf, size_t count, int64_t *num);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -187,6 +188,9 @@ static struct file_operations fs_file_opt = {
 
   //.release =
   NULL,
+
+  //.readfile =
+  fs_readfile,
 };
 
 /*
@@ -1004,6 +1008,20 @@ static int32_t fs_statraw(struct inode *inode, const char **buf)
   ext4_show_stat_inode(es, ino, &ext4_inode, fs_stat_inode, sizeof(fs_stat_inode));
 
   *buf = (const char *)fs_stat_inode;
+
+  return 0;
+}
+
+/*
+ * Read file for dentry
+ */
+static ssize_t fs_readfile(struct dentry *dentry, char *buf, size_t count, int64_t *num)
+{
+  if (!dentry || !buf || count <= 0 || !num) {
+    return -1;
+  }
+
+  // TODO
 
   return 0;
 }

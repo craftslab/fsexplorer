@@ -77,7 +77,8 @@ static int32_t fs_statrawfs(const char *pathname, const char **buf);
 static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
 static int32_t fs_statraw(uint64_t ino, const char **buf);
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t count);
+static int32_t fs_readfile(uint64_t ino, char *buf, int64_t count, int64_t *num);
 
 /*
  * Function Definition
@@ -486,14 +487,14 @@ static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent)
 /*
  * Get directory entries of filesystem
  */
-static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num)
+static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t count)
 {
   struct dentry *root = fs_mnt.mnt.mnt_root;
   struct dentry *parent = NULL, *child = NULL;
   uint32_t i;
   int32_t ret;
 
-  if (!dirents || dirents_num == 0) {
+  if (!dirents || count == 0) {
     return -1;
   }
 
@@ -528,7 +529,7 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dir
          &child->d_child != (&parent->d_subdirs);
          child = list_entry(child->d_child.prev, struct dentry, d_child)) {
 #endif
-      if (++i > dirents_num) {
+      if (++i > count) {
         return -1;
       }
 
@@ -537,6 +538,42 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t dir
         return -1;
       }
     }
+  }
+
+  return 0;
+}
+
+/*
+ * Read file for ino
+ */
+static int32_t fs_readfile(uint64_t ino, char *buf, int64_t count, int64_t *num)
+{
+  struct dentry *root = fs_mnt.mnt.mnt_root;
+  struct dentry *parent = NULL;
+  struct inode *inode = NULL;
+  int32_t ret;
+
+  if (!buf || count <= 0 || !num) {
+    return -1;
+  }
+
+  if (!root) {
+    return -1;
+  }
+
+  ret = fs_get_dentry(root, ino, &parent);
+  if (ret != 0) {
+    return -1;
+  }
+
+  inode = parent->d_inode;
+  if (!inode || !inode->i_fop || !inode->i_fop->readfile) {
+    return -1;
+  }
+
+  ret = inode->i_fop->readfile(parent, buf, count, num);
+  if (ret != 0) {
+    return -1;
   }
 
   return 0;
@@ -563,6 +600,7 @@ __declspec(dllexport) int32_t fs_opt_init(struct fs_opt_t *fs_opt)
   fs_opt->statraw = fs_statraw;
   fs_opt->querydent = fs_querydent;
   fs_opt->getdents = fs_getdents;
+  fs_opt->readfile = fs_readfile;
 
   return 0;
 }

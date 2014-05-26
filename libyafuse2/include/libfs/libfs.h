@@ -134,7 +134,8 @@ struct fs_opt_t {
   int32_t (*stat) (uint64_t ino, struct fs_kstat *buf);
   int32_t (*statraw) (uint64_t ino, const char **buf);
   int32_t (*querydent) (uint64_t ino, struct fs_dirent *dirent);
-  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirents, uint32_t dirents_num);
+  int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirents, uint32_t count);
+  int32_t (*readfile) (uint64_t ino, char *buf, int64_t count, int64_t *num);
 };
 
 /*
