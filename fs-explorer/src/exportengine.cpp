@@ -183,7 +183,6 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
 {
   struct fs_dirent root = fsEngine->getFileRoot();
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
-  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   bool ret = true;
 
   if (address.size() == 1 && !QString::compare(address[0], QString(root.d_name))) {
@@ -206,11 +205,11 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   }
 
   if (filePath->exists(absolutePath)) {
-    if (!exportWithConfirm(absolutePath, dent.d_type)) {
+    if (!exportWithConfirm(ino, absolutePath)) {
       ret = false;
     }
   } else {
-    if (!exportNoConfirm(absolutePath, dent.d_type)) {
+    if (!exportNoConfirm(ino, absolutePath)) {
       ret = false;
     }
   }
@@ -218,25 +217,55 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   return ret;
 }
 
-bool ExportEngine::exportNoConfirm(const QString &name, enum libfs_ftype type)
+bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
 {
-  if (type == FT_DIR) {
+  struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  char *buf = NULL;
+  bool ret = true;
+
+  if (dent.d_type == FT_DIR) {
     if (!filePath->mkpath(name)) {
       QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
       return false;
     }
   } else {
-      // TODO
+    long count = stat.size, num = 0;
+
+    buf = new char[count];
+    memset((void *)buf, 0, count);
+
+    if (!fsEngine->readFile(ino, buf, count, &num)) {
+      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
+      ret = false;
+      goto exportNoConfirmExit;
+    }
+
+    QFile file(name);
+    if (file.write(buf, num) == -1) {
+      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
+      ret = false;
+      goto exportNoConfirmExit;
+    }
   }
 
-   return true;
+exportNoConfirmExit:
+
+  if (buf) {
+    delete[] buf;
+    buf = NULL;
+  }
+
+   return ret;
  }
 
-bool ExportEngine::exportWithConfirm(const QString &name, enum libfs_ftype type)
+bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name)
 {
-  QMessageBox msgBox(progress);
+  struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   bool ret;
 
+  QMessageBox msgBox(progress);
   msgBox.setIcon(QMessageBox::Information);
   msgBox.setText(name + QString(tr(" already exists.")));
   msgBox.setInformativeText(QString(tr("Do you want to overwrite it?")));
@@ -245,7 +274,7 @@ bool ExportEngine::exportWithConfirm(const QString &name, enum libfs_ftype type)
   int select = msgBox.exec();
   switch (select) {
   case QMessageBox::Apply:
-    if (type == FT_DIR) {
+    if (dent.d_type == FT_DIR) {
       filePath->setPath(name);
       if (!filePath->removeRecursively()) {
         QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
@@ -256,12 +285,30 @@ bool ExportEngine::exportWithConfirm(const QString &name, enum libfs_ftype type)
         return false;
       }
     } else {
-      if (!filePath->remove(name)) {
+      if (!QFile::remove(name)) {
         QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
         return false;
       }
 
-      // TODO
+      long count = stat.size, num = 0;
+
+      char *buf = new char[count];
+      memset((void *)buf, 0, count);
+
+      if (!fsEngine->readFile(ino, buf, count, &num)) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
+        if (buf) delete[] buf;
+        return false;
+      }
+
+      QFile file(name);
+      if (file.write(buf, num) == -1) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
+        if (buf) delete[] buf;
+        return false;
+      }
+
+      if (buf) delete[] buf;
     }
 
     ret = true;

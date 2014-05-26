@@ -172,7 +172,6 @@ QString FsEngine::getFileStatDetail()
   QMutexLocker locker(&mutex);
   QString str;
   const char *buf = NULL;
-  int32_t ret;
 
   str.clear();
 
@@ -180,7 +179,7 @@ QString FsEngine::getFileStatDetail()
     return str;
   }
 
-  ret = fileOpt->statrawfs((const char *)fileName->constData(), &buf);
+  int32_t ret = fileOpt->statrawfs((const char *)fileName->constData(), &buf);
   if (ret != 0 || !buf) {
     return str;
   }
@@ -273,7 +272,6 @@ QString FsEngine::getFileChildsStatDetail(unsigned long long ino)
   QMutexLocker locker(&mutex);
   QString str;
   const char *buf = NULL;
-  int32_t ret;
 
   str.clear();
 
@@ -281,13 +279,33 @@ QString FsEngine::getFileChildsStatDetail(unsigned long long ino)
     return str;
   }
 
-  ret = fileOpt->statraw(ino, &buf);
+  int32_t ret = fileOpt->statraw(ino, &buf);
   if (ret != 0 || !buf) {
     return str;
   }
   str = buf;
 
   return str;
+}
+
+bool FsEngine::readFile(unsigned long long ino, char *buf, long count, long *num)
+{
+  QMutexLocker locker(&mutex);
+
+  if (!buf || count <= 0 || !num) {
+    return false;
+  }
+
+  if (!fileOpt || !fileOpt->readfile) {
+    return false;
+  }
+
+  int32_t ret = fileOpt->readfile(ino, buf, count, num);
+  if (ret != 0) {
+    return false;
+  }
+
+  return true;
 }
 
 bool FsEngine::loadLibrary()

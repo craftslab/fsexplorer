@@ -56,6 +56,8 @@ public:
   struct fs_kstat getFileChildsStat(unsigned long long ino);
   QString getFileChildsStatDetail(unsigned long long ino);
 
+  bool readFile(unsigned long long ino, char *buf, long count, long *num);
+
 private:
   bool loadLibrary();
   void unloadLibrary();
