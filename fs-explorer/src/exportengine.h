@@ -44,6 +44,9 @@ private:
   bool handleExport(unsigned long long ino, const QStringList &address);
   bool exportNoConfirm(unsigned long long ino, const QString &name);
   bool exportWithConfirm(unsigned long long ino, const QString &name);
+  bool exportDir(const QString &name);
+  bool exportFile(unsigned long long ino, const QString &name);
+  QFileDevice::Permissions getFilePermissions(unsigned long long ino);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;

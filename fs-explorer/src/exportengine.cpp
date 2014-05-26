@@ -220,49 +220,23 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
 bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
-  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  char *buf = NULL;
-  bool ret = true;
 
   if (dent.d_type == FT_DIR) {
-    if (!filePath->mkpath(name)) {
-      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+    if (!exportDir(name)) {
       return false;
     }
   } else {
-    long count = stat.size, num = 0;
-
-    buf = new char[count];
-    memset((void *)buf, 0, count);
-
-    if (!fsEngine->readFile(ino, buf, count, &num)) {
-      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
-      ret = false;
-      goto exportNoConfirmExit;
-    }
-
-    QFile file(name);
-    if (file.write(buf, num) == -1) {
-      QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
-      ret = false;
-      goto exportNoConfirmExit;
+    if (!exportFile(ino, name)) {
+      return false;
     }
   }
 
-exportNoConfirmExit:
-
-  if (buf) {
-    delete[] buf;
-    buf = NULL;
-  }
-
-   return ret;
+  return true;
  }
 
 bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name)
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
-  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   bool ret;
 
   QMessageBox msgBox(progress);
@@ -276,12 +250,13 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
   case QMessageBox::Apply:
     if (dent.d_type == FT_DIR) {
       filePath->setPath(name);
+
       if (!filePath->removeRecursively()) {
         QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
         return false;
       }
-      if (!filePath->mkpath(name)) {
-        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+
+      if (!exportDir(name)) {
         return false;
       }
     } else {
@@ -290,25 +265,9 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
         return false;
       }
 
-      long count = stat.size, num = 0;
-
-      char *buf = new char[count];
-      memset((void *)buf, 0, count);
-
-      if (!fsEngine->readFile(ino, buf, count, &num)) {
-        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
-        if (buf) delete[] buf;
+      if (!exportFile(ino, name)) {
         return false;
       }
-
-      QFile file(name);
-      if (file.write(buf, num) == -1) {
-        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
-        if (buf) delete[] buf;
-        return false;
-      }
-
-      if (buf) delete[] buf;
     }
 
     ret = true;
@@ -325,4 +284,103 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
   }
 
   return ret;
+}
+
+bool ExportEngine::exportDir(const QString &name)
+{
+  if (!filePath->mkpath(name)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+    return false;
+  }
+
+  return true;
+}
+
+bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
+{
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  long count = stat.size, num = 0;
+  char *buf = new char[count];
+  QFile file;
+  QFileDevice::Permissions perm;
+  bool ret;
+
+  memset((void *)buf, 0, count);
+
+  if (!fsEngine->readFile(ino, buf, count, &num)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
+    ret = false;
+    goto exportFileExit;
+  }
+
+  file.setFileName(name);
+
+  perm = getFilePermissions(ino);
+  if (!file.setPermissions(perm)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to set permission of ")) + name);
+    ret = false;
+    goto exportFileExit;
+  }
+
+  if (file.write(buf, num) == -1) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
+    ret = false;
+    goto exportFileExit;
+  }
+
+  ret = true;
+
+exportFileExit:
+
+  if (buf) {
+    delete[] buf;
+    buf = NULL;
+  }
+
+  return ret;
+}
+
+QFileDevice::Permissions ExportEngine::getFilePermissions(unsigned long long ino)
+{
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  enum libfs_imode mode = stat.mode;
+  QFileDevice::Permissions perm = QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner;
+
+  if (mode & IRUSR) {
+    perm |= QFileDevice::ReadUser;
+  }
+
+  if (mode & IWUSR) {
+    perm |= QFileDevice::WriteUser;
+  }
+
+  if (mode & IXUSR) {
+    perm |= QFileDevice::ExeUser;
+  }
+
+  if (mode & IRGRP) {
+    perm |= QFileDevice::ReadGroup;
+  }
+
+  if (mode & IWGRP) {
+    perm |= QFileDevice::WriteGroup;
+  }
+
+  if (mode & IXGRP) {
+    perm |= QFileDevice::ExeGroup;
+  }
+
+  if (mode & IROTH) {
+    perm |= QFileDevice::ReadOther;
+  }
+
+  if (mode & IWOTH) {
+    perm |= QFileDevice::WriteOther;
+  }
+
+  if (mode & IXOTH) {
+    perm |= QFileDevice::ExeOther;
+  }
+
+  return perm;
 }
