@@ -288,7 +288,7 @@ QString FsEngine::getFileChildsStatDetail(unsigned long long ino)
   return str;
 }
 
-bool FsEngine::readFile(unsigned long long ino, char *buf, long count, long *num)
+bool FsEngine::readFile(unsigned long long ino, long offset, char *buf, long count, long *num)
 {
   QMutexLocker locker(&mutex);
 
@@ -300,7 +300,7 @@ bool FsEngine::readFile(unsigned long long ino, char *buf, long count, long *num
     return false;
   }
 
-  int32_t ret = fileOpt->readfile(ino, buf, count, num);
+  int32_t ret = fileOpt->readfile(ino, offset, buf, count, num);
   if (ret != 0) {
     return false;
   }

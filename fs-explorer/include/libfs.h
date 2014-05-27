@@ -101,17 +101,6 @@ struct fs_kstatfs {
   int64_t          f_spare[4];
 };
 
-struct fs_dirent {
-  uint64_t         d_ino;
-  int64_t          d_off;
-  uint16_t         d_reclen;
-  uint8_t          padding0[2];
-  enum libfs_ftype d_type;
-  char             d_name[FS_DNAME_LEN];
-  uint32_t         d_childnum;
-  uint8_t          padding1[4];
-};
-
 struct fs_kstat {
   uint64_t ino;
   enum libfs_imode mode;
@@ -126,6 +115,17 @@ struct fs_kstat {
   uint64_t blocks;
 };
 
+struct fs_dirent {
+  uint64_t         d_ino;
+  int64_t          d_off;
+  uint16_t         d_reclen;
+  uint8_t          padding0[2];
+  enum libfs_ftype d_type;
+  char             d_name[FS_DNAME_LEN];
+  uint32_t         d_childnum;
+  uint8_t          padding1[4];
+};
+
 struct fs_opt_t {
   int32_t (*mount) (const char *devname, const char *dirname, const char *type, int32_t flags, struct fs_dirent *dirent);
   int32_t (*umount) (const char *dirname, int32_t flags);
@@ -135,7 +135,7 @@ struct fs_opt_t {
   int32_t (*statraw) (uint64_t ino, const char **buf);
   int32_t (*querydent) (uint64_t ino, struct fs_dirent *dirent);
   int32_t (*getdents) (uint64_t ino, struct fs_dirent *dirents, uint32_t count);
-  int32_t (*readfile) (uint64_t ino, char *buf, int64_t count, int64_t *num);
+  int32_t (*readfile) (uint64_t ino, int64_t offset, char *buf, int64_t count, int64_t *num);
 };
 
 /*

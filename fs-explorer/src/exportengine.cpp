@@ -307,7 +307,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 
   memset((void *)buf, 0, count);
 
-  if (!fsEngine->readFile(ino, buf, count, &num)) {
+  if (!fsEngine->readFile(ino, 0, buf, count, &num)) {
     QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
     ret = false;
     goto exportFileExit;
