@@ -87,7 +87,10 @@ static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
 static int32_t fs_statraw(struct inode *inode, const char **buf);
-static ssize_t fs_readfile(struct dentry *dentry, char *buf, size_t count, int64_t *num);
+static int64_t fs_llseek(struct file *file, int64_t offset, int32_t pos);
+static ssize_t fs_read(struct file *file, char *buf, size_t count, int64_t *num);
+static int32_t fs_open(struct inode *inode, struct file *file);
+static int32_t fs_release(struct inode *inode, struct file *file);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -177,20 +180,20 @@ static struct super_operations fs_super_opt = {
 };
 
 static struct file_operations fs_file_opt = {
+  //.llseek =
+  fs_llseek,
+
   //.read =
-  NULL,
+  fs_read,
 
   //.write =
   NULL,
 
   //.open =
-  NULL,
+  fs_open,
 
   //.release =
-  NULL,
-
-  //.readfile =
-  fs_readfile,
+  fs_release,
 };
 
 /*
@@ -1013,11 +1016,53 @@ static int32_t fs_statraw(struct inode *inode, const char **buf)
 }
 
 /*
- * Read file for dentry
+ * Set file position for inode
  */
-static ssize_t fs_readfile(struct dentry *dentry, char *buf, size_t count, int64_t *num)
+static int64_t fs_llseek(struct file *file, int64_t offset, int32_t pos)
 {
-  if (!dentry || !buf || count <= 0 || !num) {
+  if (!file) {
+    return -1;
+  }
+
+  // TODO
+
+  return 0;
+}
+
+/*
+ * Read file for inode
+ */
+static ssize_t fs_read(struct file *file, char *buf, size_t count, int64_t *num)
+{
+  if (!file || !buf || count <= 0 || !num) {
+    return -1;
+  }
+
+  // TODO
+
+  return 0;
+}
+
+/*
+ * Open file for inode
+ */
+static int32_t fs_open(struct inode *inode, struct file *file)
+{
+  if (!inode || !file) {
+    return -1;
+  }
+
+  // TODO
+
+  return 0;
+}
+
+/*
+ * Rlease file for inode
+ */
+static int32_t fs_release(struct inode *inode, struct file *file)
+{
+  if (!inode || !file) {
     return -1;
   }
 

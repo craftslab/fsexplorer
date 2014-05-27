@@ -78,7 +78,7 @@ static int32_t fs_stat(uint64_t ino, struct fs_kstat *buf);
 static int32_t fs_statraw(uint64_t ino, const char **buf);
 static int32_t fs_querydent(uint64_t ino, struct fs_dirent *dirent);
 static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t count);
-static int32_t fs_readfile(uint64_t ino, char *buf, int64_t count, int64_t *num);
+static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t count, int64_t *num);
 
 /*
  * Function Definition
@@ -546,37 +546,52 @@ static int32_t fs_getdents(uint64_t ino, struct fs_dirent *dirents, uint32_t cou
 /*
  * Read file for ino
  */
-static int32_t fs_readfile(uint64_t ino, char *buf, int64_t count, int64_t *num)
+static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t count, int64_t *num)
 {
-  struct dentry *root = fs_mnt.mnt.mnt_root;
-  struct dentry *parent = NULL;
-  struct inode *inode = NULL;
+  struct super_block *sb = fs_mnt.mnt.mnt_sb;
+  struct inode inode;
+  struct file file;
   int32_t ret;
 
   if (!buf || count <= 0 || !num) {
     return -1;
   }
 
-  if (!root) {
+  if (!sb) {
     return -1;
   }
 
-  ret = fs_get_dentry(root, ino, &parent);
+  memset((void *)&inode, 0, sizeof(struct inode));
+  ret = fs_get_inode(sb, ino, &inode);
   if (ret != 0) {
     return -1;
   }
 
-  inode = parent->d_inode;
-  if (!inode || !inode->i_fop || !inode->i_fop->readfile) {
-    return -1;
-  }
-
-  ret = inode->i_fop->readfile(parent, buf, count, num);
+  memset((void *)&file, 0, sizeof(struct file));
+  ret = inode.i_fop->open(&inode, &file);
   if (ret != 0) {
     return -1;
   }
 
-  return 0;
+  ret = inode.i_fop->llseek(&file, offset, 0);
+  if (ret != 0) {
+    ret = -1;
+    goto fs_readfile_exit;
+  }
+
+  ret = inode.i_fop->read(&file, buf, count, num);
+  if (ret != 0) {
+    ret = -1;
+    goto fs_readfile_exit;
+  }
+
+  ret = 0;
+
+fs_readfile_exit:
+
+  (void)inode.i_fop->release(&inode, &file);
+
+  return ret;
 }
 
 /*

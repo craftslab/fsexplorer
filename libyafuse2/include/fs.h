@@ -246,11 +246,11 @@ struct super_operations {
 }; 
 
 struct file_operations {
+  int64_t (*llseek) (struct file *, int64_t, int32_t);
   ssize_t (*read) (struct file *, char *, size_t, int64_t *);
   ssize_t (*write) (struct file *, const char *, size_t, int64_t *);
   int32_t (*open) (struct inode *, struct file *);
   int32_t (*release) (struct inode *, struct file *);
-  ssize_t (*readfile) (struct dentry *, char *, size_t, int64_t *);
 };
 
 typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *type, int32_t flags);
