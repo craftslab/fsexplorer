@@ -62,10 +62,12 @@ void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t b
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num);
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num);
 
-int32_t ext4_ext_depth(struct inode *inode, uint16_t *depth);
-int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ext_path *path);
+int32_t ext4_ext_node_header(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_header *eh);
+int32_t ext4_ext_node_is_leaf(struct ext4_extent_header *eh);
+int32_t ext4_ext_node_num(struct ext4_extent_header *eh, uint16_t *nodes_num);
+int32_t ext4_ext_index_node(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_idx *nodes, uint16_t nodes_num);
+int32_t ext4_ext_leaf_node(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent *nodes, uint16_t nodes_num);
 
-int32_t ext4_inode_hdr(struct inode *inode, struct ext4_extent_header *eh);
 int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode);
 
 int32_t ext4_bg_has_super(struct super_block *sb, ext4_group_t bg);

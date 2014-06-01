@@ -104,4 +104,3 @@ struct ext4_ext_path {
 #define EXT_MAX_INDEX(__hdr__)   (EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
 
 #endif
-

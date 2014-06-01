@@ -53,20 +53,22 @@ static char buf[EXT4_SHOW_STAT_DENTRY_SZ];
 /*
  * Function Declaration
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, uint64_t offset, struct ext4_dir_entry_2 *dentry);
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry);
+static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_extent *ee, uint32_t *dents_num);
+static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_extent_idx *ei, uint32_t *dents_num);
+static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
+static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num);
 
 /*
  * Function Definition
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *path, uint64_t offset, struct ext4_dir_entry_2 *dentry)
+static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry)
 {
-  struct ext4_extent *ext = path->p_ext;
-  int64_t dent_offset;
   int64_t len;
   int32_t ret;
 
-  dent_offset = (((uint64_t)ext->ee_start_hi << 32) | (uint64_t)ext->ee_start_lo) * sb->s_blocksize + offset;
-  ret = io_seek(dent_offset);
+  offset = (((uint64_t)ee->ee_start_hi << 32) | (uint64_t)ee->ee_start_lo) * sb->s_blocksize + offset;
+  ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
@@ -76,8 +78,8 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
     return -1;
   }
 
-  dent_offset += sizeof(dentry->inode);
-  ret = io_seek(dent_offset);
+  offset += sizeof(dentry->inode);
+  ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
@@ -97,8 +99,8 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
     return -1;
   }
 
-  dent_offset += sizeof(dentry->rec_len);
-  ret = io_seek(dent_offset);
+  offset += sizeof(dentry->rec_len);
+  ret = io_seek(offset);
   if (ret != 0) {
     return -1;
   }
@@ -111,57 +113,16 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_ext_path *pa
   return 0;
 }
 
-int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
+static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_extent *ee, uint32_t *dents_num)
 {
-  struct super_block *sb = parent->d_sb;
-  struct inode *inode = parent->d_inode;
-  struct ext4_extent_header eh;
-  struct ext4_extent_idx ei;
-  struct ext4_extent ext;
-  struct ext4_ext_path path;
-  uint16_t depth;
   struct ext4_dir_entry_2 dentry;
-  uint64_t offset;
-  uint32_t i;
+  uint64_t offset = 0;
+  uint32_t i = 0;
   int32_t ret;
-
-  /*
-   * Support for linear directories only
-   * and hash tree directories is NOT supported yet
-   */
-  if (is_dx(inode)) {
-    return -1;
-  }
-
-  ret = ext4_ext_depth(inode, &depth);
-  if (ret != 0) {
-    return -1;
-  }
-
-  /*
-   * In type of 'ext4_ext_path',
-   * 'p_depth' > 1 is NOT supported yet, and
-   * 'p_idx' is NOT supported yet
-   */
-  if (depth > 1) {
-    return -1;
-  }
-
-  path.p_depth = 0;
-  path.p_hdr = (struct ext4_extent_header *)&eh;
-  path.p_idx = (struct ext4_extent_idx *)&ei;
-  path.p_ext = (struct ext4_extent *)&ext;
-  ret = ext4_ext_find_extent(inode, depth, &path);
-  if (ret != 0) {
-    return -1;
-  }
-
-  offset = 0;
-  i = 0;
 
   while (1) {
     memset((void *)&dentry, 0, sizeof(struct ext4_dir_entry_2));
-    ret = ext4_find_dentry(sb, &path, offset, &dentry);
+    ret = ext4_find_dentry(sb, ee, offset, &dentry);
     if (ret != 0) {
       break;
     }
@@ -176,59 +137,98 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
     offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
   }
 
-  *childs_num = i;
+  *dents_num = i;
 
   return ret;
 }
 
-int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num)
+static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_extent_idx *ei, uint32_t *dents_num)
 {
-  struct super_block *sb = parent->d_sb;
-  struct inode *inode = parent->d_inode;
+  struct super_block *sb = inode->i_sb;
   struct ext4_extent_header eh;
-  struct ext4_extent_idx ei;
-  struct ext4_extent ext;
-  struct ext4_ext_path path;
-  uint16_t depth;
-  struct ext4_dir_entry_2 dentry;
-  uint64_t offset;
-  uint32_t i;
+  struct ext4_extent_idx *eis = NULL;
+  struct ext4_extent *ees = NULL;
+  uint16_t nodes_num, i;
+  uint32_t num;
   int32_t ret;
 
-  /*
-   * Support for linear directories only
-   * and hash tree directories is NOT supported yet
-   */
-  if (is_dx(inode)) {
-    return -1;
-  }
-
-  ret = ext4_ext_depth(inode, &depth);
+  ret = ext4_ext_node_header(inode, ei, &eh);
   if (ret != 0) {
     return -1;
   }
 
-  /*
-   * In type of 'ext4_ext_path',
-   * 'p_depth' > 1 is NOT supported yet, and
-   * 'p_idx' is NOT supported yet
-   */
-  if (depth > 1) {
-    return -1;
-  }
-
-  path.p_depth = 0;
-  path.p_hdr = (struct ext4_extent_header *)&eh;
-  path.p_idx = (struct ext4_extent_idx *)&ei;
-  path.p_ext = (struct ext4_extent *)&ext;
-  ret = ext4_ext_find_extent(inode, depth, &path);
+  ret = ext4_ext_node_num(&eh, &nodes_num);
   if (ret != 0) {
     return -1;
   }
 
-  for (i = 0, offset = 0; i < childs_num; ++i) {
+  if (ext4_ext_node_is_leaf(&eh)) {
+    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
+    if (!ees) {
+      return -1;
+    }
+    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+
+    ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
+    if (ret != 0) {
+      free((void *)ees);
+      ees = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = ext4_get_extent_dents_num(sb, &ees[i], &num);
+      if (ret != 0) {
+        free((void *)ees);
+        ees = NULL;
+        return -1;
+      }
+
+      *dents_num += num;
+    }
+
+    free((void *)ees);
+    ees = NULL;
+  } else {
+    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
+    if (!eis) {
+      return -1;
+    }
+    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+
+    ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
+    if (ret != 0) {
+      free((void *)eis);
+      eis = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = ext4_traverse_extent_dents_num(inode, &eis[i], dents_num);
+      if (ret != 0) {
+        free((void *)eis);
+        eis = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)eis);
+    eis = NULL;
+  }
+
+  return ret;
+}
+
+static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index)
+{
+  struct ext4_dir_entry_2 dentry;
+  uint64_t offset = 0;
+  uint32_t i = *dents_index;
+  int32_t ret;
+
+  while (1) {
     memset((void *)&dentry, 0, sizeof(struct ext4_dir_entry_2));
-    ret = ext4_find_dentry(sb, &path, offset, &dentry);
+    ret = ext4_find_dentry(sb, ee, offset, &dentry);
     if (ret != 0) {
       break;
     }
@@ -238,15 +238,263 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
       break;
     }
 
-    childs[i] = dentry;
+    dents[i++] = dentry;
 
     offset += dentry.rec_len <= sizeof(struct ext4_dir_entry_2) ? dentry.rec_len : sizeof(struct ext4_dir_entry_2);
 
 #ifdef DEBUG_LIBEXT4_DIR
     memset((void *)buf, 0, sizeof(buf));
-    ext4_show_stat_dentry(&childs[i], buf, sizeof(buf));
+    ext4_show_stat_dentry(&dents[i - 1], buf, sizeof(buf));
     fprintf(stdout, "%s", buf);
 #endif
+  }
+
+  *dents_index = i;
+
+  return ret;
+}
+
+static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num)
+{
+  struct super_block *sb = inode->i_sb;
+  struct ext4_extent_header eh;
+  struct ext4_extent_idx *eis = NULL;
+  struct ext4_extent *ees = NULL;
+  uint16_t nodes_num, i;
+  int32_t ret;
+
+  ret = ext4_ext_node_header(inode, ei, &eh);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_num(&eh, &nodes_num);
+  if (ret != 0) {
+    return -1;
+  }
+
+  if (ext4_ext_node_is_leaf(&eh)) {
+    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
+    if (!ees) {
+      return -1;
+    }
+    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+
+    ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
+    if (ret != 0) {
+      free((void *)ees);
+      ees = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num && *dents_index < dents_num; ++i) {
+      ret = ext4_get_extent_dents(sb, &ees[i], dents, dents_index);
+      if (ret != 0) {
+        free((void *)ees);
+        ees = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)ees);
+    ees = NULL;
+  } else {
+    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
+    if (!eis) {
+      return -1;
+    }
+    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+
+    ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
+    if (ret != 0) {
+      free((void *)eis);
+      eis = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num && *dents_index < dents_num; ++i) {
+      ret = ext4_traverse_extent_dents(inode, &eis[i], dents, dents_index, dents_num);
+      if (ret != 0) {
+        free((void *)eis);
+        eis = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)eis);
+    eis = NULL;
+  }
+
+  return ret;
+}
+
+int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
+{
+  struct super_block *sb = parent->d_sb;
+  struct inode *inode = parent->d_inode;
+  struct ext4_extent_header eh;
+  struct ext4_extent_idx *eis = NULL;
+  struct ext4_extent *ees = NULL;
+  uint16_t nodes_num, i;
+  uint32_t dents_num;
+  int32_t ret;
+
+  /*
+   * Support for linear directories only
+   * and hash tree directories are NOT supported yet
+   */
+  if (is_dx(inode)) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_header(inode, NULL, &eh);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_num(&eh, &nodes_num);
+  if (ret != 0) {
+    return -1;
+  }
+
+  *childs_num = 0;
+
+  if (ext4_ext_node_is_leaf(&eh)) {
+    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
+    if (!ees) {
+      return -1;
+    }
+    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+
+    ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
+    if (ret != 0) {
+      free((void *)ees);
+      ees = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = ext4_get_extent_dents_num(sb, &ees[i], &dents_num);
+      if (ret != 0) {
+        free((void *)ees);
+        ees = NULL;
+        return -1;
+      }
+
+      *childs_num += dents_num;
+    }
+
+    free((void *)ees);
+    ees = NULL;
+  } else {
+    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
+    if (!eis) {
+      return -1;
+    }
+    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+
+    ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
+    if (ret != 0) {
+      free((void *)eis);
+      eis = NULL;
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = ext4_traverse_extent_dents_num(inode, &eis[i], childs_num);
+      if (ret != 0) {
+        free((void *)eis);
+        eis = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)eis);
+    eis = NULL;
+  }
+
+  return ret;
+}
+
+int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num)
+{
+  struct super_block *sb = parent->d_sb;
+  struct inode *inode = parent->d_inode;
+  struct ext4_extent_header eh;
+  struct ext4_extent_idx *eis = NULL;
+  struct ext4_extent *ees = NULL;
+  uint16_t nodes_num, i;
+  uint32_t childs_index;
+  int32_t ret;
+
+  /*
+   * Support for linear directories only
+   * and hash tree directories are NOT supported yet
+   */
+  if (is_dx(inode)) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_header(inode, NULL, &eh);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_num(&eh, &nodes_num);
+  if (ret != 0) {
+    return -1;
+  }
+
+  if (ext4_ext_node_is_leaf(&eh)) {
+    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
+    if (!ees) {
+      return -1;
+    }
+    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+
+    ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
+    if (ret != 0) {
+      free((void *)ees);
+      ees = NULL;
+      return -1;
+    }
+
+    for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
+      ret = ext4_get_extent_dents(sb, &ees[i], childs, &childs_index);
+      if (ret != 0) {
+        free((void *)ees);
+        ees = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)ees);
+    ees = NULL;
+  } else {
+    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
+    if (!eis) {
+      return -1;
+    }
+    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+
+    ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
+    if (ret != 0) {
+      free((void *)eis);
+      eis = NULL;
+      return -1;
+    }
+
+    for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
+      ret = ext4_traverse_extent_dents(inode, &eis[i], childs, &childs_index, childs_num);
+      if (ret != 0) {
+        free((void *)eis);
+        eis = NULL;
+        return -1;
+      }
+    }
+
+    free((void *)eis);
+    eis = NULL;
   }
 
   parent->d_childnum = childs_num;

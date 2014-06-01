@@ -57,57 +57,141 @@ static char buf[EXT4_SHOW_STAT_EXTENT_SZ];
 /*
  * Function Definition
  */
-int32_t ext4_ext_depth(struct inode *inode, uint16_t *depth)
+int32_t ext4_ext_node_header(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_header *eh)
 {
-  struct ext4_extent_header eh;
-  int32_t ret;
+  struct super_block *sb = inode->i_sb;
+  int64_t offset;
+  int32_t ret = 0;
 
-  ret = ext4_inode_hdr(inode, &eh);
-  if (ret != 0) {
-    return ret;
+  if (!ei) {
+    memcpy((void *)eh, (const void *)inode->i_block, sizeof(struct ext4_extent_header));
+  } else {
+    offset = (((uint64_t)ei->ei_leaf_hi << 32) | (uint64_t)ei->ei_leaf_lo) * sb->s_blocksize;
+
+    ret = io_seek(offset);
+    if (ret != 0) {
+      return -1;
+    }
+
+    ret = io_read((uint8_t *)eh, sizeof(struct ext4_extent_header));
+    if (ret != 0) {
+      return -1;
+    }
   }
-
-  *depth = eh.eh_depth;
-
-  return 0;
-}
-
-int32_t ext4_ext_find_extent(struct inode *inode, uint16_t depth, struct ext4_ext_path *path)
-{
-  struct ext4_extent_header eh;
-  uint8_t *ee = NULL;
-  int32_t ret;
-
-  /*
-   * In type of 'ext4_ext_path',
-   * 'p_depth' > 1 is NOT supported yet, and
-   * 'p_idx' is NOT supported yet
-   */
-  if (depth > 1) {
-    return -1;
-  }
-
-  ret = ext4_inode_hdr(inode, &eh);
-  if (ret != 0) {
-    return ret;
-  }
-  memcpy((void *)path[0].p_hdr, (const void *)&eh, sizeof(struct ext4_extent_header));
-
-  path[0].p_depth = (__u16)0;
-  path[0].p_idx = NULL;
-
-  ee = (uint8_t *)((uint8_t *)(inode->i_block) + sizeof(struct ext4_extent_header));
-  memcpy((void *)path[0].p_ext, (const void *)ee, sizeof(struct ext4_extent));
 
 #ifdef DEBUG_LIBEXT4_EXTENT
   memset((void *)buf, 0, sizeof(buf));
-  ext4_show_stat_extent_header(path[0].p_hdr, buf, sizeof(buf));
-  fprintf(stdout, "%s", buf);
-
-  memset((void *)buf, 0, sizeof(buf));
-  ext4_show_stat_extent(path[0].p_ext, buf, sizeof(buf));
+  ext4_show_stat_extent_header(eh, buf, sizeof(buf));
   fprintf(stdout, "%s", buf);
 #endif
 
   return 0;
+}
+
+int32_t ext4_ext_node_is_leaf(struct ext4_extent_header *eh)
+{
+  return (eh->eh_depth == 0);
+}
+
+int32_t ext4_ext_node_num(struct ext4_extent_header *eh, uint16_t *nodes_num)
+{
+  *nodes_num = eh->eh_entries;
+
+  return 0;
+}
+
+int32_t ext4_ext_index_node(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_idx *nodes, uint16_t nodes_num)
+{
+  struct super_block *sb = inode->i_sb;
+  uint8_t *ptr = NULL;
+  int64_t offset;
+  uint16_t i;
+  int32_t ret = 0;
+
+  if (!ei) {
+    ptr = (uint8_t *)((uint8_t *)(inode->i_block) + sizeof(struct ext4_extent_header));
+
+    for (i = 0; i < nodes_num; ++i) {
+      memcpy((void *)&nodes[i], (const void *)ptr, sizeof(struct ext4_extent_idx));
+      ptr += sizeof(struct ext4_extent_idx);
+    }
+  } else {
+    offset = (((uint64_t)ei->ei_leaf_hi << 32) | (uint64_t)ei->ei_leaf_lo) * sb->s_blocksize + sizeof(struct ext4_extent_header);
+
+    ret = io_seek(offset);
+    if (ret != 0) {
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = io_read((uint8_t *)&nodes[i], sizeof(struct ext4_extent_idx));
+      if (ret != 0) {
+        break;
+      }
+
+      offset += sizeof(struct ext4_extent_idx);
+      ret = io_seek(offset);
+      if (ret != 0) {
+        break;
+      }
+    }
+  }
+
+#ifdef DEBUG_LIBEXT4_EXTENT
+  for (i = 0; i < nodes_num; ++i) {
+    memset((void *)buf, 0, sizeof(buf));
+    ext4_show_stat_extent_idx(&nodes[i], buf, sizeof(buf));
+    fprintf(stdout, "%s", buf);
+  }
+#endif
+
+  return ret;
+}
+
+int32_t ext4_ext_leaf_node(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent *nodes, uint16_t nodes_num)
+{
+  struct super_block *sb = inode->i_sb;
+  uint8_t *ptr = NULL;
+  int64_t offset;
+  uint16_t i;
+  int32_t ret = 0;
+
+  if (!ei) {
+    ptr = (uint8_t *)((uint8_t *)(inode->i_block) + sizeof(struct ext4_extent_header));
+
+    for (i = 0; i < nodes_num; ++i) {
+      memcpy((void *)&nodes[i], (const void *)ptr, sizeof(struct ext4_extent));
+      ptr += sizeof(struct ext4_extent);
+    }
+  } else {
+    offset = (((uint64_t)ei->ei_leaf_hi << 32) | (uint64_t)ei->ei_leaf_lo) * sb->s_blocksize + sizeof(struct ext4_extent_header);
+
+    ret = io_seek(offset);
+    if (ret != 0) {
+      return -1;
+    }
+
+    for (i = 0; i < nodes_num; ++i) {
+      ret = io_read((uint8_t *)&nodes[i], sizeof(struct ext4_extent));
+      if (ret != 0) {
+        break;
+      }
+
+      offset += sizeof(struct ext4_extent);
+      ret = io_seek(offset);
+      if (ret != 0) {
+        break;
+      }
+    }
+  }
+
+#ifdef DEBUG_LIBEXT4_EXTENT
+  for (i = 0; i < nodes_num; ++i) {
+    memset((void *)buf, 0, sizeof(buf));
+    ext4_show_stat_extent(&nodes[i], buf, sizeof(buf));
+    fprintf(stdout, "%s", buf);
+  }
+#endif
+
+  return ret;
 }
