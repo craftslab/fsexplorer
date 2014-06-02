@@ -87,10 +87,9 @@ static int32_t fs_traverse_dentry(struct dentry **dentry);
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf);
 static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
 static int32_t fs_statraw(struct inode *inode, const char **buf);
-static int64_t fs_llseek(struct file *file, int64_t offset, int32_t pos);
-static ssize_t fs_read(struct file *file, char *buf, size_t count, int64_t *num);
 static int32_t fs_open(struct inode *inode, struct file *file);
 static int32_t fs_release(struct inode *inode, struct file *file);
+static ssize_t fs_readat(struct file *file, int64_t offset, char *buf, size_t count, int64_t *num);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -181,10 +180,10 @@ static struct super_operations fs_super_opt = {
 
 static struct file_operations fs_file_opt = {
   //.llseek =
-  fs_llseek,
+  NULL,
 
   //.read =
-  fs_read,
+  NULL,
 
   //.write =
   NULL,
@@ -194,6 +193,9 @@ static struct file_operations fs_file_opt = {
 
   //.release =
   fs_release,
+
+  //.readat =
+  fs_readat,
 };
 
 /*
@@ -1030,34 +1032,6 @@ static int32_t fs_statraw(struct inode *inode, const char **buf)
 }
 
 /*
- * Set file position for inode
- */
-static int64_t fs_llseek(struct file *file, int64_t offset, int32_t pos)
-{
-  if (!file) {
-    return -1;
-  }
-
-  // TODO
-
-  return 0;
-}
-
-/*
- * Read file for inode
- */
-static ssize_t fs_read(struct file *file, char *buf, size_t count, int64_t *num)
-{
-  if (!file || !buf || count == 0 || !num) {
-    return -1;
-  }
-
-  // TODO
-
-  return 0;
-}
-
-/*
  * Open file for inode
  */
 static int32_t fs_open(struct inode *inode, struct file *file)
@@ -1066,7 +1040,13 @@ static int32_t fs_open(struct inode *inode, struct file *file)
     return -1;
   }
 
-  // TODO
+  memset((void *)&file->f_path, 0, sizeof(struct path));
+  file->f_inode = inode;
+  file->f_op = inode->i_fop;
+  file->f_flags = 0;
+  file->f_mode = 0;
+  file->f_pos = 0;
+  file->f_version = 0;
 
   return 0;
 }
@@ -1077,6 +1057,20 @@ static int32_t fs_open(struct inode *inode, struct file *file)
 static int32_t fs_release(struct inode *inode, struct file *file)
 {
   if (!inode || !file) {
+    return -1;
+  }
+
+  memset((void *)file, 0, sizeof(struct file));
+
+  return 0;
+}
+
+/*
+ * Read file at offset for inode
+ */
+static ssize_t fs_readat(struct file *file, int64_t offset, char *buf, size_t count, int64_t *num)
+{
+  if (!file || offset < 0 || !buf || count == 0 || !num) {
     return -1;
   }
 

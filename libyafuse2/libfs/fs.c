@@ -573,13 +573,7 @@ static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t coun
     return -1;
   }
 
-  ret = inode.i_fop->llseek(&file, offset, 0);
-  if (ret != 0) {
-    ret = -1;
-    goto fs_readfile_exit;
-  }
-
-  ret = inode.i_fop->read(&file, buf, count, num);
+  ret = inode.i_fop->readat(&file, offset, buf, count, num);
   if (ret != 0) {
     ret = -1;
     goto fs_readfile_exit;
