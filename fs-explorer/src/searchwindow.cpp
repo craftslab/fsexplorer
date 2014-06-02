@@ -177,7 +177,6 @@ void SearchWindow::handleFinished()
 void SearchWindow::handleFound(const QStringList &address)
 {
   QString item;
-  int i;
 
   if (address.size() <= 0) {
     return;
@@ -187,6 +186,7 @@ void SearchWindow::handleFound(const QStringList &address)
   item.append(address[0]);
 
   if (address.size() > 1) {
+    int i;
     for (i = 1; i < address.size() - 1; ++i) {
       item.append(address[i]).append(separator);
     }

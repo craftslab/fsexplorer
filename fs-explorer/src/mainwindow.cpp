@@ -417,7 +417,6 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
 {
   QModelIndex index = treeView->selectionModel()->currentIndex();
   QModelIndex parent, child;
-  unsigned long long childIno;
   bool found = false;
 
   if (ino == treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong()) {
@@ -430,8 +429,8 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
     return;
   }
 
-  if (index.parent().isValid() &&
-      ino == treeModel->data(index.parent(), TREE_INO, Qt::DisplayRole).toULongLong()) {
+  if (index.parent().isValid()
+      && ino == treeModel->data(index.parent(), TREE_INO, Qt::DisplayRole).toULongLong()) {
     treeView->setCurrentIndex(index.parent());
     showTreeAddress(index.parent());
 
@@ -446,7 +445,7 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
 
   for (int i = 0; i < treeModel->rowCount(index); ++i) {
     child = treeModel->index(i, TREE_NAME, index);
-    childIno = treeModel->data(child, TREE_INO, Qt::DisplayRole).toULongLong();
+    unsigned long long childIno = treeModel->data(child, TREE_INO, Qt::DisplayRole).toULongLong();
 
     if (childIno == ino) {
       found = true;

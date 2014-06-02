@@ -26,7 +26,6 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   struct fs_dirent dent;
   QStringList address;
   int num = 0;
-  int ret;
 
   progress = new QProgressDialog(parent);
 
@@ -59,7 +58,7 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
     address.clear();
     address << dent.d_name;
 
-    ret = traverse(list[i], address);
+    int ret = traverse(list[i], address);
     if (!ret) {
       break;
     }
