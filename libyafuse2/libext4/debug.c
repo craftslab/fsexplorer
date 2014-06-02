@@ -665,8 +665,7 @@ void ext4_show_stat_sb(struct ext4_super_block *sb, char *buf, int32_t buf_len)
     buf += len;
   }
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext4_group_desc *gdp, char *buf, int32_t buf_len)
@@ -712,8 +711,7 @@ void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext
     buf += len;
   }
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4_inode *inode, char *buf, int32_t buf_len)
@@ -741,10 +739,8 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
     str = "symbolic link";
   } else if (inode->i_mode & EXT4_INODE_MODE_S_IFSOCK) {
     str = "socket";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFCHR) {
-    str = EXT4_DUMMY_STR;
   } else {
-    str = NULL;
+    str = EXT4_DUMMY_STR;
   }
   len = snprintf(buf, buf_len, "%s\n", str);
   buf += len;
@@ -954,8 +950,7 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
   len = snprintf(buf, buf_len, "extents : %s\n", EXT4_DUMMY_STR);
   buf += len;
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_extent_header(struct ext4_extent_header *eh, char *buf, int32_t buf_len)
@@ -975,8 +970,7 @@ void ext4_show_stat_extent_header(struct ext4_extent_header *eh, char *buf, int3
   len = snprintf(buf, buf_len, "generation : %u\n", eh->eh_generation);
   buf += len;
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t buf_len)
@@ -990,8 +984,7 @@ void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t bu
   len = snprintf(buf, buf_len, "block pointed to : %llu\n", ((__le64)ei->ei_leaf_hi << 32) | (__le64)ei->ei_leaf_lo);
   buf += len;
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
@@ -1007,8 +1000,7 @@ void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len)
   len = snprintf(buf, buf_len, "block pointed to : %llu\n", ((__le64)ext->ee_start_hi << 32) | (__le64)ext->ee_start_lo);
   buf += len;
 
-  len = snprintf(buf, buf_len, "\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n");
 }
 
 void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len)
@@ -1065,6 +1057,6 @@ void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t b
     buf += len;
   }
 
-  len = snprintf(buf, buf_len, "\n\n");
-  buf += len;
+  (void)snprintf(buf, buf_len, "\n\n");
 }
+

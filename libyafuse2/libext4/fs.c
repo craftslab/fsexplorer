@@ -871,14 +871,20 @@ static int32_t fs_umount(const char *name, int32_t flags)
  */
 static int32_t fs_traverse_dentry(struct dentry **dentry)
 {
-  struct super_block *sb = (*dentry)->d_sb;
-  struct inode *inode = (*dentry)->d_inode;
+  struct super_block *sb = NULL;
+  struct inode *inode = NULL;
   struct dentry *child = NULL;
   struct ext4_dir_entry_2 *ext4_dentries = NULL;
   uint32_t ext4_dentries_num, i;
   int32_t ret;
 
-  if (!dentry || !*dentry || !inode) {
+  if (!dentry || !*dentry) {
+    return -1;
+  }
+
+  sb = (*dentry)->d_sb;
+  inode = (*dentry)->d_inode;
+  if (!sb || !inode) {
     return -1;
   }
 
@@ -988,14 +994,22 @@ static int32_t fs_statrawfs(struct dentry *dentry, const char **buf)
  */
 static int32_t fs_statraw(struct inode *inode, const char **buf)
 {
-  struct super_block *sb = inode->i_sb;
-  struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
-  struct ext4_super_block *es = info->s_es;
+  struct super_block *sb = NULL;
+  struct ext4_sb_info *info = NULL;
+  struct ext4_super_block *es = NULL;
   struct ext4_inode ext4_inode;
-  uint64_t ino = inode->i_ino;
+  uint64_t ino;
   int32_t ret;
 
   if (!inode || !buf) {
+    return -1;
+  }
+
+  sb = inode->i_sb;
+  info = (struct ext4_sb_info *)(sb->s_fs_info);
+  es = info->s_es;
+  ino = inode->i_ino;
+  if (!sb || !info || !es) {
     return -1;
   }
 
@@ -1034,7 +1048,7 @@ static int64_t fs_llseek(struct file *file, int64_t offset, int32_t pos)
  */
 static ssize_t fs_read(struct file *file, char *buf, size_t count, int64_t *num)
 {
-  if (!file || !buf || count <= 0 || !num) {
+  if (!file || !buf || count == 0 || !num) {
     return -1;
   }
 

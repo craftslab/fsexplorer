@@ -167,7 +167,7 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
     if (!ees) {
       return -1;
     }
-    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
 
     ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
     if (ret != 0) {
@@ -194,7 +194,7 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
     if (!eis) {
       return -1;
     }
-    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
 
     ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
     if (ret != 0) {
@@ -278,7 +278,7 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
     if (!ees) {
       return -1;
     }
-    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
 
     ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
     if (ret != 0) {
@@ -303,7 +303,7 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
     if (!eis) {
       return -1;
     }
-    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
 
     ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
     if (ret != 0) {
@@ -364,7 +364,7 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
     if (!ees) {
       return -1;
     }
-    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
 
     ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
     if (ret != 0) {
@@ -391,7 +391,7 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
     if (!eis) {
       return -1;
     }
-    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
 
     ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
     if (ret != 0) {
@@ -450,7 +450,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     if (!ees) {
       return -1;
     }
-    memset((void *)ees, 0, sizeof(nodes_num * sizeof(struct ext4_extent)));
+    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
 
     ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
     if (ret != 0) {
@@ -475,7 +475,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     if (!eis) {
       return -1;
     }
-    memset((void *)eis, 0, sizeof(nodes_num * sizeof(struct ext4_extent_idx)));
+    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
 
     ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
     if (ret != 0) {
