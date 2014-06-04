@@ -251,7 +251,7 @@ struct file_operations {
   ssize_t (*write) (struct file *, const char *, size_t, int64_t *);
   int32_t (*open) (struct inode *, struct file *);
   int32_t (*release) (struct inode *, struct file *);
-  ssize_t (*readat) (struct file *, int64_t, char *, size_t, int64_t *);
+  int32_t (*readat) (struct file *, int64_t, char *, size_t, int64_t *);
 };
 
 typedef struct file_system_type* (*fs_file_system_type_init_t) (const char *type, int32_t flags);

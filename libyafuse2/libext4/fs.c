@@ -89,7 +89,7 @@ static int32_t fs_statrawfs(struct dentry *dentry, const char **buf);
 static int32_t fs_statraw(struct inode *inode, const char **buf);
 static int32_t fs_open(struct inode *inode, struct file *file);
 static int32_t fs_release(struct inode *inode, struct file *file);
-static ssize_t fs_readat(struct file *file, int64_t offset, char *buf, size_t count, int64_t *num);
+static int32_t fs_readat(struct file *file, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
 
 static struct dentry_operations fs_dentry_opt = {
   //.d_hash =
@@ -1068,15 +1068,31 @@ static int32_t fs_release(struct inode *inode, struct file *file)
 /*
  * Read file at offset for inode
  */
-static ssize_t fs_readat(struct file *file, int64_t offset, char *buf, size_t count, int64_t *num)
+static int32_t fs_readat(struct file *file, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
 {
-  if (!file || offset < 0 || !buf || count == 0 || !num) {
+  struct inode *inode = NULL;
+  int32_t ret;
+
+  if (!file || offset < 0 || !buf || buf_len == 0 || !read_len) {
     return -1;
   }
 
-  // TODO
+  inode = file->f_inode;
+  if (!inode) {
+    return -1;
+  }
 
-  return 0;
+  if (inode->i_mode & EXT4_INODE_MODE_S_IFDIR) {
+    ret = -1;
+  } else {
+    if (inode->i_mode & EXT4_INODE_MODE_S_IFLNK) {
+      ret = ext4_raw_link(inode, offset, buf, buf_len, read_len);
+    } else {
+      ret = ext4_raw_file(inode, offset, buf, buf_len, read_len);
+    }
+  }
+
+  return ret;
 }
 
 /*

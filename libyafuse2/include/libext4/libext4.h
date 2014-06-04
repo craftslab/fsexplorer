@@ -59,6 +59,9 @@ void ext4_show_stat_extent_idx(struct ext4_extent_idx *ei, char *buf, int32_t bu
 void ext4_show_stat_extent(struct ext4_extent *ext, char *buf, int32_t buf_len);
 void ext4_show_stat_dentry(struct ext4_dir_entry_2 *dentry, char *buf, int32_t buf_len);
 
+int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
+int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
+
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num);
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num);
 
