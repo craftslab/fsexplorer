@@ -53,17 +53,18 @@ static char buf[EXT4_SHOW_STAT_DENTRY_SZ];
 /*
  * Function Declaration
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry);
-static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_extent *ee, uint32_t *dents_num);
+static int32_t ext4_find_dentry(struct inode *inode, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry);
+static int32_t ext4_get_extent_dents_num(struct inode *inode, struct ext4_extent *ee, uint32_t *dents_num);
 static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_extent_idx *ei, uint32_t *dents_num);
-static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
+static int32_t ext4_get_extent_dents(struct inode *inode, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
 static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num);
 
 /*
  * Function Definition
  */
-static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry)
+static int32_t ext4_find_dentry(struct inode *inode, struct ext4_extent *ee, uint64_t offset, struct ext4_dir_entry_2 *dentry)
 {
+  struct super_block *sb = inode->i_sb;
   int64_t len;
   int32_t ret;
 
@@ -113,7 +114,7 @@ static int32_t ext4_find_dentry(struct super_block *sb, struct ext4_extent *ee, 
   return 0;
 }
 
-static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_extent *ee, uint32_t *dents_num)
+static int32_t ext4_get_extent_dents_num(struct inode *inode, struct ext4_extent *ee, uint32_t *dents_num)
 {
   struct ext4_dir_entry_2 dentry;
   uint64_t offset = 0;
@@ -122,7 +123,7 @@ static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_ext
 
   while (1) {
     memset((void *)&dentry, 0, sizeof(struct ext4_dir_entry_2));
-    ret = ext4_find_dentry(sb, ee, offset, &dentry);
+    ret = ext4_find_dentry(inode, ee, offset, &dentry);
     if (ret != 0) {
       break;
     }
@@ -144,7 +145,6 @@ static int32_t ext4_get_extent_dents_num(struct super_block *sb, struct ext4_ext
 
 static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_extent_idx *ei, uint32_t *dents_num)
 {
-  struct super_block *sb = inode->i_sb;
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
   struct ext4_extent *ees = NULL;
@@ -177,7 +177,7 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
     }
 
     for (i = 0; i < nodes_num; ++i) {
-      ret = ext4_get_extent_dents_num(sb, &ees[i], &num);
+      ret = ext4_get_extent_dents_num(inode, &ees[i], &num);
       if (ret != 0) {
         free((void *)ees);
         ees = NULL;
@@ -219,7 +219,7 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
   return ret;
 }
 
-static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index)
+static int32_t ext4_get_extent_dents(struct inode *inode, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index)
 {
   struct ext4_dir_entry_2 dentry;
   uint64_t offset = 0;
@@ -228,7 +228,7 @@ static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent 
 
   while (1) {
     memset((void *)&dentry, 0, sizeof(struct ext4_dir_entry_2));
-    ret = ext4_find_dentry(sb, ee, offset, &dentry);
+    ret = ext4_find_dentry(inode, ee, offset, &dentry);
     if (ret != 0) {
       break;
     }
@@ -256,7 +256,6 @@ static int32_t ext4_get_extent_dents(struct super_block *sb, struct ext4_extent 
 
 static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num)
 {
-  struct super_block *sb = inode->i_sb;
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
   struct ext4_extent *ees = NULL;
@@ -288,7 +287,7 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
     }
 
     for (i = 0; i < nodes_num && *dents_index < dents_num; ++i) {
-      ret = ext4_get_extent_dents(sb, &ees[i], dents, dents_index);
+      ret = ext4_get_extent_dents(inode, &ees[i], dents, dents_index);
       if (ret != 0) {
         free((void *)ees);
         ees = NULL;
@@ -330,7 +329,6 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
 
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 {
-  struct super_block *sb = parent->d_sb;
   struct inode *inode = parent->d_inode;
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
@@ -374,7 +372,7 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
     }
 
     for (i = 0; i < nodes_num; ++i) {
-      ret = ext4_get_extent_dents_num(sb, &ees[i], &dents_num);
+      ret = ext4_get_extent_dents_num(inode, &ees[i], &dents_num);
       if (ret != 0) {
         free((void *)ees);
         ees = NULL;
@@ -418,7 +416,6 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num)
 {
-  struct super_block *sb = parent->d_sb;
   struct inode *inode = parent->d_inode;
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
@@ -460,7 +457,7 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     }
 
     for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
-      ret = ext4_get_extent_dents(sb, &ees[i], childs, &childs_index);
+      ret = ext4_get_extent_dents(inode, &ees[i], childs, &childs_index);
       if (ret != 0) {
         free((void *)ees);
         ees = NULL;
