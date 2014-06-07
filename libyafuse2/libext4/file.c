@@ -154,16 +154,12 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
 
     ret = ext4_ext_leaf_node(inode, NULL, ees, num);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_raw_file_exit;
     }
 
     ret = ext4_get_extent_blk_pos(inode, ees, num, offset, &index, &pos);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_raw_file_exit;
     }
 
     for (i = index; i < num; ++i) {
@@ -174,9 +170,7 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
       }
 
       if (ret != 0) {
-        free((void *)ees);
-        ees = NULL;
-        return -1;
+        goto ext4_raw_file_exit;
       }
 
       *read_len += ret_len;
@@ -188,9 +182,6 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
       ptr += ret_len;
       curr_len -= ret_len;
     }
-
-    free((void *)ees);
-    ees = NULL;
   } else {
     eis = (struct ext4_extent_idx *)malloc(num * sizeof(struct ext4_extent_idx));
     if (!eis) {
@@ -200,17 +191,13 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
 
     ret = ext4_ext_index_node(inode, NULL, eis, num);
     if (ret != 0) {
-      free((void *)eis);
-      eis = NULL;
-      return -1;
+      goto ext4_raw_file_exit;
     }
 
     for (i = 0; i < num; ++i) {
       ret = ext4_traverse_extent_file(inode, &eis[i], offset, ptr, curr_len, &ret_len);
       if (ret != 0) {
-        free((void *)eis);
-        eis = NULL;
-        return -1;
+        goto ext4_raw_file_exit;
       }
 
       *read_len += ret_len;
@@ -222,12 +209,23 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
       ptr += ret_len;
       curr_len -= ret_len;
     }
+  }
 
+  ret = 0;
+
+ext4_raw_file_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
     free((void *)eis);
     eis = NULL;
   }
 
-  return 0;
+  return ret;
 }
 
 int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)

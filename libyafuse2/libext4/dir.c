@@ -171,24 +171,17 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
 
     ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_traverse_extent_dents_num_exit;
     }
 
     for (i = 0; i < nodes_num; ++i) {
       ret = ext4_get_extent_dents_num(inode, &ees[i], &num);
       if (ret != 0) {
-        free((void *)ees);
-        ees = NULL;
-        return -1;
+        goto ext4_traverse_extent_dents_num_exit;
       }
 
       *dents_num += num;
     }
-
-    free((void *)ees);
-    ees = NULL;
   } else {
     eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
     if (!eis) {
@@ -198,20 +191,27 @@ static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_e
 
     ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
     if (ret != 0) {
-      free((void *)eis);
-      eis = NULL;
-      return -1;
+      goto ext4_traverse_extent_dents_num_exit;
     }
 
     for (i = 0; i < nodes_num; ++i) {
       ret = ext4_traverse_extent_dents_num(inode, &eis[i], dents_num);
       if (ret != 0) {
-        free((void *)eis);
-        eis = NULL;
-        return -1;
+        goto ext4_traverse_extent_dents_num_exit;
       }
     }
+  }
 
+  ret = 0;
+
+ext4_traverse_extent_dents_num_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
     free((void *)eis);
     eis = NULL;
   }
@@ -281,22 +281,15 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
 
     ret = ext4_ext_leaf_node(inode, ei, ees, nodes_num);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_traverse_extent_dents_exit;
     }
 
     for (i = 0; i < nodes_num && *dents_index < dents_num; ++i) {
       ret = ext4_get_extent_dents(inode, &ees[i], dents, dents_index);
       if (ret != 0) {
-        free((void *)ees);
-        ees = NULL;
-        return -1;
+        goto ext4_traverse_extent_dents_exit;
       }
     }
-
-    free((void *)ees);
-    ees = NULL;
   } else {
     eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
     if (!eis) {
@@ -306,20 +299,27 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
 
     ret = ext4_ext_index_node(inode, ei, eis, nodes_num);
     if (ret != 0) {
-      free((void *)eis);
-      eis = NULL;
-      return -1;
+      goto ext4_traverse_extent_dents_exit;
     }
 
     for (i = 0; i < nodes_num && *dents_index < dents_num; ++i) {
       ret = ext4_traverse_extent_dents(inode, &eis[i], dents, dents_index, dents_num);
       if (ret != 0) {
-        free((void *)eis);
-        eis = NULL;
-        return -1;
+        goto ext4_traverse_extent_dents_exit;
       }
     }
+  }
 
+  ret = 0;
+
+ext4_traverse_extent_dents_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
     free((void *)eis);
     eis = NULL;
   }
@@ -366,24 +366,17 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 
     ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_raw_dentry_num_exit;
     }
 
     for (i = 0; i < nodes_num; ++i) {
       ret = ext4_get_extent_dents_num(inode, &ees[i], &dents_num);
       if (ret != 0) {
-        free((void *)ees);
-        ees = NULL;
-        return -1;
+        goto ext4_raw_dentry_num_exit;
       }
 
       *childs_num += dents_num;
     }
-
-    free((void *)ees);
-    ees = NULL;
   } else {
     eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
     if (!eis) {
@@ -393,20 +386,27 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 
     ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
     if (ret != 0) {
-      free((void *)eis);
-      eis = NULL;
-      return -1;
+      goto ext4_raw_dentry_num_exit;
     }
 
     for (i = 0; i < nodes_num; ++i) {
       ret = ext4_traverse_extent_dents_num(inode, &eis[i], childs_num);
       if (ret != 0) {
-        free((void *)eis);
-        eis = NULL;
-        return -1;
+        goto ext4_raw_dentry_num_exit;
       }
     }
+  }
 
+  ret = 0;
+
+ext4_raw_dentry_num_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
     free((void *)eis);
     eis = NULL;
   }
@@ -451,22 +451,15 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
 
     ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
     if (ret != 0) {
-      free((void *)ees);
-      ees = NULL;
-      return -1;
+      goto ext4_raw_dentry_exit;
     }
 
     for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
       ret = ext4_get_extent_dents(inode, &ees[i], childs, &childs_index);
       if (ret != 0) {
-        free((void *)ees);
-        ees = NULL;
-        return -1;
+        goto ext4_raw_dentry_exit;
       }
     }
-
-    free((void *)ees);
-    ees = NULL;
   } else {
     eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
     if (!eis) {
@@ -476,25 +469,32 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
 
     ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
     if (ret != 0) {
-      free((void *)eis);
-      eis = NULL;
-      return -1;
+      goto ext4_raw_dentry_exit;
     }
 
     for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
       ret = ext4_traverse_extent_dents(inode, &eis[i], childs, &childs_index, childs_num);
       if (ret != 0) {
-        free((void *)eis);
-        eis = NULL;
-        return -1;
+        goto ext4_raw_dentry_exit;
       }
     }
-
-    free((void *)eis);
-    eis = NULL;
   }
 
   parent->d_childnum = childs_num;
+
+  ret = 0;
+
+ext4_raw_dentry_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
+    free((void *)eis);
+    eis = NULL;
+  }
 
   return ret;
 }
