@@ -116,9 +116,109 @@ int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_
 
 int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
 {
-  // TODO
+  struct ext4_extent_header eh;
+  struct ext4_extent_idx *eis = NULL;
+  struct ext4_extent *ees = NULL;
+  char *ptr = buf;
+  uint16_t num, index, i;
+  int64_t pos, curr_len, ret_len, min_len;
+  int32_t ret;
 
-  return 0;
+  curr_len = buf_len;
+  *read_len = 0;
+  min_len = inode->i_size > buf_len ? buf_len : inode->i_size;
+
+  ret = ext4_ext_node_header(inode, ei, &eh);
+  if (ret != 0) {
+    return -1;
+  }
+
+  ret = ext4_ext_node_num(&eh, &num);
+  if (ret != 0) {
+    return -1;
+  }
+
+  if (ext4_ext_node_is_leaf(&eh)) {
+    ees = (struct ext4_extent *)malloc(num * sizeof(struct ext4_extent));
+    if (!ees) {
+      return -1;
+    }
+    memset((void *)ees, 0, num * sizeof(struct ext4_extent));
+
+    ret = ext4_ext_leaf_node(inode, ei, ees, num);
+    if (ret != 0) {
+      goto ext4_traverse_extent_file_exit;
+    }
+
+    ret = ext4_get_extent_blk_pos(inode, ees, num, offset, &index, &pos);
+    if (ret != 0) {
+      goto ext4_traverse_extent_file_exit;
+    }
+
+    for (i = index; i < num; ++i) {
+      if (i == index) {
+        ret = ext4_get_extent_file(inode, &ees[i], pos, ptr, curr_len, &ret_len);
+      } else {
+        ret = ext4_get_extent_file(inode, &ees[i], 0, ptr, curr_len, &ret_len);
+      }
+
+      if (ret != 0) {
+        goto ext4_traverse_extent_file_exit;
+      }
+
+      *read_len += ret_len;
+      if (*read_len >= min_len) {
+        *read_len = min_len;
+        break;
+      }
+
+      ptr += ret_len;
+      curr_len -= ret_len;
+    }
+  } else {
+    eis = (struct ext4_extent_idx *)malloc(num * sizeof(struct ext4_extent_idx));
+    if (!eis) {
+      return -1;
+    }
+    memset((void *)eis, 0, num * sizeof(struct ext4_extent_idx));
+
+    ret = ext4_ext_index_node(inode, ei, eis, num);
+    if (ret != 0) {
+      goto ext4_traverse_extent_file_exit;
+    }
+
+    for (i = 0; i < num; ++i) {
+      ret = ext4_traverse_extent_file(inode, &eis[i], offset, ptr, curr_len, &ret_len);
+      if (ret != 0) {
+        goto ext4_traverse_extent_file_exit;
+      }
+
+      *read_len += ret_len;
+      if (*read_len >= min_len) {
+        *read_len = min_len;
+        break;
+      }
+
+      ptr += ret_len;
+      curr_len -= ret_len;
+    }
+  }
+
+  ret = 0;
+
+ext4_traverse_extent_file_exit:
+
+  if (ees) {
+    free((void *)ees);
+    ees = NULL;
+  }
+
+  if (eis) {
+    free((void *)eis);
+    eis = NULL;
+  }
+
+  return ret;
 }
 
 int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
