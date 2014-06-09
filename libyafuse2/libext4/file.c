@@ -64,21 +64,20 @@ int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, ui
   uint16_t i;
 
   for (i = 0, size = 0; i < num; ++i) {
-    len = offset - size;
+    size += (int64_t)(ees[i].ee_len * sb->s_blocksize);
+    len = size - offset;
 
-    if (len >= 0 && len <= (int64_t)sb->s_blocksize) {
+    if (len >= 0) {
       if (len == 0) {
         *index = i + 1;
         *pos = 0;
       } else {
         *index = i;
-        *pos = (int64_t)sb->s_blocksize - len;
+        *pos = (int64_t)(ees[i].ee_len * sb->s_blocksize) - len;
       }
 
       break;
     }
-
-    size += (int64_t)(ees[i].ee_len * sb->s_blocksize);
   }
 
   if (*index >= num) {

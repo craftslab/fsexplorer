@@ -1082,10 +1082,10 @@ static int32_t fs_readat(struct file *file, int64_t offset, char *buf, size_t bu
     return -1;
   }
 
-  if (inode->i_mode & EXT4_INODE_MODE_S_IFDIR) {
+  if ((inode->i_mode & 0xF000) == EXT4_INODE_MODE_S_IFDIR) {
     ret = -1;
   } else {
-    if (inode->i_mode & EXT4_INODE_MODE_S_IFLNK) {
+    if ((inode->i_mode & 0xF000) == EXT4_INODE_MODE_S_IFLNK) {
       ret = ext4_raw_link(inode, offset, buf, buf_len, read_len);
     } else {
       ret = ext4_raw_file(inode, offset, buf, buf_len, read_len);
