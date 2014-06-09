@@ -314,7 +314,14 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 
   file.setFileName(name);
 
+  if (!file.open(QIODevice::WriteOnly)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to open ")) + name);
+    ret = false;
+    goto exportFileExit;
+  }
+
   perm = getFilePermissions(ino);
+
   if (!file.setPermissions(perm)) {
     QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to set permission of ")) + name);
     ret = false;
@@ -330,6 +337,10 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   ret = true;
 
 exportFileExit:
+
+  if (file.isOpen()) {
+    file.close();
+  }
 
   if (buf) {
     delete[] buf;
