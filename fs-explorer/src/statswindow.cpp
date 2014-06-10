@@ -66,7 +66,6 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   setWindowTitle(title);
   setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_DeleteOnClose, true);
-  setWindowModality(Qt::WindowModal);
 
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
