@@ -481,21 +481,24 @@ void MainWindow::doubleClickListItem(const QModelIndex &index)
   enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
   unsigned long long ino = listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
 
-  if (type != FT_DIR) {
-    return;
+  if (type == FT_DIR) {
+    removeListAll();
+    expandListItem(ino);
+
+    emit syncTreeItem(ino);
   }
 
-  removeListAll();
-  expandListItem(ino);
-
   showFileStat(ino);
-
-  emit syncTreeItem(ino);
 }
 
 void MainWindow::activateListItem(const QModelIndex &index)
 {
   doubleClickListItem(index);
+
+  enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
+  if (type != FT_DIR) {
+    prop();
+  }
 }
 
 void MainWindow::currentListItem(const QModelIndex &current, const QModelIndex &previous)
@@ -782,9 +785,9 @@ void MainWindow::createWidgets()
   connect(listView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickListItem(QModelIndex)));
   connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClickListItem(QModelIndex)));
   connect(listView, SIGNAL(activated(const QModelIndex &)), this, SLOT(activateListItem(const QModelIndex &)));
+  connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
   connect(listItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentListItem(const QModelIndex &, const QModelIndex &)));
-  connect(listView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
 
   horiSplitter = new QSplitter(Qt::Horizontal, this);
   horiSplitter->addWidget(treeView);
