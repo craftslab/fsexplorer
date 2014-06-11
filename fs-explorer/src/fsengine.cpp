@@ -300,7 +300,7 @@ bool FsEngine::readFile(unsigned long long ino, long offset, char *buf, long cou
     return false;
   }
 
-  int32_t ret = fileOpt->readfile(ino, offset, buf, count, num);
+  int32_t ret = fileOpt->readfile(ino, offset, buf, count, reinterpret_cast<int64_t *> (num));
   if (ret != 0) {
     return false;
   }
