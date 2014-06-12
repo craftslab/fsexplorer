@@ -50,14 +50,15 @@
 /*
  * Function Declaration
  */
-int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos);
-int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len);
-int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
+static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos);
+static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len);
+static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
+static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, size_t buf_len, int64_t *read_len);
 
 /*
  * Function Definition
  */
-int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos)
+static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos)
 {
   struct super_block *sb = inode->i_sb;
   int64_t size, len;
@@ -87,7 +88,7 @@ int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, ui
   return 0;
 }
 
-int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len)
+static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len)
 {
   struct super_block *sb = inode->i_sb;
   uint64_t offset;
@@ -113,14 +114,14 @@ int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_
   return 0;
 }
 
-int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
+static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
 {
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
   struct ext4_extent *ees = NULL;
   char *ptr = buf;
-  uint16_t num, index, i;
-  int64_t pos, curr_len, ret_len, min_len;
+  uint16_t num, index = 0, i;
+  int64_t pos = 0, curr_len, ret_len, min_len;
   int32_t ret;
 
   curr_len = buf_len;
@@ -220,19 +221,45 @@ ext4_traverse_extent_file_exit:
   return ret;
 }
 
+static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, size_t buf_len, int64_t *read_len)
+{
+  struct super_block *sb = inode->i_sb;
+  uint64_t offset;
+  int64_t len;
+  int32_t ret;
+
+  offset = inode->i_block[index] * sb->s_blocksize + pos;
+  ret = io_seek(offset);
+  if (ret != 0) {
+    return -1;
+  }
+
+  len = (int64_t)sb->s_blocksize - pos;
+  len = len > (int64_t)buf_len ? (int64_t)buf_len : len;
+
+  ret = io_read((uint8_t *)buf, len);
+  if (ret != 0) {
+    return -1;
+  }
+
+  *read_len = len;
+
+  return 0;
+}
+
 int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
 {
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
   struct ext4_extent *ees = NULL;
   char *ptr = buf;
-  uint16_t num, index, i;
-  int64_t pos, curr_len, ret_len, min_len;
+  uint16_t num, index = 0, i;
+  int64_t pos = 0, curr_len, ret_len, min_len;
   int32_t ret;
 
   curr_len = buf_len;
-  *read_len = 0;
   min_len = inode->i_size > buf_len ? buf_len : inode->i_size;
+  *read_len = 0;
 
   ret = ext4_ext_node_header(inode, NULL, &eh);
   if (ret != 0) {
@@ -329,6 +356,61 @@ ext4_raw_file_exit:
 
 int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
 {
-  // TODO
+  struct super_block *sb = inode->i_sb;
+  char *ptr = buf;
+  int64_t pos, link_len, min_len, curr_len, ret_len;
+  uint64_t i, index;
+  int32_t ret;
+
+  index = (uint64_t)offset / sb->s_blocksize;
+  pos = offset % (int64_t)sb->s_blocksize;
+  link_len = inode->i_size + 1;
+  min_len = link_len > buf_len ? buf_len : link_len;
+  *read_len = 0;
+
+  if (link_len <= (EXT4_N_BLOCKS * sizeof(uint32_t))) {
+    curr_len = min_len - offset;
+
+    if (curr_len > 0) {
+      memcpy((void *)buf, inode->i_block + offset, curr_len);
+      *read_len = curr_len;
+    } else if (curr_len == 0) {
+      *read_len = 0;
+    } else {
+      return -1;
+    }
+  } else {
+    /*
+     * Refer to 'EXT4_NDIR_BLOCKS'/'EXT4_IND_BLOCK'/'EXT4_DIND_BLOCK'/'EXT4_TIND_BLOCK'
+     */
+    curr_len = buf_len;
+
+    if (link_len <= (EXT4_NDIR_BLOCKS * (int64_t)sb->s_blocksize)) {
+      for (i = index; i < EXT4_NDIR_BLOCKS; ++i) {
+        if (i == index) {
+          ret = ext4_get_direct_link(inode, i, pos, ptr, curr_len, &ret_len);
+        } else {
+          ret = ext4_get_direct_link(inode, i, 0, ptr, curr_len, &ret_len);
+        }
+
+        if (ret != 0) {
+          return -1;
+        }
+
+        *read_len += ret_len;
+        if (*read_len >= min_len) {
+          *read_len = min_len;
+          break;
+        }
+
+        ptr += ret_len;
+        curr_len -= ret_len;
+      }
+    } else {
+      // TODO
+      return -1;
+    }
+  }
+
   return 0;
 }
