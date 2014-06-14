@@ -191,7 +191,7 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
   progress->setLabelText(QString(tr(dent.d_name)));
   progress->setValue(++fileCounter);
 
-  QString absolutePath = filePath->path();
+  QString absolutePath = QDir::toNativeSeparators(filePath->path());
 
   if (!QString::compare(address[0], QString(root.d_name))) {
     for (int i = 1; i < address.size(); ++i) {
