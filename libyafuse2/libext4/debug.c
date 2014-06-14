@@ -719,25 +719,26 @@ void ext4_show_stat_inode(struct ext4_super_block *sb, uint64_t ino, struct ext4
   const char *str = NULL;
   time_t tm = 0;
   int32_t len = 0;
+  uint16_t mode = inode->i_mode & 0xF000;
 
   len = snprintf(buf, buf_len, "Inode : %llu\n", (long long unsigned)ino);
   buf += len;
 
   len = snprintf(buf, buf_len, "type : ");
   buf += len;
-  if (inode->i_mode & EXT4_INODE_MODE_S_IFIFO) {
+  if (mode == EXT4_INODE_MODE_S_IFIFO) {
     str = "FIFO";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFCHR) {
+  } else if (mode == EXT4_INODE_MODE_S_IFCHR) {
     str = "character device";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFDIR) {
+  } else if (mode == EXT4_INODE_MODE_S_IFDIR) {
     str = "directory";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFBLK) {
+  } else if (mode == EXT4_INODE_MODE_S_IFBLK) {
     str = "block device";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFREG) {
+  } else if (mode == EXT4_INODE_MODE_S_IFREG) {
     str = "regular file";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFLNK) {
+  } else if (mode == EXT4_INODE_MODE_S_IFLNK) {
     str = "symbolic link";
-  } else if (inode->i_mode & EXT4_INODE_MODE_S_IFSOCK) {
+  } else if (mode == EXT4_INODE_MODE_S_IFSOCK) {
     str = "socket";
   } else {
     str = EXT4_DUMMY_STR;

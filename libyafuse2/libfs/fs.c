@@ -88,19 +88,21 @@ static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t coun
  */
 static int32_t fs_imode2ftype(enum libfs_imode imode, enum libfs_ftype *ftype)
 {
-  if (imode & IFIFO) {
+  enum libfs_imode mode = imode & 0xF000;
+
+  if (mode == IFIFO) {
     *ftype = FT_FIFO;
-  } else if (imode & IFCHR) {
+  } else if (mode == IFCHR) {
     *ftype = FT_CHRDEV;
-  } else if (imode & IFDIR) {
+  } else if (mode == IFDIR) {
     *ftype = FT_DIR;
-  } else if (imode & IFBLK) {
+  } else if (mode == IFBLK) {
     *ftype = FT_BLKDEV;
-  } else if (imode & IFREG) {
+  } else if (mode == IFREG) {
     *ftype = FT_REG_FILE;
-  } else if (imode & IFLNK) {
+  } else if (mode == IFLNK) {
     *ftype = FT_SYMLINK;
-  } else if (imode & IFSOCK) {
+  } else if (mode == IFSOCK) {
     *ftype = FT_SOCK;
   } else {
     *ftype = FT_UNKNOWN;
