@@ -224,6 +224,10 @@ bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
     if (!exportDir(name)) {
       return false;
     }
+  } else if (dent.d_type == FT_SYMLINK) {
+    if (!exportLink(ino, name)) {
+      return false;
+    }
   } else {
     if (!exportFile(ino, name)) {
       return false;
@@ -256,6 +260,15 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
       }
 
       if (!exportDir(name)) {
+        return false;
+      }
+    } else if (dent.d_type == FT_SYMLINK) {
+      if (!QFile::remove(name)) {
+        QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        return false;
+      }
+
+      if (!exportLink(ino, name)) {
         return false;
       }
     } else {
@@ -341,6 +354,39 @@ exportFileExit:
   if (file.isOpen()) {
     file.close();
   }
+
+  if (buf) {
+    delete[] buf;
+    buf = NULL;
+  }
+
+  return ret;
+}
+
+bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
+{
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  long count = stat.size, num = 0;
+  char *buf = new char[count];
+  bool ret;
+
+  memset((void *)buf, 0, count);
+
+  if (!fsEngine->readFile(ino, 0, buf, count, &num)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
+    ret = false;
+    goto exportLinkExit;
+  }
+
+  if (!QFile::link(buf, name)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + buf);
+    ret = false;
+    goto exportLinkExit;
+  }
+
+  ret = true;
+
+exportLinkExit:
 
   if (buf) {
     delete[] buf;
