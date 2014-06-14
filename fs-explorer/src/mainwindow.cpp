@@ -493,12 +493,13 @@ void MainWindow::doubleClickListItem(const QModelIndex &index)
 
 void MainWindow::activateListItem(const QModelIndex &index)
 {
-  doubleClickListItem(index);
-
   enum libfs_ftype type = static_cast<enum libfs_ftype> (listModel->data(index, LIST_TYPE, Qt::DisplayRole).toInt());
-  if (type != FT_DIR) {
+
+  if (type < FT_MAX && (type != FT_UNKNOWN && type != FT_DIR)) {
     prop();
   }
+
+  doubleClickListItem(index);
 }
 
 void MainWindow::currentListItem(const QModelIndex &current, const QModelIndex &previous)
