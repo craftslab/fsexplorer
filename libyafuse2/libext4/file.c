@@ -51,9 +51,9 @@
  * Function Declaration
  */
 static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos);
-static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len);
-static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len);
-static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, size_t buf_len, int64_t *read_len);
+static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len);
+static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, int64_t buf_len, int64_t *read_len);
+static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len);
 
 /*
  * Function Definition
@@ -88,7 +88,7 @@ static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *
   return 0;
 }
 
-static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, size_t buf_len, int64_t *read_len)
+static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len)
 {
   struct super_block *sb = inode->i_sb;
   uint64_t offset;
@@ -114,7 +114,7 @@ static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee,
   return 0;
 }
 
-static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, size_t buf_len, int64_t *read_len)
+static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, int64_t buf_len, int64_t *read_len)
 {
   struct ext4_extent_header eh;
   struct ext4_extent_idx *eis = NULL;
@@ -124,9 +124,9 @@ static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent
   int64_t pos = 0, curr_len, ret_len, min_len;
   int32_t ret;
 
-  curr_len = buf_len;
+  curr_len = (int64_t)buf_len;
   *read_len = 0;
-  min_len = inode->i_size > buf_len ? buf_len : inode->i_size;
+  min_len = inode->i_size > (int64_t)buf_len ? (int64_t)buf_len : inode->i_size;
 
   ret = ext4_ext_node_header(inode, ei, &eh);
   if (ret != 0) {
@@ -221,7 +221,7 @@ ext4_traverse_extent_file_exit:
   return ret;
 }
 
-static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, size_t buf_len, int64_t *read_len)
+static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len)
 {
   struct super_block *sb = inode->i_sb;
   uint64_t offset;
@@ -257,8 +257,8 @@ int32_t ext4_raw_file(struct inode *inode, int64_t offset, char *buf, size_t buf
   int64_t pos = 0, curr_len, ret_len, min_len;
   int32_t ret;
 
-  curr_len = buf_len;
-  min_len = inode->i_size > buf_len ? buf_len : inode->i_size;
+  curr_len = (int64_t)buf_len;
+  min_len = inode->i_size > (int64_t)buf_len ? (int64_t)buf_len : inode->i_size;
   *read_len = 0;
 
   ret = ext4_ext_node_header(inode, NULL, &eh);
@@ -365,14 +365,14 @@ int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf
   index = (uint64_t)offset / sb->s_blocksize;
   pos = offset % (int64_t)sb->s_blocksize;
   link_len = inode->i_size + 1;
-  min_len = link_len > buf_len ? buf_len : link_len;
+  min_len = link_len > (int64_t)buf_len ? (int64_t)buf_len : link_len;
   *read_len = 0;
 
   if (link_len <= (EXT4_N_BLOCKS * sizeof(uint32_t))) {
     curr_len = min_len - offset;
 
     if (curr_len > 0) {
-      memcpy((void *)buf, inode->i_block + offset, curr_len);
+      memcpy((void *)buf, inode->i_block + offset, (size_t)curr_len);
       *read_len = curr_len;
     } else if (curr_len == 0) {
       *read_len = 0;
@@ -383,7 +383,7 @@ int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf
     /*
      * Refer to 'EXT4_NDIR_BLOCKS'/'EXT4_IND_BLOCK'/'EXT4_DIND_BLOCK'/'EXT4_TIND_BLOCK'
      */
-    curr_len = buf_len;
+    curr_len = (int64_t)buf_len;
 
     if (link_len <= (EXT4_NDIR_BLOCKS * (int64_t)sb->s_blocksize)) {
       for (i = index; i < EXT4_NDIR_BLOCKS; ++i) {
