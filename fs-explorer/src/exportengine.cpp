@@ -224,10 +224,16 @@ bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
     if (!exportDir(name)) {
       return false;
     }
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
   } else if (dent.d_type == FT_SYMLINK) {
     if (!exportLink(ino, name)) {
       return false;
     }
+#elif defined(Q_OS_WIN32)
+  // Do nothing here
+#else
+  // Do nothing here
+#endif
   } else {
     if (!exportFile(ino, name)) {
       return false;
@@ -262,6 +268,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
       if (!exportDir(name)) {
         return false;
       }
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     } else if (dent.d_type == FT_SYMLINK) {
       if (!QFile::remove(name)) {
         QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
@@ -271,6 +278,11 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
       if (!exportLink(ino, name)) {
         return false;
       }
+#elif defined(Q_OS_WIN32)
+    // Do nothing here
+#else
+    // Do nothing here
+#endif
     } else {
       if (!QFile::remove(name)) {
         QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
@@ -381,8 +393,8 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
     goto exportLinkExit;
   }
 
-  if (!QFile::link(buf, name)) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + buf);
+  if (!QFile::link(QString((const QChar *)buf, num), name)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + QString((const QChar *)buf, num));
     ret = false;
     goto exportLinkExit;
   }
