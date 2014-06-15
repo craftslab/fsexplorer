@@ -890,7 +890,7 @@ static int32_t fs_traverse_dentry(struct dentry **dentry)
     return -1;
   }
 
-  if (!(inode->i_mode & EXT4_INODE_MODE_S_IFDIR)) {
+  if (!((inode->i_mode & 0xF000) == EXT4_INODE_MODE_S_IFDIR)) {
     return 0;
   }
 

@@ -150,7 +150,7 @@ static int32_t fs_traverse_dentry(struct dentry **dentry)
     return -1;
   }
 
-  if (!(inode->i_mode & IFDIR) || !list_empty(&(*dentry)->d_subdirs)) {
+  if (!((inode->i_mode & 0xF000) == IFDIR) || !list_empty(&(*dentry)->d_subdirs)) {
     return 0;
   }
 
@@ -575,7 +575,7 @@ static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t coun
     return -1;
   }
 
-  ret = inode.i_fop->readat(&file, offset, buf, count, num);
+  ret = inode.i_fop->readat(&file, offset, buf, (size_t)count, num);
   if (ret != 0) {
     ret = -1;
     goto fs_readfile_exit;
