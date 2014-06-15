@@ -310,34 +310,37 @@ bool ExportEngine::exportDir(const QString &name)
 
 bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
-  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  long count = stat.size, num = 0;
-  char *buf = new char[count];
   QFile file;
-  QFileDevice::Permissions perm;
   bool ret;
-
-  memset((void *)buf, 0, count);
-
-  ret = fsEngine->readFile(ino, 0, buf, count, &num);
-  if (!ret || num == 0) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
-    ret = false;
-    goto exportFileExit;
-  }
 
   file.setFileName(name);
 
   if (!file.open(QIODevice::WriteOnly)) {
     QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to open ")) + name);
-    ret = false;
-    goto exportFileExit;
+    return false;
   }
 
-  perm = getFilePermissions(ino);
+  QFileDevice::Permissions perm = getFilePermissions(ino);
 
   if (!file.setPermissions(perm)) {
     QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to set permission of ")) + name);
+    file.close();
+    return false;
+  }
+
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  long num = 0;
+
+  char *buf = new char[stat.size];
+  if (!buf) {
+    ret = false;
+    goto exportFileExit;
+  }
+  memset((void *)buf, 0, stat.size);
+
+  ret = fsEngine->readFile(ino, 0, buf, stat.size, &num);
+  if (!ret || num == 0) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
     ret = false;
     goto exportFileExit;
   }
@@ -352,14 +355,12 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 
 exportFileExit:
 
-  if (file.isOpen()) {
-    file.close();
-  }
-
   if (buf) {
     delete[] buf;
     buf = NULL;
   }
+
+  file.close();
 
   return ret;
 }
