@@ -393,8 +393,8 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
     goto exportLinkExit;
   }
 
-  if (!QFile::link(QString((const QChar *)buf, num), name)) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + QString((const QChar *)buf, num));
+  if (!QFile::link(buf, name)) {
+    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + buf);
     ret = false;
     goto exportLinkExit;
   }
