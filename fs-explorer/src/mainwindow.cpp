@@ -259,6 +259,11 @@ void MainWindow::goUp()
   }
 }
 
+void MainWindow::clearHistory()
+{
+  // TODO
+}
+
 void MainWindow::about()
 {
   aboutDialog = new AboutDialog(version, this);
@@ -564,7 +569,7 @@ void MainWindow::readSettings()
 
 void MainWindow::createActions()
 {
-  openAction = new QAction(tr("&Open file..."), this);
+  openAction = new QAction(tr("&Open File..."), this);
 #if 0 // DISUSED here
   QStyle *appStyle = QApplication::style();
   openAction->setIcon(appStyle->standardIcon(QStyle::SP_DirOpenIcon));
@@ -587,23 +592,23 @@ void MainWindow::createActions()
   exitAction->setStatusTip(tr("Exit the application"));
   connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-  importAction = new QAction(tr("&Import file from..."), this);
+  importAction = new QAction(tr("&Import File From..."), this);
   importAction->setIcon(QIcon(":/images/import.png"));
   importAction->setShortcut(QKeySequence(tr("Ctrl+I")));
   importAction->setStatusTip(tr("Import file"));
   importAction->setEnabled(false);
   connect(importAction, SIGNAL(triggered()), this, SLOT(importFile()));
 
-  exportAction = new QAction(tr("&Export to..."), this);
+  exportAction = new QAction(tr("&Export To..."), this);
   exportAction->setIcon(QIcon(":/images/export.png"));
   exportAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAction->setStatusTip(tr("Export file"));
   exportAction->setEnabled(false);
   connect(exportAction, SIGNAL(triggered()), this, SLOT(exportFile()));
 
-  exportAllAction = new QAction(tr("&Export all to..."), this);
+  exportAllAction = new QAction(tr("&Export All To..."), this);
   exportAllAction->setIcon(QIcon(":/images/export.png"));
-  exportAllAction->setShortcut(QKeySequence(tr("Ctrl+X")));
+  exportAllAction->setShortcut(QKeySequence(tr("Ctrl+E")));
   exportAllAction->setStatusTip(tr("Export all"));
   exportAllAction->setEnabled(false);
   connect(exportAllAction, SIGNAL(triggered()), this, SLOT(exportFileAll()));
@@ -612,7 +617,7 @@ void MainWindow::createActions()
 
   removeAction = new QAction(tr("&Remove"), this);
   removeAction->setIcon(QIcon(":/images/remove.png"));
-  removeAction->setShortcut(QKeySequence(tr("Ctrl+D")));
+  removeAction->setShortcut(QKeySequence(tr("Ctrl+R")));
   removeAction->setStatusTip(tr("Remove file"));
   removeAction->setEnabled(false);
   connect(removeAction, SIGNAL(triggered()), this, SLOT(removeFile()));
@@ -651,13 +656,19 @@ void MainWindow::createActions()
   upAction->setEnabled(false);
   connect(upAction, SIGNAL(triggered()), this, SLOT(goUp()));
 
-  QString about = tr("&About ");
+  clearAction = new QAction(tr("C&lear Recent History..."), this);
+  clearAction->setShortcut(QKeySequence(tr("Ctrl+L")));
+  clearAction->setStatusTip(tr("Clear recent history"));
+  clearAction->setEnabled(false);
+  connect(clearAction, SIGNAL(triggered()), this, SLOT(clearHistory()));
+
+  QString about = tr("About ");
   about.append(title);
   aboutAction = new QAction(about, this);
   aboutAction->setStatusTip(tr("Show the application's About box"));
   connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
-  aboutQtAction = new QAction(tr("About &Qt"), this);
+  aboutQtAction = new QAction(tr("About Qt"), this);
   aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
   connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
@@ -683,7 +694,11 @@ void MainWindow::createMenus()
   goMenu->addAction(homeAction);
   goMenu->addAction(upAction);
 
-  helpMenu = menuBar()->addMenu(tr("&Help"));
+  historyMenu = menuBar()->addMenu(tr("&History"));
+  historyMenu->addAction(clearAction);
+  historyMenu->addSeparator();
+
+  helpMenu = menuBar()->addMenu(tr("Help"));
   helpMenu->addAction(aboutAction);
   helpMenu->addAction(aboutQtAction);
 }
@@ -833,6 +848,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), clearAction, SLOT(setEnabled(bool)));
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 

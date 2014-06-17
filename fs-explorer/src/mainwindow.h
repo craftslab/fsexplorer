@@ -85,6 +85,7 @@ private slots:
   void console();
   void goHome();
   void goUp();
+  void clearHistory();
   void about();
   void address();
   void address(const QString &name);
@@ -167,6 +168,7 @@ private:
   QMenu *fileMenu;
   QMenu *optionsMenu;
   QMenu *goMenu;
+  QMenu *historyMenu;
   QMenu *helpMenu;
 
   QToolBar *fileToolBar;
@@ -190,6 +192,7 @@ private:
   QAction *statsAction;
   QAction *homeAction;
   QAction *upAction;
+  QAction *clearAction;
   QAction *aboutAction;
   QAction *aboutQtAction;
   QAction *addressAction;
