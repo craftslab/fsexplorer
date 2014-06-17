@@ -48,6 +48,7 @@ private:
   bool exportFile(unsigned long long ino, const QString &name);
   bool exportLink(unsigned long long ino, const QString &name);
   QFileDevice::Permissions getFilePermissions(unsigned long long ino);
+  bool showError(const QString &msg);
 
   QProgressDialog *progress;
   FsEngine *fsEngine;

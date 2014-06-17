@@ -328,37 +328,39 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   file.setFileName(name);
 
   if (!file.open(QIODevice::WriteOnly)) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to open ")) + name);
-    return false;
+    return showError(QString(tr("Failed to open ")) + name);
   }
 
   QFileDevice::Permissions perm = getFilePermissions(ino);
 
   if (!file.setPermissions(perm)) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to set permission of ")) + name);
     file.close();
-    return false;
+    return showError(QString(tr("Failed to set permission of ")) + name);
   }
 
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   long num = 0;
 
-  char *buf = new char[stat.size];
+  if (stat.size == 0) {
+    file.close();
+    return true;
+  }
+
+  long count = stat.size;
+  char *buf = new char[count];
   if (!buf) {
     ret = false;
     goto exportFileExit;
   }
-  memset((void *)buf, 0, stat.size);
+  memset((void *)buf, 0, count);
 
-  ret = fsEngine->readFile(ino, 0, buf, stat.size, &num);
+  ret = fsEngine->readFile(ino, 0, buf, count, &num);
   if (!ret || num == 0) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
     ret = false;
     goto exportFileExit;
   }
 
   if (file.write(buf, num) == -1) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to write ")) + name);
     ret = false;
     goto exportFileExit;
   }
@@ -374,27 +376,38 @@ exportFileExit:
 
   file.close();
 
+  if (!ret) {
+    ret = showError(QString(tr("Failed to write ")) + name);
+  }
+
   return ret;
 }
 
 bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
 {
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  long count = stat.size, num = 0;
-  char *buf = new char[count];
+  long num = 0;
   bool ret;
 
+  if (stat.size == 0) {
+    return showError(QString(tr("Symbol link size of ")) + name + QString(tr(" is zero")));
+  }
+
+  long count = stat.size;
+  char *buf = new char[count];
+  if (!buf) {
+    ret = false;
+    goto exportLinkExit;
+  }
   memset((void *)buf, 0, count);
 
   ret = fsEngine->readFile(ino, 0, buf, count, &num);
   if (!ret || num == 0) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to read ")) + name);
     ret = false;
     goto exportLinkExit;
   }
 
   if (!QFile::link(buf, name)) {
-    QMessageBox::critical(progress, QString(tr("Error")), QString(tr("Failed to link ")) + name + QString(tr(" to ")) + buf);
     ret = false;
     goto exportLinkExit;
   }
@@ -406,6 +419,10 @@ exportLinkExit:
   if (buf) {
     delete[] buf;
     buf = NULL;
+  }
+
+  if (!ret) {
+    ret = showError(QString(tr("Failed to write ")) + name);
   }
 
   return ret;
@@ -454,4 +471,27 @@ QFileDevice::Permissions ExportEngine::getFilePermissions(unsigned long long ino
   }
 
   return perm;
+}
+
+bool ExportEngine::showError(const QString &msg)
+{
+  bool ret;
+
+  QMessageBox msgBox(progress);
+  msgBox.setIcon(QMessageBox::Critical);
+  msgBox.setText(msg);
+  msgBox.setStandardButtons(QMessageBox::Ignore | QMessageBox::Abort);
+
+  int select = msgBox.exec();
+  switch (select) {
+  case QMessageBox::Ignore:
+    ret = true;
+    break;
+  case QMessageBox::Abort:
+  default:
+    ret = false;
+    break;
+  }
+
+  return ret;
 }
