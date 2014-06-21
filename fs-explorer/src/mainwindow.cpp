@@ -281,10 +281,21 @@ void MainWindow::history(QAction *action)
 
   QString text = action->text();
 
-  if (!QString::compare(text, QString(tr("Clear History...")))) {
+  if (!QString::compare(text, QString(tr("C&lear History...")))) {
     clearHistory();
   } else {
-    loadFile(text);
+    if (fsStatus) {
+      fsStatus = confirmFileStatus();
+    }
+
+    if (!fsStatus) {
+      fsPathOpen = text;
+
+      writeFsPathSettings();
+      insertHistoryAction(text);
+
+      loadFile(text);
+    }
   }
 }
 
@@ -647,12 +658,6 @@ void MainWindow::writeHistorySettings()
 void MainWindow::readHistorySettings()
 {
   settings->beginGroup(tr("History"));
-
-  if (!settings->contains(tr("fsPathOpen"))) {
-    settings->endGroup();
-    return;
-  }
-
   int size = settings->beginReadArray(tr("fsPathOpen"));
 
   for (int i = 0; i < size; ++i) {
@@ -663,6 +668,17 @@ void MainWindow::readHistorySettings()
 
   settings->endArray();
   settings->endGroup();
+}
+
+void MainWindow::clearHistorySettings()
+{
+  settings->beginGroup(tr("History"));
+  settings->remove("");
+=======
+>>>>>>> [fs-explorer]: add implementation of 'History' to show/clear hisotory.
+  settings->endGroup();
+
+  settings->sync();
 }
 
 void MainWindow::clearHistorySettings()
@@ -965,22 +981,23 @@ void MainWindow::createConnections()
 QList<QAction *> MainWindow::getHistoryActions()
 {
   QList<QAction *> actions = historyMenu->actions();
-  int index = -1;
+  QList<QAction *>::iterator index = actions.end();
+  QList<QAction *>::iterator i;
 
-  for (int i = 0; i < actions.size(); ++i) {
-    if (actions.at(i)->isSeparator()) {
+  for (i = actions.begin(); i != actions.end(); ++i) {
+    if ((*i)->isSeparator()) {
       index = i;
       break;
     }
   }
 
-  if (index == -1 || index == actions.size() - 1) {
+  if (index == actions.end()) {
     actions.clear();
     return actions;
   }
 
-  for (int i = 0; i <= index; ++i) {
-    actions.removeAt(i);
+  for (i = actions.begin(); i <= index; ++i) {
+    actions.erase(i);
   }
 
   return actions;
@@ -988,15 +1005,29 @@ QList<QAction *> MainWindow::getHistoryActions()
 
 void MainWindow::insertHistoryAction(const QString &name)
 {
-  QList<QAction *> actions = getHistoryActions();
-  QAction *history = new QAction(name, this);
+  int index = -1;
 
+  QAction *history = new QAction(name, this);
   history->setEnabled(true);
+
+  QList<QAction *> actions = getHistoryActions();
 
   if (actions.size() == 0) {
     historyMenu->addAction(history);
   } else {
-    historyMenu->insertAction(actions.at(0), history);
+    for (int i = 0; i < historyMenu->actions().size(); ++i) {
+      if (historyMenu->actions().at(i)->isSeparator()) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index == -1) {
+      delete history;
+      return;
+    }
+
+    historyMenu->insertAction(historyMenu->actions().at(index + 1), history);
   }
 }
 
@@ -1028,8 +1059,7 @@ void MainWindow::clearHistory()
   QMessageBox msgBox;
 
   msgBox.setIcon(QMessageBox::Information);
-  msgBox.setText(QString(tr("Clear history.")));
-  msgBox.setInformativeText(QString(tr("Do you want to clear it?")));
+  msgBox.setText(QString(tr("Do you want to clear history?")));
   msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
   int ret = msgBox.exec();
