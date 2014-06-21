@@ -85,7 +85,7 @@ private slots:
   void console();
   void goHome();
   void goUp();
-  void clearHistory();
+  void history(QAction *action);
   void about();
   void address();
   void address(const QString &name);
@@ -106,9 +106,16 @@ private slots:
   void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
 
 private:
-  void initSettings();
-  void writeSettings();
-  void readSettings();
+  void showWindowTitle();
+
+  void openSettings();
+  void closeSettings();
+  void writeFsPathSettings();
+  void readFsPathSettings();
+  void clearFsPathSettings();
+  void writeHistorySettings();
+  void readHistorySettings();
+  void clearHistorySettings();
 
   void createActions();
   void createMenus();
@@ -116,6 +123,13 @@ private:
   void createStatusBar();
   void createWidgets();
   void createConnections();
+
+  QList<QAction *> getHistoryActions();
+  void insertHistoryAction(const QString &name);
+  void appendHistoryAction(const QString &name);
+  void clearHistoryActions();
+  void clearHistory();
+
   bool confirmFileStatus();
   void confirmAddressStatus(const QString &text);
   void loadFile(const QString &name);

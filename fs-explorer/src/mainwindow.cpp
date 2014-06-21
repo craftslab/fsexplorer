@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 
 const QString MainWindow::title = QObject::tr("FS Explorer");
-const QString MainWindow::version = QObject::tr("14.06");
+const QString MainWindow::version = QObject::tr("14.07");
 const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here
@@ -33,9 +33,7 @@ const QString MainWindow::label = QObject::tr("<p align=\"center\"> <img src= :/
 
 MainWindow::MainWindow()
 {
-  initSettings();
-  readSettings();
-
+  showWindowTitle();
   createActions();
   createMenus();
   createToolBars();
@@ -44,10 +42,14 @@ MainWindow::MainWindow()
   createConnections();
   showWidgets(false);
 
+  openSettings();
+
   fsEngine = new FsEngine(this);
   fsPathOpen = fsPathOpen;
   fsPathExport = fsPathExport;
   fsStatus = false;
+
+  setAcceptDrops(true);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -113,7 +115,10 @@ void MainWindow::dropEvent(QDropEvent *event)
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(name);
-    writeSettings();
+
+    writeFsPathSettings();
+    insertHistoryAction(fsPathOpen);
+
     loadFile(fsPathOpen);
   }
 
@@ -122,8 +127,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  delete fsEngine;
-  fsEngine = NULL;
+  if (fsEngine) {
+    delete fsEngine;
+    fsEngine = NULL;
+  }
+
+  closeSettings();
 
   event->accept();
 }
@@ -144,7 +153,10 @@ void MainWindow::openFile()
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(file);
-    writeSettings();
+
+    writeFsPathSettings();
+    insertHistoryAction(fsPathOpen);
+
     loadFile(fsPathOpen);
   }
 }
@@ -189,7 +201,8 @@ void MainWindow::exportFile()
   list << listModel->data(index, LIST_INO, Qt::DisplayRole).toULongLong();
 
   fsPathExport = QDir::toNativeSeparators(dir);
-  writeSettings();
+
+  writeFsPathSettings();
 
   emit exportFileList(list, fsPathExport);
 }
@@ -210,7 +223,8 @@ void MainWindow::exportFileAll()
   list << fsRoot.d_ino;
 
   fsPathExport = QDir::toNativeSeparators(dir);
-  writeSettings();
+
+  writeFsPathSettings();
 
   emit exportFileList(list, fsPathExport);
 }
@@ -259,9 +273,19 @@ void MainWindow::goUp()
   }
 }
 
-void MainWindow::clearHistory()
+void MainWindow::history(QAction *action)
 {
-  // TODO
+  if (action->isSeparator()) {
+    return;
+  }
+
+  QString text = action->text();
+
+  if (!QString::compare(text, QString(tr("Clear History...")))) {
+    clearHistory();
+  } else {
+    loadFile(text);
+  }
 }
 
 void MainWindow::about()
@@ -529,42 +553,125 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   ExportEngine exportEngine(title, list, path, fsEngine, this);
 }
 
-void MainWindow::initSettings()
+void MainWindow::showWindowTitle()
 {
   QCoreApplication::setOrganizationName(title);
   QCoreApplication::setOrganizationDomain(title);
   QCoreApplication::setApplicationName(title);
 
+  setWindowIcon(QPixmap(":/images/icon.png"));
+  setWindowTitle(tr("%1").arg(title));
+}
+
+void MainWindow::openSettings()
+{
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN32)
   settings = new QSettings(tr("settings.ini"), QSettings::IniFormat);
 #elif defined(Q_OS_MAC)
   settings = new QSettings(tr("settings.plist"), QSettings::NativeFormat);
 #else
   settings = new QSettings(tr("settings.ini"), QSettings::IniFormat);
-#endif /* Q_OS_LINUX */
+#endif
 
-  setWindowIcon(QPixmap(":/images/icon.png"));
-  setWindowTitle(tr("%1").arg(title));
-
-  setAcceptDrops(true);
+  readFsPathSettings();
+  readHistorySettings();
 }
 
-void MainWindow::writeSettings()
+void MainWindow::closeSettings()
 {
-  settings->beginGroup(tr("MainWindow"));
+  clearFsPathSettings();
+  writeFsPathSettings();
+
+  clearHistorySettings();
+  writeHistorySettings();
+
+  if (settings) {
+    delete settings;
+    settings = NULL;
+  }
+}
+
+void MainWindow::writeFsPathSettings()
+{
+  settings->beginGroup(tr("FsPath"));
+
   settings->setValue(tr("fsPathOpen"), fsPathOpen);
   settings->setValue(tr("fsPathExport"), fsPathExport);
+
   settings->endGroup();
 
   settings->sync();
 }
 
-void MainWindow::readSettings()
+void MainWindow::readFsPathSettings()
 {
-  settings->beginGroup(tr("MainWindow"));
+  settings->beginGroup(tr("FsPath"));
+
   fsPathOpen = settings->value(tr("fsPathOpen"), QString(QDir::homePath())).value<QString>();
   fsPathExport = settings->value(tr("fsPathExport"), QString(QDir::homePath())).value<QString>();
+
   settings->endGroup();
+}
+
+void MainWindow::clearFsPathSettings()
+{
+  settings->beginGroup(tr("FsPath"));
+  settings->remove("");
+  settings->endGroup();
+
+  settings->sync();
+}
+
+void MainWindow::writeHistorySettings()
+{
+  QList<QAction *> actions = getHistoryActions();
+
+  if (actions.size() == 0) {
+    return;
+  }
+
+  settings->beginGroup(tr("History"));
+  settings->beginWriteArray(tr("fsPathOpen"));
+
+  for (int i = 0; i < actions.size(); ++i) {
+    settings->setArrayIndex(i);
+    settings->setValue(tr("path"), actions.at(i)->text());
+  }
+
+  settings->endArray();
+  settings->endGroup();
+
+  settings->sync();
+}
+
+void MainWindow::readHistorySettings()
+{
+  settings->beginGroup(tr("History"));
+
+  if (!settings->contains(tr("fsPathOpen"))) {
+    settings->endGroup();
+    return;
+  }
+
+  int size = settings->beginReadArray(tr("fsPathOpen"));
+
+  for (int i = 0; i < size; ++i) {
+    settings->setArrayIndex(i);
+    QString path = settings->value(tr("path")).toString();
+    appendHistoryAction(path);
+  }
+
+  settings->endArray();
+  settings->endGroup();
+}
+
+void MainWindow::clearHistorySettings()
+{
+  settings->beginGroup(tr("History"));
+  settings->remove("");
+  settings->endGroup();
+
+  settings->sync();
 }
 
 void MainWindow::createActions()
@@ -656,11 +763,10 @@ void MainWindow::createActions()
   upAction->setEnabled(false);
   connect(upAction, SIGNAL(triggered()), this, SLOT(goUp()));
 
-  clearAction = new QAction(tr("C&lear Recent History..."), this);
+  clearAction = new QAction(tr("C&lear History..."), this);
   clearAction->setShortcut(QKeySequence(tr("Ctrl+L")));
-  clearAction->setStatusTip(tr("Clear recent history"));
-  clearAction->setEnabled(false);
-  connect(clearAction, SIGNAL(triggered()), this, SLOT(clearHistory()));
+  clearAction->setStatusTip(tr("Clear history"));
+  clearAction->setEnabled(true);
 
   QString about = tr("About ");
   about.append(title);
@@ -697,6 +803,7 @@ void MainWindow::createMenus()
   historyMenu = menuBar()->addMenu(tr("&History"));
   historyMenu->addAction(clearAction);
   historyMenu->addSeparator();
+  connect(historyMenu, SIGNAL(triggered(QAction *)), this, SLOT(history(QAction *)));
 
   helpMenu = menuBar()->addMenu(tr("Help"));
   helpMenu->addAction(aboutAction);
@@ -848,12 +955,93 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
-  connect(this, SIGNAL(mounted(bool)), clearAction, SLOT(setEnabled(bool)));
 
   connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
 
   connect(this, SIGNAL(syncTreeItem(unsigned long long)), this, SLOT(handleSyncTreeItem(unsigned long long)));
   connect(this, SIGNAL(syncListItem(unsigned long long)), this, SLOT(handleSyncListItem(unsigned long long)));
+}
+
+QList<QAction *> MainWindow::getHistoryActions()
+{
+  QList<QAction *> actions = historyMenu->actions();
+  int index = -1;
+
+  for (int i = 0; i < actions.size(); ++i) {
+    if (actions.at(i)->isSeparator()) {
+      index = i;
+      break;
+    }
+  }
+
+  if (index == -1 || index == actions.size() - 1) {
+    actions.clear();
+    return actions;
+  }
+
+  for (int i = 0; i <= index; ++i) {
+    actions.removeAt(i);
+  }
+
+  return actions;
+}
+
+void MainWindow::insertHistoryAction(const QString &name)
+{
+  QList<QAction *> actions = getHistoryActions();
+  QAction *history = new QAction(name, this);
+
+  history->setEnabled(true);
+
+  if (actions.size() == 0) {
+    historyMenu->addAction(history);
+  } else {
+    historyMenu->insertAction(actions.at(0), history);
+  }
+}
+
+void MainWindow::appendHistoryAction(const QString &name)
+{
+  QAction *history = new QAction(name, this);
+
+  history->setEnabled(true);
+  historyMenu->addAction(history);
+}
+
+void MainWindow::clearHistoryActions()
+{
+  QList<QAction *> actions = getHistoryActions();
+
+  for (int i = 0; i < actions.size(); ++i) {
+    historyMenu->removeAction(actions.at(i));
+  }
+}
+
+void MainWindow::clearHistory()
+{
+  QList<QAction *> actions = getHistoryActions();
+
+  if (actions.size() == 0) {
+    return;
+  }
+
+  QMessageBox msgBox;
+
+  msgBox.setIcon(QMessageBox::Information);
+  msgBox.setText(QString(tr("Clear history.")));
+  msgBox.setInformativeText(QString(tr("Do you want to clear it?")));
+  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+  int ret = msgBox.exec();
+  switch (ret) {
+  case QMessageBox::Yes:
+    clearHistoryActions();
+    break;
+
+  case QMessageBox::No:
+  default:
+    break;
+  }
 }
 
 bool MainWindow::confirmFileStatus()
