@@ -771,7 +771,7 @@ void MainWindow::createActions()
   clearAction = new QAction(tr("C&lear History..."), this);
   clearAction->setShortcut(QKeySequence(tr("Ctrl+L")));
   clearAction->setStatusTip(tr("Clear history"));
-  clearAction->setEnabled(true);
+  clearAction->setEnabled(false);
 
   QString about = tr("About ");
   about.append(title);
@@ -1018,6 +1018,8 @@ void MainWindow::insertHistoryAction(const QString &name)
 
     historyMenu->insertAction(historyMenu->actions().at(index + 1), history);
   }
+
+  clearAction->setEnabled(true);
 }
 
 void MainWindow::appendHistoryAction(const QString &name)
@@ -1026,6 +1028,8 @@ void MainWindow::appendHistoryAction(const QString &name)
 
   history->setEnabled(true);
   historyMenu->addAction(history);
+
+  clearAction->setEnabled(true);
 }
 
 void MainWindow::clearHistoryActions()
@@ -1055,6 +1059,7 @@ void MainWindow::clearHistory()
   switch (ret) {
   case QMessageBox::Yes:
     clearHistoryActions();
+    clearAction->setEnabled(false);
     break;
 
   case QMessageBox::No:
