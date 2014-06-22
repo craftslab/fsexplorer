@@ -674,17 +674,6 @@ void MainWindow::clearHistorySettings()
 {
   settings->beginGroup(tr("History"));
   settings->remove("");
-=======
->>>>>>> [fs-explorer]: add implementation of 'History' to show/clear hisotory.
-  settings->endGroup();
-
-  settings->sync();
-}
-
-void MainWindow::clearHistorySettings()
-{
-  settings->beginGroup(tr("History"));
-  settings->remove("");
   settings->endGroup();
 
   settings->sync();
