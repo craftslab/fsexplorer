@@ -255,7 +255,9 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
   struct dentry *root = NULL;
   int32_t i, len;
 
-  if (!devname || !dirname || !type || !dirent || fs_mnt.mnt_count != 0) {
+  dirname = dirname;
+
+  if (!type || !dirent || fs_mnt.mnt_count != 0) {
     return -1;
   }
 
@@ -274,12 +276,12 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 
   fs_type = handle(type, flags);
   if (!fs_type || !fs_type->mount) {
-    goto fs_mount_exit;
+    return -1;
   }
 
   root = fs_type->mount(fs_type, flags, devname, NULL);
   if (!root) {
-    goto fs_mount_exit;
+    return -1;
   }
 
   memset((void *)&fs_mnt, 0, sizeof(struct mount));
@@ -292,16 +294,10 @@ static int32_t fs_mount(const char *devname, const char *dirname, const char *ty
 
   memset((void *)dirent, 0, sizeof(struct fs_dirent));
   if (fs_dentry2dirent(fs_mnt.mnt_mountpoint, dirent) != 0) {
-    goto fs_mount_exit;
+    return -1;
   }
 
   return 0;
-
-fs_mount_exit:
-
-  fs_type = NULL;
-
-  return -1;
 }
 
 /*
@@ -309,10 +305,6 @@ fs_mount_exit:
  */
 static int32_t fs_umount(const char *dirname, int32_t flags)
 {
-  if (!dirname || fs_mnt.mnt_count == 0) {
-    return -1;
-  }
-
   if (fs_type && fs_type->umount) {
     (void)fs_type->umount(dirname, flags);
     fs_type = NULL;

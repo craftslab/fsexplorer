@@ -747,14 +747,15 @@ static int32_t fs_fill_super(struct super_block *sb)
     return -1;
   }
   memset((void *)sb->s_fs_info, 0, sizeof(struct ext4_sb_info));
+
   ret = ext4_fill_super_info(sb, &ext4_sb, (struct ext4_sb_info *)sb->s_fs_info);
   if (ret != 0) {
     goto fs_fill_super_fail;
   }
 
   sb->s_d_op = (const struct dentry_operations *)&fs_dentry_opt;
-
   list_init(&sb->s_inodes);
+
   sb->s_root = (struct dentry *)fs_make_root(sb);
   if (!sb->s_root) {
     ret = -1;
@@ -820,11 +821,8 @@ static struct dentry* fs_mount(struct file_system_type *type, uint64_t flags, co
  */
 static int32_t fs_umount(const char *name, int32_t flags)
 {
+  name = name;
   flags = flags;
-
-  if (!name) {
-    return -1;
-  }
 
   /*
    * Free list of dentry
