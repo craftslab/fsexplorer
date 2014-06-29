@@ -1006,12 +1006,21 @@ static int32_t fs_statraw(struct inode *inode, const char **buf)
   }
 
   sb = inode->i_sb;
-  info = (struct ext4_sb_info *)(sb->s_fs_info);
-  es = info->s_es;
-  ino = inode->i_ino;
-  if (!sb || !info || !es) {
+  if (!sb) {
     return -1;
   }
+
+  info = (struct ext4_sb_info *)(sb->s_fs_info);
+  if (!info) {
+    return -1;
+  }
+
+  es = info->s_es;
+  if (!es) {
+    return -1;
+  }
+
+  ino = inode->i_ino;
 
   /*
    * Fill in Ext4 inode
