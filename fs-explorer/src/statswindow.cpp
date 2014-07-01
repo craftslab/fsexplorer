@@ -77,6 +77,11 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   resize(width, height);
 }
 
+StatsWindow::~StatsWindow()
+{
+  // Do nothing here
+}
+
 void StatsWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();

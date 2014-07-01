@@ -1341,14 +1341,14 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
 
   bool ret = fsEngine->getFileChildsList(ino, childs, num);
   if (!ret) {
-    goto createFileDentListFail;
+    goto createFileDentListExit;
   }
 
   for (int i = (int)num - 1; i >= 0; --i) {
     list << childs[i];
   }
 
-createFileDentListFail:
+createFileDentListExit:
 
   if (childs) {
     delete[] childs;

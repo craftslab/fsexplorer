@@ -66,6 +66,11 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   resize(width, height);
 }
 
+ConsoleWindow::~ConsoleWindow()
+{
+  // Do nothing here
+}
+
 void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();

@@ -35,6 +35,7 @@ class ConsoleWindow : public QWidget
 
 public:
   ConsoleWindow(QWidget *parent = 0);
+  ~ConsoleWindow();
 
 protected:
   void closeEvent(QCloseEvent *event);

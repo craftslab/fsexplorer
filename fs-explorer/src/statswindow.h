@@ -35,6 +35,7 @@ class StatsWindow : public QWidget
 
 public:
   StatsWindow(const QString &title, const QString &stat, QWidget *parent = 0);
+  ~StatsWindow();
 
 protected:
   void closeEvent(QCloseEvent *event);

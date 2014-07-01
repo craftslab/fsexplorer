@@ -107,6 +107,11 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   emit search(searchName);
 }
 
+SearchWindow::~SearchWindow()
+{
+  // Do nothing here
+}
+
 void SearchWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
