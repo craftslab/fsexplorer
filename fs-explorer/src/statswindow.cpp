@@ -45,7 +45,7 @@ StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *par
   closeButton = new QPushButton(tr("Close"), this);
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
   hLayout = new QHBoxLayout(this);
@@ -89,9 +89,11 @@ void StatsWindow::closeEvent(QCloseEvent *event)
 
 void StatsWindow::copyToClipboard()
 {
-  QClipboard *clipboard = QApplication::clipboard();
-  QMimeData *mimeData = new QMimeData();
-  
+  QMimeData *mimeData = new QMimeData;
   mimeData->setText(textEdit->toPlainText());
-  clipboard->setMimeData(mimeData);
+
+  QClipboard *clipboard = QApplication::clipboard();
+  if (clipboard) {
+    clipboard->setMimeData(mimeData);
+  }
 }

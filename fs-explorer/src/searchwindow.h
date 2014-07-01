@@ -73,6 +73,7 @@ private:
   QVBoxLayout *vLayout;
   QHBoxLayout *hLayout;
   QWidget *hLayoutWidget;
+  QShortcut *shortcut;
 
   QString searchName;
   SearchEngine *searchEngine;

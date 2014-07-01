@@ -48,7 +48,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   layout->addWidget(textEdit);
   setLayout(layout);
 
-  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
   setWindowTitle(tr("FS Console"));

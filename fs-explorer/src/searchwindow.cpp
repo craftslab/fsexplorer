@@ -55,7 +55,7 @@ SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString
   closeButton->setEnabled(true);
   connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
   hLayout = new QHBoxLayout(this);
@@ -128,15 +128,12 @@ void SearchWindow::go()
 }
 
 void SearchWindow::copyToClipboard()
-{
-  QClipboard *clipboard = QApplication::clipboard();
-  QMimeData *mimeData = new QMimeData();
-  QString text;
-  
-  if (listWidget->count() == 0 || !clipboard) {
+{  
+  if (listWidget->count() == 0) {
     return;
   }
 
+  QString text;
   text.clear();
 
   for (int i = 0; i < listWidget->count() - 1; ++i) {
@@ -144,8 +141,13 @@ void SearchWindow::copyToClipboard()
   }
   text.append(listWidget->item(listWidget->count() - 1)->text());
 
+  QMimeData *mimeData = new QMimeData;
   mimeData->setText(text);
-  clipboard->setMimeData(mimeData);
+
+  QClipboard *clipboard = QApplication::clipboard();
+  if (clipboard) {
+    clipboard->setMimeData(mimeData);
+  }
 }
 
 void SearchWindow::stopStart()

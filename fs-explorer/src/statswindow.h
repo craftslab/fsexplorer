@@ -54,5 +54,6 @@ private:
   QHBoxLayout *hLayout;
   QWidget *hLayoutWidget;
   QVBoxLayout *vLayout;
+  QShortcut *shortcut;
 };
 #endif

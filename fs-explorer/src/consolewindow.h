@@ -46,5 +46,6 @@ private:
 
   QTextEdit *textEdit;
   QVBoxLayout *layout;
+  QShortcut *shortcut;
 };
 #endif
