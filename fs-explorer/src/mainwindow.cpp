@@ -1468,11 +1468,11 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
 
   listView->setColumnHidden(listModel->columnCount() - 1, true);
 
-  listView->setColumnWidth(LIST_NAME, FsListView::columnWidthMax);
-  listView->setColumnWidth(LIST_SIZE, FsListView::columnWidthMin);
-  listView->setColumnWidth(LIST_MTIME, FsListView::columnWidthMax);
-  listView->setColumnWidth(LIST_ATIME, FsListView::columnWidthMax);
-  listView->setColumnWidth(LIST_CTIME, FsListView::columnWidthMax);
+  listView->setColumnWidth(LIST_NAME, listView->getColumnWidthMax());
+  listView->setColumnWidth(LIST_SIZE, listView->getColumnWidthMin());
+  listView->setColumnWidth(LIST_MTIME, listView->getColumnWidthMax());
+  listView->setColumnWidth(LIST_ATIME, listView->getColumnWidthMax());
+  listView->setColumnWidth(LIST_CTIME, listView->getColumnWidthMax());
 
   for (int column = LIST_INO; column < listModel->columnCount(); ++column) {
     listView->resizeColumnToContents(column);

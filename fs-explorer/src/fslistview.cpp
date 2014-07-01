@@ -28,6 +28,10 @@ FsListView::FsListView(FsListModel *model, QWidget *parent)
   : QTreeView(parent)
 {
   setModel(model);
+  setSelectionMode(QAbstractItemView::SingleSelection);
+  setDragEnabled(true);
+  setAcceptDrops(true);
+  setDropIndicatorShown(true);
 
   setHeaderHidden(false);
   setColumnHidden(model->columnCount() - 1, true);
@@ -53,4 +57,34 @@ FsListView::FsListView(FsListModel *model, QWidget *parent)
 FsListView::~FsListView()
 {
   // Do nothing here
+}
+
+int FsListView::getColumnWidthMax() const
+{
+  return columnWidthMax;
+}
+
+int FsListView::getColumnWidthMin() const
+{
+  return columnWidthMin;
+}
+
+void FsListView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  event = event;
+}
+
+void FsListView::dragMoveEvent(QDragMoveEvent *event)
+{
+  event = event;
+}
+
+void FsListView::dropEvent(QDropEvent *event)
+{
+  event = event;
+}
+
+void FsListView::startDrag(Qt::DropActions supportedActions)
+{
+  supportedActions = supportedActions;
 }

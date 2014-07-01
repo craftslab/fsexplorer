@@ -50,6 +50,16 @@ public:
   FsListView(FsListModel *model, QWidget *parent = 0);
   ~FsListView();
 
+  int getColumnWidthMax() const;
+  int getColumnWidthMin() const;
+
+protected:
+  void dragLeaveEvent(QDragLeaveEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dropEvent(QDropEvent *event);
+  void startDrag(Qt::DropActions supportedActions);
+
+private:
   static const int columnWidthMax;
   static const int columnWidthMin;
 };

@@ -169,8 +169,8 @@ private:
   QHBoxLayout *hBoxLayout;
   FsTreeModel *treeModel;
   FsListModel *listModel;
-  QTreeView *treeView;
-  QTreeView *listView;
+  FsTreeView *treeView;
+  FsListView *listView;
   QItemSelectionModel *treeItemSelectionModel;
   QItemSelectionModel *listItemSelectionModel;
   QTextEdit *outputView;
