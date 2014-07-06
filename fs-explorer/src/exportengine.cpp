@@ -364,6 +364,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     ret = false;
     goto exportFileExit;
   }
+  file.flush();
 
   ret = true;
 

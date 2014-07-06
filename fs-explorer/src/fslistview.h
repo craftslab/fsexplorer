@@ -65,6 +65,8 @@ private:
   static const int columnWidthMax;
   static const int columnWidthMin;
 
+#if 0 // DISUSED here
   QTemporaryFile tempFile;
+#endif
 };
 #endif

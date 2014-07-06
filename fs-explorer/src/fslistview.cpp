@@ -58,14 +58,18 @@ FsListView::FsListView(FsListModel *model, QWidget *parent)
   expand(index);
   setCurrentIndex(index);
 
+#if 0 // DISUSED here
   tempFile.setFileName(QString(QDir::tempPath().append(QDir::separator()).append(QString(tr("foo.tmp")))));
   tempFile.setAutoRemove(false);
+#endif
 }
 
 FsListView::~FsListView()
 {
+#if 0 // DISUSED here
   tempFile.close();
   tempFile.remove();
+#endif
 }
 
 int FsListView::getColumnWidthMax() const
@@ -111,10 +115,14 @@ void FsListView::startDrag(Qt::DropActions supportedActions)
 {
   supportedActions = supportedActions;
 
+#if 0 // DISUSED here
   if (!tempFile.open()) {
     tempFile.remove();
     return;
   }
+  tempFile.write("foo");
+  tempFile.flush();
+  tempFile.close();
 
   QMimeData *mimeData = new QMimeData;
   mimeData->setData(QString::fromUtf8("text/uri-list"), tempFile.fileName().toUtf8());
@@ -125,4 +133,5 @@ void FsListView::startDrag(Qt::DropActions supportedActions)
   QDrag *drag = new QDrag(this);
   drag->setMimeData(mimeData);
   drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
+#endif
 }
