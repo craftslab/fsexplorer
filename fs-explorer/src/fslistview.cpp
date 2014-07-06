@@ -29,9 +29,14 @@ FsListView::FsListView(FsListModel *model, QWidget *parent)
 {
   setModel(model);
   setSelectionMode(QAbstractItemView::SingleSelection);
+
+#if 0 // DISUSED here
   setDragEnabled(true);
   setAcceptDrops(true);
   setDropIndicatorShown(true);
+#else
+  setDragDropMode(QAbstractItemView::DragDrop);
+#endif
 
   setHeaderHidden(false);
   setColumnHidden(model->columnCount() - 1, true);
@@ -52,11 +57,15 @@ FsListView::FsListView(FsListModel *model, QWidget *parent)
   scrollTo(index);
   expand(index);
   setCurrentIndex(index);
+
+  tempFile.setFileName(QString(QDir::tempPath().append(QDir::separator()).append(QString(tr("foo.tmp")))));
+  tempFile.setAutoRemove(false);
 }
 
 FsListView::~FsListView()
 {
-  // Do nothing here
+  tempFile.close();
+  tempFile.remove();
 }
 
 int FsListView::getColumnWidthMax() const
@@ -69,22 +78,51 @@ int FsListView::getColumnWidthMin() const
   return columnWidthMin;
 }
 
+void FsListView::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (event->mimeData()->hasFormat(QString::fromUtf8("text/uri-list"))) {
+    event->accept();
+  } else {
+    event->ignore();
+  }
+}
+
 void FsListView::dragLeaveEvent(QDragLeaveEvent *event)
 {
-  event = event;
+  event->accept();
 }
 
 void FsListView::dragMoveEvent(QDragMoveEvent *event)
 {
-  event = event;
+  if (event->mimeData()->hasFormat(QString::fromUtf8("text/uri-list"))) {
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
+  } else {
+    event->ignore();
+  }
 }
 
 void FsListView::dropEvent(QDropEvent *event)
 {
-  event = event;
+  event->ignore();
 }
 
 void FsListView::startDrag(Qt::DropActions supportedActions)
 {
   supportedActions = supportedActions;
+
+  if (!tempFile.open()) {
+    tempFile.remove();
+    return;
+  }
+
+  QMimeData *mimeData = new QMimeData;
+  mimeData->setData(QString::fromUtf8("text/uri-list"), tempFile.fileName().toUtf8());
+
+  QByteArray fileData("foo");
+  mimeData->setData("application/octet-stream", fileData);
+
+  QDrag *drag = new QDrag(this);
+  drag->setMimeData(mimeData);
+  drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction);
 }

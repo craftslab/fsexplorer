@@ -25,6 +25,7 @@
 #include <QModelIndex>
 #include <QVariant>
 #include <QTreeView>
+#include <QtGui>
 
 #include "fslistmodel.h"
 
@@ -54,6 +55,7 @@ public:
   int getColumnWidthMin() const;
 
 protected:
+  void dragEnterEvent(QDragEnterEvent *event);
   void dragLeaveEvent(QDragLeaveEvent *event);
   void dragMoveEvent(QDragMoveEvent *event);
   void dropEvent(QDropEvent *event);
@@ -62,5 +64,7 @@ protected:
 private:
   static const int columnWidthMax;
   static const int columnWidthMin;
+
+  QTemporaryFile tempFile;
 };
 #endif

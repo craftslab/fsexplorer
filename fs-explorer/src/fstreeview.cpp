@@ -26,9 +26,6 @@ FsTreeView::FsTreeView(FsTreeModel *model, QWidget *parent)
 {
   setModel(model);
   setSelectionMode(QAbstractItemView::SingleSelection);
-  setDragEnabled(false);
-  setAcceptDrops(false);
-  setDropIndicatorShown(false);
 
   setHeaderHidden(true);
   setColumnHidden(TREE_INO, true);

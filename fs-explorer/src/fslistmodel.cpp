@@ -114,7 +114,12 @@ Qt::ItemFlags FsListModel::flags(const QModelIndex &index) const
     return 0;
   }
 
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  Qt::ItemFlags flags = Qt::ItemIsEnabled
+    | Qt::ItemIsSelectable
+    | Qt::ItemIsDragEnabled
+    | Qt::ItemIsDropEnabled;
+
+  return flags;
 }
 
 FsListItem *FsListModel::getItem(const QModelIndex &index) const
