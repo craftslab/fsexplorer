@@ -21,6 +21,8 @@
 
 #include "exportengine.h"
 
+const int ExportEngine::size = 1024;
+
 ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent)
 {
   struct fs_dirent dent;
@@ -323,6 +325,8 @@ bool ExportEngine::exportDir(const QString &name)
 bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
   QFile file;
+  long count, remain;
+  long offset;
   bool ret;
 
   file.setFileName(name);
@@ -346,16 +350,46 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     return true;
   }
 
-  long count = stat.size;
-  char *buf = new char[count];
+  char *buf = new char[size];
   if (!buf) {
     ret = false;
     goto exportFileExit;
   }
-  memset((void *)buf, 0, count);
+  memset((void *)buf, 0, size);
 
-  ret = fsEngine->readFile(ino, 0, buf, count, &num);
-  if (!ret || num == 0) {
+  count = stat.size / size;
+  offset = 0;
+  for (int i = 0; i < count; ++i, offset += size) {
+    memset((void *)buf, 0, size);
+
+    ret = fsEngine->readFile(ino, offset, buf, size, &num);
+    if (!ret || num == 0 || num != size) {
+      ret = false;
+      goto exportFileExit;
+    }
+
+    if (!file.seek(offset)) {
+      ret = false;
+      goto exportFileExit;
+    }
+
+    if (file.write(buf, num) == -1) {
+      ret = false;
+      goto exportFileExit;
+    }
+    file.flush();
+  }
+
+  remain = stat.size % size;
+  memset((void *)buf, 0, size);
+
+  ret = fsEngine->readFile(ino, offset, buf, size, &num);
+  if (!ret || num == 0 || num != remain) {
+    ret = false;
+    goto exportFileExit;
+  }
+
+  if (!file.seek(offset)) {
     ret = false;
     goto exportFileExit;
   }
