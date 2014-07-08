@@ -47,6 +47,7 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
   fsEngine = engine;
   filePath = new QDir(path);
   fileCounter = 0;
+  fileBuf = new char[size];
 
   for (int i = 0; i < list.size(); ++i) {
     num += (int)count(list[i]);
@@ -71,6 +72,11 @@ ExportEngine::ExportEngine(const QString &title, const QList<unsigned long long>
 
 ExportEngine::~ExportEngine()
 {
+  if (fileBuf) {
+    delete[] fileBuf;
+    fileBuf = NULL;
+  }
+
   if (filePath) {
     delete filePath;
     filePath = NULL;
@@ -329,6 +335,10 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   long offset;
   bool ret;
 
+  if (!fileBuf) {
+    return showError(QString(tr("Insufficient memory")));
+  }
+
   file.setFileName(name);
 
   if (!file.open(QIODevice::WriteOnly)) {
@@ -350,18 +360,11 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     return true;
   }
 
-  char *buf = new char[size];
-  if (!buf) {
-    ret = false;
-    goto exportFileExit;
-  }
-  memset((void *)buf, 0, size);
-
   count = stat.size / size;
   offset = 0;
   for (int i = 0; i < count; ++i, offset += size) {
-    memset((void *)buf, 0, size);
-    ret = fsEngine->readFile(ino, offset, buf, size, &num);
+    memset((void *)fileBuf, 0, size);
+    ret = fsEngine->readFile(ino, offset, fileBuf, size, &num);
     if (!ret || num == 0 || num != size) {
       ret = false;
       goto exportFileExit;
@@ -372,7 +375,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
       goto exportFileExit;
     }
 
-    if (file.write(buf, num) == -1) {
+    if (file.write(fileBuf, num) == -1) {
       ret = false;
       goto exportFileExit;
     }
@@ -385,8 +388,8 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     goto exportFileExit;
   }
 
-  memset((void *)buf, 0, size);
-  ret = fsEngine->readFile(ino, offset, buf, size, &num);
+  memset((void *)fileBuf, 0, size);
+  ret = fsEngine->readFile(ino, offset, fileBuf, size, &num);
   if (!ret || num == 0 || num != remain) {
     ret = false;
     goto exportFileExit;
@@ -397,7 +400,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     goto exportFileExit;
   }
 
-  if (file.write(buf, num) == -1) {
+  if (file.write(fileBuf, num) == -1) {
     ret = false;
     goto exportFileExit;
   }
@@ -406,11 +409,6 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   ret = true;
 
 exportFileExit:
-
-  if (buf) {
-    delete[] buf;
-    buf = NULL;
-  }
 
   file.close();
 
@@ -427,25 +425,22 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
   long num = 0;
   bool ret;
 
+  if (!fileBuf) {
+    return showError(QString(tr("Insufficient memory")));
+  }
+
   if (stat.size == 0) {
     return showError(QString(tr("Symbol link size of ")) + name + QString(tr(" is zero")));
   }
 
-  long count = stat.size;
-  char *buf = new char[count];
-  if (!buf) {
-    ret = false;
-    goto exportLinkExit;
-  }
-  memset((void *)buf, 0, count);
-
-  ret = fsEngine->readFile(ino, 0, buf, count, &num);
+  memset((void *)fileBuf, 0, size);
+  ret = fsEngine->readFile(ino, 0, fileBuf, size, &num);
   if (!ret || num == 0) {
     ret = false;
     goto exportLinkExit;
   }
 
-  if (!QFile::link(buf, name)) {
+  if (!QFile::link(fileBuf, name)) {
     ret = false;
     goto exportLinkExit;
   }
@@ -453,11 +448,6 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
   ret = true;
 
 exportLinkExit:
-
-  if (buf) {
-    delete[] buf;
-    buf = NULL;
-  }
 
   if (!ret) {
     ret = showError(QString(tr("Failed to write ")) + name);

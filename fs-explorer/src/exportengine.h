@@ -54,6 +54,7 @@ private:
   FsEngine *fsEngine;
   QDir *filePath;
   int fileCounter;
+  char *fileBuf;
 
   static const int size;
 };
