@@ -101,7 +101,12 @@ static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee,
     return -1;
   }
 
+#if 0 //DISUSED here
   len = (int64_t)(ee->ee_len * sb->s_blocksize) - pos;
+#else
+  len = inode->i_size - pos;
+#endif
+
   len = len > (int64_t)buf_len ? (int64_t)buf_len : len;
 
   ret = io_read((uint8_t *)buf, len);
