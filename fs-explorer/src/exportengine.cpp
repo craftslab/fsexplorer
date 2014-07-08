@@ -361,7 +361,6 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   offset = 0;
   for (int i = 0; i < count; ++i, offset += size) {
     memset((void *)buf, 0, size);
-
     ret = fsEngine->readFile(ino, offset, buf, size, &num);
     if (!ret || num == 0 || num != size) {
       ret = false;
@@ -381,8 +380,12 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   }
 
   remain = stat.size % size;
-  memset((void *)buf, 0, size);
+  if (remain == 0) {
+    ret = true;
+    goto exportFileExit;
+  }
 
+  memset((void *)buf, 0, size);
   ret = fsEngine->readFile(ino, offset, buf, size, &num);
   if (!ret || num == 0 || num != remain) {
     ret = false;

@@ -1194,7 +1194,7 @@ QString MainWindow::stripString(const QString &name)
 
 QStringList MainWindow::parseAddress(const QString &name)
 {
-#if 0 // DISUSED herer
+#if 0 // DISUSED here
   QString str = stripString(name);
 #else
   QString str = name;
