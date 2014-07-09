@@ -567,7 +567,7 @@ static int32_t fs_readfile(uint64_t ino, int64_t offset, char *buf, int64_t coun
     return -1;
   }
 
-  memset((void *)buf, 0, count);
+  memset((void *)buf, 0, (size_t)count);
   ret = inode.i_fop->readat(&file, offset, buf, (size_t)count, num);
   if (ret != 0) {
     ret = -1;
