@@ -1,4 +1,61 @@
 -------------------------------------------------------------------------------
+July 11th, 2014
+
+Major Milestone Release
+
+
+- Summary of Changes for FS Explorer
+
+-- Features
+
+   * GUI designed for general filesystem hierarchy
+   * read-only operation for general filesystem hierarchy
+   * tree and list view for directories and files
+   * detailed fielsystem info shown in popup menu
+   * detailed inode info shown in output window and popup menu
+   * navigation of 'Home' and 'Up' to root or parent directory supported
+   * addressbar for navigation to address of directory or file
+   * searchbar for directory or file search with wildcard pattern
+
+-- Improvements
+
+   * support for feature of 'History'
+   * optimize memory usage of feature of 'Export'
+   * upgrade library of Qt from 5.3.0 to the latest 5.3.1
+
+-- Bug Fixes
+
+   * fix failure of creation of symbol link on platforms of Windows and Ubuntu
+   * fix warning reported by cppcheck and valgrind
+
+-- Ongoing
+
+   * support for Mac OS X
+   * support for command-line operation in console view
+
+
+- Summary of Changes of libyafuse2
+
+-- Features
+
+   * virtaul filesystem designed for general filesystem hierarchy
+   * dynamic & static library compilation supported
+   * filesystem image of Ext4/FAT16/FAT32 supported
+
+-- Improvements
+
+   * N/A
+
+-- Bug Fixes
+
+   * fix warning reported by cppcheck and valgrind
+
+-- Ongoing
+
+   * support for filesystem image of FAT16/FAT32
+
+
+-------------------------------------------------------------------------------
 June 15th, 2014
 
 Major Milestone Release
