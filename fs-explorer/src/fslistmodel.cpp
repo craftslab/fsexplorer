@@ -215,10 +215,14 @@ bool FsListModel::removeColumns(int position, int columns, const QModelIndex &pa
 bool FsListModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
   FsListItem *parentItem = getItem(parent);
+  int last = position + rows - 1;
+  bool success;
 
-  beginRemoveRows(parent, position, position + rows - 1);
-  bool success = parentItem->removeChildren(position, rows);
-  endRemoveRows();
+  if (last >= 0) {
+    beginRemoveRows(parent, position, last);
+    success = parentItem->removeChildren(position, rows);
+    endRemoveRows();
+  }
 
   return success;
 }
