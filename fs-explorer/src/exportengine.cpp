@@ -332,7 +332,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
   QFile file;
   long offset;
-  long mod;
+  volatile long round, mod;
   bool ret;
 
   if (!fileBuf) {
@@ -352,16 +352,16 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     return showError(QString(tr("Failed to set permission of ")) + name);
   }
 
-  volatile struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
-  long num = 0;
-
+  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   if (stat.size == 0) {
     file.close();
     return true;
   }
 
+  long num = 0;
+  round = stat.size / size;
   offset = 0;
-  for (int i = 0; i < (stat.size / size); ++i, offset += size) {
+  for (int i = 0; i < round; ++i, offset += size) {
     memset((void *)fileBuf, 0, size);
     ret = fsEngine->readFile(ino, offset, fileBuf, size, &num);
     if (!ret || num == 0 || num != size) {
