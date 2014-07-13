@@ -331,6 +331,8 @@ bool ExportEngine::exportDir(const QString &name)
 bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
   QFile file;
+  long offset;
+  long mod;
   bool ret;
 
   if (!fileBuf) {
@@ -358,7 +360,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     return true;
   }
 
-  long offset = 0;
+  offset = 0;
   for (int i = 0; i < (stat.size / size); ++i, offset += size) {
     memset((void *)fileBuf, 0, size);
     ret = fsEngine->readFile(ino, offset, fileBuf, size, &num);
@@ -379,7 +381,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     file.flush();
   }
 
-  long mod = stat.size % size;
+  mod = stat.size % size;
   if (mod == 0) {
     ret = true;
     goto exportFileExit;

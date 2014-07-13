@@ -160,25 +160,25 @@ QModelIndex FsListModel::index(int row, int column, const QModelIndex &parent) c
 
 bool FsListModel::insertColumns(int position, int columns, const QModelIndex &parent)
 {
-  bool success;
+  bool ret;
 
   beginInsertColumns(parent, position, position + columns - 1);
-  success = rootItem->insertColumns(position, columns);
+  ret = rootItem->insertColumns(position, columns);
   endInsertColumns();
 
-  return success;
+  return ret;
 }
 
 bool FsListModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
   FsListItem *parentItem = getItem(parent);
-  bool success;
+  bool ret;
 
   beginInsertRows(parent, position, position + rows - 1);
-  success = parentItem->insertChildren(position, rows, rootItem->columnCount());
+  ret = parentItem->insertChildren(position, rows, rootItem->columnCount());
   endInsertRows();
 
-  return success;
+  return ret;
 }
 
 QModelIndex FsListModel::parent(const QModelIndex &index) const
@@ -199,32 +199,32 @@ QModelIndex FsListModel::parent(const QModelIndex &index) const
 
 bool FsListModel::removeColumns(int position, int columns, const QModelIndex &parent)
 {
-  bool success;
+  bool ret;
 
   beginRemoveColumns(parent, position, position + columns - 1);
-  success = rootItem->removeColumns(position, columns);
+  ret = rootItem->removeColumns(position, columns);
   endRemoveColumns();
 
   if (rootItem->columnCount() == 0) {
     removeRows(0, rowCount());
   }
 
-  return success;
+  return ret;
 }
 
 bool FsListModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
   FsListItem *parentItem = getItem(parent);
   int last = position + rows - 1;
-  bool success;
+  bool ret = true;
 
   if (last >= 0) {
     beginRemoveRows(parent, position, last);
-    success = parentItem->removeChildren(position, rows);
+    ret = parentItem->removeChildren(position, rows);
     endRemoveRows();
   }
 
-  return success;
+  return ret;
 }
 
 int FsListModel::rowCount(const QModelIndex &parent) const
