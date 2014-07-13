@@ -352,7 +352,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
     return showError(QString(tr("Failed to set permission of ")) + name);
   }
 
-  struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
+  volatile struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
   long num = 0;
 
   if (stat.size == 0) {
