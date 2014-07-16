@@ -258,6 +258,11 @@ void MainWindow::stats()
   statsWindow->show();
 }
 
+void MainWindow::chart()
+{
+  // TODO
+}
+
 void MainWindow::goHome()
 {
   QModelIndex index = treeModel->index(0, 0);
@@ -754,6 +759,13 @@ void MainWindow::createActions()
   statsAction->setEnabled(false);
   connect(statsAction, SIGNAL(triggered()), this, SLOT(stats()));
 
+  chartAction = new QAction(tr("Char&t"), this);
+  chartAction->setIcon(QIcon(":/images/chart.png"));
+  chartAction->setShortcut(QKeySequence(tr("Ctrl+T")));
+  chartAction->setStatusTip(tr("Show chart"));
+  chartAction->setEnabled(false);
+  connect(chartAction, SIGNAL(triggered()), this, SLOT(chart()));
+
   homeAction = new QAction(tr("Ho&me"), this);
   homeAction->setIcon(QIcon(":/images/home.png"));
   homeAction->setShortcut(QKeySequence(tr("Ctrl+M")));
@@ -800,6 +812,7 @@ void MainWindow::createMenus()
   optionsMenu->addAction(consoleAction);
   optionsMenu->addSeparator();
   optionsMenu->addAction(statsAction);
+  optionsMenu->addAction(chartAction);
 
   goMenu = menuBar()->addMenu(tr("&Go"));
   goMenu->addAction(homeAction);
@@ -833,6 +846,7 @@ void MainWindow::createToolBars()
   optionsToolBar->addAction(removeAction);
   optionsToolBar->addAction(consoleAction);
   optionsToolBar->addAction(statsAction);
+  optionsToolBar->addAction(chartAction);
 
   goToolBar = addToolBar(tr("Go"));
   goToolBar->setFloatable(false);
@@ -958,6 +972,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), consoleAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), propAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), statsAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mounted(bool)), chartAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
 

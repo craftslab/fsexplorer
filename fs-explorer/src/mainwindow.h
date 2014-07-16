@@ -80,9 +80,10 @@ private slots:
   void exportFile();
   void exportFileAll();
   void removeFile();
+  void console();
   void prop();
   void stats();
-  void console();
+  void chart();
   void goHome();
   void goUp();
   void history(QAction *action);
@@ -204,6 +205,7 @@ private:
   QAction *consoleAction;
   QAction *propAction;
   QAction *statsAction;
+  QAction *chartAction;
   QAction *homeAction;
   QAction *upAction;
   QAction *clearAction;
