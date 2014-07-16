@@ -49,6 +49,7 @@
 #include "searchwindow.h"
 #include "consolewindow.h"
 #include "statswindow.h"
+#include "chartwindow.h"
 #include "exportengine.h"
 #include "aboutdialog.h"
 
@@ -215,8 +216,9 @@ private:
   QAction *searchAction;
 
   SearchWindow *searchWindow;
-  StatsWindow *statsWindow;
   ConsoleWindow *consoleWindow;
+  StatsWindow *statsWindow;
+  ChartWindow *chartWindow;
   AboutDialog *aboutDialog;
 
   QStringList treeHeader;

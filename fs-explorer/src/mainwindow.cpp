@@ -260,7 +260,8 @@ void MainWindow::stats()
 
 void MainWindow::chart()
 {
-  // TODO
+  chartWindow = new ChartWindow(tr("FS Chart"), fsEngine, this);
+  chartWindow->show();
 }
 
 void MainWindow::goHome()

@@ -21,6 +21,7 @@ HEADERS += searchwindow.h
 HEADERS += consoleengine.h
 HEADERS += consolewindow.h
 HEADERS += statswindow.h
+HEADERS += chartwindow.h
 HEADERS += exportengine.h
 HEADERS += aboutdialog.h
 HEADERS += mainwindow.h
@@ -37,6 +38,7 @@ SOURCES += searchwindow.cpp
 SOURCES += consoleengine.cpp
 SOURCES += consolewindow.cpp
 SOURCES += statswindow.cpp
+SOURCES += chartwindow.cpp
 SOURCES += exportengine.cpp
 SOURCES += aboutdialog.cpp
 SOURCES += mainwindow.cpp
@@ -63,24 +65,11 @@ contains(MACH, 64) {
 
 unix {
   inst_library.files += ../lib$$MACH/unix/libyafuse2.so
-#  inst_library.files += ../lib$$MACH/unix/libQt5Core.so.5.2.0
-#  inst_library.files += ../lib$$MACH/unix/libQt5Gui.so.5.2.0
-#  inst_library.files += ../lib$$MACH/unix/libQt5Widgets.so.5.2.0
-#  inst_library.files += ../lib$$MACH/unix/libicudata.so.51.1
-#  inst_library.files += ../lib$$MACH/unix/libicui18n.so.51.1
-#  inst_library.files += ../lib$$MACH/unix/libicuuc.so.51.1
   inst_ico.files +=
 }
 
 win32 {
   inst_library.files += ../lib$$MACH/win/libyafuse2.dll
-#  inst_library.files += ../lib$$MACH/win/Qt5Core.dll
-#  inst_library.files += ../lib$$MACH/win/Qt5Gui.dll
-#  inst_library.files += ../lib$$MACH/win/Qt5Widgets.dll
-#  inst_library.files += ../lib$$MACH/win/icudt51.dll
-#  inst_library.files += ../lib$$MACH/win/icuin51.dll
-#  inst_library.files += ../lib$$MACH/win/icuuc51.dll
-#  inst_library.files += ../lib$$MACH/win/libGLESv2.dll
   inst_ico.files += ../src/images/icon.ico
 }
 
