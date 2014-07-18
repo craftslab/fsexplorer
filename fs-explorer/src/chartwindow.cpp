@@ -21,12 +21,17 @@
 
 #include "chartwindow.h"
 
-const int ChartWindow::width = 480;
-const int ChartWindow::height = 640;
+const int ChartWindow::width = 640;
+const int ChartWindow::height = 480;
 
 ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent)
     : QWidget(parent)
 {
+  textEdit = new QTextEdit(this);
+  textEdit->setReadOnly(true);
+  textEdit->setLineWrapMode(QTextEdit::NoWrap);
+  textEdit->clear();
+
   frameHLine = new QFrame(this);
   frameHLine->setFrameShape(QFrame::HLine);
   frameHLine->setFrameShadow(QFrame::Sunken);
@@ -48,6 +53,7 @@ ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent
   hLayoutWidget->setLayout(hLayout);
 
   vLayout = new QVBoxLayout(this);
+  vLayout->addWidget(textEdit);
   vLayout->addWidget(frameHLine);
   vLayout->addWidget(hLayoutWidget);
   setLayout(vLayout);

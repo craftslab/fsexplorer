@@ -44,6 +44,7 @@ private:
   static const int width;
   static const int height;
 
+  QTextEdit *textEdit;
   QFrame *frameHLine;
   QPushButton *closeButton;
   QHBoxLayout *hLayout;
