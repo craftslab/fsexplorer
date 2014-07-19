@@ -25,12 +25,12 @@ const int ChartWindow::width = 640;
 const int ChartWindow::height = 480;
 
 ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
-  textEdit = new QTextEdit(this);
-  textEdit->setReadOnly(true);
-  textEdit->setLineWrapMode(QTextEdit::NoWrap);
-  textEdit->clear();
+  chartEngine = new ChartEngine(engine, this);
+
+  pieChartView = new PieChartView(this);
+  barChartView = new BarChartView(this);
 
   frameHLine = new QFrame(this);
   frameHLine->setFrameShape(QFrame::HLine);
@@ -53,7 +53,8 @@ ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent
   hLayoutWidget->setLayout(hLayout);
 
   vLayout = new QVBoxLayout(this);
-  vLayout->addWidget(textEdit);
+  vLayout->addWidget(pieChartView);
+  vLayout->addWidget(barChartView);
   vLayout->addWidget(frameHLine);
   vLayout->addWidget(hLayoutWidget);
   setLayout(vLayout);
@@ -74,7 +75,10 @@ ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent
 
 ChartWindow::~ChartWindow()
 {
-  // Do nothing here
+  if (chartEngine) {
+    delete chartEngine;
+    chartEngine = NULL;
+  }
 }
 
 void ChartWindow::closeEvent(QCloseEvent *event)

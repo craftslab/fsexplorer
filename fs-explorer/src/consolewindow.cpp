@@ -25,7 +25,7 @@ const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
 ConsoleWindow::ConsoleWindow(QWidget *parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   textEdit = new QTextEdit(this);
   textEdit->setReadOnly(false);

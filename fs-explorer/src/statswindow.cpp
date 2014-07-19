@@ -25,7 +25,7 @@ const int StatsWindow::width = 480;
 const int StatsWindow::height = 640;
 
 StatsWindow::StatsWindow(const QString &title, const QString &stat, QWidget *parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   textEdit = new QTextEdit(this);
   textEdit->setReadOnly(true);

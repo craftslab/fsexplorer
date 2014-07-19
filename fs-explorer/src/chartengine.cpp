@@ -1,5 +1,5 @@
 /**
- * chartwindow.h - Header of chartwindow
+ * chartengine.cpp - The entry of chartengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,43 +19,17 @@
  * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHARTWINDOW_H
-#define CHARTWINDOW_H
-
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#endif
-
-#include "fsengine.h"
 #include "chartengine.h"
-#include "piechartview.h"
-#include "barchartview.h"
 
-class ChartWindow : public QWidget
+ChartEngine::ChartEngine(FsEngine *engine, QWidget *parent)
 {
-  Q_OBJECT
+  parent = parent;
+  fsEngine = engine;
 
-public:
-  ChartWindow(const QString &title, FsEngine *engine, QWidget *parent = 0);
-  ~ChartWindow();
+  // TODO
+}
 
-protected:
-  void closeEvent(QCloseEvent *event);
-
-private:
-  static const int width;
-  static const int height;
-
-  ChartEngine *chartEngine;
-
-  PieChartView *pieChartView;
-  BarChartView *barChartView;
-  QFrame *frameHLine;
-  QPushButton *closeButton;
-  QHBoxLayout *hLayout;
-  QWidget *hLayoutWidget;
-  QVBoxLayout *vLayout;
-  QShortcut *shortcut;
-};
-#endif
+ChartEngine::~ChartEngine()
+{
+  // Do nothing here
+}

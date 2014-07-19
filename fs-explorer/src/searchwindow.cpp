@@ -28,7 +28,7 @@ const int SearchWindow::width = 640;
 const int SearchWindow::height = 240;
 
 SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   listWidget = new QListWidget(this);
   connect(listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(handleItemDoubleClicked(QListWidgetItem *)));
