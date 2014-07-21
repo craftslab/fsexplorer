@@ -24,7 +24,13 @@
 PieChartView::PieChartView(QWidget *parent)
   : QAbstractItemView(parent)
 {
-  // TODO
+  model = new QStandardItemModel(2, 2, this);
+  model->setHeaderData(0, Qt::Horizontal, tr("Label"));
+  model->setHeaderData(1, Qt::Horizontal, tr("Size"));
+  setModel(model);
+
+  selectionModel = new QItemSelectionModel(model);
+  setSelectionModel(selectionModel);
 }
 
 PieChartView::~PieChartView()
@@ -32,42 +38,53 @@ PieChartView::~PieChartView()
   // Do nothing here
 }
 
-QRect PieChartView::visualRect(const QModelIndex &index) const
+QRect PieChartView::visualRect(const QModelIndex &/* index */) const
 {
   // TODO
 
   return QRect();
 }
 
-void PieChartView::scrollTo(const QModelIndex &index, ScrollHint hint)
+void PieChartView::scrollTo(const QModelIndex &/* index */, ScrollHint hint)
 {
+  hint = hint;
+
   // TODO
 }
 
-QModelIndex PieChartView::indexAt(const QPoint &point) const
+QModelIndex PieChartView::indexAt(const QPoint &/* point */) const
 {
   // TODO
 
   return QModelIndex();
 }
 
-void PieChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void PieChartView::dataChanged(const QModelIndex &/* topLeft */, const QModelIndex &/* bottomRight */)
 {
   // TODO
 }
 
-void PieChartView::rowsInserted(const QModelIndex &parent, int start, int end)
+void PieChartView::rowsInserted(const QModelIndex &/* parent */, int start, int end)
 {
+  start = start;
+  end = end;
+
   // TODO
 }
 
-void PieChartView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+void PieChartView::rowsAboutToBeRemoved(const QModelIndex &/* parent */, int start, int end)
 {
+  start = start;
+  end = end;
+
   // TODO
 }
 
-bool PieChartView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event)
+bool PieChartView::edit(const QModelIndex &/* index */, EditTrigger trigger, QEvent *event)
 {
+  trigger = trigger;
+  event = event;
+
   // TODO
 
   return false;
@@ -76,6 +93,9 @@ bool PieChartView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *e
 QModelIndex PieChartView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                      Qt::KeyboardModifiers modifiers)
 {
+  cursorAction = cursorAction;
+  modifiers = modifiers;
+
   // TODO
 
   return QModelIndex();
@@ -95,47 +115,64 @@ int PieChartView::verticalOffset() const
   return 0;
 }
 
-bool PieChartView::isIndexHidden(const QModelIndex &index) const
+bool PieChartView::isIndexHidden(const QModelIndex &/* index */) const
 {
   // TODO
 
   return false;
 }
 
-void PieChartView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags command)
+void PieChartView::setSelection(const QRect &/* rect */, QItemSelectionModel::SelectionFlags command)
 {
+  command = command;
+
+  // TODO
 }
 
 void PieChartView::mousePressEvent(QMouseEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void PieChartView::mouseMoveEvent(QMouseEvent *event)
 {
+  event = event;
+
+  // TODO
 }
 
 void PieChartView::mouseReleaseEvent(QMouseEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void PieChartView::paintEvent(QPaintEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void PieChartView::resizeEvent(QResizeEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void PieChartView::scrollContentsBy(int dx, int dy)
 {
+  dx = dx;
+  dy = dy;
+
   // TODO
 }
 
-QRegion PieChartView::visualRegionForSelection(const QItemSelection &selection) const
+QRegion PieChartView::visualRegionForSelection(const QItemSelection &/* selection */) const
 {
   // TODO
 

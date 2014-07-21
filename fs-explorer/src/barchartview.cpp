@@ -24,7 +24,13 @@
 BarChartView::BarChartView(QWidget *parent)
   : QAbstractItemView(parent)
 {
-  // TODO
+  model = new QStandardItemModel(2, 2, this);
+  model->setHeaderData(0, Qt::Horizontal, tr("Label"));
+  model->setHeaderData(1, Qt::Horizontal, tr("Size"));
+  setModel(model);
+
+  selectionModel = new QItemSelectionModel(model);
+  setSelectionModel(selectionModel);
 }
 
 BarChartView::~BarChartView()
@@ -32,42 +38,53 @@ BarChartView::~BarChartView()
   // Do nothing here
 }
 
-QRect BarChartView::visualRect(const QModelIndex &index) const
+QRect BarChartView::visualRect(const QModelIndex &/* index */) const
 {
   // TODO
 
   return QRect();
 }
 
-void BarChartView::scrollTo(const QModelIndex &index, ScrollHint hint)
+void BarChartView::scrollTo(const QModelIndex &/* index */, ScrollHint hint)
 {
+  hint = hint;
+
   // TODO
 }
 
-QModelIndex BarChartView::indexAt(const QPoint &point) const
+QModelIndex BarChartView::indexAt(const QPoint &/* point */) const
 {
   // TODO
 
   return QModelIndex();
 }
 
-void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void BarChartView::dataChanged(const QModelIndex &/* topLeft */, const QModelIndex &/* bottomRight */)
 {
   // TODO
 }
 
-void BarChartView::rowsInserted(const QModelIndex &parent, int start, int end)
+void BarChartView::rowsInserted(const QModelIndex &/* parent */, int start, int end)
 {
+  start = start;
+  end = end;
+
   // TODO
 }
 
-void BarChartView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+void BarChartView::rowsAboutToBeRemoved(const QModelIndex &/* parent */, int start, int end)
 {
+  start = start;
+  end = end;
+
   // TODO
 }
 
-bool BarChartView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event)
+bool BarChartView::edit(const QModelIndex &/* index */, EditTrigger trigger, QEvent *event)
 {
+  trigger = trigger;
+  event = event;
+
   // TODO
 
   return false;
@@ -76,6 +93,9 @@ bool BarChartView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *e
 QModelIndex BarChartView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                      Qt::KeyboardModifiers modifiers)
 {
+  cursorAction = cursorAction;
+  modifiers = modifiers;
+
   // TODO
 
   return QModelIndex();
@@ -95,47 +115,64 @@ int BarChartView::verticalOffset() const
   return 0;
 }
 
-bool BarChartView::isIndexHidden(const QModelIndex &index) const
+bool BarChartView::isIndexHidden(const QModelIndex &/* index */) const
 {
   // TODO
 
   return false;
 }
 
-void BarChartView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags command)
+void BarChartView::setSelection(const QRect &/* rect */, QItemSelectionModel::SelectionFlags command)
 {
+  command = command;
+
+  // TODO
 }
 
 void BarChartView::mousePressEvent(QMouseEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void BarChartView::mouseMoveEvent(QMouseEvent *event)
 {
+  event = event;
+
+  // TODO
 }
 
 void BarChartView::mouseReleaseEvent(QMouseEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void BarChartView::paintEvent(QPaintEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void BarChartView::resizeEvent(QResizeEvent *event)
 {
+  event = event;
+
   // TODO
 }
 
 void BarChartView::scrollContentsBy(int dx, int dy)
 {
+  dx = dx;
+  dy = dy;
+
   // TODO
 }
 
-QRegion BarChartView::visualRegionForSelection(const QItemSelection &selection) const
+QRegion BarChartView::visualRegionForSelection(const QItemSelection &/* selection */) const
 {
   // TODO
 

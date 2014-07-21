@@ -43,26 +43,26 @@ public:
   PieChartView(QWidget *parent = 0);
   ~PieChartView();
 
-  QRect visualRect(const QModelIndex &index) const;
-  void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
-  QModelIndex indexAt(const QPoint &point) const;
+  QRect visualRect(const QModelIndex &/* index */) const;
+  void scrollTo(const QModelIndex &/* index */, ScrollHint hint = EnsureVisible);
+  QModelIndex indexAt(const QPoint &/* point */) const;
 
 protected slots:
-  void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-  void rowsInserted(const QModelIndex &parent, int start, int end);
-  void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+  void dataChanged(const QModelIndex &/* topLeft */, const QModelIndex &/* bottomRight */);
+  void rowsInserted(const QModelIndex &/* parent */, int start, int end);
+  void rowsAboutToBeRemoved(const QModelIndex &/* parent */, int start, int end);
 
 protected:
-  bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
+  bool edit(const QModelIndex &/* index */, EditTrigger trigger, QEvent *event);
   QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                          Qt::KeyboardModifiers modifiers);
 
   int horizontalOffset() const;
   int verticalOffset() const;
 
-  bool isIndexHidden(const QModelIndex &index) const;
+  bool isIndexHidden(const QModelIndex &/* index */) const;
 
-  void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
+  void setSelection(const QRect &/* rect */, QItemSelectionModel::SelectionFlags command);
 
   void mousePressEvent(QMouseEvent *event);
 
@@ -73,6 +73,10 @@ protected:
   void resizeEvent(QResizeEvent *event);
   void scrollContentsBy(int dx, int dy);
 
-  QRegion visualRegionForSelection(const QItemSelection &selection) const;
+  QRegion visualRegionForSelection(const QItemSelection &/* selection */) const;
+
+private:
+  QStandardItemModel *model;
+  QItemSelectionModel *selectionModel;
 };
 #endif
