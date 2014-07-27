@@ -44,13 +44,24 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private:
+  void setupPieChartView();
+  void setupBarChartView();
+  void showPieChartView();
+  void showBarChartView();
+
   static const int width;
   static const int height;
 
   ChartEngine *chartEngine;
 
-  PieChartView *pieChartView;
-  BarChartView *barChartView;
+  QAbstractItemModel *pieChartModel;
+  QAbstractItemView *pieChartView;
+  QItemSelectionModel *pieChartSelectModel;
+
+  QAbstractItemModel *barChartModel;
+  QAbstractItemView *barChartView;
+  QItemSelectionModel *barChartSelectModel;
+
   QFrame *frameHLine;
   QPushButton *closeButton;
   QHBoxLayout *hLayout;

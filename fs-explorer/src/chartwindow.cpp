@@ -29,8 +29,8 @@ ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent
 {
   chartEngine = new ChartEngine(engine, this);
 
-  pieChartView = new PieChartView(this);
-  barChartView = new BarChartView(this);
+  setupPieChartView();
+  setupBarChartView();
 
   frameHLine = new QFrame(this);
   frameHLine->setFrameShape(QFrame::HLine);
@@ -71,6 +71,9 @@ ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent
     move(0, 0);
   }
   resize(width, height);
+
+  showPieChartView();
+  showBarChartView();
 }
 
 ChartWindow::~ChartWindow()
@@ -84,4 +87,62 @@ ChartWindow::~ChartWindow()
 void ChartWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
+}
+
+void ChartWindow::setupPieChartView()
+{
+  pieChartModel = new QStandardItemModel(2, 2, this);
+  pieChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
+  pieChartModel->setHeaderData(1, Qt::Horizontal, tr("Capacity"));
+
+  pieChartView = new PieChartView(this);
+  pieChartView->setModel(pieChartModel);
+
+  pieChartSelectModel = new QItemSelectionModel(pieChartModel);
+  pieChartView->setSelectionModel(pieChartSelectModel);
+}
+
+void ChartWindow::setupBarChartView()
+{
+  barChartModel = new QStandardItemModel(10, 3, this);
+  barChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
+  barChartModel->setHeaderData(1, Qt::Horizontal, tr("Bar"));
+  barChartModel->setHeaderData(2, Qt::Horizontal, tr("Size"));
+
+  barChartView = new BarChartView(this);
+  barChartView->setModel(barChartModel);
+
+  barChartSelectModel = new QItemSelectionModel(barChartModel);
+  barChartView->setSelectionModel(barChartSelectModel);
+}
+
+void ChartWindow::showPieChartView()
+{
+  int row;
+  QStringList pieces;
+
+  pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
+
+  row = 0;
+  pieces.clear();
+  pieces << QString(tr("used")) << QString(tr("30")) << QString(tr("#fce94f"));
+
+  pieChartModel->insertRows(row, 1, QModelIndex());
+  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
+  pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));
+  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), QColor(pieces.value(2)), Qt::DecorationRole);
+
+  row = 1;
+  pieces.clear();
+  pieces << QString(tr("free")) << QString(tr("70")) << QString(tr("#729fcf"));
+
+  pieChartModel->insertRows(row, 1, QModelIndex());
+  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
+  pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));
+  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), QColor(pieces.value(2)), Qt::DecorationRole);
+}
+
+void ChartWindow::showBarChartView()
+{
+  // TODO
 }

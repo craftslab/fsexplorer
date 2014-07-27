@@ -31,14 +31,6 @@ const int PieChartView::totalSize = 300;
 PieChartView::PieChartView(QWidget *parent)
   : QAbstractItemView(parent)
 {
-  itemModel = new QStandardItemModel(2, 2, this);
-  itemModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
-  itemModel->setHeaderData(1, Qt::Horizontal, tr("Capacity"));
-  setModel(itemModel);
-
-  selectModel = new QItemSelectionModel(itemModel);
-  setSelectionModel(selectModel);
-
   horizontalScrollBar()->setRange(0, 0);
   verticalScrollBar()->setRange(0, 0);
 
@@ -147,9 +139,9 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
   return QModelIndex();
 }
 
-void PieChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void PieChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
-  QAbstractItemView::dataChanged(topLeft, bottomRight);
+  QAbstractItemView::dataChanged(topLeft, bottomRight, roles);
 
   validItems = 0;
   totalValue = 0.0;
@@ -163,6 +155,7 @@ void PieChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
       validItems++;
     }
   }
+
   viewport()->update();
 }
 
