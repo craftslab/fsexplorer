@@ -129,13 +129,15 @@ void ChartWindow::showPieChartView()
   piecesList.clear();
 
   size = 30;
+  QString colorYellow(tr("#fce94f"));
   pieces.clear();
-  pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << QString(tr("#fce94f"));
+  pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << colorYellow;
   piecesList.append(pieces);
 
   size = 70;
+  QString colorBlue(tr("#729fcf"));
   pieces.clear();
-  pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << QString(tr("#729fcf"));
+  pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << colorBlue;
   piecesList.append(pieces);
 
   size = 100;
