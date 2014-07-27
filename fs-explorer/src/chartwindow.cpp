@@ -119,13 +119,15 @@ void ChartWindow::setupBarChartView()
 void ChartWindow::showPieChartView()
 {
   int row;
+  int size;
   QStringList pieces;
 
   pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
 
   row = 0;
+  size = 30;
   pieces.clear();
-  pieces << QString(tr("used")) << QString(tr("30")) << QString(tr("#fce94f"));
+  pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << QString(tr("#fce94f"));
 
   pieChartModel->insertRows(row, 1, QModelIndex());
   pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
@@ -133,8 +135,9 @@ void ChartWindow::showPieChartView()
   pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), QColor(pieces.value(2)), Qt::DecorationRole);
 
   row = 1;
+  size = 70;
   pieces.clear();
-  pieces << QString(tr("free")) << QString(tr("70")) << QString(tr("#729fcf"));
+  pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << QString(tr("#729fcf"));
 
   pieChartModel->insertRows(row, 1, QModelIndex());
   pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));

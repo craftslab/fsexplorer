@@ -25,8 +25,7 @@
 #define M_PI 3.1415927
 #endif
 
-const int PieChartView::margin = 8;
-const int PieChartView::totalSize = 300;
+const int PieChartView::marginY = 8;
 
 PieChartView::PieChartView(QWidget *parent)
   : QAbstractItemView(parent)
@@ -34,7 +33,9 @@ PieChartView::PieChartView(QWidget *parent)
   horizontalScrollBar()->setRange(0, 0);
   verticalScrollBar()->setRange(0, 0);
 
-  pieSize = totalSize - (2 * margin);
+  marginX = 0;
+  totalSize = 0;
+  pieSize = 0;
   validItems = 0;
   totalValue = 0.0;
   rubberBand = NULL;
@@ -58,8 +59,9 @@ QRect PieChartView::visualRect(const QModelIndex &index) const
   }
 }
 
-void PieChartView::scrollTo(const QModelIndex &index, ScrollHint /* hint */)
+void PieChartView::scrollTo(const QModelIndex &/* index */, ScrollHint /* hint */)
 {
+#if 0 // DISUSED here
   QRect area = viewport()->rect();
   QRect rect = visualRect(index);
 
@@ -78,6 +80,7 @@ void PieChartView::scrollTo(const QModelIndex &index, ScrollHint /* hint */)
   }
 
   update();
+#endif
 }
 
 QModelIndex PieChartView::indexAt(const QPoint &point) const
@@ -91,7 +94,7 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
 
   if (wx < totalSize) {
     double cx = wx - (totalSize / 2);
-    double cy = totalSize/2 - wy;
+    double cy = totalSize / 2 - wy;
 
     double d = pow(pow(cx, 2) + pow(cy, 2), 0.5);
     if (d == 0 || d > (pieSize / 2)) {
@@ -121,7 +124,7 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
     }
   } else {
     double itemHeight = QFontMetrics(viewOptions().font).height();
-    int listItem = int((wy - margin) / itemHeight);
+    int listItem = int((wy - marginY) / itemHeight);
     int validRow = 0;
 
     for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
@@ -334,7 +337,7 @@ void PieChartView::paintEvent(QPaintEvent *event)
   QPen foreground(option.palette.color(QPalette::WindowText));
   painter.setPen(foreground);
 
-  QRect pieRect = QRect(margin, margin, pieSize, pieSize);
+  QRect pieRect = QRect(marginX, marginY, pieSize, pieSize);
 
   if (validItems > 0) {
     painter.save();
@@ -397,8 +400,25 @@ void PieChartView::paintEvent(QPaintEvent *event)
   }
 }
 
-void PieChartView::resizeEvent(QResizeEvent */* event */)
+void PieChartView::resizeEvent(QResizeEvent *event)
 {
+  QSize size = event->size();
+  if (!size.isValid()) {
+    return;
+  }
+
+  pieSize = size.height() - (marginY * 2);
+  if (pieSize < 0) {
+    pieSize = size.height();
+  }
+
+  marginX = (size.width() - pieSize) / 2;
+  if (marginX < 0) {
+    marginX = 0;
+  }
+
+  totalSize = marginX + pieSize + (2 * marginY);
+
   updateGeometries();
 }
 
@@ -459,8 +479,8 @@ QRect PieChartView::itemRect(const QModelIndex &index) const
       itemHeight = QFontMetrics(viewOptions().font).height();
 
       return QRect(totalSize,
-                   static_cast<int> (margin + listItem*itemHeight),
-                   totalSize - margin,
+                   static_cast<int> (marginY + listItem*itemHeight),
+                   totalSize - marginY,
                    static_cast<int> (itemHeight));
     case 1:
       return viewport()->rect();
@@ -495,7 +515,7 @@ QRegion PieChartView::itemRegion(const QModelIndex &index) const
       if (sliceIndex == index) {
         QPainterPath slicePath;
         slicePath.moveTo(totalSize / 2, totalSize / 2);
-        slicePath.arcTo(margin, margin, margin + pieSize, margin + pieSize,
+        slicePath.arcTo(marginY, marginY, marginY + pieSize, marginY + pieSize,
                         startAngle, angle);
         slicePath.closeSubpath();
 
@@ -516,8 +536,11 @@ int PieChartView::rows(const QModelIndex &index) const
 
 void PieChartView::updateGeometries()
 {
+#if 0 // DISUSED here
   horizontalScrollBar()->setPageStep(viewport()->width());
   horizontalScrollBar()->setRange(0, qMax(0, (2 * totalSize) - viewport()->width()));
+
   verticalScrollBar()->setPageStep(viewport()->height());
   verticalScrollBar()->setRange(0, qMax(0, totalSize - viewport()->height()));
+#endif
 }
