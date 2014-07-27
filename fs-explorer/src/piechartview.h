@@ -53,7 +53,7 @@ protected slots:
   void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
 protected:
-  bool edit(const QModelIndex &/* index */, EditTrigger /* trigger */, QEvent */* event */);
+  bool edit(const QModelIndex &/* index */, EditTrigger /* trigger */, QEvent * /* event */);
   QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                          Qt::KeyboardModifiers /* modifiers */);
   int horizontalOffset() const;

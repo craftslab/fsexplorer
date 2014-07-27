@@ -191,7 +191,7 @@ void PieChartView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, in
   QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
-bool PieChartView::edit(const QModelIndex &/* index */, EditTrigger /* trigger */, QEvent */* event */)
+bool PieChartView::edit(const QModelIndex &/* index */, EditTrigger /* trigger */, QEvent * /* event */)
 {
   // Do nothing here
 
