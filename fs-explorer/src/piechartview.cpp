@@ -339,65 +339,67 @@ void PieChartView::paintEvent(QPaintEvent *event)
 
   QRect pieRect = QRect(marginX, marginY, pieSize, pieSize);
 
-  if (validItems > 0) {
-    painter.save();
-    painter.translate(pieRect.x() - horizontalScrollBar()->value(),
-                      pieRect.y() - verticalScrollBar()->value());
-    painter.drawEllipse(0, 0, pieSize, pieSize);
+  if (validItems <= 0) {
+    return;
+  }
 
-    double startAngle = 0.0;
+  painter.save();
+  painter.translate(pieRect.x() - horizontalScrollBar()->value(),
+                    pieRect.y() - verticalScrollBar()->value());
+  painter.drawEllipse(0, 0, pieSize, pieSize);
 
-    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
-      QModelIndex index = model()->index(row, 1, rootIndex());
-      double value = model()->data(index).toDouble();
+  double startAngle = 0.0;
 
-      if (value > 0.0) {
-        double angle = (360 * value) / totalValue;
+  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+    QModelIndex index = model()->index(row, 1, rootIndex());
+    double value = model()->data(index).toDouble();
 
-        QModelIndex colorIndex = model()->index(row, 0, rootIndex());
-        QColor color = QColor(model()->data(colorIndex, Qt::DecorationRole).toString());
+    if (value > 0.0) {
+      double angle = (360 * value) / totalValue;
 
-        if (currentIndex() == index) {
-          painter.setBrush(QBrush(color, Qt::Dense4Pattern));
-        } else if (selections->isSelected(index)) {
-          painter.setBrush(QBrush(color, Qt::Dense3Pattern));
-        } else {
-          painter.setBrush(QBrush(color));
-        }
+      QModelIndex colorIndex = model()->index(row, 0, rootIndex());
+      QColor color = QColor(model()->data(colorIndex, Qt::DecorationRole).toString());
 
-        painter.drawPie(0, 0, pieSize, pieSize, static_cast<int> (startAngle * 16), static_cast<int> (angle * 16));
-
-        startAngle += angle;
+      if (currentIndex() == index) {
+        painter.setBrush(QBrush(color, Qt::Dense4Pattern));
+      } else if (selections->isSelected(index)) {
+        painter.setBrush(QBrush(color, Qt::Dense3Pattern));
+      } else {
+        painter.setBrush(QBrush(color));
       }
+
+      painter.drawPie(0, 0, pieSize, pieSize, static_cast<int> (startAngle * 16), static_cast<int> (angle * 16));
+
+      startAngle += angle;
     }
-    painter.restore();
+  }
+  painter.restore();
 
-    int keyNumber = 0;
+  int keyNumber = 0;
 
-    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
-      QModelIndex index = model()->index(row, 1, rootIndex());
-      double value = model()->data(index).toDouble();
+  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+    QModelIndex index = model()->index(row, 1, rootIndex());
+    double value = model()->data(index).toDouble();
 
-      if (value > 0.0) {
-        QModelIndex labelIndex = model()->index(row, 0, rootIndex());
+    if (value > 0.0) {
+      QModelIndex labelIndex = model()->index(row, 0, rootIndex());
 
-        QStyleOptionViewItem option = viewOptions();
-        option.rect = visualRect(labelIndex);
+      QStyleOptionViewItem option = viewOptions();
+      option.rect = visualRect(labelIndex);
 
 #if 0 // DISUSED here
-        if (selections->isSelected(labelIndex)) {
-          option.state |= QStyle::State_Selected;
-        }
+      if (selections->isSelected(labelIndex)) {
+        option.state |= QStyle::State_Selected;
+      }
 
-        if (currentIndex() == labelIndex) {
-          option.state |= QStyle::State_HasFocus;
-        }
+      if (currentIndex() == labelIndex) {
+        option.state |= QStyle::State_HasFocus;
+      }
 #endif
 
-        itemDelegate()->paint(&painter, option, labelIndex);
+      itemDelegate()->paint(&painter, option, labelIndex);
 
-        keyNumber++;
-      }
+      keyNumber++;
     }
   }
 }
