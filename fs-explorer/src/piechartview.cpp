@@ -108,7 +108,7 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
 
     double startAngle = 0.0;
 
-    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+    for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
       QModelIndex index = model()->index(row, 1, rootIndex());
       double value = model()->data(index).toDouble();
 
@@ -127,7 +127,7 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
     int listItem = int((wy - marginY) / itemHeight);
     int validRow = 0;
 
-    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+    for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
       QModelIndex index = model()->index(row, 1, rootIndex());
       if (model()->data(index).toDouble() > 0.0) {
         if (listItem == validRow) {
@@ -149,7 +149,7 @@ void PieChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
   validItems = 0;
   totalValue = 0.0;
 
-  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+  for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
     double value = model()->data(index).toDouble();
 
@@ -350,7 +350,7 @@ void PieChartView::paintEvent(QPaintEvent *event)
 
   double startAngle = 0.0;
 
-  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+  for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
     double value = model()->data(index).toDouble();
 
@@ -509,7 +509,7 @@ QRegion PieChartView::itemRegion(const QModelIndex &index) const
   }
 
   double startAngle = 0.0;
-  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+  for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
     QModelIndex sliceIndex = model()->index(row, 1, rootIndex());
     double value = model()->data(sliceIndex).toDouble();
 

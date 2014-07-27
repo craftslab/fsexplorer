@@ -24,6 +24,9 @@
 const int ChartWindow::width = 640;
 const int ChartWindow::height = 480;
 
+const int ChartWindow::pieChartRowCount = 3;
+const int ChartWindow::barChartRowCount = 10;
+
 ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
@@ -91,7 +94,7 @@ void ChartWindow::closeEvent(QCloseEvent *event)
 
 void ChartWindow::setupPieChartView()
 {
-  pieChartModel = new QStandardItemModel(2, 2, this);
+  pieChartModel = new QStandardItemModel(pieChartRowCount, 2, this);
   pieChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
   pieChartModel->setHeaderData(1, Qt::Horizontal, tr("Capacity"));
 
@@ -104,7 +107,7 @@ void ChartWindow::setupPieChartView()
 
 void ChartWindow::setupBarChartView()
 {
-  barChartModel = new QStandardItemModel(10, 3, this);
+  barChartModel = new QStandardItemModel(barChartRowCount, 3, this);
   barChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
   barChartModel->setHeaderData(1, Qt::Horizontal, tr("Bar"));
   barChartModel->setHeaderData(2, Qt::Horizontal, tr("Size"));
@@ -118,29 +121,43 @@ void ChartWindow::setupBarChartView()
 
 void ChartWindow::showPieChartView()
 {
-  int row;
   int size;
   QStringList pieces;
+  QList<QStringList> piecesList;
+  int i;
 
-  pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
+  piecesList.clear();
 
-  row = 0;
   size = 30;
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << QString(tr("#fce94f"));
-  pieChartModel->insertRows(row, 1, QModelIndex());
-  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
-  pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));
-  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), QColor(pieces.value(2)), Qt::DecorationRole);
+  piecesList.append(pieces);
 
-  row = 1;
   size = 70;
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << QString(tr("#729fcf"));
-  pieChartModel->insertRows(row, 1, QModelIndex());
-  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
-  pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));
-  pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), QColor(pieces.value(2)), Qt::DecorationRole);
+  piecesList.append(pieces);
+
+  size = 100;
+  pieces.clear();
+  pieces << QString(tr("Total capacity: ")).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10);
+  piecesList.append(pieces);
+
+  pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
+
+  for (i = 0; i < pieChartRowCount - 1; ++i) {
+    pieChartModel->insertRows(i, 1, QModelIndex());
+    pieChartModel->setData(pieChartModel->index(i, 0, QModelIndex()), piecesList.at(i).value(0), Qt::DisplayRole);
+    pieChartModel->setData(pieChartModel->index(i, 1, QModelIndex()), piecesList.at(i).value(1), Qt::DisplayRole);
+    pieChartModel->setData(pieChartModel->index(i, 0, QModelIndex()), QColor(piecesList.at(i).value(2)), Qt::DecorationRole);
+  }
+
+  i = pieChartRowCount - 1;
+  if (i > 0) {
+    pieChartModel->insertRows(i, 1, QModelIndex());
+    pieChartModel->setData(pieChartModel->index(i, 0, QModelIndex()), piecesList.at(i).value(0), Qt::DisplayRole);
+    pieChartModel->setData(pieChartModel->index(i, 1, QModelIndex()), piecesList.at(i).value(1), Qt::DisplayRole);
+  }
 }
 
 void ChartWindow::showBarChartView()

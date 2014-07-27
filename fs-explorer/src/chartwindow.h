@@ -52,6 +52,9 @@ private:
   static const int width;
   static const int height;
 
+  static const int pieChartRowCount;
+  static const int barChartRowCount;
+
   ChartEngine *chartEngine;
 
   QAbstractItemModel *pieChartModel;
