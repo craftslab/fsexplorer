@@ -128,7 +128,6 @@ void ChartWindow::showPieChartView()
   size = 30;
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << QString(tr("#fce94f"));
-
   pieChartModel->insertRows(row, 1, QModelIndex());
   pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
   pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));
@@ -138,7 +137,6 @@ void ChartWindow::showPieChartView()
   size = 70;
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << QString(tr("#729fcf"));
-
   pieChartModel->insertRows(row, 1, QModelIndex());
   pieChartModel->setData(pieChartModel->index(row, 0, QModelIndex()), pieces.value(0));
   pieChartModel->setData(pieChartModel->index(row, 1, QModelIndex()), pieces.value(1));

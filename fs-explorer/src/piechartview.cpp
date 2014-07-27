@@ -384,6 +384,7 @@ void PieChartView::paintEvent(QPaintEvent *event)
         QStyleOptionViewItem option = viewOptions();
         option.rect = visualRect(labelIndex);
 
+#if 0 // DISUSED here
         if (selections->isSelected(labelIndex)) {
           option.state |= QStyle::State_Selected;
         }
@@ -391,6 +392,7 @@ void PieChartView::paintEvent(QPaintEvent *event)
         if (currentIndex() == labelIndex) {
           option.state |= QStyle::State_HasFocus;
         }
+#endif
 
         itemDelegate()->paint(&painter, option, labelIndex);
 
