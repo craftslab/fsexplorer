@@ -375,8 +375,6 @@ void PieChartView::paintEvent(QPaintEvent *event)
   }
   painter.restore();
 
-  int keyNumber = 0;
-
   for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
     double value = model()->data(index).toDouble();
@@ -398,8 +396,6 @@ void PieChartView::paintEvent(QPaintEvent *event)
 #endif
 
       itemDelegate()->paint(&painter, option, labelIndex);
-
-      keyNumber++;
     }
   }
 }
@@ -483,7 +479,7 @@ QRect PieChartView::itemRect(const QModelIndex &index) const
       itemHeight = QFontMetrics(viewOptions().font).height();
 
       return QRect(totalSize,
-                   static_cast<int> (marginY + listItem*itemHeight),
+                   static_cast<int> (marginY + listItem * itemHeight),
                    totalSize - marginY,
                    static_cast<int> (itemHeight));
     case 1:
