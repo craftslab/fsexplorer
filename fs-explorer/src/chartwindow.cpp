@@ -107,9 +107,10 @@ void ChartWindow::setupPieChartView()
 
 void ChartWindow::setupBarChartView()
 {
-  barChartModel = new QStandardItemModel(barChartRowCount, 3, this);
+  barChartModel = new QStandardItemModel(barChartRowCount, 4, this);
   barChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
   barChartModel->setHeaderData(1, Qt::Horizontal, tr("Bar"));
+  barChartModel->setHeaderData(1, Qt::Horizontal, tr("Color"));
   barChartModel->setHeaderData(2, Qt::Horizontal, tr("Size"));
 
   barChartView = new BarChartView(this);
@@ -164,5 +165,70 @@ void ChartWindow::showPieChartView()
 
 void ChartWindow::showBarChartView()
 {
-  // TODO
+  int size;
+  QString colorYellow(tr("#fce94f"));
+  QStringList bar;
+  QList<QStringList> barList;
+
+  barList.clear();
+
+  size = 100;
+  bar.clear();
+  bar << QString(tr("bar 1")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 90;
+  bar.clear();
+  bar << QString(tr("bar 2")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 80;
+  bar.clear();
+  bar << QString(tr("bar 3")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 70;
+  bar.clear();
+  bar << QString(tr("bar 4")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 60;
+  bar.clear();
+  bar << QString(tr("bar 5")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 50;
+  bar.clear();
+  bar << QString(tr("bar 6")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 40;
+  bar.clear();
+  bar << QString(tr("bar 7")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 30;
+  bar.clear();
+  bar << QString(tr("bar 8")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 20;
+  bar.clear();
+  bar << QString(tr("bar 9")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  size = 10;
+  bar.clear();
+  bar << QString(tr("bar 10")) << QString::number(size, 10) << colorYellow << QString::number(size, 10).append(QString(tr("MB")));
+  barList.append(bar);
+
+  barChartModel->removeRows(0, barChartModel->rowCount(QModelIndex()), QModelIndex());
+
+  for (int i = 0; i < barChartRowCount; ++i) {
+    barChartModel->insertRows(i, 1, QModelIndex());
+    barChartModel->setData(barChartModel->index(i, 0, QModelIndex()), barList.at(i).value(0), Qt::DisplayRole);
+    barChartModel->setData(barChartModel->index(i, 1, QModelIndex()), barList.at(i).value(1), Qt::DisplayRole);
+    barChartModel->setData(barChartModel->index(i, 2, QModelIndex()), barList.at(i).value(2), Qt::DisplayRole);
+    barChartModel->setData(barChartModel->index(i, 3, QModelIndex()), barList.at(i).value(3), Qt::DisplayRole);
+  }
 }
