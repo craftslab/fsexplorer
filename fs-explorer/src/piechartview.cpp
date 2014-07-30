@@ -124,7 +124,7 @@ QModelIndex PieChartView::indexAt(const QPoint &point) const
     }
   } else {
     double itemHeight = QFontMetrics(viewOptions().font).height();
-    int listItem = int((wy - marginY) / itemHeight);
+    int listItem = static_cast<int> ((wy - marginY) / itemHeight);
     int validRow = 0;
 
     for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
@@ -477,7 +477,6 @@ QRect PieChartView::itemRect(const QModelIndex &index) const
     switch (index.column()) {
     case 0:
       itemHeight = QFontMetrics(viewOptions().font).height();
-
       return QRect(totalSize,
                    static_cast<int> (marginY + listItem * itemHeight),
                    totalSize - marginY,
