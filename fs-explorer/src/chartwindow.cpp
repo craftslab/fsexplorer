@@ -107,11 +107,10 @@ void ChartWindow::setupPieChartView()
 
 void ChartWindow::setupBarChartView()
 {
-  barChartModel = new QStandardItemModel(barChartRowCount, 4, this);
+  barChartModel = new QStandardItemModel(barChartRowCount, 3, this);
   barChartModel->setHeaderData(0, Qt::Horizontal, tr("Label"));
-  barChartModel->setHeaderData(1, Qt::Horizontal, tr("Size"));
-  barChartModel->setHeaderData(2, Qt::Horizontal, tr("Bar"));
-  barChartModel->setHeaderData(3, Qt::Horizontal, tr("Color"));
+  barChartModel->setHeaderData(1, Qt::Horizontal, tr("Bar"));
+  barChartModel->setHeaderData(2, Qt::Horizontal, tr("Color"));
 
   barChartView = new BarChartView(this);
   barChartView->setModel(barChartModel);
@@ -175,7 +174,7 @@ void ChartWindow::showBarChartView()
 
   for (int i = 0; i < barChartRowCount; ++i) {
     bar.clear();
-    bar << QString(tr("bar 1")) << QString::number(size, 10).append(QString(tr("MB"))) << QString::number(size, 10) << colorYellow;
+    bar << QString(tr("bar ")).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10) << colorYellow;
     barList.append(bar);
 
     size -= 10;
@@ -188,6 +187,5 @@ void ChartWindow::showBarChartView()
     barChartModel->setData(barChartModel->index(i, 0, QModelIndex()), barList.at(i).value(0), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 1, QModelIndex()), barList.at(i).value(1), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 2, QModelIndex()), barList.at(i).value(2), Qt::DisplayRole);
-    barChartModel->setData(barChartModel->index(i, 3, QModelIndex()), barList.at(i).value(3), Qt::DisplayRole);
   }
 }
