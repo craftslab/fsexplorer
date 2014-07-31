@@ -27,6 +27,9 @@ const int ChartWindow::height = 480;
 const int ChartWindow::pieChartRowCount = 3;
 const int ChartWindow::barChartRowCount = 10;
 
+const QString ChartWindow::colorYellow = QObject::tr("#fce94f");
+const QString ChartWindow::colorBlue = QObject::tr("#729fcf");
+
 ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
@@ -122,25 +125,27 @@ void ChartWindow::setupBarChartView()
 void ChartWindow::showPieChartView()
 {
   int size;
+  QList<int> sizeList;
   QStringList pieces;
   QList<QStringList> piecesList;
   int i;
 
+  sizeList.clear();
+  getPieChartInfo(sizeList, pieChartRowCount);
+
   piecesList.clear();
 
-  size = 30;
-  QString colorYellow(tr("#fce94f"));
+  size = sizeList.at(0);
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << colorYellow;
   piecesList.append(pieces);
 
-  size = 70;
-  QString colorBlue(tr("#729fcf"));
+  size = sizeList.at(1);
   pieces.clear();
   pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << colorBlue;
   piecesList.append(pieces);
 
-  size = 100;
+  size = sizeList.at(2);
   pieces.clear();
   pieces << QString(tr("Total capacity: ")).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10);
   piecesList.append(pieces);
@@ -164,20 +169,25 @@ void ChartWindow::showPieChartView()
 
 void ChartWindow::showBarChartView()
 {
-  int size;
-  QString colorYellow(tr("#fce94f"));
+  QStringList nameList;
+  QList<int> sizeList;
   QStringList bar;
   QList<QStringList> barList;
 
-  size = 100;
+  nameList.clear();
+  sizeList.clear();
+  getBarChartInfo(nameList, sizeList, barChartRowCount);
+
   barList.clear();
 
   for (int i = 0; i < barChartRowCount; ++i) {
-    bar.clear();
-    bar << QString(tr("bar ")).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10) << colorYellow;
-    barList.append(bar);
+    QString name = nameList.at(i);
+    int size = sizeList.at(i);
 
-    size -= 10;
+    bar.clear();
+    bar << name.append(QString(tr(" "))).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10) << colorYellow;
+
+    barList.append(bar);
   }
 
   barChartModel->removeRows(0, barChartModel->rowCount(QModelIndex()), QModelIndex());
@@ -187,5 +197,23 @@ void ChartWindow::showBarChartView()
     barChartModel->setData(barChartModel->index(i, 0, QModelIndex()), barList.at(i).value(0), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 1, QModelIndex()), barList.at(i).value(1), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 2, QModelIndex()), barList.at(i).value(2), Qt::DisplayRole);
+  }
+}
+
+void ChartWindow::getPieChartInfo(QList<int> &sizeList, int /* listLen */)
+{
+  sizeList << 30 << 70 << 100;
+}
+
+void ChartWindow::getBarChartInfo(QStringList &nameList, QList<int> &sizeList, int listLen)
+{
+  for (int i = 0; i < listLen; ++i) {
+    nameList << "bar";
+  }
+
+  int size = 100;
+  for (int i = 0; i < listLen; ++i) {
+    sizeList << size;
+    size -= 10;
   }
 }

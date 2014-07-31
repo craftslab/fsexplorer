@@ -48,12 +48,17 @@ private:
   void setupBarChartView();
   void showPieChartView();
   void showBarChartView();
+  void getPieChartInfo(QList<int> &sizeList, int /* listLen */);
+  void getBarChartInfo(QStringList &nameList, QList<int> &sizeList, int listLen);
 
   static const int width;
   static const int height;
 
   static const int pieChartRowCount;
   static const int barChartRowCount;
+
+  static const QString colorYellow;
+  static const QString colorBlue;
 
   ChartEngine *chartEngine;
 
