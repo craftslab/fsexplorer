@@ -21,8 +21,8 @@
 
 #include "barchartview.h"
 
-const int BarChartView::marginX = 8;
-const int BarChartView::marginY = 8;
+const int BarChartView::marginX = 16;
+const int BarChartView::marginY = 12;
 
 BarChartView::BarChartView(QWidget *parent)
   : QAbstractItemView(parent)

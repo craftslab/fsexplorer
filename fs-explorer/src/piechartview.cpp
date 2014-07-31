@@ -25,7 +25,7 @@
 #define M_PI 3.1415927
 #endif
 
-const int PieChartView::marginY = 8;
+const int PieChartView::marginY = 16;
 
 PieChartView::PieChartView(QWidget *parent)
   : QAbstractItemView(parent)
