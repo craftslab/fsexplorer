@@ -30,8 +30,7 @@ BarChartView::BarChartView(QWidget *parent)
   horizontalScrollBar()->setRange(0, 0);
   verticalScrollBar()->setRange(0, 0);
 
-  labelWidth = 80;
-  sizeWidth = 0;
+  labelWidth = 0;
   barWidth = 0;
   validItems = 0;
   rubberBand = NULL;
@@ -112,7 +111,13 @@ void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
   validItems = 0;
 
   for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
-    QModelIndex index = model()->index(row, 1, rootIndex());
+    QModelIndex index = model()->index(row, 0, rootIndex());
+    QString str = model()->data(index).toString();
+
+    int width = QFontMetrics(viewOptions().font).width(str);
+    labelWidth = (width > labelWidth) ? width : labelWidth;
+
+    index = model()->index(row, 1, rootIndex());
     qint64 value = model()->data(index).toLongLong();
 
     if (value >= 0) {
@@ -326,8 +331,7 @@ void BarChartView::paintEvent(QPaintEvent *event)
   }
 
   painter.save();
-
-  painter.translate(labelWidth + sizeWidth + marginX - horizontalScrollBar()->value(),
+  painter.translate(labelWidth + marginX - horizontalScrollBar()->value(),
                     marginY - verticalScrollBar()->value());
 
   int itemHeight = QFontMetrics(viewOptions().font).height();
@@ -365,7 +369,7 @@ void BarChartView::resizeEvent(QResizeEvent *event)
     return;
   }
 
-  barWidth = size.width() - (marginX * 2) - labelWidth - sizeWidth;
+  barWidth = size.width() - (marginX * 2) - labelWidth;
 
   updateGeometries();
 }

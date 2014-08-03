@@ -78,7 +78,6 @@ private:
   static const int marginX;
 
   int labelWidth;
-  int sizeWidth;
   int barWidth;
   int validItems;
   QPoint origin;
