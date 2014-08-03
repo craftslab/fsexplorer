@@ -1446,9 +1446,13 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
     if (childStatList.size >= 0 && childStatList.size < 1024) {
       str = "%1 B";
       size = childStatList.size;
-    } else if (childStatList.size >= 1024){
+    } else if (childStatList.size >= 1024 && childStatList.size < 1048576) {
       str = "%1 KB";
       size = childStatList.size >> 10;
+    } else if (childStatList.size >= 1048576) {
+      str = "%1 MB";
+      size = childStatList.size >> 10;
+      size >>= 10;
     } else {
       str = "%1 B";
       size = 0;

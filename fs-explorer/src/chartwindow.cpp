@@ -124,8 +124,9 @@ void ChartWindow::setupBarChartView()
 
 void ChartWindow::showPieChartView()
 {
-  int size;
-  QList<int> sizeList;
+  QString unit;
+  int64_t size;
+  QList<int64_t> sizeList;
   QStringList pieces;
   QList<QStringList> piecesList;
   int i;
@@ -135,19 +136,25 @@ void ChartWindow::showPieChartView()
 
   piecesList.clear();
 
-  size = sizeList.at(0);
+  convertUnit(sizeList.at(0), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(QString(tr("MB used"))) << QString::number(size, 10) << colorYellow;
+  pieces << QString::number(size, 10).append(unit) << QString::number(sizeList.at(0), 10) << colorYellow;
   piecesList.append(pieces);
 
-  size = sizeList.at(1);
+  convertUnit(sizeList.at(1), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(QString(tr("MB free"))) << QString::number(size, 10) << colorBlue;
+  pieces << QString::number(size, 10).append(unit) << QString::number(sizeList.at(1), 10) << colorBlue;
   piecesList.append(pieces);
 
-  size = sizeList.at(2);
+  int64_t total = 0;
+
+  for (i = 0; i < sizeList.size(); ++i) {
+    total += sizeList.at(i);
+  }
+
+  convertUnit(total, size, unit);
   pieces.clear();
-  pieces << QString(tr("Total capacity: ")).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10);
+  pieces << QString(tr("Total capacity: ")).append(QString::number(size, 10)).append(unit) << QString::number(total, 10);
   piecesList.append(pieces);
 
   pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
@@ -169,8 +176,11 @@ void ChartWindow::showPieChartView()
 
 void ChartWindow::showBarChartView()
 {
+  QString unit;
+  QString name;
   QStringList nameList;
-  QList<int> sizeList;
+  int64_t size;
+  QList<int64_t> sizeList;
   QStringList bar;
   QList<QStringList> barList;
 
@@ -181,11 +191,11 @@ void ChartWindow::showBarChartView()
   barList.clear();
 
   for (int i = 0; i < barChartRowCount; ++i) {
-    QString name = nameList.at(i);
-    int size = sizeList.at(i);
+    name = nameList.at(i);
 
+    convertUnit(sizeList.at(i), size, unit);
     bar.clear();
-    bar << name.append(QString(tr(" "))).append(QString::number(size, 10)).append(QString(tr("MB"))) << QString::number(size, 10) << colorYellow;
+    bar << name.append(QString(tr(" "))).append(QString::number(size, 10)).append(unit) << QString::number(sizeList.at(i), 10) << colorYellow;
 
     barList.append(bar);
   }
@@ -200,23 +210,30 @@ void ChartWindow::showBarChartView()
   }
 }
 
-void ChartWindow::getPieChartInfo(QList<int> &sizeList)
+void ChartWindow::getPieChartInfo(QList<int64_t> &sizeList)
 {
-  QList<int> list;
-  list.clear();
-
-  chartEngine->capacityList(list);
-
-  int total = 0;
-
-  for (int i = 0; i < list.size(); ++i) {
-    sizeList << list.at(i);
-    total += list.at(i);
-  }
-  sizeList << total;
+  chartEngine->capacityList(sizeList);
 }
 
-void ChartWindow::getBarChartInfo(QStringList &nameList, QList<int> &sizeList, int listLen)
+void ChartWindow::getBarChartInfo(QStringList &nameList, QList<int64_t> &sizeList, int listLen)
 {
   (void)chartEngine->sizeRankingList(nameList, sizeList, listLen);
+}
+
+void ChartWindow::convertUnit(int64_t src, int64_t &dst, QString &unit)
+{
+  if (src >= 0 && src < 1024) {
+    unit = tr("B");
+    dst = src;
+  } else if (src >= 1024 && src < 1048576) {
+    unit = tr("KB");
+    dst = src >> 10;
+  } else if (src >= 1048576) {
+    unit = tr("MB");
+    dst = src >> 10;
+    dst >>= 10;
+  } else {
+    unit = tr("B");
+    dst = 0;
+  }
 }

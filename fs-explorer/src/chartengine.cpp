@@ -32,12 +32,12 @@ ChartEngine::~ChartEngine()
   // Do nothing here
 }
 
-void ChartEngine::capacityList(QList<int> &capList)
+void ChartEngine::capacityList(QList<int64_t> &capList)
 {
   capList << 30 << 70;
 }
 
-int ChartEngine::sizeRankingList(QStringList &nameList, QList<int> &sizeList, int listLen)
+int ChartEngine::sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen)
 {
   for (int i = 0; i < listLen; ++i) {
     nameList << "bar";

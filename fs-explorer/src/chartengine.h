@@ -37,8 +37,8 @@ public:
   ChartEngine(FsEngine *engine, QWidget *parent = 0);
   ~ChartEngine();
 
-  void capacityList(QList<int> &capList);
-  int sizeRankingList(QStringList &nameList, QList<int> &sizeList, int listLen);
+  void capacityList(QList<int64_t> &capList);
+  int sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen);
 
 private:
   FsEngine *fsEngine;
