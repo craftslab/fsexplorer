@@ -111,7 +111,7 @@ void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
 
   validItems = 0;
 
-  for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
+  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
     double value = model()->data(index).toDouble();
 
