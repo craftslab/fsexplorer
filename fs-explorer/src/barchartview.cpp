@@ -350,8 +350,32 @@ void BarChartView::paintEvent(QPaintEvent *event)
     }
   }
 
+  for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+    QModelIndex index = model()->index(row, 1, rootIndex());
+    qint64 value = model()->data(index).toLongLong();
+
+    if (value >= 0) {
+      QModelIndex labelIndex = model()->index(row, 3, rootIndex());
+
+      QStyleOptionViewItem option = viewOptions();
+      option.rect = visualRect(labelIndex, marginX + labelWidth + marginX + barWidth, marginY);
+
+#if 0 // DISUSED here
+      if (selections->isSelected(labelIndex)) {
+        option.state |= QStyle::State_Selected;
+      }
+
+      if (currentIndex() == labelIndex) {
+        option.state |= QStyle::State_HasFocus;
+      }
+#endif
+
+      itemDelegate()->paint(&painter, option, labelIndex);
+    }
+  }
+
   painter.save();
-  painter.translate(labelWidth + marginX - horizontalScrollBar()->value(),
+  painter.translate(marginX + labelWidth - horizontalScrollBar()->value(),
                     marginY - verticalScrollBar()->value());
 
   int itemHeight = QFontMetrics(viewOptions().font).height();
@@ -389,7 +413,7 @@ void BarChartView::resizeEvent(QResizeEvent *event)
     return;
   }
 
-  barWidth = size.width() - (marginX * 2) - labelWidth - sizeWidth;
+  barWidth = size.width() - marginX - (labelWidth + marginX) - sizeWidth - marginX;
 
   updateGeometries();
 }
@@ -455,6 +479,17 @@ QRect BarChartView::itemRect(const QModelIndex &index, int offsetX, int offsetY)
                    static_cast<int> (itemHeight));
     case 1:
       return viewport()->rect();
+    case 2:
+      // Do nothing here
+      break;
+    case 3:
+      itemHeight = QFontMetrics(viewOptions().font).height();
+      return QRect(offsetX,
+                   static_cast<int> (offsetY + listItem * itemHeight),
+                   sizeWidth,
+                   static_cast<int> (itemHeight));
+    default:
+      break;
     }
   }
 
