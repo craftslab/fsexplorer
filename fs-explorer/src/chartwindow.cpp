@@ -29,6 +29,7 @@ const int ChartWindow::barChartRowCount = 10;
 
 const QString ChartWindow::colorYellow = QObject::tr("#fce94f");
 const QString ChartWindow::colorBlue = QObject::tr("#729fcf");
+const QString ChartWindow::colorGray = QObject::tr("#b6b6b6");
 
 ChartWindow::ChartWindow(const QString &title, FsEngine *engine, QWidget *parent)
   : QWidget(parent)
@@ -139,12 +140,12 @@ void ChartWindow::showPieChartView()
 
   convertUnit(sizeList.at(0), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(unit) << QString::number(sizeList.at(0), 10) << colorYellow;
+  pieces << QString::number(size, 10).append(unit).append(QString(tr(" used"))) << QString::number(sizeList.at(0), 10) << colorYellow;
   piecesList.append(pieces);
 
   convertUnit(sizeList.at(1), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(unit) << QString::number(sizeList.at(1), 10) << colorBlue;
+  pieces << QString::number(size, 10).append(unit).append(QString(tr(" free"))) << QString::number(sizeList.at(1), 10) << colorBlue;
   piecesList.append(pieces);
 
   int64_t total = 0;
@@ -202,7 +203,7 @@ void ChartWindow::showBarChartView()
 
     convertUnit(sizeList.at(i), size, unit);
     bar.clear();
-    bar << name << QString::number(sizeList.at(i), 10) << colorYellow << QString::number(size, 10).append(unit);
+    bar << name << QString::number(sizeList.at(i), 10) << colorGray << QString::number(size, 10).append(unit);
     barList.append(bar);
   }
 

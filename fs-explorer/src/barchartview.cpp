@@ -413,7 +413,11 @@ void BarChartView::resizeEvent(QResizeEvent *event)
     return;
   }
 
+#if 0 // DISUSED here
   barWidth = size.width() - marginX - (labelWidth + marginX) - sizeWidth - marginX;
+#else
+  barWidth = (size.width() * 2) / 5;
+#endif
 
   updateGeometries();
 }

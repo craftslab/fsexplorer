@@ -60,6 +60,7 @@ private:
 
   static const QString colorYellow;
   static const QString colorBlue;
+  static const QString colorGray;
 
   ChartEngine *chartEngine;
 
