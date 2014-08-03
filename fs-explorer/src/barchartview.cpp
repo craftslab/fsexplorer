@@ -399,7 +399,7 @@ void BarChartView::paintEvent(QPaintEvent *event)
         painter.setBrush(QBrush(color));
       }
 
-      int width = static_cast<int> ((value * barWidth) / maxWidth);
+      int width = maxWidth != 0 ? static_cast<int> ((value * barWidth) / maxWidth) : 0;
       painter.drawRect(0, itemHeight * row, width, itemHeight);
     }
   }

@@ -191,8 +191,10 @@ void ChartWindow::showBarChartView()
     return;
   }
 
-  for (int i = 0; i < (barChartRowCount - nameList.size()); ++i) {
-    nameList << "";
+  int len = barChartRowCount - nameList.size();
+
+  for (int i = 0; i < len; ++i) {
+    nameList << "<none>";
     sizeList << 0;
   }
 
