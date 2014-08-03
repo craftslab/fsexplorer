@@ -44,6 +44,7 @@ public:
   ~BarChartView();
 
   QRect visualRect(const QModelIndex &index) const;
+  QRect visualRect(const QModelIndex &index, int offsetX, int offsetY) const;
   void scrollTo(const QModelIndex &/* index */, ScrollHint /* hint = EnsureVisible */);
   QModelIndex indexAt(const QPoint &point) const;
 
@@ -69,8 +70,8 @@ protected:
   QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
 private:
-  QRect itemRect(const QModelIndex &item) const;
-  QRegion itemRegion(const QModelIndex &index) const;
+  QRect itemRect(const QModelIndex &item, int offsetX, int offsetY) const;
+  QRegion itemRegion(const QModelIndex &index, int offsetX, int offsetY) const;
   int rows(const QModelIndex &index = QModelIndex()) const;
   void updateGeometries();
 
@@ -79,6 +80,7 @@ private:
 
   int labelWidth;
   int barWidth;
+  int sizeWidth;
   int validItems;
   QPoint origin;
   QRubberBand *rubberBand;

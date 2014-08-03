@@ -32,6 +32,7 @@ BarChartView::BarChartView(QWidget *parent)
 
   labelWidth = 0;
   barWidth = 0;
+  sizeWidth = 0;
   validItems = 0;
   rubberBand = NULL;
 }
@@ -43,7 +44,20 @@ BarChartView::~BarChartView()
 
 QRect BarChartView::visualRect(const QModelIndex &index) const
 {
-  QRect rect = itemRect(index);
+  QRect rect = itemRect(index, marginX, marginY);
+
+  if (rect.isValid()) {
+    return QRect(rect.left() - horizontalScrollBar()->value(),
+                 rect.top() - verticalScrollBar()->value(),
+                 rect.width(), rect.height());
+  } else {
+    return rect;
+  }
+}
+
+QRect BarChartView::visualRect(const QModelIndex &index, int offsetX, int offsetY) const
+{
+  QRect rect = itemRect(index, offsetX, offsetY);
 
   if (rect.isValid()) {
     return QRect(rect.left() - horizontalScrollBar()->value(),
@@ -116,6 +130,12 @@ void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
 
     int width = QFontMetrics(viewOptions().font).width(str);
     labelWidth = (width > labelWidth) ? width : labelWidth;
+
+    index = model()->index(row, 3, rootIndex());
+    str = model()->data(index).toString();
+
+    width = QFontMetrics(viewOptions().font).width(str);
+    sizeWidth = (width > sizeWidth) ? width : sizeWidth;
 
     index = model()->index(row, 1, rootIndex());
     qint64 value = model()->data(index).toLongLong();
@@ -223,7 +243,7 @@ void BarChartView::setSelection(const QRect &rect, QItemSelectionModel::Selectio
   for (int row = 0; row < rows; ++row) {
     for (int column = 0; column < columns; ++column) {
       QModelIndex index = model()->index(row, column, rootIndex());
-      QRegion region = itemRegion(index);
+      QRegion region = itemRegion(index, marginX, marginY);
       if (!region.intersected(contentsRect).isEmpty()) {
         indexes.append(index);
       }
@@ -314,7 +334,7 @@ void BarChartView::paintEvent(QPaintEvent *event)
       QModelIndex labelIndex = model()->index(row, 0, rootIndex());
 
       QStyleOptionViewItem option = viewOptions();
-      option.rect = visualRect(labelIndex);
+      option.rect = visualRect(labelIndex, marginX, marginY);
 
 #if 0 // DISUSED here
       if (selections->isSelected(labelIndex)) {
@@ -369,7 +389,7 @@ void BarChartView::resizeEvent(QResizeEvent *event)
     return;
   }
 
-  barWidth = size.width() - (marginX * 2) - labelWidth;
+  barWidth = size.width() - (marginX * 2) - labelWidth - sizeWidth;
 
   updateGeometries();
 }
@@ -402,7 +422,7 @@ QRegion BarChartView::visualRegionForSelection(const QItemSelection &selection) 
   return region;
 }
 
-QRect BarChartView::itemRect(const QModelIndex &index) const
+QRect BarChartView::itemRect(const QModelIndex &index, int offsetX, int offsetY) const
 {
   if (!index.isValid()) {
     return QRect();
@@ -429,8 +449,8 @@ QRect BarChartView::itemRect(const QModelIndex &index) const
     switch (index.column()) {
     case 0:
       itemHeight = QFontMetrics(viewOptions().font).height();
-      return QRect(marginX,
-                   static_cast<int> (marginY + listItem * itemHeight),
+      return QRect(offsetX,
+                   static_cast<int> (offsetY + listItem * itemHeight),
                    labelWidth,
                    static_cast<int> (itemHeight));
     case 1:
@@ -441,14 +461,14 @@ QRect BarChartView::itemRect(const QModelIndex &index) const
   return QRect();
 }
 
-QRegion BarChartView::itemRegion(const QModelIndex &index) const
+QRegion BarChartView::itemRegion(const QModelIndex &index, int offsetX, int offsetY) const
 {
   if (!index.isValid()) {
     return QRegion();
   }
 
   if (index.column() != 1) {
-    return itemRect(index);
+    return itemRect(index, offsetX, offsetY);
   }
 
   if (model()->data(index).toLongLong() < 0) {
