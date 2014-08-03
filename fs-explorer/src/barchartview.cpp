@@ -128,13 +128,13 @@ void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
     QModelIndex index = model()->index(row, 0, rootIndex());
     QString str = model()->data(index).toString();
 
-    int width = QFontMetrics(viewOptions().font).width(str);
+    int width = QFontMetrics(viewOptions().font).width(str.append(QString(tr("   "))));
     labelWidth = (width > labelWidth) ? width : labelWidth;
 
     index = model()->index(row, 3, rootIndex());
     str = model()->data(index).toString();
 
-    width = QFontMetrics(viewOptions().font).width(str);
+    width = QFontMetrics(viewOptions().font).width(str.append(QString(tr("   "))));
     sizeWidth = (width > sizeWidth) ? width : sizeWidth;
 
     index = model()->index(row, 1, rootIndex());
