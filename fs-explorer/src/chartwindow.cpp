@@ -131,7 +131,7 @@ void ChartWindow::showPieChartView()
   int i;
 
   sizeList.clear();
-  getPieChartInfo(sizeList, pieChartRowCount);
+  getPieChartInfo(sizeList);
 
   piecesList.clear();
 
@@ -200,20 +200,23 @@ void ChartWindow::showBarChartView()
   }
 }
 
-void ChartWindow::getPieChartInfo(QList<int> &sizeList, int /* listLen */)
+void ChartWindow::getPieChartInfo(QList<int> &sizeList)
 {
-  sizeList << 30 << 70 << 100;
+  QList<int> list;
+  list.clear();
+
+  chartEngine->capacityList(list);
+
+  int total = 0;
+
+  for (int i = 0; i < list.size(); ++i) {
+    sizeList << list.at(i);
+    total += list.at(i);
+  }
+  sizeList << total;
 }
 
 void ChartWindow::getBarChartInfo(QStringList &nameList, QList<int> &sizeList, int listLen)
 {
-  for (int i = 0; i < listLen; ++i) {
-    nameList << "bar";
-  }
-
-  int size = 100;
-  for (int i = 0; i < listLen; ++i) {
-    sizeList << size;
-    size -= 10;
-  }
+  (void)chartEngine->sizeRankingList(nameList, sizeList, listLen);
 }

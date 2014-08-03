@@ -48,7 +48,7 @@ private:
   void setupBarChartView();
   void showPieChartView();
   void showBarChartView();
-  void getPieChartInfo(QList<int> &sizeList, int /* listLen */);
+  void getPieChartInfo(QList<int> &sizeList);
   void getBarChartInfo(QStringList &nameList, QList<int> &sizeList, int listLen);
 
   static const int width;

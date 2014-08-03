@@ -22,7 +22,10 @@
 #ifndef CHARTENGINE_H
 #define CHARTENGINE_H
 
-#include <QString>
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 
 #include "fsengine.h"
 
@@ -33,6 +36,9 @@ class ChartEngine : public QObject
 public:
   ChartEngine(FsEngine *engine, QWidget *parent = 0);
   ~ChartEngine();
+
+  void capacityList(QList<int> &capList);
+  int sizeRankingList(QStringList &nameList, QList<int> &sizeList, int listLen);
 
 private:
   FsEngine *fsEngine;

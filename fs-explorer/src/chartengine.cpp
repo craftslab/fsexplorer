@@ -23,13 +23,31 @@
 
 ChartEngine::ChartEngine(FsEngine *engine, QWidget *parent)
 {
-  parent = parent;
   fsEngine = engine;
-
-  // TODO
+  parent = parent;
 }
 
 ChartEngine::~ChartEngine()
 {
   // Do nothing here
+}
+
+void ChartEngine::capacityList(QList<int> &capList)
+{
+  capList << 30 << 70;
+}
+
+int ChartEngine::sizeRankingList(QStringList &nameList, QList<int> &sizeList, int listLen)
+{
+  for (int i = 0; i < listLen; ++i) {
+    nameList << "bar";
+  }
+
+  int size = 100;
+  for (int i = 0; i < listLen; ++i) {
+    sizeList << size;
+    size -= 10;
+  }
+
+  return listLen;
 }
