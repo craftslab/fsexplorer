@@ -37,17 +37,100 @@ void ChartEngine::capacityList(QList<int64_t> &capList)
   capList << 30 << 70;
 }
 
-int ChartEngine::sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen)
+void ChartEngine::sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen)
 {
-  for (int i = 0; i < listLen; ++i) {
-    nameList << "bar";
+  struct fs_dirent root = fsEngine->getFileRoot();
+
+  traverse(root, nameList, sizeList, listLen);
+}
+
+void ChartEngine::traverse(const struct fs_dirent &dent, QStringList &nameList, QList<int64_t> &sizeList, int listLen)
+{
+  unsigned long long ino = dent.d_ino;
+  unsigned int num = fsEngine->getFileChildsNum(ino);
+
+  if (num == 0) {
+    return;
   }
 
-  int size = 100;
-  for (int i = 0; i < listLen; ++i) {
-    sizeList << size;
-    size -= 10;
+  struct fs_dirent *childs = new fs_dirent[num];
+  if (!childs) {
+    return;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
+
+  bool ret = fsEngine->getFileChildsList(ino, childs, num);
+  if (!ret) {
+    goto traverseExit;
   }
 
-  return listLen;
+  for (int i = 0; i < (int)num; ++i) {
+    QString name = QObject::tr(childs[i].d_name);
+
+    if (!QString::compare(name, QString(FS_DNAME_DOT))
+        || !QString::compare(name, QString(FS_DNAME_DOTDOT))) {
+      continue;
+    }
+
+    if (childs[i].d_type != FT_DIR) {
+      struct fs_kstat stat = fsEngine->getFileChildsStat((unsigned long long)childs[i].d_ino);
+
+      int index = insertSizeList(sizeList, stat.size, listLen);
+      if (index >= 0) {
+        nameList.insert(index, name);
+
+        if (nameList.size() > listLen) {
+          nameList.removeLast();
+        }
+      }
+    }
+
+    traverse(childs[i], nameList, sizeList, listLen);
+  }
+
+traverseExit:
+
+  if (childs) {
+    delete[] childs;
+    childs = NULL;
+  }
+}
+
+int ChartEngine::insertSizeList(QList<int64_t> &sizeList, int64_t item, int listLen)
+{
+  int index = -1;
+  int i;
+
+  if (sizeList.size() == 0) {
+    sizeList << item;
+    return 0;
+  }
+
+  if ((item <= sizeList.last()) && (sizeList.size() == listLen)) {
+    return -1;
+  }
+
+  for (i = sizeList.size() - 1; i >= 0; --i) {
+    if (item <= sizeList.at(i)) {
+      index = i + 1;
+      sizeList.insert(index, item);
+      
+      if (sizeList.size() > listLen) {
+        sizeList.removeLast();
+      }
+
+      break;
+    }
+  }
+
+  if (i < 0) {
+    index = 0;
+    sizeList.insert(index, item);
+
+    if (sizeList.size() > listLen) {
+      sizeList.removeLast();
+    }
+  }
+
+  return index;
 }

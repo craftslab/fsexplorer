@@ -87,13 +87,13 @@ QModelIndex BarChartView::indexAt(const QPoint &point) const
 
   int wy = point.y() + verticalScrollBar()->value();
 
-  double itemHeight = QFontMetrics(viewOptions().font).height();
+  int itemHeight = QFontMetrics(viewOptions().font).height();
   int listItem = static_cast<int> ((wy - marginY) / itemHeight);
   int validRow = 0;
 
   for (int row = 0; row < model()->rowCount(rootIndex()) - 1; ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    if (model()->data(index).toDouble() > 0.0) {
+    if (model()->data(index).toLongLong() >= 0) {
       if (listItem == validRow) {
         return model()->index(row, 0, rootIndex());
       }
@@ -113,9 +113,9 @@ void BarChartView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bo
 
   for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    double value = model()->data(index).toDouble();
+    qint64 value = model()->data(index).toLongLong();
 
-    if (value > 0.0) {
+    if (value >= 0) {
       validItems++;
     }
   }
@@ -127,9 +127,9 @@ void BarChartView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
   for (int row = start; row <= end; ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    double value = model()->data(index).toDouble();
+    qint64 value = model()->data(index).toLongLong();
 
-    if (value > 0.0) {
+    if (value >= 0) {
       validItems++;
     }
   }
@@ -141,8 +141,9 @@ void BarChartView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, in
 {
   for (int row = start; row <= end; ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    double value = model()->data(index).toDouble();
-    if (value > 0.0) {
+    qint64 value = model()->data(index).toLongLong();
+
+    if (value >= 0) {
       validItems--;
     }
   }
@@ -302,9 +303,9 @@ void BarChartView::paintEvent(QPaintEvent *event)
 
   for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    double value = model()->data(index).toDouble();
+    qint64 value = model()->data(index).toLongLong();
 
-    if (value > 0.0) {
+    if (value >= 0) {
       QModelIndex labelIndex = model()->index(row, 0, rootIndex());
 
       QStyleOptionViewItem option = viewOptions();
@@ -329,16 +330,16 @@ void BarChartView::paintEvent(QPaintEvent *event)
   painter.translate(labelWidth + sizeWidth + marginX - horizontalScrollBar()->value(),
                     marginY - verticalScrollBar()->value());
 
-  double itemHeight = QFontMetrics(viewOptions().font).height();
+  int itemHeight = QFontMetrics(viewOptions().font).height();
 
   QModelIndex maxWidthIndex = model()->index(0, 1, rootIndex());
-  int maxWidth = model()->data(maxWidthIndex, Qt::DisplayRole).toInt();
+  qint64 maxWidth = model()->data(maxWidthIndex).toLongLong();
 
   for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
     QModelIndex index = model()->index(row, 1, rootIndex());
-    double value = model()->data(index).toDouble();
+    qint64 value = model()->data(index).toLongLong();
 
-    if (value > 0.0) {
+    if (value >= 0) {
       QModelIndex colorIndex = model()->index(row, 2, rootIndex());
       QColor color = QColor(model()->data(colorIndex, Qt::DisplayRole).toString());
 
@@ -350,10 +351,7 @@ void BarChartView::paintEvent(QPaintEvent *event)
         painter.setBrush(QBrush(color));
       }
 
-      QModelIndex widthIndex = model()->index(row, 1, rootIndex());
-      int width = model()->data(widthIndex, Qt::DisplayRole).toInt();
-
-      width = (width * barWidth) / maxWidth;
+      int width = static_cast<int> ((value * barWidth) / maxWidth);
       painter.drawRect(0, itemHeight * row, width, itemHeight);
     }
   }
@@ -414,15 +412,15 @@ QRect BarChartView::itemRect(const QModelIndex &index) const
     valueIndex = index;
   }
 
-  if (model()->data(valueIndex).toDouble() > 0.0) {
+  if (model()->data(valueIndex).toLongLong() >= 0) {
     int listItem = 0;
     for (int row = index.row() - 1; row >= 0; --row) {
-      if (model()->data(model()->index(row, 1, rootIndex())).toDouble() > 0.0) {
+      if (model()->data(model()->index(row, 1, rootIndex())).toLongLong() >= 0) {
         listItem++;
       }
     }
 
-    double itemHeight;
+    int itemHeight;
 
     switch (index.column()) {
     case 0:
@@ -449,7 +447,7 @@ QRegion BarChartView::itemRegion(const QModelIndex &index) const
     return itemRect(index);
   }
 
-  if (model()->data(index).toDouble() <= 0.0) {
+  if (model()->data(index).toLongLong() < 0) {
     return QRegion();
   }
 

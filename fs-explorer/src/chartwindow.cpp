@@ -184,9 +184,15 @@ void ChartWindow::showBarChartView()
   QStringList bar;
   QList<QStringList> barList;
 
-  nameList.clear();
-  sizeList.clear();
   getBarChartInfo(nameList, sizeList, barChartRowCount);
+  if (nameList.size() != sizeList.size()) {
+    return;
+  }
+
+  for (int i = 0; i < (barChartRowCount - nameList.size()); ++i) {
+    nameList << "";
+    sizeList << 0;
+  }
 
   barList.clear();
 
@@ -217,7 +223,7 @@ void ChartWindow::getPieChartInfo(QList<int64_t> &sizeList)
 
 void ChartWindow::getBarChartInfo(QStringList &nameList, QList<int64_t> &sizeList, int listLen)
 {
-  (void)chartEngine->sizeRankingList(nameList, sizeList, listLen);
+  chartEngine->sizeRankingList(nameList, sizeList, listLen);
 }
 
 void ChartWindow::convertUnit(int64_t src, int64_t &dst, QString &unit)

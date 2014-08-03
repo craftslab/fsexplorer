@@ -38,9 +38,12 @@ public:
   ~ChartEngine();
 
   void capacityList(QList<int64_t> &capList);
-  int sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen);
+  void sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen);
 
 private:
+  void traverse(const struct fs_dirent &dent, QStringList &nameList, QList<int64_t> &sizeList, int listLen);
+  int insertSizeList(QList<int64_t> &sizeList, int64_t size, int listLen);
+
   FsEngine *fsEngine;
 };
 #endif
