@@ -1231,7 +1231,7 @@ QStringList MainWindow::parseAddress(const QString &name)
 
   list = str.split(separator, QString::SkipEmptyParts);
 
-#if 0 // DISUSED herer
+#if 0 // DISUSED here
   for (int i = 0; i < list.size(); ++i) {
     list[i] = stripString(list[i]);
   }
