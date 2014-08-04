@@ -375,7 +375,7 @@ void BarChartView::paintEvent(QPaintEvent *event)
   }
 
   painter.save();
-  painter.translate(marginX + labelWidth - horizontalScrollBar()->value(),
+  painter.translate(marginX + labelWidth + (marginX / 2) - horizontalScrollBar()->value(),
                     marginY - verticalScrollBar()->value());
 
   int itemHeight = QFontMetrics(viewOptions().font).height();

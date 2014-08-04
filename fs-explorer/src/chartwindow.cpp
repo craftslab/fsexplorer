@@ -164,8 +164,8 @@ void ChartWindow::showPieChartView()
   for (i = 0; i < pieChartRowCount - 1; ++i) {
     pieChartModel->insertRows(i, 1, QModelIndex());
     pieChartModel->setData(pieChartModel->index(i, 0, QModelIndex()), piecesList.at(i).value(0), Qt::DisplayRole);
-    pieChartModel->setData(pieChartModel->index(i, 1, QModelIndex()), piecesList.at(i).value(1), Qt::DisplayRole);
     pieChartModel->setData(pieChartModel->index(i, 0, QModelIndex()), QColor(piecesList.at(i).value(2)), Qt::DecorationRole);
+    pieChartModel->setData(pieChartModel->index(i, 1, QModelIndex()), piecesList.at(i).value(1), Qt::DisplayRole);
   }
 
   i = pieChartRowCount - 1;
@@ -214,9 +214,13 @@ void ChartWindow::showBarChartView()
   for (int i = 0; i < barChartRowCount; ++i) {
     barChartModel->insertRows(i, 1, QModelIndex());
     barChartModel->setData(barChartModel->index(i, 0, QModelIndex()), barList.at(i).value(0), Qt::DisplayRole);
+    barChartModel->setData(barChartModel->index(i, 0, QModelIndex()), static_cast<int> (Qt::AlignRight | Qt::AlignVCenter),
+                           Qt::TextAlignmentRole);
     barChartModel->setData(barChartModel->index(i, 1, QModelIndex()), barList.at(i).value(1), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 2, QModelIndex()), barList.at(i).value(2), Qt::DisplayRole);
     barChartModel->setData(barChartModel->index(i, 3, QModelIndex()), barList.at(i).value(3), Qt::DisplayRole);
+    barChartModel->setData(barChartModel->index(i, 3, QModelIndex()), static_cast<int> (Qt::AlignRight | Qt::AlignVCenter),
+                           Qt::TextAlignmentRole);
   }
 }
 
