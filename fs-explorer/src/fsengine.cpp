@@ -158,13 +158,20 @@ QString FsEngine::getFileType() const
 struct fs_kstatfs FsEngine::getFileStat()
 {
   QMutexLocker locker(&mutex);
-  struct fs_kstatfs ret;
+  struct fs_kstatfs buf;
 
-  memset((void *)&ret, 0, sizeof(struct fs_kstatfs));
+  memset((void *)&buf, 0, sizeof(struct fs_kstatfs));
 
-  // TODO
+  if (!fileOpt || !fileOpt->statfs || !fileName) {
+    return buf;
+  }
 
-  return ret;
+  int32_t ret = fileOpt->statfs((const char *)fileName->constData(), &buf);
+  if (ret != 0) {
+    return buf;
+  }
+
+  return buf;
 }
 
 QString FsEngine::getFileStatDetail()

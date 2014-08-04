@@ -34,6 +34,8 @@ ChartEngine::~ChartEngine()
 
 void ChartEngine::capacityList(QList<int64_t> &capList)
 {
+  struct fs_kstatfs stat = fsEngine->getFileStat();
+
   capList << 30 << 70;
 }
 
