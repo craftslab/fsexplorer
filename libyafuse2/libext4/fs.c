@@ -951,11 +951,39 @@ static int32_t fs_traverse_dentry(struct dentry **dentry)
  */
 static int32_t fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
+  struct ext4_super_block ext4_sb;
+  int32_t ret;
+
   if (!dentry || !buf) {
     return -1;
   }
 
-  // TODO
+  /*
+   * Fill in Ext4 superblock
+   */
+  memset((void *)&ext4_sb, 0, sizeof(struct ext4_super_block));
+  ret = ext4_raw_super(&ext4_sb);
+  if (ret != 0) {
+    return -1;
+  }
+
+  /*
+   * Fill in struct kstatfs
+   */
+  buf->f_bsize = (int64_t)pow((double)2, (double)(10 + ext4_sb.s_log_block_size));
+  buf->f_blocks = (uint64_t)(((uint64_t)ext4_sb.s_blocks_count_hi << 32) | (uint64_t)ext4_sb.s_blocks_count_lo);
+  buf->f_bfree = (uint64_t)(((uint64_t)ext4_sb.s_free_blocks_count_hi << 32) | (uint64_t)ext4_sb.s_free_blocks_count_lo);
+  buf->f_bavail = (uint64_t)buf->f_bfree - (((uint64_t)ext4_sb.s_r_blocks_count_hi << 32) | (uint64_t)ext4_sb.s_r_blocks_count_lo);
+
+#if 1 // TODO
+  buf->f_type = (int64_t)0;
+  buf->f_files = (uint64_t)0;
+  buf->f_ffree = (uint64_t)0;
+  memset((void *)&buf->f_fsid, 0, sizeof(struct fsid_t));
+  buf->f_namelen = (int64_t)0;
+  buf->f_frsize = (int64_t)0;
+  buf->f_flags = (int64_t)0;
+#endif
 
   return 0;
 }
