@@ -36,7 +36,10 @@ void ChartEngine::capacityList(QList<int64_t> &capList)
 {
   struct fs_kstatfs stat = fsEngine->getFileStat();
 
-  capList << 30 << 70;
+  int64_t sizeFree = stat.f_bfree * stat.f_bsize;
+  int64_t sizeUsed = stat.f_blocks * stat.f_bsize - sizeFree;
+
+  capList << sizeUsed << sizeFree;
 }
 
 void ChartEngine::sizeRankingList(QStringList &nameList, QList<int64_t> &sizeList, int listLen)

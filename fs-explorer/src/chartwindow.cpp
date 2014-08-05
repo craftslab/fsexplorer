@@ -126,8 +126,8 @@ void ChartWindow::setupBarChartView()
 
 void ChartWindow::showPieChartView()
 {
-  QString unit;
-  int64_t size;
+  int64_t sizeUsed, sizeFree, sizeTotal;
+  QString unitUsed, unitFree, unitTotal;
   QList<int64_t> sizeList;
   QStringList pieces;
   QList<QStringList> piecesList;
@@ -136,27 +136,23 @@ void ChartWindow::showPieChartView()
   sizeList.clear();
   getPieChartInfo(sizeList);
 
+  convertUnit(sizeList.at(0), sizeUsed, unitUsed);
+  convertUnit(sizeList.at(1), sizeFree, unitFree);
+  convertUnit(sizeList.at(0) + sizeList.at(1), sizeTotal, unitTotal);
+  sizeTotal = sizeUsed + sizeFree;
+
   piecesList.clear();
 
-  convertUnit(sizeList.at(0), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(unit).append(QString(tr(" used"))) << QString::number(sizeList.at(0), 10) << colorYellow;
+  pieces << QString::number(sizeUsed, 10).append(unitUsed).append(QString(tr(" used"))) << QString::number((sizeUsed * 100) / sizeTotal, 10) << colorYellow;
   piecesList.append(pieces);
 
-  convertUnit(sizeList.at(1), size, unit);
   pieces.clear();
-  pieces << QString::number(size, 10).append(unit).append(QString(tr(" free"))) << QString::number(sizeList.at(1), 10) << colorBlue;
+  pieces << QString::number(sizeFree, 10).append(unitFree).append(QString(tr(" free"))) << QString::number((sizeFree * 100) / sizeTotal, 10) << colorBlue;
   piecesList.append(pieces);
 
-  int64_t total = 0;
-
-  for (i = 0; i < sizeList.size(); ++i) {
-    total += sizeList.at(i);
-  }
-
-  convertUnit(total, size, unit);
   pieces.clear();
-  pieces << QString(tr("Total capacity: ")).append(QString::number(size, 10)).append(unit) << QString::number(total, 10);
+  pieces << QString(tr("Total capacity: ")).append(QString::number(sizeTotal, 10)).append(unitTotal) << QString::number(100, 10);
   piecesList.append(pieces);
 
   pieChartModel->removeRows(0, pieChartModel->rowCount(QModelIndex()), QModelIndex());
