@@ -870,7 +870,7 @@ void MainWindow::createToolBars()
   connect(searchAction, SIGNAL(triggered()), this, SLOT(search()));
 
   searchBar = new QLineEdit(this);
-  searchBar->setPlaceholderText(QString(tr("Search")));
+  searchBar->setPlaceholderText(QString(tr("Search with wildcards")));
   searchBar->setFrame(false);
   searchBar->addAction(searchAction, QLineEdit::TrailingPosition);
   connect(searchBar, SIGNAL(returnPressed()), this, SLOT(search()));
