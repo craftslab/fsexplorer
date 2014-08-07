@@ -190,7 +190,7 @@ void ChartWindow::showBarChartView()
   int len = barChartRowCount - nameList.size();
 
   for (int i = 0; i < len; ++i) {
-    nameList << "<none>";
+    nameList << tr("<none>");
     sizeList << 0;
   }
 
