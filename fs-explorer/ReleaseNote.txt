@@ -1,4 +1,15 @@
 -------------------------------------------------------------------------------
+Sept. 8th, 2014
+
+Bug-fix Release
+
+
+-- Bug Fixes
+
+   * fix incorrect encoding for non-latin character.
+
+
+-------------------------------------------------------------------------------
 August 6th, 2014
 
 Major Milestone Release
