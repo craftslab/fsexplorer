@@ -3,7 +3,7 @@
 [Setup]
 AppName=FS Explorer
 AppVerName=FS Explorer
-AppVersion=14.08 build 0908
+AppVersion=14.08 build 0911
 DefaultDirName={pf}\FS Explorer
 DefaultGroupName=FS Explorer
 Compression=lzma2
