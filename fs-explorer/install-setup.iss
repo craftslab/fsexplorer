@@ -4,7 +4,7 @@
 AppName=FS Explorer
 AppVerName=FS Explorer
 AppVersion=14.08 build 0908
-DefaultDirName={pf}\fs-explorer
+DefaultDirName={pf}\FS Explorer
 DefaultGroupName=FS Explorer
 Compression=lzma2
 SolidCompression=yes
