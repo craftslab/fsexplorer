@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
-Sept. 8th, 2014
+Sept. 11th, 2014
 
 Bug-fix Release
 
@@ -7,6 +7,8 @@ Bug-fix Release
 -- Bug Fixes
 
    * fix incorrect encoding for non-latin character.
+   * fix failure of exporting file on Windows.
+   * rename directory of installation on Windows.
 
 
 -------------------------------------------------------------------------------
