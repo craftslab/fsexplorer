@@ -332,7 +332,7 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
   QFile file;
   long offset;
-  volatile long round, mod;
+  volatile long mod;
   bool ret;
 
   if (!fileBuf) {
@@ -359,9 +359,8 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   }
 
   long num = 0;
-  round = stat.size / size;
   offset = 0;
-  for (int i = 0; i < round; ++i, offset += size) {
+  for (int i = 0; i < (stat.size / size); ++i, offset += size) {
     memset((void *)fileBuf, 0, size);
     ret = fsEngine->readFile(ino, offset, fileBuf, size, &num);
     if (!ret || num == 0 || num != size) {
