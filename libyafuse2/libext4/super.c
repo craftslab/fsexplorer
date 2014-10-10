@@ -67,14 +67,14 @@ int32_t ext4_fill_super_info(struct super_block *sb, struct ext4_super_block *es
   uint64_t blocks_count = (uint64_t)es->s_blocks_count_hi << 32 | (uint64_t)es->s_blocks_count_lo;
   int32_t ret;
 
-  info->s_desc_size = (__le64)es->s_desc_size;
+  info->s_desc_size = (__le64)EXT4_DESC_SIZE(es);
   info->s_inodes_per_block = (__le64)(block_size / es->s_inode_size);
   info->s_blocks_per_group = (__le64)es->s_blocks_per_group;
   info->s_inodes_per_group = (__le64)es->s_inodes_per_group;
   info->s_itb_per_group = (__le64)(info->s_inodes_per_group / info->s_inodes_per_block);
   info->s_groups_count = (ext4_group_t)((blocks_count - es->s_first_data_block + es->s_blocks_per_group - 1) / es->s_blocks_per_group);
   info->s_desc_per_block = (__le64)(block_size / info->s_desc_size);
- 
+
   info->s_es = (struct ext4_super_block *)malloc(sizeof(struct ext4_super_block));
   if (!info->s_es) {
     ret = -1;

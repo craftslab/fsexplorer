@@ -172,7 +172,15 @@ struct ext4_group_desc_min
 #define EXT4_MIN_DESC_SIZE 32
 #define EXT4_MIN_DESC_SIZE_64BIT 64
 #define EXT4_MAX_DESC_SIZE EXT4_MIN_BLOCK_SIZE
+
+#if 0
 #define EXT4_DESC_SIZE(s) (EXT4_SB(s)->s_desc_size)
+#else
+#define EXT4_DESC_SIZE(s) \
+      (((s)->s_feature_incompat & EXT4_FEATURE_INCOMPAT_64BIT) ? \
+      (s)->s_desc_size : EXT4_MIN_DESC_SIZE)
+#endif
+
 #define EXT4_BLOCKS_PER_GROUP(s) ((s)->s_blocks_per_group)
 #define EXT4_DESC_PER_BLOCK(s) (EXT4_BLOCK_SIZE(s) / EXT4_DESC_SIZE(s))
 #define EXT4_INODES_PER_GROUP(s) ((s)->s_inodes_per_group)

@@ -498,7 +498,7 @@ void ext4_show_stat_sb(struct ext4_super_block *sb, char *buf, int32_t buf_len)
 
     len = snprintf(buf, buf_len, "Reserved char padding : %u\n", sb->s_reserved_char_pad);
     buf += len;
-    len = snprintf(buf, buf_len, "Group descriptors size : %u\n", sb->s_desc_size);
+    len = snprintf(buf, buf_len, "Group descriptors size : %u\n", EXT4_DESC_SIZE(sb));
     buf += len;
 
     str = NULL;
@@ -673,7 +673,7 @@ void ext4_show_stat_gdp(struct ext4_super_block *sb, ext4_group_t bg, struct ext
   int32_t len = 0;
 
   if (sb->s_feature_incompat & EXT4_FEATURE_INCOMPAT_64BIT
-      && sb->s_desc_size > EXT4_MIN_DESC_SIZE) {
+      && EXT4_DESC_SIZE(sb) > EXT4_MIN_DESC_SIZE) {
     /*
      * Disused here due to 'struct ext4_group_desc_min' used here,
      * instead of 'struct ext4_group_desc'

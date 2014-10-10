@@ -131,7 +131,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, ext4_group_t bg, struct ext4
     return -1;
   }
 
-  ret = io_read((uint8_t *)gdp, (int64_t)es->s_desc_size);
+  ret = io_read((uint8_t *)gdp, (int64_t)EXT4_DESC_SIZE(es));
   if (ret != 0) {
     return -1;
   }
@@ -169,7 +169,7 @@ int32_t ext4_raw_group_desc(struct super_block *sb, uint32_t bg_cnt, struct ext4
         return -1;
       }
 
-      ret = io_read((uint8_t *)gdp, (int64_t)(es->s_desc_size * bg_cnt));
+      ret = io_read((uint8_t *)gdp, (int64_t)(EXT4_DESC_SIZE(es) * bg_cnt));
       if (ret != 0) {
         return -1;
       }

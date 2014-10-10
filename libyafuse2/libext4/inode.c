@@ -79,7 +79,7 @@ static inline uint64_t ext4_inode_table(struct super_block *sb, struct ext4_grou
    * Use 'struct ext4_group_desc_min' instead of 'struct ext4_group_desc' here
    */
   return gdp->bg_inode_table_lo
-    | (es->s_desc_size >= EXT4_MIN_DESC_SIZE_64BIT ? (uint64_t)(gdp->bg_inode_table_hi) << 32 : 0);
+    | (EXT4_DESC_SIZE(es) >= EXT4_MIN_DESC_SIZE_64BIT ? (uint64_t)(gdp->bg_inode_table_hi) << 32 : 0);
 }
 
 int32_t ext4_raw_inode(struct super_block *sb, uint64_t ino, struct ext4_inode *inode)
