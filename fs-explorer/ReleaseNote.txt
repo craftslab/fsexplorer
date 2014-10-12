@@ -17,7 +17,7 @@ August 6th, 2014
 Major Milestone Release
 
 
-- Summary of Changes for FS Explorer
+- Summary of Changes for Fs Explorer
 
 -- Features
 
@@ -72,7 +72,7 @@ July 11th, 2014
 Major Milestone Release
 
 
-- Summary of Changes for FS Explorer
+- Summary of Changes for Fs Explorer
 
 -- Features
 
@@ -129,7 +129,7 @@ June 15th, 2014
 Major Milestone Release
 
 
-- Summary of Changes for FS Explorer
+- Summary of Changes for Fs Explorer
 
 -- Features
 
@@ -184,7 +184,7 @@ May 13th, 2014
 Major Milestone Release
 
 
-- Summary of Changes for FS Explorer
+- Summary of Changes for Fs Explorer
 
 -- Features
 
@@ -244,7 +244,7 @@ April 6th, 2014
 Major Milestone Release (Preview Rlease)
 
 
-- Summary of Changes for FS Explorer
+- Summary of Changes for Fs Explorer
 
 -- Features
 

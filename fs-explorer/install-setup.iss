@@ -1,11 +1,11 @@
 ; -- install-setup.iss --
 
 [Setup]
-AppName=FS Explorer
-AppVerName=FS Explorer
-AppVersion=14.08 build 0911
-DefaultDirName={pf}\FS Explorer
-DefaultGroupName=FS Explorer
+AppName=Fs Explorer
+AppVerName=Fs Explorer
+AppVersion=14.10
+DefaultDirName={pf}\Fs Explorer
+DefaultGroupName=Fs Explorer
 Compression=lzma2
 SolidCompression=yes
 OutputDir=install32\win
@@ -22,8 +22,8 @@ Source: ".\release\ReleaseNote.txt"; DestDir: "{app}"
 Source: ".\release\icon.ico"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\FS Explorer"; Filename: "{app}\bin\fs-explorer.exe"; IconFilename: "{app}\icon.ico"
-Name: "{group}\Uninstall FS Explorer"; Filename: "{uninstallexe}"
+Name: "{group}\Fs Explorer"; Filename: "{app}\bin\fs-explorer.exe"; IconFilename: "{app}\icon.ico"
+Name: "{group}\Uninstall Fs Explorer"; Filename: "{uninstallexe}"
 Name: "{group}\Release Note"; Filename: "{app}\ReleaseNote.txt"
 
 [UninstallDelete]

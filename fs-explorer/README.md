@@ -10,12 +10,12 @@ For release notes, see [ReleaseNote.txt](https://github.com/lemonjia/Fricando/re
 # Installation
 
 ## Windows XP, 7+
-[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/win)
+[32-bit Fs Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/win)
 
 ## Ubuntu 12.04+
-[32-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/unix)
+[32-bit Fs Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install32/unix)
 
-[64-bit FS Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install64/unix)
+[64-bit Fs Explorer Install](https://github.com/lemonjia/Fricando-install/blob/master/fs-explorer/install64/unix)
 
 ![Screenshot](https://github.com/lemonjia/Fricando-install/blob/master/screenshot-ubuntu.png)
 
@@ -26,9 +26,9 @@ ongoing...
 
 ## Overview
 
-[FS Explorer](https://github.com/lemonjia/Fricando/blob/master/fs-explorer) - the GUI front-end of libyafuse2.
+[Fs Explorer](https://github.com/lemonjia/Fricando/blob/master/fs-explorer) - the GUI front-end of libyafuse2.
 
-The source code of FS Explorer contains several precompiled libraries:
+The source code of Fs Explorer contains several precompiled libraries:
 
 [fs-explorer/lib32/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib32/unix), [fs-explorer/lib64/unix](https://github.com/lemonjia/Fricando/blob/master/fs-explorer/lib64/unix) - 32-bit/64-bit, precompiled by gcc from libyafuse2.
 
@@ -36,7 +36,7 @@ The source code of FS Explorer contains several precompiled libraries:
 
 ## Building
 
-The build of FS Explorer requires Qt 5.2+.
+The build of Fs Explorer requires Qt 5.2+.
 
 After satisfying those requirements, the build is pretty simple:
 

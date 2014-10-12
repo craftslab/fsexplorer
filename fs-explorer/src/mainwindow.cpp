@@ -3,30 +3,30 @@
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
- * This file is part of FS Explorer.
+ * This file is part of Fs Explorer.
  *
- * FS explorer is free software: you can redistribute it and/or modify
+ * Fs Explorer is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * FS Explorer is distributed in the hope that it will be useful,
+ * Fs Explorer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with FS Explorer.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Fs Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "mainwindow.h"
 
-const QString MainWindow::title = QObject::tr("FS Explorer");
-const QString MainWindow::version = QObject::tr("14.08 build 0911");
+const QString MainWindow::title = QObject::tr("Fs Explorer");
+const QString MainWindow::version = QObject::tr("14.10");
 const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here
-const QString MainWindow::label = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "FS Explorer" "</span></p>");
+const QString MainWindow::label = QObject::tr("<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> <img src= :/images/label.png </img> <span style=\" font-size:30pt; font-weight:600;\">" "Fs Explorer" "</span></p>");
 #else
 const QString MainWindow::label = QObject::tr("<p align=\"center\"> <img src= :/images/label.png </img> </p>");
 #endif
@@ -139,7 +139,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openFile()
 {
-  QString filter = tr("FS Image (*.img *.ext4 *.fat)");
+  QString filter = tr("Fs Image (*.img *.ext4 *.fat)");
   filter += tr(";;All Files (*)");
 
   QString file = QFileDialog::getOpenFileName(this, tr("Choose File"), fsPathOpen, filter);
@@ -254,13 +254,13 @@ void MainWindow::stats()
 {
   QString stat = fsEngine->getFileStatDetail();
 
-  statsWindow = new StatsWindow(tr("FS Stats"), stat, this);
+  statsWindow = new StatsWindow(tr("Fs Stats"), stat, this);
   statsWindow->show();
 }
 
 void MainWindow::chart()
 {
-  chartWindow = new ChartWindow(tr("FS Chart"), fsEngine, this);
+  chartWindow = new ChartWindow(tr("Fs Chart"), fsEngine, this);
   chartWindow->show();
 }
 
