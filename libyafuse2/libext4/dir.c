@@ -56,6 +56,8 @@ static char buf[EXT4_SHOW_STAT_DENTRY_SZ];
 static int32_t ext4_find_dentry(struct inode *inode, uint64_t offset, struct ext4_dir_entry_2 *dentry);
 static int32_t ext4_get_dents_num(struct inode *inode, uint64_t offset, uint32_t *dents_num);
 static int32_t ext4_get_dents(struct inode *inode, uint64_t offset, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
+static int32_t ext4_get_direct_dents_num(struct inode *inode, uint32_t *dents_num);
+static int32_t ext4_get_direct_dents(struct inode *inode, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num);
 static int32_t ext4_get_extent_dents_num(struct inode *inode, struct ext4_extent *ee, uint32_t *dents_num);
 static int32_t ext4_get_extent_dents(struct inode *inode, struct ext4_extent *ee, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
 static int32_t ext4_traverse_extent_dents_num(struct inode *inode, struct ext4_extent_idx *ei, uint32_t *dents_num);
@@ -174,6 +176,61 @@ static int32_t ext4_get_dents(struct inode *inode, uint64_t offset, struct ext4_
   }
 
   *dents_index = i;
+
+  return ret;
+}
+
+static int32_t ext4_get_direct_dents_num(struct inode *inode, uint32_t *dents_num)
+{
+  struct super_block *sb = inode->i_sb;
+  uint32_t num;
+  uint64_t offset;
+  int32_t i;
+  int32_t ret;
+
+  if (inode->i_block[EXT4_IND_BLOCK]
+      || inode->i_block[EXT4_DIND_BLOCK]
+      || inode->i_block[EXT4_TIND_BLOCK]) {
+    // TODO
+    return -1;
+  }
+
+  *dents_num = 0;
+
+  for (i = 0; i < EXT4_NDIR_BLOCKS; ++i) {
+    offset = (uint64_t)inode->i_block[i] * sb->s_blocksize;
+    ret = ext4_get_dents_num(inode, offset, &num);
+    if (ret != 0) {
+      break;
+    }
+
+    *dents_num += num;
+  }
+
+  return ret;
+}
+
+static int32_t ext4_get_direct_dents(struct inode *inode, struct ext4_dir_entry_2 *dents, uint32_t *dents_index, uint32_t dents_num)
+{
+  struct super_block *sb = inode->i_sb;
+  uint64_t offset;
+  int32_t i;
+  int32_t ret;
+
+  if (inode->i_block[EXT4_IND_BLOCK]
+      || inode->i_block[EXT4_DIND_BLOCK]
+      || inode->i_block[EXT4_TIND_BLOCK]) {
+    // TODO
+    return -1;
+  }
+
+  for (i = 0; i < EXT4_NDIR_BLOCKS && *dents_index < dents_num; ++i) {
+    offset = (uint64_t)inode->i_block[i] * sb->s_blocksize;
+    ret = ext4_get_dents(inode, offset, dents, dents_index);
+    if (ret != 0) {
+      break;
+    }
+  }
 
   return ret;
 }
@@ -350,6 +407,7 @@ ext4_traverse_extent_dents_exit:
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 {
   struct inode *inode = parent->d_inode;
+  int32_t ret;
 
   /*
    * Support for linear directories only
@@ -361,13 +419,20 @@ int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 
   *childs_num = 0;
 
-  return ext4_traverse_extent_dents_num(inode, NULL, childs_num);
+  if (ext4_ext_header_check(inode) == 0) {
+    ret = ext4_traverse_extent_dents_num(inode, NULL, childs_num);
+  } else {
+    ret = ext4_get_direct_dents_num(inode, childs_num);
+  }
+
+  return ret;
 }
 
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num)
 {
   struct inode *inode = parent->d_inode;
   uint32_t childs_index;
+  int32_t ret;
 
   /*
    * Support for linear directories only
@@ -380,5 +445,11 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
   parent->d_childnum = childs_num;
   childs_index = 0;
 
-  return ext4_traverse_extent_dents(inode, NULL, childs, &childs_index, childs_num);
+  if (ext4_ext_header_check(inode) == 0) {
+    ret = ext4_traverse_extent_dents(inode, NULL, childs, &childs_index, childs_num);
+  } else {
+    ret = ext4_get_direct_dents(inode, childs, &childs_index, childs_num);
+  }
+
+  return ret;
 }

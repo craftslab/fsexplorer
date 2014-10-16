@@ -57,6 +57,19 @@ static char buf[EXT4_SHOW_STAT_EXTENT_SZ];
 /*
  * Function Definition
  */
+int32_t ext4_ext_header_check(struct inode *inode)
+{
+  struct ext4_extent_header eh;
+
+  memcpy((void *)&eh, (const void *)inode->i_block, sizeof(struct ext4_extent_header));
+
+  if (eh.eh_magic != EXT4_EXT_MAGIC) {
+    return -1;
+  }
+
+  return 0;
+}
+
 int32_t ext4_ext_node_header(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_header *eh)
 {
   struct super_block *sb = inode->i_sb;

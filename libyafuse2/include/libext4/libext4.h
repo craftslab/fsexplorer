@@ -65,6 +65,7 @@ int32_t ext4_raw_link(struct inode *inode, int64_t offset, char *buf, size_t buf
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num);
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num);
 
+int32_t ext4_ext_header_check(struct inode *inode);
 int32_t ext4_ext_node_header(struct inode *inode, struct ext4_extent_idx *ei, struct ext4_extent_header *eh);
 int32_t ext4_ext_node_is_leaf(struct ext4_extent_header *eh);
 int32_t ext4_ext_node_num(struct ext4_extent_header *eh, uint16_t *nodes_num);
