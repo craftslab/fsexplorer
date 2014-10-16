@@ -666,7 +666,7 @@ struct ext4_dir_entry_2 {
 
 #define EXT4_DIR_PAD 4
 #define EXT4_DIR_ROUND (EXT4_DIR_PAD - 1)
-#define EXT4_DIR_REC_LEN(name_len) (((name_len) + 8 + EXT4_DIR_ROUND) &   ~EXT4_DIR_ROUND)
+#define EXT4_DIR_REC_LEN(name_len) (((name_len) + 8 + EXT4_DIR_ROUND) & ~EXT4_DIR_ROUND)
 #define EXT4_MAX_REC_LEN ((1<<16)-1)
 
 #define is_dx(dir) (EXT4_HAS_COMPAT_FEATURE(dir->i_sb, EXT4_FEATURE_COMPAT_DIR_INDEX) && (EXT4_I(dir)->i_flags & EXT4_INDEX_FL))
