@@ -330,99 +330,24 @@ ext4_traverse_extent_dents_exit:
 int32_t ext4_raw_dentry_num(struct dentry *parent, uint32_t *childs_num)
 {
   struct inode *inode = parent->d_inode;
-  struct ext4_extent_header eh;
-  struct ext4_extent_idx *eis = NULL;
-  struct ext4_extent *ees = NULL;
-  uint16_t nodes_num, i;
-  uint32_t dents_num;
-  int32_t ret;
 
   /*
    * Support for linear directories only
    * and hash tree directories are NOT supported yet
    */
   if (is_dx(inode)) {
-    return -1;
-  }
-
-  ret = ext4_ext_node_header(inode, NULL, &eh);
-  if (ret != 0) {
-    return -1;
-  }
-
-  ret = ext4_ext_node_num(&eh, &nodes_num);
-  if (ret != 0) {
     return -1;
   }
 
   *childs_num = 0;
 
-  if (ext4_ext_node_is_leaf(&eh)) {
-    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
-    if (!ees) {
-      return -1;
-    }
-    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
-
-    ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
-    if (ret != 0) {
-      goto ext4_raw_dentry_num_exit;
-    }
-
-    for (i = 0; i < nodes_num; ++i) {
-      ret = ext4_get_extent_dents_num(inode, &ees[i], &dents_num);
-      if (ret != 0) {
-        goto ext4_raw_dentry_num_exit;
-      }
-
-      *childs_num += dents_num;
-    }
-  } else {
-    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
-    if (!eis) {
-      return -1;
-    }
-    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
-
-    ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
-    if (ret != 0) {
-      goto ext4_raw_dentry_num_exit;
-    }
-
-    for (i = 0; i < nodes_num; ++i) {
-      ret = ext4_traverse_extent_dents_num(inode, &eis[i], childs_num);
-      if (ret != 0) {
-        goto ext4_raw_dentry_num_exit;
-      }
-    }
-  }
-
-  ret = 0;
-
-ext4_raw_dentry_num_exit:
-
-  if (ees) {
-    free((void *)ees);
-    ees = NULL;
-  }
-
-  if (eis) {
-    free((void *)eis);
-    eis = NULL;
-  }
-
-  return ret;
+  return ext4_traverse_extent_dents_num(inode, NULL, childs_num);
 }
 
 int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, uint32_t childs_num)
 {
   struct inode *inode = parent->d_inode;
-  struct ext4_extent_header eh;
-  struct ext4_extent_idx *eis = NULL;
-  struct ext4_extent *ees = NULL;
-  uint16_t nodes_num, i;
   uint32_t childs_index;
-  int32_t ret;
 
   /*
    * Support for linear directories only
@@ -432,69 +357,8 @@ int32_t ext4_raw_dentry(struct dentry *parent, struct ext4_dir_entry_2 *childs, 
     return -1;
   }
 
-  ret = ext4_ext_node_header(inode, NULL, &eh);
-  if (ret != 0) {
-    return -1;
-  }
-
-  ret = ext4_ext_node_num(&eh, &nodes_num);
-  if (ret != 0) {
-    return -1;
-  }
-
-  if (ext4_ext_node_is_leaf(&eh)) {
-    ees = (struct ext4_extent *)malloc(nodes_num * sizeof(struct ext4_extent));
-    if (!ees) {
-      return -1;
-    }
-    memset((void *)ees, 0, nodes_num * sizeof(struct ext4_extent));
-
-    ret = ext4_ext_leaf_node(inode, NULL, ees, nodes_num);
-    if (ret != 0) {
-      goto ext4_raw_dentry_exit;
-    }
-
-    for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
-      ret = ext4_get_extent_dents(inode, &ees[i], childs, &childs_index);
-      if (ret != 0) {
-        goto ext4_raw_dentry_exit;
-      }
-    }
-  } else {
-    eis = (struct ext4_extent_idx *)malloc(nodes_num * sizeof(struct ext4_extent_idx));
-    if (!eis) {
-      return -1;
-    }
-    memset((void *)eis, 0, nodes_num * sizeof(struct ext4_extent_idx));
-
-    ret = ext4_ext_index_node(inode, NULL, eis, nodes_num);
-    if (ret != 0) {
-      goto ext4_raw_dentry_exit;
-    }
-
-    for (i = 0, childs_index = 0; i < nodes_num && childs_index < childs_num; ++i) {
-      ret = ext4_traverse_extent_dents(inode, &eis[i], childs, &childs_index, childs_num);
-      if (ret != 0) {
-        goto ext4_raw_dentry_exit;
-      }
-    }
-  }
-
   parent->d_childnum = childs_num;
+  childs_index = 0;
 
-  ret = 0;
-
-ext4_raw_dentry_exit:
-
-  if (ees) {
-    free((void *)ees);
-    ees = NULL;
-  }
-
-  if (eis) {
-    free((void *)eis);
-    eis = NULL;
-  }
-
-  return ret;
+  return ext4_traverse_extent_dents(inode, NULL, childs, &childs_index, childs_num);
 }
