@@ -50,14 +50,53 @@
 /*
  * Function Declaration
  */
-static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos);
+static int32_t ext4_get_file(struct inode *inode, int64_t pos, uint64_t offset, char *buf, int64_t buf_len, int64_t *read_len);
 static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len);
+static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos);
 static int32_t ext4_traverse_extent_file(struct inode *inode, struct ext4_extent_idx *ei, int64_t offset, char *buf, int64_t buf_len, int64_t *read_len);
 static int32_t ext4_get_direct_link(struct inode *inode, uint64_t index, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len);
 
 /*
  * Function Definition
  */
+static int32_t ext4_get_file(struct inode *inode, int64_t pos, uint64_t offset, char *buf, int64_t buf_len, int64_t *read_len)
+{
+  int64_t len;
+  int32_t ret;
+
+  ret = io_seek(offset);
+  if (ret != 0) {
+    return -1;
+  }
+
+#if 0 //DISUSED here
+  len = (int64_t)(ee->ee_len * sb->s_blocksize) - pos;
+#else
+  len = inode->i_size - pos;
+#endif
+
+  len = len > (int64_t)buf_len ? (int64_t)buf_len : len;
+
+  ret = io_read((uint8_t *)buf, len);
+  if (ret != 0) {
+    return -1;
+  }
+
+  *read_len = len;
+
+  return 0;
+}
+
+static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len)
+{
+  struct super_block *sb = inode->i_sb;
+  uint64_t offset;
+
+  offset = (((uint64_t)ee->ee_start_hi << 32) | (uint64_t)ee->ee_start_lo) * sb->s_blocksize + pos;
+
+  return ext4_get_file(inode, pos, offset, buf, buf_len, read_len);
+}
+
 static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *ees, uint16_t num, int64_t offset, uint16_t *index, int64_t *pos)
 {
   struct super_block *sb = inode->i_sb;
@@ -84,37 +123,6 @@ static int32_t ext4_get_extent_blk_pos(struct inode *inode, struct ext4_extent *
   if (*index >= num) {
     return -1;
   }
-
-  return 0;
-}
-
-static int32_t ext4_get_extent_file(struct inode *inode, struct ext4_extent *ee, int64_t pos, char *buf, int64_t buf_len, int64_t *read_len)
-{
-  struct super_block *sb = inode->i_sb;
-  uint64_t offset;
-  int64_t len;
-  int32_t ret;
-
-  offset = (((uint64_t)ee->ee_start_hi << 32) | (uint64_t)ee->ee_start_lo) * sb->s_blocksize + pos;
-  ret = io_seek(offset);
-  if (ret != 0) {
-    return -1;
-  }
-
-#if 0 //DISUSED here
-  len = (int64_t)(ee->ee_len * sb->s_blocksize) - pos;
-#else
-  len = inode->i_size - pos;
-#endif
-
-  len = len > (int64_t)buf_len ? (int64_t)buf_len : len;
-
-  ret = io_read((uint8_t *)buf, len);
-  if (ret != 0) {
-    return -1;
-  }
-
-  *read_len = len;
 
   return 0;
 }
