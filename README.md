@@ -1,0 +1,1 @@
+Fricando project is built for file system explorer.
