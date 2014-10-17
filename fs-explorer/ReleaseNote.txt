@@ -1,4 +1,18 @@
 -------------------------------------------------------------------------------
+Oct. 17th, 2014
+
+Bug-fix Release
+
+
+-- Bug Fixes
+
+   * fix core dump when 's_desc_size' in ext4 sb is 0.
+   * support for ext4's direct block addressing with 'inode.i_block[EXT4_N_BLOCKS]',
+     indirect block addressing not supported yet.
+   * rename 'FS Explorer' with 'Fs Explorer'.
+
+
+-------------------------------------------------------------------------------
 Sept. 11th, 2014
 
 Bug-fix Release
