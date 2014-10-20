@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Oct. 17th, 2014
 
-Bug-fix Release
+Bug-fixed Release
 
 
 -- Bug Fixes
@@ -15,7 +15,7 @@ Bug-fix Release
 -------------------------------------------------------------------------------
 Sept. 11th, 2014
 
-Bug-fix Release
+Bug-fixed Release
 
 
 -- Bug Fixes
