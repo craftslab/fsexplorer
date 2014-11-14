@@ -236,7 +236,7 @@ void MainWindow::removeFile()
 
 void MainWindow::console()
 {
-  consoleWindow = new ConsoleWindow(this);
+  consoleWindow = new ConsoleWindow(fsEngine, this);
   consoleWindow->show();
 }
 

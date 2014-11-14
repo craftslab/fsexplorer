@@ -24,7 +24,7 @@
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
-ConsoleWindow::ConsoleWindow(QWidget *parent)
+ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
   textEdit = new QTextEdit(this);
@@ -42,7 +42,6 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
 #endif
 
   textEdit->clear();
-  textEdit->setPlainText(tr("ongoing..."));  
 
   layout = new QVBoxLayout(this);
   layout->addWidget(textEdit);
@@ -64,6 +63,8 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
     move(0, 0);
   }
   resize(width, height);
+
+  consoleEngine = new ConsoleEngine(engine, textEdit, this);
 }
 
 ConsoleWindow::~ConsoleWindow()

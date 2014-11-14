@@ -21,11 +21,16 @@
 
 #include "consoleengine.h"
 
-ConsoleEngine::ConsoleEngine(QObject *parent)
+const QString ConsoleEngine::prompt = QObject::tr("$ ");
+
+ConsoleEngine::ConsoleEngine(FsEngine *engine, QTextEdit *edit, QObject *parent)
 {
+  fsEngine = engine;
+  textEdit = edit;
   parent = parent;
 
-  // TODO
+  textEdit->clear();
+  textEdit->setPlainText(prompt);
 }
 
 ConsoleEngine::~ConsoleEngine()

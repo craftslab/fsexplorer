@@ -23,7 +23,7 @@
 #define SEARCHENGINE_H
 
 #include <QObject>
-#include <QLibrary>  
+#include <QLibrary>
 #include <QThread>
 #include <QMutex>
 #include <QStringList>

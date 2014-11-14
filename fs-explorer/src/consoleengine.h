@@ -22,17 +22,29 @@
 #ifndef CONSOLEENGINE_H
 #define CONSOLEENGINE_H
 
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 #include <QObject>
-#include <QLibrary>  
+#include <QLibrary>
 #include <QThread>
 #include <QMutex>
+
+#include "fsengine.h"
 
 class ConsoleEngine : public QObject
 {
   Q_OBJECT
 
 public:
-  ConsoleEngine(QObject *parent = 0);
+  ConsoleEngine(FsEngine *engine, QTextEdit *edit, QObject *parent = 0);
   ~ConsoleEngine();
+
+private:
+  static const QString prompt;
+
+  FsEngine *fsEngine;
+  QTextEdit *textEdit;
 };
 #endif

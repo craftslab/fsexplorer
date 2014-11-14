@@ -34,7 +34,7 @@ class ConsoleWindow : public QWidget
   Q_OBJECT
 
 public:
-  ConsoleWindow(QWidget *parent = 0);
+  ConsoleWindow(FsEngine *engine, QWidget *parent = 0);
   ~ConsoleWindow();
 
 protected:
@@ -47,5 +47,7 @@ private:
   QTextEdit *textEdit;
   QVBoxLayout *layout;
   QShortcut *shortcut;
+
+  ConsoleEngine *consoleEngine;
 };
 #endif
