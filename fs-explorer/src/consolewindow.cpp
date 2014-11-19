@@ -24,6 +24,8 @@
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
+const QString ConsoleWindow::prompt = QObject::tr("$ ");
+
 ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
@@ -42,6 +44,7 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
 #endif
 
   textEdit->clear();
+  textEdit->setPlainText(prompt);
 
   layout = new QVBoxLayout(this);
   layout->addWidget(textEdit);
@@ -64,15 +67,41 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   }
   resize(width, height);
 
-  consoleEngine = new ConsoleEngine(engine, textEdit, this);
+  consoleEngine = new ConsoleEngine(engine, this);
+  consoleEngine->moveToThread(&consoleThread);
+
+  connect(&consoleThread, &QThread::finished, consoleEngine, &QObject::deleteLater);
+  connect(this, &ConsoleWindow::operate, consoleEngine, &ConsoleEngine::doWork);
+  connect(consoleEngine, &ConsoleEngine::resultReady, this, &ConsoleWindow::handleResults);
+
+  consoleThread.start();
 }
 
 ConsoleWindow::~ConsoleWindow()
 {
-  // Do nothing here
+  consoleThread.quit();
+  consoleThread.wait();
+}
+
+void ConsoleWindow::handleResults(const QStringList &list)
+{
+  QString text;
+
+  for (int i = 0; i < list.size(); ++i) {
+    text.append(list[i]);
+  }
+  text.append(tr("\n"));
+  text.append(prompt);
+
+  textEdit->setPlainText(text);
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
+}
+
+void ConsoleWindow::keyPressEvent(QKeyEvent *event)
+{
+  qDebug() << __func__ << event->key();
 }

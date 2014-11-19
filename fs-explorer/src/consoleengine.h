@@ -28,7 +28,6 @@
 #endif
 #include <QObject>
 #include <QLibrary>
-#include <QThread>
 #include <QMutex>
 
 #include "fsengine.h"
@@ -38,13 +37,16 @@ class ConsoleEngine : public QObject
   Q_OBJECT
 
 public:
-  ConsoleEngine(FsEngine *engine, QTextEdit *edit, QObject *parent = 0);
+  ConsoleEngine(FsEngine *engine, QObject *parent = 0);
   ~ConsoleEngine();
 
-private:
-  static const QString prompt;
+public slots:
+  void doWork(const QString &cmd);
 
+signals:
+  void resultReady(const QStringList &list);
+
+private:
   FsEngine *fsEngine;
-  QTextEdit *textEdit;
 };
 #endif

@@ -26,6 +26,7 @@
 #if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #endif
+#include <QThread>
 
 #include "consoleengine.h"
 
@@ -37,17 +38,26 @@ public:
   ConsoleWindow(FsEngine *engine, QWidget *parent = 0);
   ~ConsoleWindow();
 
+public slots:
+  void handleResults(const QStringList &list);
+
+signals:
+  void operate(const QString &cmd);
+
 protected:
   void closeEvent(QCloseEvent *event);
+  void keyPressEvent(QKeyEvent *event);
 
 private:
   static const int width;
   static const int height;
+  static const QString prompt;
 
   QTextEdit *textEdit;
   QVBoxLayout *layout;
   QShortcut *shortcut;
 
+  QThread consoleThread;
   ConsoleEngine *consoleEngine;
 };
 #endif

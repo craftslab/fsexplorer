@@ -21,19 +21,20 @@
 
 #include "consoleengine.h"
 
-const QString ConsoleEngine::prompt = QObject::tr("$ ");
-
-ConsoleEngine::ConsoleEngine(FsEngine *engine, QTextEdit *edit, QObject *parent)
+ConsoleEngine::ConsoleEngine(FsEngine *engine, QObject *parent)
 {
   fsEngine = engine;
-  textEdit = edit;
   parent = parent;
-
-  textEdit->clear();
-  textEdit->setPlainText(prompt);
 }
 
 ConsoleEngine::~ConsoleEngine()
 {
   // TODO
+}
+
+void ConsoleEngine::doWork(const QString &cmd)
+{
+  QStringList list(tr("help info."));
+
+  emit resultReady(list);
 }
