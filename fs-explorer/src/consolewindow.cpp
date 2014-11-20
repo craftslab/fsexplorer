@@ -32,6 +32,11 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   textEdit = new QTextEdit(this);
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
+  textEdit->installEventFilter(this);
+
+  textEdit->clear();
+  textEdit->setPlainText(prompt);
+  textEdit->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 
 #if 0 // DISUSED here
   textEdit->setTextColor(QColor(0, 255, 0));
@@ -42,9 +47,6 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   p.setColor(QPalette::Text, Qt::green);
   textEdit->setPalette(p);
 #endif
-
-  textEdit->clear();
-  textEdit->setPlainText(prompt);
 
   layout = new QVBoxLayout(this);
   layout->addWidget(textEdit);
@@ -93,7 +95,7 @@ void ConsoleWindow::handleResults(const QStringList &list)
   text.append(tr("\n"));
   text.append(prompt);
 
-  textEdit->setPlainText(text);
+  textEdit->append(text);
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
@@ -101,7 +103,15 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-void ConsoleWindow::keyPressEvent(QKeyEvent *event)
+bool ConsoleWindow::eventFilter(QObject *object, QEvent *event)
 {
-  qDebug() << __func__ << event->key();
+  if (object == textEdit && event->type() == QEvent::KeyPress) {
+    QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
+    if (keyEvent->key() == Qt::Key_Return) {
+      emit operate(tr("help"));
+      return true;
+    }
+  }
+
+  return QWidget::eventFilter(object, event);
 }

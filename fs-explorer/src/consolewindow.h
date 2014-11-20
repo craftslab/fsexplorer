@@ -46,7 +46,7 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *event);
-  void keyPressEvent(QKeyEvent *event);
+  bool eventFilter(QObject *object, QEvent *event);
 
 private:
   static const int width;
