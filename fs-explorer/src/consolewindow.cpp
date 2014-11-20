@@ -38,6 +38,8 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   textEdit->setPlainText(prompt);
   textEdit->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 
+  connect(textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(handlePositionChanged()));
+
 #if 0 // DISUSED here
   textEdit->setTextColor(QColor(0, 255, 0));
   textEdit->setStyleSheet("background-color: black");
@@ -72,9 +74,9 @@ ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   consoleEngine = new ConsoleEngine(engine, this);
   consoleEngine->moveToThread(&consoleThread);
 
-  connect(&consoleThread, &QThread::finished, consoleEngine, &QObject::deleteLater);
-  connect(this, &ConsoleWindow::operate, consoleEngine, &ConsoleEngine::doWork);
-  connect(consoleEngine, &ConsoleEngine::resultReady, this, &ConsoleWindow::handleResults);
+  connect(&consoleThread, SIGNAL(finished()), consoleEngine, SLOT(deleteLater()));
+  connect(this, SIGNAL(operate(const QString &)), consoleEngine, SLOT(doWork(const QString &)));
+  connect(consoleEngine, SIGNAL(resultReady(const QStringList &)), this, SLOT(handleResults(const QStringList &)));
 
   consoleThread.start();
 }
@@ -85,17 +87,25 @@ ConsoleWindow::~ConsoleWindow()
   consoleThread.wait();
 }
 
+void ConsoleWindow::handlePositionChanged()
+{
+  // TODO
+}
+
 void ConsoleWindow::handleResults(const QStringList &list)
 {
   QString text;
 
+  text.append(tr("\n"));
   for (int i = 0; i < list.size(); ++i) {
     text.append(list[i]);
   }
   text.append(tr("\n"));
   text.append(prompt);
 
-  textEdit->append(text);
+  textCursor = textEdit->textCursor();
+  textCursor.insertText(text);
+  textEdit->setTextCursor(textCursor);
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)

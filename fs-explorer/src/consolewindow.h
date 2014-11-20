@@ -39,6 +39,7 @@ public:
   ~ConsoleWindow();
 
 public slots:
+  void handlePositionChanged();
   void handleResults(const QStringList &list);
 
 signals:
@@ -54,6 +55,7 @@ private:
   static const QString prompt;
 
   QTextEdit *textEdit;
+  QTextCursor textCursor;
   QVBoxLayout *layout;
   QShortcut *shortcut;
 
