@@ -24,21 +24,23 @@
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
+const QString ConsoleWindow::welcome = QObject::tr("Welcome to Fs Console!");
 const QString ConsoleWindow::prompt = QObject::tr("$ ");
 
 ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
-  textEdit = new QTextEdit(this);
+  textEdit = new QConsole(this, welcome);
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
-  textEdit->installEventFilter(this);
 
-  textEdit->clear();
-  textEdit->setPlainText(prompt);
-  textEdit->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-
-  connect(textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(handlePositionChanged()));
+  /*
+   * Set QConsole property
+   */
+  textEdit->setFont(QFont("Helvetica", 10, true));
+  textEdit->setCurrentFont(QFont("Helvetica", 8, false));
+  textEdit->setCmdColor(Qt::green);
+  textEdit->setPrompt(prompt);
 
 #if 0 // DISUSED here
   textEdit->setTextColor(QColor(0, 255, 0));
@@ -87,25 +89,9 @@ ConsoleWindow::~ConsoleWindow()
   consoleThread.wait();
 }
 
-void ConsoleWindow::handlePositionChanged()
-{
-  // TODO
-}
-
 void ConsoleWindow::handleResults(const QStringList &list)
 {
-  QString text;
-
-  text.append(tr("\n"));
-  for (int i = 0; i < list.size(); ++i) {
-    text.append(list[i]);
-  }
-  text.append(tr("\n"));
-  text.append(prompt);
-
-  textCursor = textEdit->textCursor();
-  textCursor.insertText(text);
-  textEdit->setTextCursor(textCursor);
+  // TODO
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
@@ -113,15 +99,3 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
-bool ConsoleWindow::eventFilter(QObject *object, QEvent *event)
-{
-  if (object == textEdit && event->type() == QEvent::KeyPress) {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent *> (event);
-    if (keyEvent->key() == Qt::Key_Return) {
-      emit operate(tr("help"));
-      return true;
-    }
-  }
-
-  return QWidget::eventFilter(object, event);
-}

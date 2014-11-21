@@ -28,6 +28,7 @@
 #endif
 #include <QThread>
 
+#include "qconsole.h"
 #include "consoleengine.h"
 
 class ConsoleWindow : public QWidget
@@ -39,7 +40,6 @@ public:
   ~ConsoleWindow();
 
 public slots:
-  void handlePositionChanged();
   void handleResults(const QStringList &list);
 
 signals:
@@ -47,15 +47,14 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *event);
-  bool eventFilter(QObject *object, QEvent *event);
 
 private:
   static const int width;
   static const int height;
+  static const QString welcome;
   static const QString prompt;
 
-  QTextEdit *textEdit;
-  QTextCursor textCursor;
+  QConsole *textEdit;
   QVBoxLayout *layout;
   QShortcut *shortcut;
 
