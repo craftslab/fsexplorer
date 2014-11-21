@@ -9,6 +9,7 @@ RC_FILE += src.rc
 
 FORMS += aboutdialog.ui
 
+HEADERS += ../external/qconsole/qconsole.h
 HEADERS += fsengine.h
 HEADERS += fstreeitem.h
 HEADERS += fstreemodel.h
@@ -29,6 +30,7 @@ HEADERS += exportengine.h
 HEADERS += aboutdialog.h
 HEADERS += mainwindow.h
 
+SOURCES += ../external/qconsole/qconsole.cpp
 SOURCES += fsengine.cpp
 SOURCES += fstreeitem.cpp
 SOURCES += fstreemodel.cpp
@@ -51,6 +53,7 @@ SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
 INCLUDEPATH += ../include
+INCLUDEPATH += ../external/qconsole
 #unix:LIBS += "-L../release/lib/ -lyafuse2"
 #win32:LIBS += "-L../release/lib/"
 
