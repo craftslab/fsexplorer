@@ -51,7 +51,6 @@ protected:
 private:
   static const int width;
   static const int height;
-  static const QString welcome;
   static const QString prompt;
 
   QConsole *textEdit;

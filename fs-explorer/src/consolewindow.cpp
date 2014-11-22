@@ -24,12 +24,16 @@
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
-const QString ConsoleWindow::welcome = QObject::tr("Welcome to Fs Console!");
 const QString ConsoleWindow::prompt = QObject::tr("$ ");
 
 ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
+  QString welcome = QObject::tr("Fs Console");
+  QDateTime dt = QDateTime::currentDateTime();
+  welcome.append(QObject::tr(" (%1)\n").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss"))));
+  welcome.append(QObject::tr("Type \"help\" for more information."));
+
   textEdit = new QConsole(this, welcome);
   textEdit->setReadOnly(false);
   textEdit->setLineWrapMode(QTextEdit::NoWrap);
