@@ -236,7 +236,12 @@ void MainWindow::removeFile()
 
 void MainWindow::console()
 {
-  consoleWindow = new ConsoleWindow(fsEngine, this);
+  QString welcome = QObject::tr("Fs Console");
+  QDateTime dt = QDateTime::currentDateTime();
+  welcome.append(QObject::tr(" (%1)\n").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss"))));
+  welcome.append(QObject::tr("Type \"help\" for more information."));
+
+  consoleWindow = new ConsoleWindow(welcome, fsEngine, this);
   consoleWindow->show();
 }
 

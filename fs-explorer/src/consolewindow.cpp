@@ -26,39 +26,29 @@ const int ConsoleWindow::height = 480;
 
 const QString ConsoleWindow::prompt = QObject::tr("$ ");
 
-ConsoleWindow::ConsoleWindow(FsEngine *engine, QWidget *parent)
-  : QWidget(parent)
+ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent)
+  : QConsole(parent, welcome)
 {
-  QString welcome = QObject::tr("Fs Console");
-  QDateTime dt = QDateTime::currentDateTime();
-  welcome.append(QObject::tr(" (%1)\n").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss"))));
-  welcome.append(QObject::tr("Type \"help\" for more information."));
-
-  textEdit = new QConsole(this, welcome);
-  textEdit->setReadOnly(false);
-  textEdit->setLineWrapMode(QTextEdit::NoWrap);
+  setReadOnly(false);
+  setLineWrapMode(QTextEdit::NoWrap);
 
   /*
    * Set QConsole property
    */
-  textEdit->setFont(QFont("Helvetica", 10, true));
-  textEdit->setCurrentFont(QFont("Helvetica", 8, false));
-  textEdit->setCmdColor(Qt::green);
-  textEdit->setPrompt(prompt);
+  setFont(QFont("Helvetica", 10, true));
+  setCurrentFont(QFont("Helvetica", 8, false));
+  setCmdColor(Qt::green);
+  setPrompt(prompt);
 
 #if 0 // DISUSED here
-  textEdit->setTextColor(QColor(0, 255, 0));
-  textEdit->setStyleSheet("background-color: black");
+  setTextColor(QColor(0, 255, 0));
+  setStyleSheet("background-color: black");
 #else
   QPalette p = palette();
   p.setColor(QPalette::Base, Qt::black);
   p.setColor(QPalette::Text, Qt::green);
-  textEdit->setPalette(p);
+  setPalette(p);
 #endif
-
-  layout = new QVBoxLayout(this);
-  layout->addWidget(textEdit);
-  setLayout(layout);
 
   shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
   connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
@@ -102,4 +92,3 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
 }
-

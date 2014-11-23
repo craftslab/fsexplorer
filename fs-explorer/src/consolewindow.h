@@ -31,12 +31,12 @@
 #include "qconsole.h"
 #include "consoleengine.h"
 
-class ConsoleWindow : public QWidget
+class ConsoleWindow : public QConsole
 {
   Q_OBJECT
 
 public:
-  ConsoleWindow(FsEngine *engine, QWidget *parent = 0);
+  ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent = 0);
   ~ConsoleWindow();
 
 public slots:
@@ -53,10 +53,7 @@ private:
   static const int height;
   static const QString prompt;
 
-  QConsole *textEdit;
-  QVBoxLayout *layout;
   QShortcut *shortcut;
-
   QThread consoleThread;
   ConsoleEngine *consoleEngine;
 };
