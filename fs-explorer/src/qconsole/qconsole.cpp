@@ -404,7 +404,7 @@ void QConsole::setHome(bool select)
 }
 
 // Reimplemented key press event
-void QConsole::keyPressEvent( QKeyEvent *e )
+void QConsole::keyPressEvent(QKeyEvent *e)
 {
   // If the user wants to copy or cut outside
   // the editing area we perform a copy
@@ -426,7 +426,7 @@ void QConsole::keyPressEvent( QKeyEvent *e )
 	return;
       }
     }
-    }
+  }
 
   /*
   // if the cursor out of editing zone put it back first
@@ -437,17 +437,36 @@ void QConsole::keyPressEvent( QKeyEvent *e )
   }
   */
   // control is pressed
-  if ((e->modifiers() & Qt::ControlModifier) && (e->key() == Qt::Key_C)) {
-    if (isSelectionInEditionZone()) {
-      // If Ctrl + C pressed, then undo the current commant
-      // append("");
-      // displayPrompt();
+  if (e->modifiers() & Qt::ControlModifier) {
+      switch (e->key()) {
+      case Qt::Key_C:
+	if (isSelectionInEditionZone()) {
+	  // If Ctrl + C pressed, then undo the current commant
+	  // append("");
+	  // displayPrompt();
 
-      // (Thierry Belair:)I humbly suggest that ctrl+C copies the text, as is expected,
-      // and indicated in the contextual menu
-      copy();
-      return;
-    }
+	  // (Thierry Belair:)I humbly suggest that ctrl+C copies the text, as is expected,
+	  // and indicated in the contextual menu
+	  copy();
+	  return;
+	}
+	break;
+
+      case Qt::Key_P:
+	if (isInEditionZone()) {
+	  handleUpKeyPress();
+	}
+	return;
+
+      case Qt::Key_N:
+	if (isInEditionZone()) {
+	  handleDownKeyPress();
+	}
+	return;
+
+      default:
+	break;
+      }
   } else {
     switch (e->key()) {
     case Qt::Key_Tab:
