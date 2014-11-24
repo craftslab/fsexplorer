@@ -38,6 +38,9 @@ public:
   ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent = 0);
   ~ConsoleWindow();
 
+signals:
+  void closeConsole();
+
 protected:
   void closeEvent(QCloseEvent *event);
   QString interpretCommand(const QString &command, int *res);

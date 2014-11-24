@@ -71,6 +71,8 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   resize(width, height);
 
   consoleEngine = new ConsoleEngine(engine, this);
+
+  connect(this, SIGNAL(closeConsole()), this, SLOT(close()));
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -91,7 +93,11 @@ QString ConsoleWindow::interpretCommand(const QString &command, int *res)
     return result;
   }
 
-  result = consoleEngine->run(command);
+  if (command.compare(tr("exit")) == 0) {
+    emit closeConsole();
+  } else {
+    result = consoleEngine->run(command);
+  }
 
   *res = 0;
   QConsole::interpretCommand(command, res);

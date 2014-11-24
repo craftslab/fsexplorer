@@ -51,6 +51,7 @@ QString ConsoleEngine::handleHelp()
 Available commands:\n\
 cd - change directory\n\
 exit - exit from console\n\
+help - show help information\n\
 ls - list directory contents\n\
 pwd - print name of working directory\n\
 stat - show inode information\n\
