@@ -40,11 +40,9 @@ public:
   ConsoleEngine(FsEngine *engine, QObject *parent = 0);
   ~ConsoleEngine();
 
-public slots:
-  void doWork(const QString &cmd);
-
-signals:
-  void resultReady(const QStringList &list);
+  QString run(const QString &cmd);
+  QString handleHelp();
+  QString handleInvalid(const QString &cmd);
 
 private:
   FsEngine *fsEngine;

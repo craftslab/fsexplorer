@@ -29,12 +29,39 @@ ConsoleEngine::ConsoleEngine(FsEngine *engine, QObject *parent)
 
 ConsoleEngine::~ConsoleEngine()
 {
-  // TODO
+  // Do nothing here
 }
 
-void ConsoleEngine::doWork(const QString &cmd)
+QString ConsoleEngine::run(const QString &cmd)
 {
-  QStringList list(tr("help info."));
+  QString result;
 
-  emit resultReady(list);
+  if (cmd.compare(tr("help")) == 0) {
+    return handleHelp();
+  } else {
+    return handleInvalid(cmd);
+  }
+
+  return result;
+}
+
+QString ConsoleEngine::handleHelp()
+{
+  return tr("\
+Available commands:\n\
+cd - change directory\n\
+exit - exit from console\n\
+ls - list directory contents\n\
+pwd - print name of working directory\n\
+stat - show inode information\n\
+statfs - show filesystem information\n\
+");
+}
+
+QString ConsoleEngine::handleInvalid(const QString &cmd)
+{
+  return tr("\
+%1: command not found\n\
+Type \"help\" for more informatation.\
+").arg(cmd);
 }

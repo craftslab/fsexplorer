@@ -38,6 +38,9 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   setFont(QFont("Helvetica", 10, true));
   setCurrentFont(QFont("Helvetica", 8, false));
   setCmdColor(Qt::green);
+  setOutColor(Qt::green);
+  setErrColor(Qt::green);
+  setCompletionColor(Qt::green);
   setPrompt(prompt);
 
 #if 0 // DISUSED here
@@ -68,24 +71,11 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   resize(width, height);
 
   consoleEngine = new ConsoleEngine(engine, this);
-  consoleEngine->moveToThread(&consoleThread);
-
-  connect(&consoleThread, SIGNAL(finished()), consoleEngine, SLOT(deleteLater()));
-  connect(this, SIGNAL(operate(const QString &)), consoleEngine, SLOT(doWork(const QString &)));
-  connect(consoleEngine, SIGNAL(resultReady(const QStringList &)), this, SLOT(handleResults(const QStringList &)));
-
-  consoleThread.start();
 }
 
 ConsoleWindow::~ConsoleWindow()
 {
-  consoleThread.quit();
-  consoleThread.wait();
-}
-
-void ConsoleWindow::handleResults(const QStringList &list)
-{
-  // TODO
+  // Do nothing here
 }
 
 void ConsoleWindow::closeEvent(QCloseEvent *event)
@@ -95,14 +85,18 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
 
 QString ConsoleWindow::interpretCommand(const QString &command, int *res)
 {
-  if (!res) {
-    return "";
+  QString result;
+
+  if (command.isEmpty() || !res) {
+    return result;
   }
+
+  result = consoleEngine->run(command);
+
   *res = 0;
+  QConsole::interpretCommand(command, res);
 
-  // TODO
-
-  return QConsole::interpretCommand(command, res);
+  return result;
 }
 
 QStringList ConsoleWindow::suggestCommand(const QString &cmd, QString& prefix)
