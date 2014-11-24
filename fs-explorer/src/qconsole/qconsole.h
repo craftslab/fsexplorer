@@ -213,6 +213,7 @@ private:
   bool handleBackspaceKeyPress();
   void handleUpKeyPress();
   void handleDownKeyPress();
+  bool handleLeftKeyPress();
   void setHome(bool);
 };
 #endif

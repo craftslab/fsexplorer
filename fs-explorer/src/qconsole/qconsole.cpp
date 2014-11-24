@@ -392,6 +392,19 @@ void QConsole::handleDownKeyPress()
   }
 }
 
+bool QConsole::handleLeftKeyPress()
+{
+  QTextCursor cur = textCursor();
+  const int col = cur.columnNumber();
+  const int blk = cur.blockNumber();
+
+  if (blk == promptParagraph && col == promptLength) {
+    return true;
+  }
+
+  return false;
+}
+
 void QConsole::setHome(bool select)
 {
   QTextCursor cursor = textCursor();
@@ -506,9 +519,14 @@ void QConsole::keyPressEvent(QKeyEvent *e)
       }
       return;
 
+    case Qt::Key_Left:
+      if (handleLeftKeyPress() || !isSelectionInEditionZone()) {
+	return;
+      }
+      break;
+
     // Default behaviour
     case Qt::Key_End:
-    case Qt::Key_Left:
     case Qt::Key_Right:
       break;
 
