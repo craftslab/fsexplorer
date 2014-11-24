@@ -45,7 +45,7 @@ QSize PopupListWidget::sizeHint() const
   bool vScrollOn = false;
   int height = 0;
   int width = 0;
-  for (int i=0; i<this->count(); ++i) {
+  for (int i = 0; i < this->count(); ++i) {
     QModelIndex index = model->index(i, 0);
     QSize itemSizeHint = delegate->sizeHint(sovi, index);
     if (itemSizeHint.width() > width) {
@@ -160,16 +160,16 @@ static QString getCommonWord(QStringList& list)
 
   // get minimum length
   min_len = strarray.at(0).size();
-  for (int i=1; i<strarray.size(); ++i) {
+  for (int i = 1; i < strarray.size(); ++i) {
     const int len = strarray.at(i).size();
     if (len < min_len) {
       min_len = len;
     }
   }
 
-  while(col < min_len) {
+  while (col < min_len) {
     ch = strarray.at(0)[col];
-    for (int i=1; i<strarray.size(); ++i) {
+    for (int i = 1; i < strarray.size(); ++i) {
       const QString& current_string = strarray.at(i);
       if (ch != current_string[col]) {
 	  cont = false;
@@ -366,7 +366,9 @@ void QConsole::handleUpKeyPress()
       } else {
 	break;
       }
-    } while(history[historyIndex] == command);
+    } while ((history[historyIndex].isEmpty())
+	     || (history[historyIndex].startsWith('\x20'))
+	     || (history[historyIndex] == command));
 
     replaceCurrentCommand(history[historyIndex]);
   }
@@ -382,7 +384,9 @@ void QConsole::handleDownKeyPress()
 	historyIndex = history.size() - 1;
 	break;
       }
-    } while(history[historyIndex] == command);
+    } while ((history[historyIndex].isEmpty())
+	     || (history[historyIndex].startsWith('\x20'))
+	     || (history[historyIndex] == command));
     
     replaceCurrentCommand(history[historyIndex]);
   }
@@ -422,7 +426,7 @@ void QConsole::keyPressEvent(QKeyEvent *e)
 	e->accept();
 	copy();
       } else {
-	QTextEdit::keyPressEvent( e );
+	QTextEdit::keyPressEvent(e);
 	return;
       }
     }
@@ -674,7 +678,7 @@ int QConsole::saveScript(const QString &fileName)
   }
 
   QTextStream ts(&f);
-  for ( QStringList::Iterator it = recordedScript.begin(); it != recordedScript.end(); ++it) {
+  for (QStringList::Iterator it = recordedScript.begin(); it != recordedScript.end(); ++it) {
     ts << *it << "\n";
   }
   f.close();
@@ -734,7 +738,7 @@ void QConsole::mousePressEvent(QMouseEvent* event)
 // Redefinition of the dropEvent to have a copy paste
 // instead of a cut paste when copying out of the
 // editable zone
-void QConsole::dropEvent ( QDropEvent * event)
+void QConsole::dropEvent(QDropEvent *event)
 {
   if (!isInEditionZone()) {
     // Execute un drop a drop at the old position
@@ -747,7 +751,7 @@ void QConsole::dropEvent ( QDropEvent * event)
   QTextEdit::dropEvent(event);
 }
 
-void QConsole::dragMoveEvent( QDragMoveEvent * event)
+void QConsole::dragMoveEvent(QDragMoveEvent * event)
 {
   // Get a cursor for the actual mouse position
   QTextCursor cur = textCursor();
@@ -762,7 +766,7 @@ void QConsole::dragMoveEvent( QDragMoveEvent * event)
   }
 }
 
-void QConsole::contextMenuEvent ( QContextMenuEvent * event)
+void QConsole::contextMenuEvent(QContextMenuEvent *event)
 {
   QMenu *menu = new QMenu(this);
 
