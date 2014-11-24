@@ -92,3 +92,24 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
 }
+
+QString ConsoleWindow::interpretCommand(const QString &command, int *res)
+{
+  if (!res) {
+    return "";
+  }
+  *res = 0;
+
+  // TODO
+
+  return QConsole::interpretCommand(command, res);
+}
+
+QStringList ConsoleWindow::suggestCommand(const QString &cmd, QString& prefix)
+{
+  QStringList list;
+
+  // TODO
+
+  return list;
+}

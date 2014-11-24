@@ -47,6 +47,8 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *event);
+  QString interpretCommand(const QString &command, int *res);
+  QStringList suggestCommand(const QString &cmd, QString& prefix);
 
 private:
   static const int width;
