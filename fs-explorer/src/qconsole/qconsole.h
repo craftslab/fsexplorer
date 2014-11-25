@@ -115,7 +115,7 @@ public:
   // @{
   // get/set command color
   QColor cmdColor() const { return cmdColor_; }
-  void setCmdColor(QColor c) {cmdColor_ = c;}
+  void setCmdColor(QColor c) { cmdColor_ = c; }
   // @}
 
   // @{
@@ -127,24 +127,24 @@ public:
   // @{
   // get/set output color
   QColor outColor() const { return outColor_; }
-  void setOutColor(QColor c) {outColor_ = c;}
+  void setOutColor(QColor c) { outColor_ = c; }
   // @}
-  void setCompletionColor(QColor c) {completionColor = c;}
+  void setCompletionColor(QColor c) { completionColor = c; }
 
   // @{
   // get set font
-  void setFont(const QFont& f);
+  void setFont(const QFont &f);
   QFont font() const { return currentFont(); }
   // @}
 
-  void correctPathName(QString& pathName);
+  void correctPathName(QString &pathName);
 
 private:
-  void dropEvent( QDropEvent * event);
-  void dragMoveEvent( QDragMoveEvent * event);
+  void dropEvent(QDropEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
 
-  void keyPressEvent(QKeyEvent * e);
-  void contextMenuEvent( QContextMenuEvent * event);
+  void keyPressEvent(QKeyEvent *e);
+  void contextMenuEvent(QContextMenuEvent *event);
 
   // Return false if the command is incomplete (e.g. unmatched braces)
   virtual bool isCommandComplete(const QString &command);
@@ -156,7 +156,7 @@ private:
 
   // Test whether the cursor is in the edition zone
   bool isInEditionZone();
-  bool isInEditionZone(const int& pos);
+  bool isInEditionZone(const int &pos);
 
   // Test whether the selection is in the edition zone
   bool isSelectionInEditionZone();

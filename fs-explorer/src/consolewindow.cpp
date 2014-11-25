@@ -24,7 +24,7 @@
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
 
-const QString ConsoleWindow::prompt = QObject::tr("$ ");
+const QString ConsoleWindow::prompt = QObject::tr("console $ ");
 
 ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent)
   : QConsole(parent, welcome)
@@ -71,6 +71,8 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
 
   consoleEngine = new ConsoleEngine(engine, this);
   connect(this, SIGNAL(closeConsole()), this, SLOT(close()));
+
+  connect(this, SIGNAL(commandExecuted(const QString &)), SLOT(handleCommandExecuted(const QString &)));
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -85,16 +87,32 @@ void ConsoleWindow::closeEvent(QCloseEvent *event)
 
 QString ConsoleWindow::interpretCommand(const QString &command, int *res)
 {
+  QStringList list;
+  QString cmd;
+  QStringList args;
   QString result;
 
   if (command.isEmpty() || !res) {
     return result;
   }
 
-  if (command.compare(tr("exit")) == 0) {
+  list = command.split(QRegExp("\\s+"));
+  cmd = list[0];
+
+  if (list.size() > 1) {
+    for (int i = 1; i < list.size(); ++i) {
+      args << list[i];
+    }
+  }
+
+  if (cmd.compare(tr("exit")) == 0) {
     emit closeConsole();
   } else {
-    result = consoleEngine->run(command);
+    QStringList ret = consoleEngine->run(cmd, args);
+
+    for (int i = 0; i < ret.size(); ++i) {
+      result.append(ret[i]);
+    }
   }
 
   *res = 0;
@@ -110,4 +128,9 @@ QStringList ConsoleWindow::suggestCommand(const QString &cmd, QString& prefix)
   // TODO
 
   return list;
+}
+
+void ConsoleWindow::handleCommandExecuted(const QString &command)
+{
+  // TODO
 }

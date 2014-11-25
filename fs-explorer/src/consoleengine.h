@@ -40,11 +40,13 @@ public:
   ConsoleEngine(FsEngine *engine, QObject *parent = 0);
   ~ConsoleEngine();
 
-  QString run(const QString &cmd);
-  QString handleHelp();
-  QString handleInvalid(const QString &cmd);
+  QStringList run(const QString &cmd, const QStringList &args);
 
 private:
+  QStringList handleHelp();
+  QStringList handleList(const QStringList &args);
+  QStringList handleInvalid(const QString &cmd);
+
   FsEngine *fsEngine;
 };
 #endif

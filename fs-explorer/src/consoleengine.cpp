@@ -32,12 +32,14 @@ ConsoleEngine::~ConsoleEngine()
   // Do nothing here
 }
 
-QString ConsoleEngine::run(const QString &cmd)
+QStringList ConsoleEngine::run(const QString &cmd, const QStringList &args)
 {
-  QString result;
+  QStringList result;
 
   if (cmd.compare(tr("help")) == 0) {
     return handleHelp();
+  } else if (cmd.compare(tr("ls")) == 0) {
+    return handleList(args);
   } else {
     return handleInvalid(cmd);
   }
@@ -45,9 +47,9 @@ QString ConsoleEngine::run(const QString &cmd)
   return result;
 }
 
-QString ConsoleEngine::handleHelp()
+QStringList ConsoleEngine::handleHelp()
 {
-  return tr("\
+  return QStringList(tr("\
 Available commands:\n\
 cd - change directory\n\
 exit - exit from console\n\
@@ -55,14 +57,19 @@ help - show help information\n\
 ls - list directory contents\n\
 pwd - print name of working directory\n\
 stat - show inode information\n\
-statfs - show filesystem information\n\
-");
+statfs - show filesystem information\
+"));
 }
 
-QString ConsoleEngine::handleInvalid(const QString &cmd)
+QStringList ConsoleEngine::handleList(const QStringList &args)
 {
-  return tr("\
+  return args;
+}
+
+QStringList ConsoleEngine::handleInvalid(const QString &cmd)
+{
+  return QStringList(tr("\
 %1: command not found\n\
 Type \"help\" for more informatation.\
-").arg(cmd);
+").arg(cmd));
 }
