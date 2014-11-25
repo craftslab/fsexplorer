@@ -29,9 +29,6 @@ const QString ConsoleWindow::prompt = QObject::tr("$ ");
 ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent)
   : QConsole(parent, welcome)
 {
-  setReadOnly(false);
-  setLineWrapMode(QTextEdit::NoWrap);
-
   /*
    * Set QConsole property
    */
@@ -43,6 +40,13 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   setCompletionColor(Qt::green);
   setPrompt(prompt);
 
+  setReadOnly(false);
+  setLineWrapMode(QTextEdit::NoWrap);
+  setWindowTitle(tr("Fs Console"));
+  setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+  setAttribute(Qt::WA_DeleteOnClose, true);
+  setWindowModality(Qt::WindowModal);
+
 #if 0 // DISUSED here
   setTextColor(QColor(0, 255, 0));
   setStyleSheet("background-color: black");
@@ -53,14 +57,6 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   setPalette(p);
 #endif
 
-  shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
-
-  setWindowTitle(tr("Fs Console"));
-  setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
-  setAttribute(Qt::WA_DeleteOnClose, true);
-  setWindowModality(Qt::WindowModal);
-
   QDesktopWidget *desktopWidget = QApplication::desktop();
   QRect screenRect = desktopWidget->screenGeometry();
   if ((screenRect.width() - width) >= 0 && ((screenRect.height() - height) >= 0)) {
@@ -70,8 +66,10 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
   }
   resize(width, height);
 
-  consoleEngine = new ConsoleEngine(engine, this);
+  shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+  connect(shortcut, SIGNAL(activated()), this, SLOT(close()));
 
+  consoleEngine = new ConsoleEngine(engine, this);
   connect(this, SIGNAL(closeConsole()), this, SLOT(close()));
 }
 
