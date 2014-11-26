@@ -45,8 +45,10 @@ public:
 private:
   QStringList handleHelp();
   QStringList handleList(const QStringList &args);
+  QStringList handlePrintCurDir();
   QStringList handleInvalid(const QString &cmd);
 
   FsEngine *fsEngine;
+  struct fs_dirent curDent;
 };
 #endif

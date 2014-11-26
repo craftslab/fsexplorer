@@ -121,7 +121,7 @@ QString ConsoleWindow::interpretCommand(const QString &command, int *res)
   return result;
 }
 
-QStringList ConsoleWindow::suggestCommand(const QString &cmd, QString& prefix)
+QStringList ConsoleWindow::suggestCommand(const QString &/*cmd*/, QString &/*prefix*/)
 {
   QStringList list;
 
@@ -130,7 +130,7 @@ QStringList ConsoleWindow::suggestCommand(const QString &cmd, QString& prefix)
   return list;
 }
 
-void ConsoleWindow::handleCommandExecuted(const QString &command)
+void ConsoleWindow::handleCommandExecuted(const QString &/*command*/)
 {
   // TODO
 }

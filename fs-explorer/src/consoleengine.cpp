@@ -25,6 +25,8 @@ ConsoleEngine::ConsoleEngine(FsEngine *engine, QObject *parent)
 {
   fsEngine = engine;
   parent = parent;
+
+  curDent = fsEngine->getFileRoot();
 }
 
 ConsoleEngine::~ConsoleEngine()
@@ -40,6 +42,8 @@ QStringList ConsoleEngine::run(const QString &cmd, const QStringList &args)
     return handleHelp();
   } else if (cmd.compare(tr("ls")) == 0) {
     return handleList(args);
+  } else if (cmd.compare(tr("pwd")) == 0) {
+    return handlePrintCurDir();
   } else {
     return handleInvalid(cmd);
   }
@@ -64,6 +68,11 @@ statfs - show filesystem information\
 QStringList ConsoleEngine::handleList(const QStringList &args)
 {
   return args;
+}
+
+QStringList ConsoleEngine::handlePrintCurDir()
+{
+  return QStringList(tr(curDent.d_name));
 }
 
 QStringList ConsoleEngine::handleInvalid(const QString &cmd)
