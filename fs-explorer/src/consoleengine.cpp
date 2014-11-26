@@ -68,6 +68,7 @@ QStringList ConsoleEngine::handleHelp()
   return QStringList(tr("\
 Available commands:\n\
 cd - change directory\n\
+clear - clear the screen\n\
 exit - exit from console\n\
 help - show help information\n\
 ls - list directory contents\n\
@@ -166,14 +167,14 @@ handleListExit:
 
 QStringList ConsoleEngine::handlePrintCurDir(const QStringList &args)
 {
-  if (args.size() == 0) {
-    return QStringList(tr(curDent.d_name));
-  }
-
-  return QStringList(args.join(QString(tr(""))) + tr("\
+  if (args.size() != 0) {
+    return QStringList(args.join(QString(tr(""))) + tr("\
 : invalid option\n\
 Usage: pwd\
 "));
+  }
+
+  return QStringList(tr(curDent.d_name));
 }
 
 QStringList ConsoleEngine::handleStat(const QStringList &args)
@@ -186,10 +187,14 @@ Usage: stat FILE\
 
 QStringList ConsoleEngine::handleStatFs(const QStringList &args)
 {
-  return QStringList(args.join(QString(tr(""))) + tr("\
+  if (args.size() != 0) {
+    return QStringList(args.join(QString(tr(""))) + tr("\
 : invalid option\n\
 Usage: statfs\
 "));
+  }
+
+  return QStringList(fsEngine->getFileStatDetail());
 }
 
 QStringList ConsoleEngine::handleInvalid(const QString &cmd)

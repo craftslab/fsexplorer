@@ -29,16 +29,7 @@ const QString ConsoleWindow::prompt = QObject::tr("console $ ");
 ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent)
   : QConsole(parent, welcome)
 {
-  /*
-   * Set QConsole property
-   */
-  setFont(QFont("Helvetica", 10, true));
-  setCurrentFont(QFont("Helvetica", 9, false));
-  setCmdColor(Qt::green);
-  setOutColor(Qt::green);
-  setErrColor(Qt::green);
-  setCompletionColor(Qt::green);
-  setPrompt(prompt);
+  setConsoleProp();
 
   setReadOnly(false);
   setLineWrapMode(QTextEdit::NoWrap);
@@ -105,26 +96,14 @@ QString ConsoleWindow::interpretCommand(const QString &command, int *res)
     }
   }
 
-  if (cmd.compare(tr("exit")) == 0) {
+  if (command.compare(tr("exit")) == 0) {
     emit closeConsole();
+  } else if (command.compare(tr("clear")) == 0) {
+    clear();
+    setConsoleProp();
   } else {
     QStringList ret = consoleEngine->run(cmd, args);
-
-    int cols = ret.size () > column ? column : ret.size();
-    int rows = ret.size() / column;
-
-    for (int j = 0; j < rows; ++j) {
-      for (int i = 0; i < cols; ++i) {
-	result.append(ret[i + j * rows]).append(tr("  "));
-      }
-      result.append(tr("\n"));
-    }
-
-    int remain = ret.size() % column;
-
-    for (int i = 0; i < remain; ++i) {
-      result.append(ret[i + rows * cols]).append(tr("  "));
-    }
+    result = ret.join(QString(tr("  ")));
   }
 
   *res = 0;
@@ -145,4 +124,17 @@ QStringList ConsoleWindow::suggestCommand(const QString &/*cmd*/, QString &/*pre
 void ConsoleWindow::handleCommandExecuted(const QString &/*command*/)
 {
   // TODO
+}
+
+void ConsoleWindow::setConsoleProp()
+{
+  setFont(QFont("Helvetica", 10, true));
+  setCurrentFont(QFont("Helvetica", 9, false));
+
+  setCmdColor(Qt::green);
+  setOutColor(Qt::green);
+  setErrColor(Qt::green);
+  setCompletionColor(Qt::green);
+
+  setPrompt(prompt);
 }

@@ -50,6 +50,8 @@ private slots:
   void handleCommandExecuted(const QString &/*command*/);
 
 private:
+  void setConsoleProp();
+
   static const int width;
   static const int height;
   static const int column;
