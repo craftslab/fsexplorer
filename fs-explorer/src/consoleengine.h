@@ -45,7 +45,7 @@ public:
 private:
   QStringList handleHelp();
   QStringList handleList(const QStringList &args);
-  QStringList handlePrintCurDir();
+  QStringList handlePrintCurDir(const QStringList &args);
   QStringList handleInvalid(const QString &cmd);
 
   FsEngine *fsEngine;

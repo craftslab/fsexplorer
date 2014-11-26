@@ -1365,7 +1365,7 @@ void MainWindow::createFileDentList(unsigned long long ino, QList<struct fs_dire
     goto createFileDentListExit;
   }
 
-  for (int i = (int)num - 1; i >= 0; --i) {
+  for (int i = static_cast<int> (num) - 1; i >= 0; --i) {
     list << childs[i];
   }
 
@@ -1463,13 +1463,13 @@ void MainWindow::createListItem(const QList<struct fs_dirent> &dentList, const Q
       size = 0;
     }
 
-    dtMtime = QDateTime::fromTime_t((uint)childStatList.mtime.tv_sec);
+    dtMtime = QDateTime::fromTime_t(static_cast<uint> (childStatList.mtime.tv_sec));
     mtime = dtMtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
-    dtAtime = QDateTime::fromTime_t((uint)childStatList.atime.tv_sec);
+    dtAtime = QDateTime::fromTime_t(static_cast<uint> (childStatList.atime.tv_sec));
     atime = dtAtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
-    dtCtime = QDateTime::fromTime_t((uint)childStatList.ctime.tv_sec);
+    dtCtime = QDateTime::fromTime_t(static_cast<uint> (childStatList.ctime.tv_sec));
     ctime = dtCtime.toString(tr("yyyy-MM-dd hh:mm:ss"));
 
     QStringList stringList;

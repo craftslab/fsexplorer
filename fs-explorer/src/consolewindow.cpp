@@ -33,7 +33,7 @@ ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *
    * Set QConsole property
    */
   setFont(QFont("Helvetica", 10, true));
-  setCurrentFont(QFont("Helvetica", 8, false));
+  setCurrentFont(QFont("Helvetica", 9, false));
   setCmdColor(Qt::green);
   setOutColor(Qt::green);
   setErrColor(Qt::green);

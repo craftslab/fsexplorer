@@ -43,7 +43,7 @@ QStringList ConsoleEngine::run(const QString &cmd, const QStringList &args)
   } else if (cmd.compare(tr("ls")) == 0) {
     return handleList(args);
   } else if (cmd.compare(tr("pwd")) == 0) {
-    return handlePrintCurDir();
+    return handlePrintCurDir(args);
   } else {
     return handleInvalid(cmd);
   }
@@ -67,12 +67,97 @@ statfs - show filesystem information\
 
 QStringList ConsoleEngine::handleList(const QStringList &args)
 {
-  return args;
+  struct fs_dirent *childs = NULL, *subChilds = NULL;
+  QStringList list;
+  unsigned int i, j;
+
+  if (args.size() > 1) {
+    list << args << tr(": invalid option");
+    return list;    
+  }
+
+  unsigned long long ino = static_cast<unsigned long long> (curDent.d_ino);
+
+  unsigned int num = fsEngine->getFileChildsNum(ino);
+  if (num == 0) {
+    return list;
+  }
+
+  childs = new fs_dirent[num];
+  if (!childs) {
+    return list;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
+
+  bool ret = fsEngine->getFileChildsList(ino, childs, num);
+  if (!ret) {
+    goto handleListExit;
+  }
+
+  if (args.size() == 0) {
+    for (i = 0; i < (int)num; ++i) {
+      list << tr(childs[i].d_name);
+    }
+  } else {
+    for (i = 0; i < num; ++i) {
+      if (args[0].compare(tr(childs[i].d_name)) == 0) {
+	ino = static_cast<unsigned long long> (childs[i].d_ino);
+
+	num = fsEngine->getFileChildsNum(ino);
+	if (num == 0) {
+	  goto handleListExit;
+	}
+
+	subChilds = new fs_dirent[num];
+	if (!subChilds) {
+	  goto handleListExit;
+	}
+	memset((void *)subChilds, 0, sizeof(struct fs_dirent) * num);
+
+	ret = fsEngine->getFileChildsList(ino, subChilds, num);
+	if (!ret) {
+	  goto handleListExit;
+	}
+
+	for (j = 0; j < num; ++j) {
+	  list << tr(subChilds[j].d_name);
+	}
+
+	break;
+      }
+    }
+
+    if (i == num) {
+      list << args << tr(": invalid option");
+    }
+  }
+
+handleListExit:
+
+  if (subChilds) {
+    delete[] subChilds;
+    subChilds = NULL;
+  }
+
+  if (childs) {
+    delete[] childs;
+    childs = NULL;
+  }
+
+  return list;
 }
 
-QStringList ConsoleEngine::handlePrintCurDir()
+QStringList ConsoleEngine::handlePrintCurDir(const QStringList &args)
 {
-  return QStringList(tr(curDent.d_name));
+  QStringList list;
+
+  if (args.size() == 0) {
+    list = QStringList(tr(curDent.d_name));
+  } else {
+    list << args << tr(": invalid option");
+  }
+
+  return list;
 }
 
 QStringList ConsoleEngine::handleInvalid(const QString &cmd)
