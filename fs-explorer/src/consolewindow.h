@@ -52,6 +52,7 @@ private slots:
 private:
   static const int width;
   static const int height;
+  static const int column;
   static const QString prompt;
 
   QShortcut *shortcut;

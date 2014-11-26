@@ -23,7 +23,7 @@
 
 const int ConsoleWindow::width = 640;
 const int ConsoleWindow::height = 480;
-
+const int ConsoleWindow::column = 16;
 const QString ConsoleWindow::prompt = QObject::tr("console $ ");
 
 ConsoleWindow::ConsoleWindow(const QString &welcome, FsEngine *engine, QWidget *parent)
@@ -110,8 +110,20 @@ QString ConsoleWindow::interpretCommand(const QString &command, int *res)
   } else {
     QStringList ret = consoleEngine->run(cmd, args);
 
-    for (int i = 0; i < ret.size(); ++i) {
-      result.append(ret[i]);
+    int cols = ret.size () > column ? column : ret.size();
+    int rows = ret.size() / column;
+
+    for (int j = 0; j < rows; ++j) {
+      for (int i = 0; i < cols; ++i) {
+	result.append(ret[i + j * rows]).append(tr("  "));
+      }
+      result.append(tr("\n"));
+    }
+
+    int remain = ret.size() % column;
+
+    for (int i = 0; i < remain; ++i) {
+      result.append(ret[i + rows * cols]).append(tr("  "));
     }
   }
 
