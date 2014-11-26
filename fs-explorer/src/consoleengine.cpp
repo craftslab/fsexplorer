@@ -36,19 +36,31 @@ ConsoleEngine::~ConsoleEngine()
 
 QStringList ConsoleEngine::run(const QString &cmd, const QStringList &args)
 {
-  QStringList result;
-
-  if (cmd.compare(tr("help")) == 0) {
+  if (cmd.compare(tr("cd")) == 0) {
+    return handleChangeDir(args);
+  } else if (cmd.compare(tr("help")) == 0) {
     return handleHelp();
   } else if (cmd.compare(tr("ls")) == 0) {
     return handleList(args);
   } else if (cmd.compare(tr("pwd")) == 0) {
     return handlePrintCurDir(args);
+  } else if (cmd.compare(tr("stat")) == 0) {
+    return handleStat(args);
+  } else if (cmd.compare(tr("statfs")) == 0) {
+    return handleStatFs(args);
   } else {
     return handleInvalid(cmd);
   }
 
-  return result;
+  return QStringList(tr(""));
+}
+
+QStringList ConsoleEngine::handleChangeDir(const QStringList &args)
+{
+    return QStringList(args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: cd [DIRECTORY]\
+"));
 }
 
 QStringList ConsoleEngine::handleHelp()
@@ -72,20 +84,22 @@ QStringList ConsoleEngine::handleList(const QStringList &args)
   unsigned int i, j;
 
   if (args.size() > 1) {
-    list << args << tr(": invalid option");
-    return list;    
+    return QStringList(args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: ls [FILE]\
+"));
   }
 
   unsigned long long ino = static_cast<unsigned long long> (curDent.d_ino);
 
   unsigned int num = fsEngine->getFileChildsNum(ino);
   if (num == 0) {
-    return list;
+    return QStringList(tr(""));
   }
 
   childs = new fs_dirent[num];
   if (!childs) {
-    return list;
+    return QStringList(tr(""));
   }
   memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
 
@@ -128,7 +142,10 @@ QStringList ConsoleEngine::handleList(const QStringList &args)
     }
 
     if (i == num) {
-      list << args << tr(": invalid option");
+      list << args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: ls [FILE]\
+");
     }
   }
 
@@ -149,15 +166,30 @@ handleListExit:
 
 QStringList ConsoleEngine::handlePrintCurDir(const QStringList &args)
 {
-  QStringList list;
-
   if (args.size() == 0) {
-    list = QStringList(tr(curDent.d_name));
-  } else {
-    list << args << tr(": invalid option");
+    return QStringList(tr(curDent.d_name));
   }
 
-  return list;
+  return QStringList(args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: pwd\
+"));
+}
+
+QStringList ConsoleEngine::handleStat(const QStringList &args)
+{
+  return QStringList(args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: stat FILE\
+"));
+}
+
+QStringList ConsoleEngine::handleStatFs(const QStringList &args)
+{
+  return QStringList(args.join(QString(tr(""))) + tr("\
+: invalid option\n\
+Usage: statfs\
+"));
 }
 
 QStringList ConsoleEngine::handleInvalid(const QString &cmd)
