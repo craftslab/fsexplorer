@@ -43,6 +43,7 @@ public:
   QStringList run(const QString &cmd, const QStringList &args);
 
 private:
+  bool traversePath(unsigned long long curIno, QStringList path, unsigned long long &foundIno);
   QStringList handleChangeDir(const QStringList &args);
   QStringList handleHelp();
   QStringList handleList(const QStringList &args);
@@ -53,5 +54,6 @@ private:
 
   FsEngine *fsEngine;
   struct fs_dirent curDent;
+  QString curPath;
 };
 #endif
