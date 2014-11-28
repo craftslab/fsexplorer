@@ -456,6 +456,9 @@ void QConsole::keyPressEvent(QKeyEvent *e)
   // control is pressed
   if (e->modifiers() & Qt::ControlModifier) {
       switch (e->key()) {
+      case Qt::Key_A:
+	return;
+
       case Qt::Key_C:
 	if (isSelectionInEditionZone()) {
 	  // If Ctrl + C pressed, then undo the current commant
@@ -464,20 +467,23 @@ void QConsole::keyPressEvent(QKeyEvent *e)
 
 	  // (Thierry Belair:)I humbly suggest that ctrl+C copies the text, as is expected,
 	  // and indicated in the contextual menu
-	  copy();
+	  // copy();
 	  return;
 	}
 	break;
 
-      case Qt::Key_P:
-	if (isInEditionZone()) {
-	  handleUpKeyPress();
-	}
+      case Qt::Key_E:
 	return;
 
       case Qt::Key_N:
 	if (isInEditionZone()) {
 	  handleDownKeyPress();
+	}
+	return;
+
+      case Qt::Key_P:
+	if (isInEditionZone()) {
+	  handleUpKeyPress();
 	}
 	return;
 
