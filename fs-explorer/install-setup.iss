@@ -3,7 +3,7 @@
 [Setup]
 AppName=Fs Explorer
 AppVerName=Fs Explorer
-AppVersion=14.10
+AppVersion=14.12
 DefaultDirName={pf}\Fs Explorer
 DefaultGroupName=Fs Explorer
 Compression=lzma2

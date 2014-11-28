@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 
 const QString MainWindow::title = QObject::tr("Fs Explorer");
-const QString MainWindow::version = QObject::tr("14.10");
+const QString MainWindow::version = QObject::tr("14.12");
 const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here
