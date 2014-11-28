@@ -64,7 +64,7 @@ bool ConsoleEngine::traversePath(unsigned long long curIno, QStringList path, un
     return true;
   }
 
-  if (path.join(QString(tr(""))).size() == 0) {
+  if (path.join(tr("")).size() == 0) {
     return true;
   }
 
@@ -110,13 +110,40 @@ traversePathExit:
   return ret;
 }
 
+QString ConsoleEngine::formatPath(const QString &path)
+{
+  QStringList list;
+  QString result;
+
+  result = path;
+  result = result.replace(QRegExp("/{2,}"), tr("/"));
+
+  list = result.split(tr("/"));
+  list.removeAll(tr("."));
+
+  for (int i = 0; i < list.size(); ++i) {
+    if (list[i].compare(tr("..")) == 0) {
+      list[i] = tr("/");
+
+      if ((i - 1) >= 0) {
+	list[i - 1] = tr("/");
+      }
+    }
+  }
+
+  result = list.join(tr("/"));
+  result = result.replace(QRegExp("/{2,}"), tr("/"));
+
+  return result;
+}
+
 QStringList ConsoleEngine::handleChangeDir(const QStringList &args)
 {
   unsigned long long ino;
   bool ret;
 
   if (args.size() > 1) {
-    return QStringList(args.join(QString(tr(""))) + tr("\
+    return QStringList(args.join(tr("")) + tr("\
 : invalid args\n\
 Usage: cd [DIRECTORY]\
 "));
@@ -129,35 +156,28 @@ Usage: cd [DIRECTORY]\
   }
 
   struct fs_dirent rootDent = fsEngine->getFileRoot();
-  QStringList pathList = args[0].split(QString(tr("/")));
+  QString arg = args[0];
 
-  if (args[0].startsWith(QString(tr(rootDent.d_name)))) {
-    pathList[0] = tr(".");
-    ret = traversePath(rootDent.d_ino, pathList, ino);
+  if (arg.startsWith(tr(rootDent.d_name))) {
+    arg = formatPath(arg);
   } else {
-    ret = traversePath(curDent.d_ino, pathList, ino);
+    arg = formatPath(curPath + tr("/") + arg);
   }
 
+  QStringList pathList = arg.split(tr("/"));
+  pathList[0] = tr(".");
+  ino = 0;
+
+  ret = traversePath(rootDent.d_ino, pathList, ino);
   if (!ret) {
-    return QStringList(args[0] + tr("\
+    return QStringList(arg + tr("\
 : invalid args\n\
 Usage: cd [DIRECTORY]\
 "));
   }
 
   curDent = fsEngine->getFileChildsDent(ino);
-
-  if (args[0].startsWith(QString(tr(rootDent.d_name)))) {
-    curPath = args[0];
-  } else {
-    if (curPath.size() == 1) {
-      curPath.append(args[0]);
-    } else {
-      curPath.append(tr("/")).append(args[0]);
-    }
-  }
-
-  // TODO
+  curPath = arg;
 
   return QStringList(curPath);
 }
@@ -184,7 +204,7 @@ QStringList ConsoleEngine::handleList(const QStringList &args)
   bool ret;
 
   if (args.size() > 1) {
-    return QStringList(args.join(QString(tr(""))) + tr("\
+    return QStringList(args.join(tr("")) + tr("\
 : invalid args\n\
 Usage: ls [FILE]\
 "));
@@ -194,18 +214,21 @@ Usage: ls [FILE]\
     ino = curDent.d_ino;
   } else {
     struct fs_dirent rootDent = fsEngine->getFileRoot();
-    QStringList pathList = args[0].split(QString(tr("/")));
-    ino = 0;
+    QString arg = args[0];
 
-    if (args[0].startsWith(QString(tr(rootDent.d_name)))) {
-      pathList[0] = tr(".");
-      ret = traversePath(rootDent.d_ino, pathList, ino);
+    if (arg.startsWith(tr(rootDent.d_name))) {
+      arg = formatPath(arg);
     } else {
-      ret = traversePath(curDent.d_ino, pathList, ino);
+      arg = formatPath(curPath + tr("/") + arg);
     }
 
+    QStringList pathList = arg.split(tr("/"));
+    pathList[0] = tr(".");
+    ino = 0;
+
+    ret = traversePath(rootDent.d_ino, pathList, ino);
     if (!ret) {
-      return QStringList(args[0] + tr("\
+      return QStringList(arg + tr("\
 : invalid args\n\
 Usage: ls [FILE]\
 "));
@@ -245,7 +268,7 @@ handleListExit:
 QStringList ConsoleEngine::handlePrintCurDir(const QStringList &args)
 {
   if (args.size() != 0) {
-    return QStringList(args.join(QString(tr(""))) + tr("\
+    return QStringList(args.join(tr("")) + tr("\
 : invalid args\n\
 Usage: pwd\
 "));
@@ -260,24 +283,28 @@ QStringList ConsoleEngine::handleStat(const QStringList &args)
   bool ret;
 
   if (args.size() != 1) {
-    return QStringList(args.join(QString(tr(""))) + tr("\
+    return QStringList(args.join(tr("")) + tr("\
 : invalid args\n\
 Usage: stat FILE\
 "));
   }
 
   struct fs_dirent rootDent = fsEngine->getFileRoot();
-  QStringList pathList = args[0].split(QString(tr("/")));
+  QString arg = args[0];
 
-  if (args[0].startsWith(QString(tr(rootDent.d_name)))) {
-    pathList[0] = tr(".");
-    ret = traversePath(rootDent.d_ino, pathList, ino);
+  if (arg.startsWith(tr(rootDent.d_name))) {
+    arg = formatPath(arg);
   } else {
-    ret = traversePath(curDent.d_ino, pathList, ino);
+    arg = formatPath(curPath + tr("/") + arg);
   }
 
+  QStringList pathList = arg.split(tr("/"));
+  pathList[0] = tr(".");
+  ino = 0;
+
+  ret = traversePath(rootDent.d_ino, pathList, ino);
   if (!ret) {
-    return QStringList(args[0] + tr("\
+    return QStringList(arg + tr("\
 : invalid args\n\
 Usage: stat FILE\
 "));
@@ -289,7 +316,7 @@ Usage: stat FILE\
 QStringList ConsoleEngine::handleStatFs(const QStringList &args)
 {
   if (args.size() != 0) {
-    return QStringList(args.join(QString(tr(""))) + tr("\
+    return QStringList(args.join(tr("")) + tr("\
 : invalid args\n\
 Usage: statfs\
 "));

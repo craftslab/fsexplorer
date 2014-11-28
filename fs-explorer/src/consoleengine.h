@@ -44,6 +44,7 @@ public:
 
 private:
   bool traversePath(unsigned long long curIno, QStringList path, unsigned long long &foundIno);
+  QString formatPath(const QString &path);
   QStringList handleChangeDir(const QStringList &args);
   QStringList handleHelp();
   QStringList handleList(const QStringList &args);

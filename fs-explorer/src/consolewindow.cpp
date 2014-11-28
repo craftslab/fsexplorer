@@ -103,7 +103,7 @@ QString ConsoleWindow::interpretCommand(const QString &command, int *res)
     setConsoleProp();
   } else {
     QStringList ret = consoleEngine->run(cmd, args);
-    result = ret.join(QString(tr("  ")));
+    result = ret.join(tr("  "));
   }
 
   *res = 0;
@@ -128,8 +128,8 @@ void ConsoleWindow::handleCommandExecuted(const QString &/*command*/)
 
 void ConsoleWindow::setConsoleProp()
 {
-  setFont(QFont("Helvetica", 10, true));
-  setCurrentFont(QFont("Helvetica", 9, false));
+  setFont(QFont("Helvetica", 11, true));
+  setCurrentFont(QFont("Helvetica", 11, false));
 
   setCmdColor(Qt::green);
   setOutColor(Qt::green);
