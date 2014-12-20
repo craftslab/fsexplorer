@@ -126,7 +126,7 @@ QString ConsoleEngine::formatPath(const QString &path)
       list[i] = tr("/");
 
       if ((i - 1) >= 0) {
-	list[i - 1] = tr("/");
+        list[i - 1] = tr("/");
       }
     }
   }
