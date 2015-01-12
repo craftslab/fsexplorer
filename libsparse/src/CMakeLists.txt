@@ -1,0 +1,142 @@
+#
+# CMake file for libsparse
+#
+# From the off-tree build directory, invoke:
+# $ cmake <PATH_TO_HELADO_ROOT>
+#
+
+#
+# Set environment variables
+#
+include("${SPARSE_SRC_DIR}/lib/lib.cmake")
+
+set(SPARSE_SRC_ROOT "${SPARSE_SRC_DIR}/src")
+include_directories(${SPARSE_SRC_ROOT})
+include_directories("${SPARSE_SRC_ROOT}/include")
+
+set(SPARSE_SRC_LIBFILES
+  "${SPARSE_SRC_ROOT}/backed_block.c"
+  "${SPARSE_SRC_ROOT}/output_file.c"
+  "${SPARSE_SRC_ROOT}/sparse.c"
+  "${SPARSE_SRC_ROOT}/sparse_crc32.c"
+  "${SPARSE_SRC_ROOT}/sparse_err.c"
+  "${SPARSE_SRC_ROOT}/sparse_read.c"
+  )
+
+set(SPARSE_SRC_BINFILES_SIMG2IMG
+  "${SPARSE_SRC_ROOT}/simg2img.c"
+  "${SPARSE_SRC_ROOT}/sparse_crc32.c"
+  )
+
+set(SPARSE_SRC_BINFILES_IMG2SIMG
+  "${SPARSE_SRC_ROOT}/img2simg.c"
+  )
+
+set(SPARSE_SRC_BINFILES_APPEND2SIMG
+  "${SPARSE_SRC_ROOT}/append2simg.c"
+  )
+
+set(SPARSE_SRC_BINFILES_SIMGDUMP
+  "${SPARSE_SRC_ROOT}/simg_dump.py"
+  )
+
+if (CMAKE_COMPILER_IS_GNUCC)
+  set(SPARSE_SRC_LIBNAME "sparse")
+else (CMAKE_COMPILER_IS_GNUCC)
+  set(SPARSE_SRC_LIBNAME "libsparse")
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+set(SPARSE_SRC_BINNAME_SIMG2IMG "simg2img")
+set(SPARSE_SRC_BINNAME_IMG2SIMG "img2simg")
+set(SPARSE_SRC_BINNAME_APPEND2SIMG "append2simg")
+
+#
+# Build target library
+#
+add_library(${SPARSE_SRC_LIBNAME}
+  SHARED
+  ${SPARSE_SRC_LIBFILES}
+  )
+
+add_executable(${SPARSE_SRC_BINNAME_SIMG2IMG}
+  ${SPARSE_SRC_BINFILES_SIMG2IMG}
+  )
+
+add_executable(${SPARSE_SRC_BINNAME_IMG2SIMG}
+  ${SPARSE_SRC_BINFILES_IMG2SIMG}
+  )
+
+add_executable(${SPARSE_SRC_BINNAME_APPEND2SIMG}
+  ${SPARSE_SRC_BINFILES_APPEND2SIMG}
+  )
+
+#
+# Add the dependency
+#
+add_dependencies(${SPARSE_SRC_LIBNAME} ${SPARSE_LIB_ZLIB_LIBNAME})
+
+add_dependencies(${SPARSE_SRC_BINNAME_SIMG2IMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+add_dependencies(${SPARSE_SRC_BINNAME_SIMG2IMG} ${SPARSE_SRC_LIBNAME})
+
+add_dependencies(${SPARSE_SRC_BINNAME_IMG2SIMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+add_dependencies(${SPARSE_SRC_BINNAME_IMG2SIMG} ${SPARSE_SRC_LIBNAME})
+
+add_dependencies(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+add_dependencies(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_SRC_LIBNAME})
+
+#
+# Linke the library
+#
+if (CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(${SPARSE_SRC_LIBNAME} dl)
+endif (CMAKE_COMPILER_IS_GNUCC)
+
+target_link_libraries(${SPARSE_SRC_LIBNAME} ${SPARSE_LIB_ZLIB_LIBNAME})
+
+target_link_libraries(${SPARSE_SRC_BINNAME_SIMG2IMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+target_link_libraries(${SPARSE_SRC_BINNAME_SIMG2IMG} ${SPARSE_SRC_LIBNAME})
+
+target_link_libraries(${SPARSE_SRC_BINNAME_IMG2SIMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+target_link_libraries(${SPARSE_SRC_BINNAME_IMG2SIMG} ${SPARSE_SRC_LIBNAME})
+
+target_link_libraries(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_LIB_ZLIB_LIBNAME})
+target_link_libraries(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_SRC_LIBNAME})
+
+#
+# Strip the library
+#
+#if (CMAKE_COMPILER_IS_GNUCC)
+#  if (DEFINED CMAKE_STRIP)
+#    execute_process(COMMAND ${CMAKE_STRIP} ${CMAKE_BINARY_DIR}/lib/libsparse.so)
+#  endif (DEFINED CMAKE_STRIP)
+#endif (CMAKE_COMPILER_IS_GNUCC)
+
+#
+# Add the install targets
+#
+install(
+  TARGETS ${SPARSE_SRC_LIBNAME}
+  ARCHIVE DESTINATION ${SPARSE_LIB_DIR}
+  LIBRARY DESTINATION ${SPARSE_LIB_DIR}
+  COMPONENT library
+  )
+
+install(
+  TARGETS ${SPARSE_SRC_BINNAME_SIMG2IMG}
+  RUNTIME DESTINATION ${SPARSE_BIN_DIR}
+  )
+
+install(
+  TARGETS ${SPARSE_SRC_BINNAME_IMG2SIMG}
+  RUNTIME DESTINATION ${SPARSE_BIN_DIR}
+  )
+
+install(
+  TARGETS ${SPARSE_SRC_BINNAME_APPEND2SIMG}
+  RUNTIME DESTINATION ${SPARSE_BIN_DIR}
+  )
+
+install(
+  FILES ${SPARSE_SRC_BINFILES_SIMGDUMP}
+  DESTINATION ${SPARSE_BIN_DIR}
+  )
