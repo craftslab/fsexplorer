@@ -58,7 +58,7 @@ SOURCES += main.cpp
 
 INCLUDEPATH += ../include
 INCLUDEPATH += qconsole
-#unix:LIBS += "-L../release/lib/ -lyafuse2 -lsparse"
+#unix:LIBS += "-L../release/lib/ -lyafuse2"
 #win32:LIBS += "-L../release/lib/"
 
 MACH = 64
@@ -78,13 +78,11 @@ contains(MACH, 64) {
 
 unix {
   inst_library.files += ../lib$$MACH/unix/libyafuse2.so
-  inst_library.files += ../lib$$MACH/unix/libsparse.so
   inst_ico.files +=
 }
 
 win32 {
   inst_library.files += ../lib$$MACH/win/libyafuse2.dll
-  inst_library.files += ../lib$$MACH/win/libsparse.dll
   inst_ico.files += ../src/images/icon.ico
 }
 
