@@ -40,6 +40,10 @@ set(SPARSE_SRC_BINFILES_SIMGDUMP
   "${SPARSE_SRC_ROOT}/simg_dump.py"
   )
 
+set(SPARSE_SRC_INC_INCFILES
+  "${SPARSE_SRC_ROOT}/include/sparse/sparse.h"
+  )
+
 if (CMAKE_COMPILER_IS_GNUCC)
   set(SPARSE_SRC_LIBNAME "sparse")
 else (CMAKE_COMPILER_IS_GNUCC)
@@ -103,16 +107,7 @@ target_link_libraries(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_LIB_ZLIB_LIBNAM
 target_link_libraries(${SPARSE_SRC_BINNAME_APPEND2SIMG} ${SPARSE_SRC_LIBNAME})
 
 #
-# Strip the library
-#
-#if (CMAKE_COMPILER_IS_GNUCC)
-#  if (DEFINED CMAKE_STRIP)
-#    execute_process(COMMAND ${CMAKE_STRIP} ${CMAKE_BINARY_DIR}/lib/libsparse.so)
-#  endif (DEFINED CMAKE_STRIP)
-#endif (CMAKE_COMPILER_IS_GNUCC)
-
-#
-# Add the install targets
+# Install the target
 #
 install(
   TARGETS ${SPARSE_SRC_LIBNAME}
@@ -140,3 +135,17 @@ install(
   FILES ${SPARSE_SRC_BINFILES_SIMGDUMP}
   DESTINATION ${SPARSE_BIN_DIR}
   )
+
+install(
+  FILES ${SPARSE_SRC_INC_INCFILES}
+  DESTINATION "${SPARSE_INC_DIR}/sparse"
+  )
+
+#
+# Strip the target
+#
+#if (CMAKE_COMPILER_IS_GNUCC)
+#  if (DEFINED CMAKE_STRIP)
+#    execute_process(COMMAND ${CMAKE_STRIP} "${SPARSE_LIB_DIR}/${SPARSE_SRC_LIBNAME}.so")
+#  endif (DEFINED CMAKE_STRIP)
+#endif (CMAKE_COMPILER_IS_GNUCC)
