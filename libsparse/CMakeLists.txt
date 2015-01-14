@@ -26,11 +26,10 @@ set(SPARSE_VERSION_FULL "${SPARSE_VERSION_MAJOR}.${SPARSE_VERSION_MINOR}")
 #
 # Set environment variables
 #
-set(SPARSE_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(SPARSE_BIN_DIR "${SPARSE_PREFIX}/bin")
-set(SPARSE_LIB_DIR "${SPARSE_PREFIX}/lib${LIB_SUFFIX}")
-set(SPARSE_INC_DIR "${SPARSE_PREFIX}/include")
-
+set(SPARSE_PREFIX_ROOT ${CMAKE_INSTALL_PREFIX})
+set(SPARSE_PREFIX_BIN_DIR "${SPARSE_PREFIX_ROOT}/bin")
+set(SPARSE_PREFIX_LIB_DIR "${SPARSE_PREFIX_ROOT}/lib${LIB_SUFFIX}")
+set(SPARSE_PREFIX_INC_DIR "${SPARSE_PREFIX_ROOT}/include")
 set(SPARSE_SRC_DIR "${PROJECT_SOURCE_DIR}")
 
 #
@@ -62,23 +61,6 @@ if (CMAKE_COMPILER_IS_GNUCC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -Wall -Werror -fPIC -g2 ${MACH}")
   #set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -Wall -Werror -Wpointer-arith -Wstrict-prototypes -Wstrict-overflow=3 -fPIC -g0 ${MACH}")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -Wall -Werror -Wpointer-arith -fPIC -g0 ${MACH}")
-endif (CMAKE_COMPILER_IS_GNUCC)
-
-#
-# Configure header file to pass cmake settings to source code
-#
-#configure_file(
-#  "${SPARSE_SRC_DIR}/src/config.h.in"
-#  "${PROJECT_BINARY_DIR}/src/config.h"
-#  )
-
-#
-# Set target name
-#
-if (CMAKE_COMPILER_IS_GNUCC)
-  set(SPARSE_TARGET_NAME "sparse")
-else (CMAKE_COMPILER_IS_GNUCC)
-  set(SPARSE_TARGET_NAME "libsparse")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 #
