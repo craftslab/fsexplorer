@@ -20,8 +20,8 @@ INCLUDEPATH += $$PWD/../lib/libyafuse2/include
 HEADERS += $$PWD/*.h
 SOURCES += $$PWD/*.cpp
 
-#unix:LIBS += "-L$$INSTALL_PREFIX/lib/ -lyafuse2"
-#win32:LIBS += "-L$$INSTALL_PREFIX/lib/"
+unix:LIBS += -L$$PWD/../lib/qconsole -lqconsole
+win32:LIBS += -L$$PWD/../lib/qconsole
 
 unix {
   inst_ico.files +=
