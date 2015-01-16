@@ -16,12 +16,24 @@ FORMS += aboutdialog.ui
 
 INCLUDEPATH += $$PWD/../lib/qconsole
 INCLUDEPATH += $$PWD/../lib/libyafuse2/include
+INCLUDEPATH += $$PWD/../lib/zlib/src
+INCLUDEPATH += $$PWD/../lib/libsparse
+INCLUDEPATH += $$PWD/../lib/libsparse/include
 
 HEADERS += $$PWD/*.h
 SOURCES += $$PWD/*.cpp
 
-unix:LIBS += -L$$PWD/../lib/qconsole -lqconsole
-win32:LIBS += -L$$PWD/../lib/qconsole
+unix {
+  LIBS += -L$$PWD/../lib/qconsole -lqconsole
+  LIBS += -L$$PWD/../lib/zlib -lz
+  LIBS += -L$$PWD/../lib/libsparse -lsparse
+}
+
+win32 {
+  LIBS += -L$$PWD/../lib/qconsole
+  LIBS += -L$$PWD/../lib/zlib
+  LIBS += -L$$PWD/../lib/libsparse
+}
 
 unix {
   inst_ico.files +=
