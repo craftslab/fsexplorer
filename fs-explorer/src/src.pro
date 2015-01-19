@@ -16,23 +16,27 @@ FORMS += aboutdialog.ui
 
 INCLUDEPATH += $$PWD/../lib/qconsole
 INCLUDEPATH += $$PWD/../lib/libyafuse2/include
-INCLUDEPATH += $$PWD/../lib/zlib/src
+INCLUDEPATH += $$PWD/../lib/zlib
 INCLUDEPATH += $$PWD/../lib/libsparse
 INCLUDEPATH += $$PWD/../lib/libsparse/include
 
 HEADERS += $$PWD/*.h
 SOURCES += $$PWD/*.cpp
 
+DEPENDPATH += $$PWD/../lib/qconsole
+DEPENDPATH += $$PWD/../lib/zlib
+DEPENDPATH += $$PWD/../lib/libsparse
+
 unix {
   LIBS += -L$$PWD/../lib/qconsole -lqconsole
-  LIBS += -L$$PWD/../lib/zlib -lz
   LIBS += -L$$PWD/../lib/libsparse -lsparse
+  LIBS += -L$$PWD/../lib/zlib -lz
 }
 
 win32 {
   LIBS += -L$$PWD/../lib/qconsole
-  LIBS += -L$$PWD/../lib/zlib
   LIBS += -L$$PWD/../lib/libsparse
+  LIBS += -L$$PWD/../lib/zlib
 }
 
 unix {
