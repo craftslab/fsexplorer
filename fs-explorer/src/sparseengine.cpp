@@ -21,13 +21,13 @@
 
 #include "sparseengine.h"
 
-SparseEngine::SparseEngine(const QFile *src, QFile *dst, QObject *parent)
+SparseEngine::SparseEngine(const QString &name, QObject *parent)
 {
-  srcFile = src;
-  dstFile = dst;
+  srcFile = new QFile(name);
   parent = parent;
 
-  isStopped = true;
+  dstFile = new QTemporaryFile();
+  dstFile->setAutoRemove(false);
 }
 
 SparseEngine::~SparseEngine()
@@ -35,16 +35,17 @@ SparseEngine::~SparseEngine()
   stop();
 }
 
-void SparseEngine::unsparse()
-{
-  isStopped = false;
-
-  start();
-}
-
 void SparseEngine::stop()
 {
-  isStopped = true;
+  if (dstFile) {
+    dstFile->close();
+    dstFile = NULL;
+  }
+
+  if (srcFile) {
+    srcFile->close();
+    srcFile = NULL;
+  }
 }
 
 void SparseEngine::run()
@@ -65,4 +66,6 @@ void SparseEngine::run()
   }
 
   sparse_file_destroy(s);
+
+  emit resultReady(dstFile->fileName());
 }

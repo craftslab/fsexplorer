@@ -49,6 +49,8 @@ MainWindow::MainWindow()
   fsPathExport = fsPathExport;
   fsStatus = false;
 
+  sparsePathOpen = sparsePathOpen;
+
   setAcceptDrops(true);
 }
 
@@ -434,6 +436,11 @@ void MainWindow::showContextMenu(const QPoint &pos)
   if (selectedItem) {
     // Do nothing here
   }
+}
+
+void MainWindow::handleSparseResult(const QString &name)
+{
+  sparsePathOpen = name;
 }
 
 void MainWindow::pressTreeItem(const QModelIndex &index)
@@ -1133,6 +1140,16 @@ void MainWindow::confirmAddressStatus(const QString &text)
     // Do nothing here
     break;
   }
+}
+
+void MainWindow::unsparseFile(const QString &name)
+{
+  sparseEngine = new SparseEngine(name, this);
+
+  connect(sparseEngine, SIGNAL(resultReady(const QString &)), this, SLOT(handleSparseResult(const QString &)));
+  connect(sparseEngine, SIGNAL(finished()), sparseEngine, SLOT(deleteLater()));
+
+ sparseEngine->start();
 }
 
 void MainWindow::loadFile(const QString &name)

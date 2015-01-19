@@ -42,6 +42,7 @@
 #include <QMainWindow>
 
 #include "fsengine.h"
+#include "sparseengine.h"
 #include "fstreemodel.h"
 #include "fslistmodel.h"
 #include "fstreeview.h"
@@ -94,6 +95,7 @@ private slots:
   void search();
   void showWidgets(bool show);
   void showContextMenu(const QPoint &pos);
+  void handleSparseResult(const QString &name);
 
   void pressTreeItem(const QModelIndex &index);
   void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
@@ -134,6 +136,7 @@ private:
 
   bool confirmFileStatus();
   void confirmAddressStatus(const QString &text);
+  void unsparseFile(const QString &name);
   void loadFile(const QString &name);
   void setOutput(const QString &text) const;
   QString stripString(const QString &name);
@@ -223,6 +226,9 @@ private:
 
   QStringList treeHeader;
   QStringList listHeader;
+
+  SparseEngine *sparseEngine;
+  QString sparsePathOpen;
 
   FsEngine *fsEngine;
   QString fsPathOpen;
