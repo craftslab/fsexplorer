@@ -303,9 +303,9 @@ void MainWindow::history(QAction *action)
       fsPathOpen = text;
 
       writeFsPathSettings();
-      insertHistoryAction(text);
+      insertHistoryAction(fsPathOpen);
 
-      loadFile(text);
+      loadFile(fsPathOpen);
     }
   }
 }
@@ -395,7 +395,7 @@ void MainWindow::search()
     return;
   }
 
-  searchWindow = new SearchWindow(tr("Search Result"), fsEngine, text, this);
+  searchWindow = new SearchWindow(tr("Search Result"), text, fsEngine, this);
   searchWindow->show();
 }
 

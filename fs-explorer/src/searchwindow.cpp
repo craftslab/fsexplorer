@@ -27,7 +27,7 @@ const QString SearchWindow::startstr = QObject::tr("Search again");
 const int SearchWindow::width = 640;
 const int SearchWindow::height = 240;
 
-SearchWindow::SearchWindow(const QString &title, FsEngine *engine, const QString &text, QWidget *parent)
+SearchWindow::SearchWindow(const QString &title, const QString &text, FsEngine *engine, QWidget *parent)
   : QWidget(parent)
 {
   listWidget = new QListWidget(this);

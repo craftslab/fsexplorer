@@ -39,14 +39,14 @@ class SparseEngine : public QThread
   Q_OBJECT
 
 public:
-  SparseEngine(QObject *parent = 0);
+  SparseEngine(const QFile *src, QFile *dst, QObject *parent = 0);
   ~SparseEngine();
 
 signals:
   void finished();
 
 public slots:
-  void unsparse(const QFile *src, QFile *dst);
+  void unsparse();
   void stop();
 
 protected:

@@ -1,5 +1,5 @@
 /**
- * searchengine.cpp - The entry of searchengine
+ * sparseengine.cpp - The entry of sparseengine
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -21,9 +21,12 @@
 
 #include "sparseengine.h"
 
-SparseEngine::SparseEngine(QObject *parent)
+SparseEngine::SparseEngine(const QFile *src, QFile *dst, QObject *parent)
 {
+  srcFile = src;
+  dstFile = dst;
   parent = parent;
+
   isStopped = true;
 }
 
@@ -32,10 +35,8 @@ SparseEngine::~SparseEngine()
   stop();
 }
 
-void SparseEngine::unsparse(const QFile *src, QFile *dst)
+void SparseEngine::unsparse()
 {
-  srcFile = src;
-  dstFile = dst;
   isStopped = false;
 
   start();
