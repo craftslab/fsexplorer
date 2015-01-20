@@ -176,6 +176,10 @@ void MainWindow::closeFile()
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(title));
 
+  if (!sparsePathOpen.isEmpty()) {
+    QFile::remove(sparsePathOpen);
+  }
+
   fsStatus = false;
   emit mounted(fsStatus);
   emit mountedRw(fsStatus);
@@ -436,11 +440,6 @@ void MainWindow::showContextMenu(const QPoint &pos)
   if (selectedItem) {
     // Do nothing here
   }
-}
-
-void MainWindow::handleSparseResult(const QString &name)
-{
-  sparsePathOpen = name;
 }
 
 void MainWindow::pressTreeItem(const QModelIndex &index)
@@ -1142,19 +1141,21 @@ void MainWindow::confirmAddressStatus(const QString &text)
   }
 }
 
-void MainWindow::unsparseFile(const QString &name)
+void MainWindow::unsparseFile(const QString &src, QString &dst)
 {
-  sparseEngine = new SparseEngine(name, this);
-
-  connect(sparseEngine, SIGNAL(resultReady(const QString &)), this, SLOT(handleSparseResult(const QString &)));
-  connect(sparseEngine, SIGNAL(finished()), sparseEngine, SLOT(deleteLater()));
-
- sparseEngine->start();
+  // TODO
 }
 
 void MainWindow::loadFile(const QString &name)
 {
-  bool ret = fsEngine->openFile(name);
+  QString pathOpen = name;
+
+  unsparseFile(pathOpen, sparsePathOpen);
+  if (!sparsePathOpen.isEmpty()) {
+    pathOpen = sparsePathOpen;
+  }
+
+  bool ret = fsEngine->openFile(pathOpen);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
 
