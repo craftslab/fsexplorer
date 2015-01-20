@@ -178,6 +178,7 @@ void MainWindow::closeFile()
 
   if (!sparsePathOpen.isEmpty()) {
     QFile::remove(sparsePathOpen);
+    sparsePathOpen.clear();
   }
 
   fsStatus = false;
@@ -1143,7 +1144,8 @@ void MainWindow::confirmAddressStatus(const QString &text)
 
 void MainWindow::unsparseFile(const QString &src, QString &dst)
 {
-  // TODO
+  sparseWindow = new SparseWindow(tr("Unsparse image now..."), src, this);
+  dst = sparseWindow->getSparseName();
 }
 
 void MainWindow::loadFile(const QString &name)

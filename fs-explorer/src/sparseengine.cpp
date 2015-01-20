@@ -32,10 +32,10 @@ SparseEngine::SparseEngine(const QString &name, QObject *parent)
 
 SparseEngine::~SparseEngine()
 {
-  stop();
+  handleStop();
 }
 
-void SparseEngine::stop()
+void SparseEngine::handleStop()
 {
   if (dstFile) {
     dstFile->close();

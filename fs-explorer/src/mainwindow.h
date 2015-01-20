@@ -52,6 +52,7 @@
 #include "chartwindow.h"
 #include "exportengine.h"
 #include "aboutdialog.h"
+#include "sparsewindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -225,8 +226,6 @@ private:
   QStringList treeHeader;
   QStringList listHeader;
 
-  QString sparsePathOpen;
-
   FsEngine *fsEngine;
   QString fsPathOpen;
   QString fsPathExport;
@@ -235,5 +234,8 @@ private:
   QList<struct fs_kstat> treeFileStatList;
   QList<struct fs_dirent> listFileDentList;
   QList<struct fs_kstat> listFileStatList;
+
+  SparseWindow *sparseWindow;
+  QString sparsePathOpen;
 };
 #endif

@@ -1,5 +1,5 @@
 /**
- * sparseengine.h - Header of sparseengine
+ * sparsewindow.h - Header of sparsewindow
  *
  * Copyright (c) 2013-2014 angersax@gmail.com
  *
@@ -19,42 +19,47 @@
  * along with Fs Explorer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPARSEENGINE_H
-#define SPARSEENGINE_H
+#ifndef SPARSEWINDOW_H
+#define SPARSEWINDOW_H
 
-#include <QObject>
-#include <QLibrary>
-#include <QThread>
-#include <QMutexLocker>
-#include <QFile>
-#include <QTemporaryFile>
+#include <QtGui>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 
-#ifdef __cplusplus
-extern "C" {
-#include "sparse/sparse.h"
-}
-#endif /* __cplusplus */
+#include "sparseengine.h"
 
-class SparseEngine : public QThread
+class SparseWindow : public QWidget
 {
   Q_OBJECT
 
 public:
-  SparseEngine(const QString &name, QObject *parent = 0);
-  ~SparseEngine();
+  SparseWindow(const QString &text, const QString &name, QWidget *parent = 0);
+  ~SparseWindow();
+
+  QString getSparseName();
 
 signals:
-  void resultReady(const QString &name);
-
-public slots:
-  void handleStop();
+  void stop();
 
 protected:
-  void run();
+  void closeEvent(QCloseEvent *event);
+
+private slots:
+  void handleResultReady(const QString &name);
 
 private:
-  QFile *srcFile;
-  QTemporaryFile *dstFile;
-  QMutex mutex;
+  static const int width;
+  static const int height;
+
+  QLabel *label;
+  QPushButton *cancelButton;
+  QVBoxLayout *vLayout;
+  QHBoxLayout *hLayout;
+  QWidget *hLayoutWidget;
+  QShortcut *shortcut;
+
+  SparseEngine *sparseEngine;
+  QString sparseName;
 };
 #endif
