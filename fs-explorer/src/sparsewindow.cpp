@@ -63,8 +63,8 @@ SparseWindow::SparseWindow(const QString &text, const QString &name, QWidget *pa
   setFixedSize(width, height);
 
   sparseName = sparseName;
-
   sparseEngine = new SparseEngine(name, this);
+
   connect(sparseEngine, SIGNAL(resultReady(const QString &)), this, SLOT(handleResultReady(const QString &)));
   connect(sparseEngine, SIGNAL(finished()), sparseEngine, SLOT(deleteLater()));
   connect(this, SIGNAL(stop()), sparseEngine, SLOT(stop()));
@@ -74,7 +74,15 @@ SparseWindow::SparseWindow(const QString &text, const QString &name, QWidget *pa
 
 SparseWindow::~SparseWindow()
 {
-  // Do nothing here
+  if (sparseEngine) {
+    delete sparseEngine;
+    sparseEngine = NULL;
+  }
+}
+
+QString SparseWindow::getSparseName()
+{
+  return sparseName;
 }
 
 void SparseWindow::closeEvent(QCloseEvent *event)
@@ -90,9 +98,4 @@ void SparseWindow::closeEvent(QCloseEvent *event)
 void SparseWindow::handleResultReady(const QString &name)
 {
   sparseName = name;
-}
-
-QString SparseWindow::getSparseName()
-{
-  return sparseName;
 }
