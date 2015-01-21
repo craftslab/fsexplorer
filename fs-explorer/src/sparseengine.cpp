@@ -21,6 +21,31 @@
 
 #include "sparseengine.h"
 
+static bool unsparse(const QFile *src, QTemporaryFile *dst);
+
+static bool unsparse(const QFile *src, QTemporaryFile *dst)
+{
+  int srcHandle = src->handle();
+  bool status = true;
+
+  struct sparse_file *s = sparse_file_import(srcHandle, false, false);
+  if (!s) {
+    return false;
+  }
+
+  int dstHandle = dst->handle();
+  dst->seek(0);
+
+  int ret = sparse_file_write(s, dstHandle, false, false, false);
+  if (ret < 0) {
+    status = false;
+  }
+
+  sparse_file_destroy(s);
+
+  return status;
+}
+
 SparseEngine::SparseEngine(const QString &name, QObject *parent)
 {
   srcFile = new QFile(name);
@@ -35,10 +60,41 @@ SparseEngine::~SparseEngine()
   handleStop();
 }
 
+bool SparseEngine::isSparseFile(const QString &src)
+{
+  // TODO
+  return false;
+}
+
+bool SparseEngine::unsparseFile(const QString &src, QString &dst)
+{
+  QFile inFile(src);
+  QTemporaryFile outFile;
+  QString name = outFile.fileName();
+
+  outFile.setAutoRemove(false);
+
+  bool ret = ::unsparse(&inFile, &outFile);
+  if (!ret) {
+    outFile.close();
+    (void)QFile::remove(name);
+
+    return false;
+  }
+
+  dst = name;
+
+  return true;
+}
+
 void SparseEngine::handleStop()
 {
   if (dstFile) {
+    QString name = dstFile->fileName();
+
     dstFile->close();
+    (void)QFile::remove(name);
+
     dstFile = NULL;
   }
 
@@ -51,21 +107,13 @@ void SparseEngine::handleStop()
 void SparseEngine::run()
 {
   QMutexLocker locker(&mutex);
+  QString name = dstFile->fileName();
 
-  int srcHandle = srcFile->handle();
-  struct sparse_file *s = sparse_file_import(srcHandle, false, false);
-  if (!s) {
-    exit(-1);
+  bool ret = ::unsparse(srcFile, dstFile);
+  if (!ret) {
+    name.clear();
+    handleStop();
   }
 
-  int dstHandle = dstFile->handle();
-  dstFile->seek(0);
-  int ret = sparse_file_write(s, dstHandle, false, false, false);
-  if (ret < 0) {
-    exit(ret);
-  }
-
-  sparse_file_destroy(s);
-
-  emit resultReady(dstFile->fileName());
+  emit resultReady(name);
 }

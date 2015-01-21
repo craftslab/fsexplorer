@@ -177,7 +177,7 @@ void MainWindow::closeFile()
   setWindowTitle(tr("%1").arg(title));
 
   if (!sparsePathOpen.isEmpty()) {
-    QFile::remove(sparsePathOpen);
+    (void)QFile::remove(sparsePathOpen);
     sparsePathOpen.clear();
   }
 
@@ -1142,22 +1142,31 @@ void MainWindow::confirmAddressStatus(const QString &text)
   }
 }
 
-void MainWindow::unsparseFile(const QString &src, QString &dst)
+bool MainWindow::isSparseFile(const QString &src)
 {
-  sparseWindow = new SparseWindow(tr("Unsparse image now..."), src, this);
-  dst = sparseWindow->getSparseName();
+  return SparseEngine::isSparseFile(src);
+}
+
+bool MainWindow::unsparseFile(const QString &src, QString &dst)
+{
+  return SparseEngine::unsparseFile(src, dst);
 }
 
 void MainWindow::loadFile(const QString &name)
 {
   QString pathOpen = name;
+  bool ret;
 
-  unsparseFile(pathOpen, sparsePathOpen);
-  if (!sparsePathOpen.isEmpty()) {
-    pathOpen = sparsePathOpen;
+  if (isSparseFile(pathOpen)) {
+    statusBar()->showMessage(tr("Unsparse fs image..."), 2000);
+
+    ret = unsparseFile(pathOpen, sparsePathOpen);
+    if (ret && !sparsePathOpen.isEmpty()) {
+      pathOpen = sparsePathOpen;
+    }
   }
 
-  bool ret = fsEngine->openFile(pathOpen);
+  ret = fsEngine->openFile(pathOpen);
   if (ret) {
     setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
 

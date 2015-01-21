@@ -42,6 +42,7 @@
 #include <QMainWindow>
 
 #include "fsengine.h"
+#include "sparseengine.h"
 #include "fstreemodel.h"
 #include "fslistmodel.h"
 #include "fstreeview.h"
@@ -52,7 +53,6 @@
 #include "chartwindow.h"
 #include "exportengine.h"
 #include "aboutdialog.h"
-#include "sparsewindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -135,7 +135,8 @@ private:
 
   bool confirmFileStatus();
   void confirmAddressStatus(const QString &text);
-  void unsparseFile(const QString &src, QString &dst);
+  bool isSparseFile(const QString &src);
+  bool unsparseFile(const QString &src, QString &dst);
   void loadFile(const QString &name);
   void setOutput(const QString &text) const;
   QString stripString(const QString &name);
@@ -235,7 +236,7 @@ private:
   QList<struct fs_dirent> listFileDentList;
   QList<struct fs_kstat> listFileStatList;
 
-  SparseWindow *sparseWindow;
+  SparseEngine *sparseEngine;
   QString sparsePathOpen;
 };
 #endif

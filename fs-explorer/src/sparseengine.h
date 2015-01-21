@@ -43,6 +43,9 @@ public:
   SparseEngine(const QString &name, QObject *parent = 0);
   ~SparseEngine();
 
+  static bool isSparseFile(const QString &src);
+  static bool unsparseFile(const QString &src, QString &dst);
+
 signals:
   void resultReady(const QString &name);
 
