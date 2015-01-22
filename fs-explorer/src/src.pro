@@ -2,6 +2,11 @@
 # Sub project file
 #
 
+#
+# Customized configuration
+#
+INSTALL_PREFIX = $$PWD/../install
+
 TEMPLATE = app
 
 CONFIG += qt

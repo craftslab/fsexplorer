@@ -2,6 +2,12 @@
 # Sub project file
 #
 
+#
+# Customized configuration
+#
+MACH = 64
+INSTALL_PREFIX = $$PWD/../../install
+
 TEMPLATE = lib
 
 CONFIG += dll
