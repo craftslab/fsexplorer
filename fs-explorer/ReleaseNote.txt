@@ -1,4 +1,17 @@
 -------------------------------------------------------------------------------
+Jan. 26th, 2015
+
+Major Milestone Release
+
+
+-- Improvements
+
+   * support for feature of sparse.
+   * reduce size of release on Windows by 20MB.
+   * upgrade Qt to the latest 5.4.0.
+
+
+-------------------------------------------------------------------------------
 Dec. 1st, 2014
 
 Major Milestone Release

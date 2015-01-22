@@ -1,7 +1,7 @@
 /**
  * mainwindow.cpp - The entry of mainwindow
  *
- * Copyright (c) 2013-2014 angersax@gmail.com
+ * Copyright (c) 2014-2015 angersax@gmail.com
  *
  * This file is part of Fs Explorer.
  *
@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 
 const QString MainWindow::title = QObject::tr("Fs Explorer");
-const QString MainWindow::version = QObject::tr("14.12");
+const QString MainWindow::version = QObject::tr("15.01");
 const QString MainWindow::separator = QObject::tr("/");
 
 #if 0 // DISUSED here

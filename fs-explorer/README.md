@@ -1,7 +1,7 @@
 Fricando
 ========
 
-Copyright (C) 2013-2014 Lemon Jia. All rights reserved.
+Copyright (C) 2014-2015 Lemon Jia. All rights reserved.
 
 For conditions of distribution and use, see [LICENSE](https://github.com/lemonjia/Fricando/blob/master/LICENSE).
 

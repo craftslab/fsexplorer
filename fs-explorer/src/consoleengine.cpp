@@ -1,7 +1,7 @@
 /**
  * consoleengine.cpp - The entry of consoleengine
  *
- * Copyright (c) 2013-2014 angersax@gmail.com
+ * Copyright (c) 2014-2015 angersax@gmail.com
  *
  * This file is part of Fs Explorer.
  *
