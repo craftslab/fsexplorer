@@ -31,6 +31,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+#include "sparse_format.h"
 #include "sparse/sparse.h"
 }
 #endif /* __cplusplus */

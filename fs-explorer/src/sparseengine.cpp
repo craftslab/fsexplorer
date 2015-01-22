@@ -41,6 +41,8 @@ static bool unsparse(const QFile *src, QTemporaryFile *dst)
     status = false;
   }
 
+  dst->flush();
+
   sparse_file_destroy(s);
 
   return status;
@@ -49,10 +51,13 @@ static bool unsparse(const QFile *src, QTemporaryFile *dst)
 SparseEngine::SparseEngine(const QString &name, QObject *parent)
 {
   srcFile = new QFile(name);
-  parent = parent;
+  srcFile->open(QIODevice::ReadOnly);
 
   dstFile = new QTemporaryFile();
   dstFile->setAutoRemove(false);
+  dstFile->open();
+
+  parent = parent;
 }
 
 SparseEngine::~SparseEngine()
@@ -62,26 +67,49 @@ SparseEngine::~SparseEngine()
 
 bool SparseEngine::isSparseFile(const QString &src)
 {
-  // TODO
-  return false;
+  QFile file(src);
+  sparse_header_t header;
+  qint64 ret;
+
+  file.open(QIODevice::ReadOnly);
+
+  memset(&header, 0, sizeof(header));
+
+  file.seek(0);
+  ret = file.read((char *)&header, sizeof(header));
+  if (ret < 0) {
+    file.close();
+    return false;
+  }
+  file.close();
+
+  if (header.magic != SPARSE_HEADER_MAGIC) {
+    return false;
+  }
+
+  return true;
 }
 
 bool SparseEngine::unsparseFile(const QString &src, QString &dst)
 {
   QFile inFile(src);
-  QTemporaryFile outFile;
-  QString name = outFile.fileName();
+  inFile.open(QIODevice::ReadOnly);
 
+  QTemporaryFile outFile;
+  outFile.open();
   outFile.setAutoRemove(false);
+  QString name = outFile.fileName();
 
   bool ret = ::unsparse(&inFile, &outFile);
   if (!ret) {
-    outFile.close();
+    inFile.close();
     (void)QFile::remove(name);
 
     return false;
   }
 
+  inFile.close();
+  outFile.close();
   dst = name;
 
   return true;
@@ -92,6 +120,7 @@ void SparseEngine::handleStop()
   if (dstFile) {
     QString name = dstFile->fileName();
 
+    dstFile->flush();
     dstFile->close();
     (void)QFile::remove(name);
 
