@@ -134,6 +134,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     fsEngine = NULL;
   }
 
+  if (!sparsePathOpen.isEmpty()) {
+    (void)QFile::remove(sparsePathOpen);
+    sparsePathOpen.clear();
+  }
+
   closeSettings();
 
   event->accept();
@@ -1158,7 +1163,7 @@ void MainWindow::loadFile(const QString &name)
   bool ret;
 
   if (isSparseFile(pathOpen)) {
-    statusBar()->showMessage(tr("Unsparse fs image..."), 2000);
+    statusBar()->showMessage(tr("Unsparse the file"), 2000);
 
     ret = unsparseFile(pathOpen, sparsePathOpen);
     if (ret && !sparsePathOpen.isEmpty()) {
