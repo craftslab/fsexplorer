@@ -771,7 +771,9 @@ int write_fd_chunk(struct output_file *out, unsigned int len,
 	int buffer_size;
 	char *ptr;
 	char *data;
+#ifdef USE_MINGW
 	off64_t pos;
+#endif
 
 	aligned_offset = offset & ~(4096 - 1);
 	aligned_diff = offset - aligned_offset;
