@@ -8,6 +8,7 @@ CONFIG += staticlib
 
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/include
+INCLUDEPATH += $$PWD/include/sparse
 INCLUDEPATH += $$PWD/../zlib
 
 HEADERS += $$PWD/*.h
@@ -27,7 +28,7 @@ unix {
 }
 
 win32 {
-  LIBS += -L$$PWD/../zlib
+  LIBS += -L$$PWD/../zlib/release -lz
 }
 
 release {

@@ -17,8 +17,25 @@
 #ifndef _LIBSPARSE_SPARSE_H_
 #define _LIBSPARSE_SPARSE_H_
 
+#ifdef WIN32
+// Do nothing here
+#else
 #include <stdbool.h>
+#endif /* WIN32 */
+
 #include <stdint.h>
+
+#ifdef WIN32
+typedef long long int64_t;
+typedef long long off64_t;
+#ifndef Q_OS_WIN32
+typedef int bool;
+#endif /* Q_OS_WIN32 */
+#define true 1
+#define false 0
+#define lseek64 lseek
+#define PRIi64 "I64i"
+#endif /* WIN32 */
 
 #ifdef	__cplusplus
 extern "C" {

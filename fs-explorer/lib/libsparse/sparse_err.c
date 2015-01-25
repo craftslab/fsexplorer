@@ -18,7 +18,12 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+
+#ifdef WIN32
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 void sparse_default_print(const char *fmt, ...)
 {

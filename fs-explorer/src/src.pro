@@ -39,9 +39,9 @@ unix {
 }
 
 win32 {
-  LIBS += -L$$PWD/../lib/qconsole
-  LIBS += -L$$PWD/../lib/libsparse
-  LIBS += -L$$PWD/../lib/zlib
+  LIBS += -L$$PWD/../lib/qconsole/release -lqconsole
+  LIBS += -L$$PWD/../lib/libsparse/release -lsparse
+  LIBS += -L$$PWD/../lib/zlib/release -lz
 }
 
 unix {

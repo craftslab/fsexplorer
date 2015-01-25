@@ -16,8 +16,16 @@
 
 #ifndef _LIBSPARSE_DEFS_H_
 
+#ifdef WIN32
+#define USE_MINGW
+#endif /* WIN32 */
+
+#ifdef WIN32
+#define __unused
+#else
 #ifndef __unused
 #define __unused        __attribute__((__unused__))
 #endif
+#endif /* WIN32 */
 
 #endif /* _LIBSPARSE_DEFS_H_ */

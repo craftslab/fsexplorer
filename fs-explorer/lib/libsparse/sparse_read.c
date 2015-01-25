@@ -20,12 +20,23 @@
 
 #include <fcntl.h>
 #include <stdarg.h>
+
+#ifdef WIN32
+// Do nothing here
+#else
 #include <stdbool.h>
+#endif /* WIN32 */
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef WIN32
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 #include <sparse/sparse.h>
 
@@ -47,8 +58,10 @@
 #define COPY_BUF_SIZE (1024U*1024U)
 static char *copybuf;
 
+#ifndef min
 #define min(a, b) \
 	({ typeof(a) _a = (a); typeof(b) _b = (b); (_a < _b) ? _a : _b; })
+#endif /* min */
 
 static void verbose_error(bool verbose, int err, const char *fmt, ...)
 {

@@ -43,7 +43,12 @@ typedef unsigned char u8;
 #define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
 #define ALIGN_DOWN(x, y) ((y) * ((x) / (y)))
 
+#ifdef WIN32
+#define error(fmt, ...) do { fprintf(stderr, "error: %s: " fmt "\n", __FUNCTION__, __VA_ARGS__); } while (0)
+#define error_errno(s, ...) do { fprintf(stderr, "error: %s: " s ": %s\n", __FUNCTION__, __VA_ARGS__, strerror(errno)); } while (0)
+#else
 #define error(fmt, args...) do { fprintf(stderr, "error: %s: " fmt "\n", __func__, ## args); } while (0)
 #define error_errno(s, args...) error(s ": %s", ##args, strerror(errno))
+#endif /* WIN32 */
 
 #endif
