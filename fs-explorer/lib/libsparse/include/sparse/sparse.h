@@ -30,9 +30,13 @@ typedef long long int64_t;
 typedef long long off64_t;
 #ifndef Q_OS_WIN32
 typedef int bool;
-#endif /* Q_OS_WIN32 */
+#ifndef true
 #define true 1
+#endif /* true */
+#ifndef false
 #define false 0
+#endif /* false */
+#endif /* Q_OS_WIN32 */
 #define lseek64 lseek
 #define PRIi64 "I64i"
 #endif /* WIN32 */
