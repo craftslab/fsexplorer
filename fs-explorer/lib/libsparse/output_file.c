@@ -40,7 +40,7 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-// Do nothing here
+#include <Windows.h>
 #else
 #include <unistd.h>
 #endif /* WIN32 */
@@ -134,6 +134,26 @@ struct output_file_callback {
 
 #define to_output_file_callback(_o) \
 	container_of((_o), struct output_file_callback, out)
+
+#ifdef WIN32
+static int ftruncate(int fd, int64_t len)
+{
+	HANDLE handle;
+	off64_t ret;
+
+	ret = lseek64(fd, len, SEEK_SET);
+	if (ret < 0) {
+		return -1;
+	}
+
+	handle = (HANDLE) _get_osfhandle(fd);
+	if (SetEndOfFile(handle) == 0) {
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* WIN32 */
 
 static int file_open(struct output_file *out, int fd)
 {
