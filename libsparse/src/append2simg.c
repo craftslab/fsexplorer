@@ -23,7 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef WIN32
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 #include <sparse/sparse.h>
 #include "sparse_file.h"
@@ -59,6 +63,9 @@ int main(int argc, char *argv[])
 
     int tmp_fd;
     char *tmp_path;
+#ifdef WIN32
+    int len;
+#endif /* WIN32 */
 
     int ret;
 
@@ -70,11 +77,29 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
+#ifdef WIN32
+    len = strlen(".append2simg") + strlen(output_path) + 1;
+
+    tmp_path = (char *)malloc(len);
+    if (!tmp_path) {
+        fprintf(stderr, "Couldn't allocate filename\n");
+        exit(-1);
+    }
+    memset(tmp_path, 0, len);
+
+    ret = _snprintf(tmp_path, len - 1, "%s.append2simg", output_path);
+    if (ret < 0) {
+        fprintf(stderr, "Couldn't allocate filename\n");
+        free(tmp_path);
+        exit(-1);
+    }
+#else
     ret = asprintf(&tmp_path, "%s.append2simg", output_path);
     if (ret < 0) {
         fprintf(stderr, "Couldn't allocate filename\n");
         exit(-1);
     }
+#endif /* WIN32 */
 
     output = open(output_path, O_RDWR | O_BINARY);
     if (output < 0) {

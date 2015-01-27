@@ -18,15 +18,33 @@
 #define _LARGEFILE64_SOURCE 1
 
 #include <fcntl.h>
+
+#ifdef WIN32
+// Do nothing here
+#else
 #include <inttypes.h>
+#endif /* WIN32 */
+
 #include <limits.h>
+
+#ifdef WIN32
+// Do nothing here
+#else
 #include <stdbool.h>
+#endif /* WIN32 */
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#ifdef WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif /* WIN32 */
+
 #include <zlib.h>
 
 #include "defs.h"
@@ -48,8 +66,10 @@
 #define off64_t off_t
 #endif
 
+#ifndef min
 #define min(a, b) \
 	({ typeof(a) _a = (a); typeof(b) _b = (b); (_a < _b) ? _a : _b; })
+#endif /* min */
 
 #define SPARSE_HEADER_MAJOR_VER 1
 #define SPARSE_HEADER_MINOR_VER 0
@@ -115,6 +135,26 @@ struct output_file_callback {
 #define to_output_file_callback(_o) \
 	container_of((_o), struct output_file_callback, out)
 
+#ifdef WIN32
+static int ftruncate(int fd, int64_t len)
+{
+	HANDLE handle;
+	off64_t ret;
+
+	ret = lseek64(fd, len, SEEK_SET);
+	if (ret < 0) {
+		return -1;
+	}
+
+	handle = (HANDLE) _get_osfhandle(fd);
+	if (SetEndOfFile(handle) == 0) {
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* WIN32 */
+
 static int file_open(struct output_file *out, int fd)
 {
 	struct output_file_normal *outn = to_output_file_normal(out);
@@ -174,11 +214,19 @@ static void file_close(struct output_file *out)
 }
 
 static struct output_file_ops file_ops = {
+#ifdef WIN32
+	file_open,
+	file_skip,
+	file_pad,
+	file_write,
+	file_close,
+#else
 	.open = file_open,
 	.skip = file_skip,
 	.pad = file_pad,
 	.write = file_write,
 	.close = file_close,
+#endif /* WIN32 */
 };
 
 static int gz_file_open(struct output_file *out, int fd)
@@ -258,11 +306,19 @@ static void gz_file_close(struct output_file *out)
 }
 
 static struct output_file_ops gz_file_ops = {
+#ifdef WIN32
+	gz_file_open,
+	gz_file_skip,
+	gz_file_pad,
+	gz_file_write,
+	gz_file_close,
+#else
 	.open = gz_file_open,
 	.skip = gz_file_skip,
 	.pad = gz_file_pad,
 	.write = gz_file_write,
 	.close = gz_file_close,
+#endif /* WIN32 */
 };
 
 static int callback_file_open(struct output_file *out __unused, int fd __unused)
@@ -308,11 +364,19 @@ static void callback_file_close(struct output_file *out)
 }
 
 static struct output_file_ops callback_file_ops = {
+#ifdef WIN32
+	callback_file_open,
+	callback_file_skip,
+	callback_file_pad,
+	callback_file_write,
+	callback_file_close,
+#else
 	.open = callback_file_open,
 	.skip = callback_file_skip,
 	.pad = callback_file_pad,
 	.write = callback_file_write,
 	.close = callback_file_close,
+#endif /* WIN32 */
 };
 
 int read_all(int fd, void *buf, size_t len)
@@ -466,10 +530,17 @@ int write_sparse_end_chunk(struct output_file *out)
 }
 
 static struct sparse_file_ops sparse_file_ops = {
+#ifdef WIN32
+		write_sparse_data_chunk,
+		write_sparse_fill_chunk,
+		write_sparse_skip_chunk,
+		write_sparse_end_chunk,
+#else
 		.write_data_chunk = write_sparse_data_chunk,
 		.write_fill_chunk = write_sparse_fill_chunk,
 		.write_skip_chunk = write_sparse_skip_chunk,
 		.write_end_chunk = write_sparse_end_chunk,
+#endif /* WIN32 */
 };
 
 static int write_normal_data_chunk(struct output_file *out, unsigned int len,
@@ -526,10 +597,17 @@ int write_normal_end_chunk(struct output_file *out)
 }
 
 static struct sparse_file_ops normal_file_ops = {
+#ifdef WIN32
+		write_normal_data_chunk,
+		write_normal_fill_chunk,
+		write_normal_skip_chunk,
+		write_normal_end_chunk,
+#else
 		.write_data_chunk = write_normal_data_chunk,
 		.write_fill_chunk = write_normal_fill_chunk,
 		.write_skip_chunk = write_normal_skip_chunk,
 		.write_end_chunk = write_normal_end_chunk,
+#endif /* WIN32 */
 };
 
 void output_file_close(struct output_file *out)
@@ -571,6 +649,17 @@ static int output_file_init(struct output_file *out, int block_size,
 
 	if (sparse) {
 		sparse_header_t sparse_header = {
+#ifdef WIN32
+				SPARSE_HEADER_MAGIC,
+				SPARSE_HEADER_MAJOR_VER,
+				SPARSE_HEADER_MINOR_VER,
+				SPARSE_HEADER_LEN,
+				CHUNK_HEADER_LEN,
+				out->block_size,
+				out->len / out->block_size,
+				chunks,
+				0
+#else
 				.magic = SPARSE_HEADER_MAGIC,
 				.major_version = SPARSE_HEADER_MAJOR_VER,
 				.minor_version = SPARSE_HEADER_MINOR_VER,
@@ -580,6 +669,7 @@ static int output_file_init(struct output_file *out, int block_size,
 				.total_blks = out->len / out->block_size,
 				.total_chunks = chunks,
 				.image_checksum = 0
+#endif /* WIN32 */
 		};
 
 		if (out->use_crc) {
@@ -700,32 +790,36 @@ int write_fd_chunk(struct output_file *out, unsigned int len,
 	int aligned_diff;
 	int buffer_size;
 	char *ptr;
+	char *data;
+#ifdef USE_MINGW
+	off64_t pos;
+#endif
 
 	aligned_offset = offset & ~(4096 - 1);
 	aligned_diff = offset - aligned_offset;
 	buffer_size = len + aligned_diff;
 
 #ifndef USE_MINGW
-	char *data = mmap64(NULL, buffer_size, PROT_READ, MAP_SHARED, fd,
+	data = mmap64(NULL, buffer_size, PROT_READ, MAP_SHARED, fd,
 			aligned_offset);
 	if (data == MAP_FAILED) {
 		return -errno;
 	}
 	ptr = data + aligned_diff;
 #else
-	off64_t pos;
-	char *data = malloc(len);
+	data = malloc(len);
 	if (!data) {
 		return -errno;
 	}
+
 	pos = lseek64(fd, offset, SEEK_SET);
 	if (pos < 0) {
-                free(data);
+		free(data);
 		return -errno;
 	}
 	ret = read_all(fd, data, len);
 	if (ret < 0) {
-                free(data);
+		free(data);
 		return ret;
 	}
 	ptr = data;
