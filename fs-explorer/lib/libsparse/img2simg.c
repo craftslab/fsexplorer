@@ -18,14 +18,22 @@
 #define _LARGEFILE64_SOURCE 1
 
 #include <fcntl.h>
+#ifdef WIN32
+// Do nothing here
+#else
 #include <stdbool.h>
+#endif /* WIN32 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifdef WIN32
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 #include <sparse/sparse.h>
 

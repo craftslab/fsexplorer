@@ -28,6 +28,7 @@
 #ifdef WIN32
 typedef long long int64_t;
 typedef long long off64_t;
+
 #ifndef Q_OS_WIN32
 typedef int bool;
 #ifndef true
@@ -37,8 +38,13 @@ typedef int bool;
 #define false 0
 #endif /* false */
 #endif /* Q_OS_WIN32 */
+
 #define lseek64 lseek
 #define PRIi64 "I64i"
+
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
 #endif /* WIN32 */
 
 #ifdef	__cplusplus

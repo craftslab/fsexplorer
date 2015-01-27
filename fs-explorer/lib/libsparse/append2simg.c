@@ -23,7 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef WIN32
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 #include <sparse/sparse.h>
 #include "sparse_file.h"
