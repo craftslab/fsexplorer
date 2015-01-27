@@ -7,7 +7,6 @@ Major Milestone Release
 -- Improvements
 
    * support for feature of sparse.
-   * reduce size of release on Windows by 20MB.
    * upgrade Qt to the latest 5.4.0.
 
 
