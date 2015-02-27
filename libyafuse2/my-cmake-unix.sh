@@ -9,6 +9,6 @@ if [ ! -d install ]; then
 fi
 
 pushd out
-ccmake -DCMAKE_INSTALL_PREFIX=../install ../
+ccmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../install ../
 popd
 

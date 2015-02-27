@@ -87,7 +87,7 @@ static void show_banner(void)
 static void show_usage(void)
 {
   fprintf(stdout, "\n");
-  fprintf(stdout, "Usage:  fs-test <type> <image> <directory>\n");
+  fprintf(stdout, "Usage:  libyafuse2-test <type> <image> <directory>\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "Detail:\n");
   fprintf(stdout, "  <type>       fs type. e.g., ext4 or fat\n");
@@ -96,7 +96,7 @@ static void show_usage(void)
   fprintf(stdout, "  <directory>  fs mount point\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "Example:\n");
-  fprintf(stdout, "  fs-test ext4 fs-image.ext4 fs-mnt\n");
+  fprintf(stdout, "  libyafuse2-test ext4 fs-image.ext4 fs-mnt\n");
   fprintf(stdout, "\n");
 }
 
