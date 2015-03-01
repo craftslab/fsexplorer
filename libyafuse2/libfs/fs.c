@@ -243,6 +243,18 @@ static int32_t fs_stat_helper(struct super_block *sb, struct inode *inode, struc
   stat->blksize = (uint64_t)sb->s_blocksize;
   stat->blocks = (uint64_t)inode->i_blocks;
 
+#if 1 // TODO
+  memset(stat->extras, 0, sizeof(stat->extras));
+
+  if (inode->i_block_num >= 6) {
+    if (inode->i_block[4] == 1) {
+      snprintf(stat->extras, sizeof(stat->extras), "%u", inode->i_block[5]);
+    } else {
+      snprintf(stat->extras, sizeof(stat->extras), "%u-%u", inode->i_block[5], inode->i_block[5] + inode->i_block[4] - 1);
+    }
+  }
+#endif
+
   return 0;
 }
 

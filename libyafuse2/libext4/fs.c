@@ -531,6 +531,8 @@ static struct inode* fs_instantiate_inode(struct inode *inode, uint64_t ino)
   memset((void *)inode->i_block, 0, EXT4_N_BLOCKS * sizeof(uint32_t));
   memcpy((void *)inode->i_block, (const void *)ext4_inode.i_block, EXT4_N_BLOCKS * sizeof(uint32_t));
 
+  inode->i_block_num = EXT4_N_BLOCKS;
+
   return inode;
 }
 

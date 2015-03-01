@@ -183,6 +183,7 @@ struct inode {
    * Refer to type of 'ext4_inode' in kernel/fs/ext4/ext4.h
    */
   uint32_t                      *i_block;
+  int32_t                       i_block_num;
 };
 
 struct super_block {
