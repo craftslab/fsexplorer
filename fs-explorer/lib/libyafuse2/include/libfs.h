@@ -113,6 +113,7 @@ struct fs_kstat {
   struct libfs_timespec ctime;
   uint64_t blksize;
   uint64_t blocks;
+  char extras[32];
 };
 
 struct fs_dirent {
