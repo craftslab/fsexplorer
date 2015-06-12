@@ -334,7 +334,7 @@ main_exit:
    */
   if (fs_opt.umount) {
     (void)fs_opt.umount(fs_mnt, 0);
-    fprintf(stdout, "unmount filesystem successfully.");
+    fprintf(stdout, "unmount filesystem successfully.\n");
   }
 
   if (lib_handle) unload_lib(lib_handle);
