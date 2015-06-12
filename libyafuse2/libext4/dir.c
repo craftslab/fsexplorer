@@ -53,6 +53,7 @@ static char buf[EXT4_SHOW_STAT_DENTRY_SZ];
 /*
  * Function Declaration
  */
+static int32_t ext4_check_dentry(struct ext4_dir_entry_2 *dentry);
 static int32_t ext4_find_dentry(struct inode *inode, uint64_t offset, struct ext4_dir_entry_2 *dentry);
 static int32_t ext4_get_dents_num(struct inode *inode, uint64_t offset, uint32_t *dents_num);
 static int32_t ext4_get_dents(struct inode *inode, uint64_t offset, struct ext4_dir_entry_2 *dents, uint32_t *dents_index);
@@ -66,6 +67,19 @@ static int32_t ext4_traverse_extent_dents(struct inode *inode, struct ext4_exten
 /*
  * Function Definition
  */
+static int32_t ext4_check_dentry(struct ext4_dir_entry_2 *dentry)
+{
+  if (dentry->inode == EXT4_UNUSED_INO
+      || dentry->rec_len <= 0
+      || dentry->name_len == 0
+      || dentry->file_type == EXT4_FT_UNKNOWN
+      || strlen(dentry->name) == 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
 static int32_t ext4_find_dentry(struct inode *inode, uint64_t offset, struct ext4_dir_entry_2 *dentry)
 {
   int64_t len;
@@ -131,7 +145,7 @@ static int32_t ext4_get_dents_num(struct inode *inode, uint64_t offset, uint32_t
       break;
     }
 
-    if (dentry.inode == EXT4_UNUSED_INO) {
+    if (ext4_check_dentry(&dentry) != 0) {
       ret = 0;
       break;
     }
@@ -159,7 +173,7 @@ static int32_t ext4_get_dents(struct inode *inode, uint64_t offset, struct ext4_
       break;
     }
 
-    if (dentry.inode == EXT4_UNUSED_INO) {
+    if (ext4_check_dentry(&dentry) != 0) {
       ret = 0;
       break;
     }

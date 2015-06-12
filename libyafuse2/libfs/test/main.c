@@ -70,6 +70,7 @@ static void* load_lib(const char *lib_name);
 static void* get_sym(void *handle, const char *symbol);
 static void unload_lib(void *handle);
 static void show_stat(struct fs_kstat *stat);
+static void traverse_dents(struct fs_dirent *dent, struct fs_opt_t *opt);
 
 /*
  * Function Definition
@@ -141,7 +142,6 @@ static void unload_lib(void *handle)
 
 static void show_stat(struct fs_kstat *stat)
 {
-  info("stat of inode %llu", (long long unsigned)stat->ino);
   info("ino: %llu", (long long unsigned)stat->ino);
   info("mode: 0x%x", stat->mode);
   info("nlink: %d", stat->nlink);
@@ -152,7 +152,45 @@ static void show_stat(struct fs_kstat *stat)
   info("mtime: sec %lld nsec %lld", (long long int)stat->mtime.tv_sec, (long long int)stat->mtime.tv_nsec);
   info("ctime: sec %lld nsec %lld", (long long int)stat->ctime.tv_sec, (long long int)stat->ctime.tv_nsec);
   info("blksize: %llu", (long long unsigned)stat->blksize);
-  info("blocks: %llu\n", (long long unsigned)stat->blocks);
+  info("blocks: %llu", (long long unsigned)stat->blocks);
+}
+
+static void traverse_dents(struct fs_dirent *dent, struct fs_opt_t *opt)
+{
+  uint64_t ino = dent->d_ino;
+  struct fs_dirent parent;
+  uint32_t num;
+  struct fs_dirent *childs = NULL;
+  const char *name = NULL;
+  int32_t i;
+
+  (void)opt->querydent(ino, &parent);
+
+  num = parent.d_childnum;
+  if (num == 0) {
+    return;
+  }
+
+  childs = (struct fs_dirent *)malloc(num * sizeof(struct fs_dirent));
+  if (!childs) {
+    return;
+  }
+  memset((void *)childs, 0, sizeof(struct fs_dirent) * num);
+
+  (void)opt->getdents(ino, childs, num);
+
+  for (i = 0; i < (int)num; ++i) {
+    name = childs[i].d_name;
+
+    if (!strcmp(name, FS_DNAME_DOT)
+        || !strcmp(name, FS_DNAME_DOTDOT)) {
+      continue;
+    }
+
+    info("name %s ino %llu type %d", childs[i].d_name, (long long unsigned)childs[i].d_ino, childs[i].d_type);
+
+    traverse_dents(&childs[i], opt);
+  }
 }
 
 int32_t main(int argc, char *argv[])
@@ -213,9 +251,9 @@ int32_t main(int argc, char *argv[])
     error("mount failed!");
     goto main_exit;
   }
-  info("mount filesystem successfully.\n");
+  fprintf(stdout, "mount filesystem successfully.\n\n");
 
-  info("root dentry");
+  fprintf(stdout, "-- root dentry --\n");
   info("ino %llu", (long long unsigned)fs_root.d_ino);
   info("type %d", fs_root.d_type);
   info("name %s\n", fs_root.d_name);
@@ -239,7 +277,10 @@ int32_t main(int argc, char *argv[])
     error("stat failed!");
     goto main_exit;
   }
+
+  fprintf(stdout, "-- dentry stat (ino %llu) --\n", (long long unsigned)fs_stat.ino);
   show_stat(&fs_stat);
+  fprintf(stdout, "\n");
 
   /*
    * Get dentry list
@@ -266,10 +307,17 @@ int32_t main(int argc, char *argv[])
     goto main_exit;
   }
 
-  info("child dentries of inode %llu", (long long unsigned)ino);
+  fprintf(stdout, "-- dentry list (ino %llu) --\n", (long long unsigned)ino);
   for (i = 0; i < fs_dirents_num; ++i) {
     info("name %s ino %llu type %d", fs_dirents[i].d_name, (long long unsigned)fs_dirents[i].d_ino, fs_dirents[i].d_type);
   }
+  fprintf(stdout, "\n");
+
+  /*
+   * Traverse all dentries
+   */
+  fprintf(stdout, "-- traverse all dentries --\n");
+  traverse_dents(&fs_root, &fs_opt);
   fprintf(stdout, "\n");
 
   ret = 0;
@@ -286,7 +334,7 @@ main_exit:
    */
   if (fs_opt.umount) {
     (void)fs_opt.umount(fs_mnt, 0);
-    info("unmount filesystem successfully.");
+    fprintf(stdout, "unmount filesystem successfully.");
   }
 
   if (lib_handle) unload_lib(lib_handle);
