@@ -117,12 +117,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(name);
-
-    writeFsPathSettings();
-    insertHistoryAction(fsPathOpen);
-
     loadFile(fsPathOpen);
   }
+
+  writeFsPathSettings();
+  insertHistoryAction(fsPathOpen);
+  writeHistorySettings();
 
   event->acceptProposedAction();
 }
@@ -160,12 +160,12 @@ void MainWindow::openFile()
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(file);
-
-    writeFsPathSettings();
-    insertHistoryAction(fsPathOpen);
-
     loadFile(fsPathOpen);
   }
+
+  writeFsPathSettings();
+  insertHistoryAction(fsPathOpen);
+  writeHistorySettings();
 }
 
 void MainWindow::closeFile()
@@ -313,12 +313,12 @@ void MainWindow::history(QAction *action)
 
     if (!fsStatus) {
       fsPathOpen = text;
-
-      writeFsPathSettings();
-      insertHistoryAction(fsPathOpen);
-
       loadFile(fsPathOpen);
     }
+
+    writeFsPathSettings();
+    insertHistoryAction(fsPathOpen);
+    writeHistorySettings();
   }
 }
 
