@@ -581,10 +581,18 @@ void MainWindow::handleSyncListItem(unsigned long long ino)
 
 void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
 {
-  QString title = QObject::tr("Export to ");
-  title.append(path);
+  QProgressBar bar(this);
+  bar.setRange(0, 0);
 
-  ExportEngine exportEngine(title, list, path, fsEngine, this);
+  statusBar()->removeWidget(statusLabel);
+  statusBar()->addWidget(&bar, 1);
+  statusBar()->show();
+
+  ExportEngine exportEngine(list, path, fsEngine, &bar);
+
+  statusBar()->removeWidget(&bar);
+  statusBar()->addWidget(statusLabel, 1);
+  statusBar()->show();
 }
 
 void MainWindow::showWindowTitle()
@@ -906,8 +914,9 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-  readyLabel = new QLabel(tr(" Ready"), this);
-  statusBar()->addWidget(readyLabel, 1);
+  statusLabel = new QLabel(tr("Ready"), this);
+  statusBar()->addWidget(statusLabel, 1);
+  statusBar()->show();
 }
 
 void MainWindow::createWidgets()

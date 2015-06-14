@@ -182,7 +182,7 @@ private:
   QSplitter *vertSplitter;
   QSplitter *horiSplitter;
   QLabel *bgLabel;
-  QLabel *readyLabel;
+  QLabel *statusLabel;
 
   QMenu *fileMenu;
   QMenu *optionsMenu;
