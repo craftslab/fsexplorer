@@ -64,6 +64,7 @@ public:
 signals:
   void mounted(bool status);
   void mountedRw(bool status);
+  void mountedOpen(bool status);
   void mountedHome(bool status);
   void syncTreeItem(unsigned long long ino);
   void syncListItem(unsigned long long ino);
@@ -231,6 +232,7 @@ private:
   QString fsPathOpen;
   QString fsPathExport;
   bool fsStatus;
+  bool fsHome;
   QList<struct fs_dirent> treeFileDentList;
   QList<struct fs_kstat> treeFileStatList;
   QList<struct fs_dirent> listFileDentList;

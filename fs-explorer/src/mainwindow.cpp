@@ -48,6 +48,7 @@ MainWindow::MainWindow()
   fsPathOpen = fsPathOpen;
   fsPathExport = fsPathExport;
   fsStatus = false;
+  fsHome = true;
 
   sparsePathOpen = sparsePathOpen;
 
@@ -189,7 +190,9 @@ void MainWindow::closeFile()
   fsStatus = false;
   emit mounted(fsStatus);
   emit mountedRw(fsStatus);
-  emit mountedHome(fsStatus);
+
+  fsHome = true;
+  emit mountedHome(!fsHome);
 }
 
 void MainWindow::importFile()
@@ -356,10 +359,11 @@ void MainWindow::address(const QString &name)
     handleSyncListItem(ino);
 
     if (index.parent().isValid()) {
-      emit mountedHome(true);
+      fsHome = false;
     } else {
-      emit mountedHome(false);
+      fsHome = true;
     }
+    emit mountedHome(!fsHome);
 
     return;
   }
@@ -381,10 +385,11 @@ void MainWindow::address(const QString &name)
   handleSyncListItem(ino);
 
   if (index.parent().isValid()) {
-    emit mountedHome(true);
+    fsHome = false;
   } else {
-    emit mountedHome(false);
+    fsHome = true;
   }
+  emit mountedHome(!fsHome);
 
   if (!found && (i == list.size() - 1)) {
     index = listModel->index(0, 0);
@@ -465,10 +470,11 @@ void MainWindow::currentTreeItem(const QModelIndex &current, const QModelIndex &
   dummy = dummy;
 
   if (current.parent().isValid()) {
-    emit mountedHome(true);
+    fsHome = false;
   } else {
-    emit mountedHome(false);
+    fsHome = true;
   }
+  emit mountedHome(!fsHome);
 
   emit syncListItem(ino);
 
@@ -484,10 +490,11 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
 
   if (ino == treeModel->data(index, TREE_INO, Qt::DisplayRole).toULongLong()) {
     if (index.parent().isValid()) {
-      emit mountedHome(true);
+      fsHome = false;
     } else {
-      emit mountedHome(false);
+      fsHome = true;
     }
+    emit mountedHome(!fsHome);
 
     return;
   }
@@ -498,10 +505,11 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
     showTreeAddress(index.parent());
 
     if (index.parent().parent().isValid()) {
-      emit mountedHome(true);
+      fsHome = false;
     } else {
-      emit mountedHome(false);
+      fsHome = true;
     }
+    emit mountedHome(!fsHome);
 
     return;
   }
@@ -526,10 +534,11 @@ void MainWindow::handleSyncTreeItem(unsigned long long ino)
     showTreeAddress(child);
 
     if (child.parent().isValid()) {
-      emit mountedHome(true);
+      fsHome = false;
     } else {
-      emit mountedHome(false);
+      fsHome = true;
     }
+    emit mountedHome(!fsHome);
   }
 }
 
@@ -584,6 +593,11 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   QProgressBar bar(this);
   bar.setRange(0, 0);
 
+  emit mounted(false);
+  emit mountedRw(false);
+  emit mountedOpen(false);
+  emit mountedHome(false);
+
   statusBar()->removeWidget(statusLabel);
   statusBar()->addWidget(&bar, 1);
   statusBar()->show();
@@ -593,6 +607,11 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   statusBar()->removeWidget(&bar);
   statusBar()->addWidget(statusLabel, 1);
   statusBar()->show();
+
+  emit mounted(fsStatus);
+  emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedOpen(true);
+  emit mountedHome(!fsHome);
 }
 
 void MainWindow::showWindowTitle()
@@ -991,6 +1010,7 @@ void MainWindow::createWidgets()
 
 void MainWindow::createConnections()
 {
+  connect(this, SIGNAL(mountedOpen(bool)), openAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), closeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedRw(bool)), importAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mounted(bool)), exportAction, SLOT(setEnabled(bool)));
@@ -1226,7 +1246,9 @@ void MainWindow::loadFile(const QString &name)
 
   emit mounted(fsStatus);
   emit mountedRw(!fsEngine->isReadOnly());
-  emit mountedHome(false);
+
+  fsHome = true;
+  emit mountedHome(!fsHome);
 }
 
 void MainWindow::setOutput(const QString &text) const
