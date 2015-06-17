@@ -66,6 +66,7 @@ signals:
   void mountedRw(bool status);
   void mountedOpen(bool status);
   void mountedHome(bool status);
+  void mountedWidgets(bool status);
   void syncTreeItem(unsigned long long ino);
   void syncListItem(unsigned long long ino);
   void exportFileList(const QList<unsigned long long> &list, const QString &path);

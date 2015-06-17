@@ -190,6 +190,7 @@ void MainWindow::closeFile()
   fsStatus = false;
   emit mounted(fsStatus);
   emit mountedRw(fsStatus);
+  emit mountedWidgets(fsStatus);
 
   fsHome = true;
   emit mountedHome(!fsHome);
@@ -1022,8 +1023,7 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), chartAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
-
-  connect(this, SIGNAL(mounted(bool)), this, SLOT(showWidgets(bool)));
+  connect(this, SIGNAL(mountedWidgets(bool)), this, SLOT(showWidgets(bool)));
 
   connect(this, SIGNAL(syncTreeItem(unsigned long long)), this, SLOT(handleSyncTreeItem(unsigned long long)));
   connect(this, SIGNAL(syncListItem(unsigned long long)), this, SLOT(handleSyncListItem(unsigned long long)));
@@ -1246,6 +1246,7 @@ void MainWindow::loadFile(const QString &name)
 
   emit mounted(fsStatus);
   emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedWidgets(fsStatus);
 
   fsHome = true;
   emit mountedHome(!fsHome);
