@@ -593,26 +593,25 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
 {
   QProgressBar bar(this);
   bar.setRange(0, 0);
+  statusBar()->removeWidget(statusLabel);
+  statusBar()->addWidget(&bar, 1);
+  statusBar()->show();
 
   emit mounted(false);
   emit mountedRw(false);
   emit mountedOpen(false);
   emit mountedHome(false);
 
-  statusBar()->removeWidget(statusLabel);
-  statusBar()->addWidget(&bar, 1);
-  statusBar()->show();
-
   ExportEngine exportEngine(list, path, fsEngine, &bar);
-
-  statusBar()->removeWidget(&bar);
-  statusBar()->addWidget(statusLabel, 1);
-  statusBar()->show();
 
   emit mounted(fsStatus);
   emit mountedRw(!fsEngine->isReadOnly());
   emit mountedOpen(true);
   emit mountedHome(!fsHome);
+
+  statusBar()->removeWidget(&bar);
+  statusBar()->addWidget(statusLabel, 1);
+  statusBar()->show();
 }
 
 void MainWindow::showWindowTitle()

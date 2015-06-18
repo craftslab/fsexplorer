@@ -30,6 +30,7 @@ ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString 
   int num = 0;
 
   progressBar = bar;
+  progressBar->setRange(0, 0);
 
   fsEngine = engine;
   filePath = new QDir(path);
