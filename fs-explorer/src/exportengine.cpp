@@ -29,13 +29,14 @@ ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString 
   QStringList address;
   int num = 0;
 
-  progressBar = bar;
-  progressBar->setRange(0, 0);
-
   fsEngine = engine;
   filePath = new QDir(path);
   fileCounter = 0;
   fileBuf = new char[size];
+
+  progressBar = bar;
+  progressBar->setRange(0, 0);
+  progressBar->show();
 
   for (int i = 0; i < list.size(); ++i) {
     num += (int)count(list[i]);

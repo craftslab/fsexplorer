@@ -592,7 +592,8 @@ void MainWindow::handleSyncListItem(unsigned long long ino)
 void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
 {
   QProgressBar bar(this);
-  bar.setRange(0, 0);
+  bar.setFixedHeight(statusLabel->height());
+
   statusBar()->removeWidget(statusLabel);
   statusBar()->addWidget(&bar, 1);
   statusBar()->show();
