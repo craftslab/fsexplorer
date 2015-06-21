@@ -934,7 +934,7 @@ void MainWindow::createToolBars()
 
 void MainWindow::createStatusBar()
 {
-  statusLabel = new QLabel(tr("Ready"), this);
+  statusLabel = new QLabel(this);
   statusBar()->addWidget(statusLabel, 1);
   statusBar()->show();
 }

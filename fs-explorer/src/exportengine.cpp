@@ -44,6 +44,10 @@ ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString 
 
   progressBar->setRange(0, num);
 
+  for (int i = 0; i < num; ++i) {
+    progressBar->setValue(i);
+  }
+
   for (int i = 0; i < list.size(); ++i) {
     dent = fsEngine->getFileChildsDent(list[i]);
 
@@ -55,8 +59,6 @@ ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString 
       break;
     }
   }
-
-  progressBar->setValue(num);
 }
 
 ExportEngine::~ExportEngine()
