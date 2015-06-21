@@ -185,6 +185,7 @@ private:
   QSplitter *horiSplitter;
   QLabel *bgLabel;
   QLabel *statusLabel;
+  QProgressBar *progressBar;
 
   QMenu *fileMenu;
   QMenu *optionsMenu;

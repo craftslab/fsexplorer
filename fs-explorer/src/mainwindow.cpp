@@ -1183,7 +1183,33 @@ bool MainWindow::isSparseFile(const QString &src)
 
 bool MainWindow::unsparseFile(const QString &src, QString &dst)
 {
-  return SparseEngine::unsparseFile(src, dst);
+  bool ret;
+
+  progressBar = new QProgressBar (this);
+  progressBar->setFixedHeight(statusLabel->height());
+  progressBar->setRange(0, 0);
+
+  statusBar()->removeWidget(statusLabel);
+  statusBar()->addWidget(progressBar, 1);
+  statusBar()->show();
+
+  emit mounted(false);
+  emit mountedRw(false);
+  emit mountedOpen(false);
+  emit mountedHome(false);
+
+  ret = SparseEngine::unsparseFile(src, dst);
+
+  emit mounted(fsStatus);
+  emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedOpen(true);
+  emit mountedHome(!fsHome);
+
+  statusBar()->removeWidget(progressBar);
+  statusBar()->addWidget(statusLabel, 1);
+  statusBar()->show();
+
+  return ret;
 }
 
 void MainWindow::loadFile(const QString &name)
@@ -1192,8 +1218,6 @@ void MainWindow::loadFile(const QString &name)
   bool ret;
 
   if (isSparseFile(pathOpen)) {
-    statusBar()->showMessage(tr("Unsparse the file"), 2000);
-
     ret = unsparseFile(pathOpen, sparsePathOpen);
     if (ret && !sparsePathOpen.isEmpty()) {
       pathOpen = sparsePathOpen;
