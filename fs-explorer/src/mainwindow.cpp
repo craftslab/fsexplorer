@@ -454,6 +454,42 @@ void MainWindow::showContextMenu(const QPoint &pos)
   }
 }
 
+void MainWindow::showProgressBar()
+{
+  statusBar()->removeWidget(statusLabel);
+  statusBar()->addWidget(progressBar, 1);
+  progressBar->show();
+  statusBar()->show();
+}
+
+void MainWindow::setProgressBar(int val)
+{
+  progressBar->setValue(val);
+}
+
+void MainWindow::showStatusLabel()
+{
+  statusBar()->removeWidget(progressBar);
+  statusBar()->addWidget(statusLabel, 1);
+  statusBar()->show();
+}
+
+void MainWindow::restoreActions()
+{
+  emit mounted(fsStatus);
+  emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedOpen(true);
+  emit mountedHome(!fsHome);
+}
+
+void MainWindow::deactivateActions()
+{
+  emit mounted(false);
+  emit mountedRw(false);
+  emit mountedOpen(false);
+  emit mountedHome(false);
+}
+
 void MainWindow::pressTreeItem(const QModelIndex &index)
 {
   treeView->setCurrentIndex(index);
@@ -591,28 +627,24 @@ void MainWindow::handleSyncListItem(unsigned long long ino)
 
 void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
 {
-  QProgressBar bar(this);
-  bar.setFixedHeight(statusLabel->height());
+  thread = new QThread(this);
 
-  statusBar()->removeWidget(statusLabel);
-  statusBar()->addWidget(&bar, 1);
-  statusBar()->show();
+  exportEngine = new ExportEngine(list, path, fsEngine);
+  exportEngine->moveToThread(thread);
 
-  emit mounted(false);
-  emit mountedRw(false);
-  emit mountedOpen(false);
-  emit mountedHome(false);
+  progressBar->setRange(0, exportEngine->count());
 
-  ExportEngine exportEngine(list, path, fsEngine, &bar);
+  connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
+  connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
+  connect(thread, SIGNAL(started()), exportEngine, SLOT(process()));
+  connect(exportEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
+  connect(exportEngine, SIGNAL(finished()), thread, SLOT(quit()));
+  connect(exportEngine, SIGNAL(finished()), exportEngine, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), this, SLOT(showStatusLabel()));
+  connect(thread, SIGNAL(finished()), this, SLOT(restoreActions()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
-  emit mounted(fsStatus);
-  emit mountedRw(!fsEngine->isReadOnly());
-  emit mountedOpen(true);
-  emit mountedHome(!fsHome);
-
-  statusBar()->removeWidget(&bar);
-  statusBar()->addWidget(statusLabel, 1);
-  statusBar()->show();
+  thread->start();
 }
 
 void MainWindow::showWindowTitle()
@@ -937,6 +969,10 @@ void MainWindow::createStatusBar()
   statusLabel = new QLabel(this);
   statusBar()->addWidget(statusLabel, 1);
   statusBar()->show();
+
+  progressBar = new QProgressBar(this);
+  progressBar->setFixedHeight(statusLabel->height());
+  progressBar->hide();
 }
 
 void MainWindow::createWidgets()

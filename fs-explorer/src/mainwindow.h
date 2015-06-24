@@ -97,6 +97,11 @@ private slots:
   void search();
   void showWidgets(bool show);
   void showContextMenu(const QPoint &pos);
+  void showProgressBar();
+  void setProgressBar(int val);
+  void showStatusLabel();
+  void restoreActions();
+  void deactivateActions();
 
   void pressTreeItem(const QModelIndex &index);
   void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
@@ -170,6 +175,7 @@ private:
   static const QString separator;
   static const QString label;
 
+  QThread *thread;
   QSettings *settings;
 
   QWidget *layoutWidget;
@@ -242,5 +248,7 @@ private:
 
   SparseEngine *sparseEngine;
   QString sparsePathOpen;
+
+  ExportEngine *exportEngine;
 };
 #endif

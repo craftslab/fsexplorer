@@ -25,7 +25,6 @@
 #include <QString>
 #include <QDir>
 #include <QFile>
-#include <QProgressBar>
 #include <QMessageBox>
 
 #include "fsengine.h"
@@ -35,13 +34,22 @@ class ExportEngine : public QObject
   Q_OBJECT
 
 public:
-  ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QProgressBar *bar);
+  ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent = 0);
   ~ExportEngine();
 
+  int count();
+
+signals:
+  void current(int num);
+  void finished();
+
+public slots:
+  void process();
+
 private:
-  unsigned int count(unsigned long long ino);
+  unsigned int countHelper(unsigned long long ino);
   bool traverse(unsigned long long ino, const QStringList &address);
-  bool handleExport(unsigned long long ino, const QStringList &address);
+  bool traverseHelper(unsigned long long ino, const QStringList &address);
   bool exportNoConfirm(unsigned long long ino, const QString &name);
   bool exportWithConfirm(unsigned long long ino, const QString &name);
   bool exportDir(const QString &name);
@@ -50,11 +58,12 @@ private:
   QFileDevice::Permissions getFilePermissions(unsigned long long ino);
   bool showError(const QString &msg);
 
-  QProgressBar *progressBar;
-  FsEngine *fsEngine;
+  QWidget *parentWidget;
+  QList<unsigned long long> fileList;
   QDir *filePath;
   int fileCounter;
   char *fileBuf;
+  FsEngine *fsEngine;
 
   static const int size;
 };

@@ -23,42 +23,15 @@
 
 const int ExportEngine::size = 1024;
 
-ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QProgressBar *bar)
+ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent)
 {
-  struct fs_dirent dent;
-  QStringList address;
-  int num = 0;
-
-  fsEngine = engine;
+  fileList = list;
   filePath = new QDir(path);
   fileCounter = 0;
   fileBuf = new char[size];
 
-  progressBar = bar;
-  progressBar->setRange(0, 0);
-  progressBar->show();
-
-  for (int i = 0; i < list.size(); ++i) {
-    num += (int)count(list[i]);
-  }
-
-  progressBar->setRange(0, num);
-
-  for (int i = 0; i < num; ++i) {
-    progressBar->setValue(i);
-  }
-
-  for (int i = 0; i < list.size(); ++i) {
-    dent = fsEngine->getFileChildsDent(list[i]);
-
-    address.clear();
-    address << dent.d_name;
-
-    int ret = traverse(list[i], address);
-    if (!ret) {
-      break;
-    }
-  }
+  fsEngine = engine;
+  parentWidget = parent;
 }
 
 ExportEngine::~ExportEngine()
@@ -74,7 +47,36 @@ ExportEngine::~ExportEngine()
   }
 }
 
-unsigned int ExportEngine::count(unsigned long long ino)
+int ExportEngine::count()
+{
+  int num = 0;
+
+  for (int i = 0; i < fileList.size(); ++i) {
+    num += (int)countHelper(fileList[i]);
+  }
+
+  return num;
+}
+
+void ExportEngine::process()
+{
+  for (int i = 0; i < fileList.size(); ++i) {
+    struct fs_dirent dent = fsEngine->getFileChildsDent(fileList[i]);
+
+    QStringList address;
+    address.clear();
+    address << dent.d_name;
+
+    int ret = traverse(fileList[i], address);
+    if (!ret) {
+      break;
+    }
+  }
+
+  emit(finished());
+}
+
+unsigned int ExportEngine::countHelper(unsigned long long ino)
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   unsigned int num = fsEngine->getFileChildsNum(ino);
@@ -93,7 +95,7 @@ unsigned int ExportEngine::count(unsigned long long ino)
 
   bool ret = fsEngine->getFileChildsList(ino, childs, num);
   if (!ret) {
-    goto countExit;
+    goto countHelperExit;
   }
 
   for (unsigned int i = 0; i < len; ++i) {
@@ -102,10 +104,10 @@ unsigned int ExportEngine::count(unsigned long long ino)
       continue;
     }
 
-    num += count(childs[i].d_ino);
+    num += countHelper(childs[i].d_ino);
   }
 
-countExit:
+countHelperExit:
 
   if (childs) {
     delete[] childs;
@@ -119,7 +121,7 @@ bool ExportEngine::traverse(unsigned long long ino, const QStringList &address)
 {
   bool ret;
 
-  ret = handleExport(ino, address);
+  ret = traverseHelper(ino, address);
   if (!ret) {
     return false;
   }
@@ -168,7 +170,7 @@ traverseExit:
   return ret;
 }
 
-bool ExportEngine::handleExport(unsigned long long ino, const QStringList &address)
+bool ExportEngine::traverseHelper(unsigned long long ino, const QStringList &address)
 {
   struct fs_dirent root = fsEngine->getFileRoot();
   bool ret = true;
@@ -177,7 +179,7 @@ bool ExportEngine::handleExport(unsigned long long ino, const QStringList &addre
     return true;
   }
 
-  progressBar->setValue(++fileCounter);
+  emit current(++fileCounter);
 
   QString absolutePath = QDir::toNativeSeparators(filePath->path());
 
@@ -236,7 +238,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   bool ret;
 
-  QMessageBox msgBox(progressBar);
+  QMessageBox msgBox(parentWidget);
   msgBox.setIcon(QMessageBox::Information);
   msgBox.setText(name + QString(tr(" already exists.")));
   msgBox.setInformativeText(QString(tr("Do you want to overwrite it?")));
@@ -249,7 +251,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
       filePath->setPath(name);
 
       if (!filePath->removeRecursively()) {
-        QMessageBox::critical(progressBar, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
         return false;
       }
 
@@ -259,7 +261,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     } else if (dent.d_type == FT_SYMLINK) {
       if (!QFile::remove(name)) {
-        QMessageBox::critical(progressBar, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
         return false;
       }
 
@@ -273,7 +275,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 #endif
     } else {
       if (!QFile::remove(name)) {
-        QMessageBox::critical(progressBar, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
         return false;
       }
 
@@ -301,7 +303,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 bool ExportEngine::exportDir(const QString &name)
 {
   if (!filePath->mkpath(name)) {
-    QMessageBox::critical(progressBar, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+    QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to create ")) + name);
     return false;
   }
 
@@ -483,7 +485,7 @@ bool ExportEngine::showError(const QString &msg)
 {
   bool ret;
 
-  QMessageBox msgBox(progressBar);
+  QMessageBox msgBox(parentWidget);
   msgBox.setIcon(QMessageBox::Critical);
   msgBox.setText(msg);
   msgBox.setStandardButtons(QMessageBox::Ignore | QMessageBox::Abort);
