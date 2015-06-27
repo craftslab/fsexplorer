@@ -417,6 +417,21 @@ void MainWindow::search()
   searchWindow->show();
 }
 
+void MainWindow::setOutput(const QString &text) const
+{
+  if (outputView) {
+    outputView->clear();
+    outputView->setPlainText(text);
+  }
+}
+
+void MainWindow::appendOutput(const QString &text) const
+{
+  if (outputView) {
+    outputView->append(text);
+  }
+}
+
 void MainWindow::showWidgets(bool show)
 {
   if (!searchToolBar || !vertSplitter || !bgLabel) {
@@ -632,11 +647,13 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   exportEngine = new ExportEngine(list, path, fsEngine);
   exportEngine->moveToThread(thread);
 
+  setOutput(QString(tr("start now...")));
   progressBar->setRange(0, exportEngine->count());
 
   connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
   connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
   connect(thread, SIGNAL(started()), exportEngine, SLOT(process()));
+  connect(exportEngine, SIGNAL(message(const QString)), this, SLOT(appendOutput(const QString)));
   connect(exportEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
   connect(exportEngine, SIGNAL(finished()), thread, SLOT(quit()));
   connect(exportEngine, SIGNAL(finished()), exportEngine, SLOT(deleteLater()));
@@ -1312,14 +1329,6 @@ void MainWindow::loadFile(const QString &name)
   emit mountedHome(!fsHome);
 }
 
-void MainWindow::setOutput(const QString &text) const
-{
-  if (outputView) {
-    outputView->clear();
-    outputView->setPlainText(text);
-  }
-}
-
 QString MainWindow::stripString(const QString &name)
 {
   QString str;
@@ -1469,7 +1478,6 @@ void MainWindow::showFileStat(unsigned long long ino) const
   text.append(tr("ctime: sec %1 nsec %2\n").arg(listFileStatList[i].ctime.tv_sec).arg(listFileStatList[i].ctime.tv_nsec));
   text.append(tr("blksize: %1\n").arg(listFileStatList[i].blksize));
   text.append(tr("blocks: %1\n").arg(listFileStatList[i].blocks));
-
   setOutput(text);
 }
 

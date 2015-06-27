@@ -95,6 +95,8 @@ private slots:
   void address();
   void address(const QString &name);
   void search();
+  void setOutput(const QString &text) const;
+  void appendOutput(const QString &text) const;
   void showWidgets(bool show);
   void showContextMenu(const QPoint &pos);
   void showProgressBar();
@@ -145,7 +147,6 @@ private:
   bool isSparseFile(const QString &src);
   bool unsparseFile(const QString &src, QString &dst);
   void loadFile(const QString &name);
-  void setOutput(const QString &text) const;
   QString stripString(const QString &name);
   QStringList parseAddress(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);

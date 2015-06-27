@@ -34,13 +34,14 @@ class ExportEngine : public QObject
   Q_OBJECT
 
 public:
-  ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent = 0);
+  ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine);
   ~ExportEngine();
 
   int count();
 
 signals:
   void current(int num);
+  void message(const QString text);
   void finished();
 
 public slots:
@@ -58,7 +59,6 @@ private:
   QFileDevice::Permissions getFilePermissions(unsigned long long ino);
   bool showError(const QString &msg);
 
-  QWidget *parentWidget;
   QList<unsigned long long> fileList;
   QDir *filePath;
   int fileCounter;

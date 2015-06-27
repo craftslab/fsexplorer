@@ -23,7 +23,7 @@
 
 const int ExportEngine::size = 1024;
 
-ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine, QWidget *parent)
+ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString &path, FsEngine *engine)
 {
   fileList = list;
   filePath = new QDir(path);
@@ -31,7 +31,6 @@ ExportEngine::ExportEngine(const QList<unsigned long long> &list, const QString 
   fileBuf = new char[size];
 
   fsEngine = engine;
-  parentWidget = parent;
 }
 
 ExportEngine::~ExportEngine()
@@ -69,8 +68,11 @@ void ExportEngine::process()
 
     int ret = traverse(fileList[i], address);
     if (!ret) {
+      emit(message(QString(tr("aborted."))));
       break;
     }
+
+    emit(message(QString(tr("all completed."))));
   }
 
   emit(finished());
@@ -194,7 +196,7 @@ bool ExportEngine::traverseHelper(unsigned long long ino, const QStringList &add
   }
 
   if (filePath->exists(absolutePath)) {
-    if (!exportWithConfirm(ino, absolutePath)) {
+    if (!exportNoConfirm(ino, absolutePath)) {
       ret = false;
     }
   } else {
@@ -209,11 +211,14 @@ bool ExportEngine::traverseHelper(unsigned long long ino, const QStringList &add
 bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
 {
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
+  QString text(tr("export "));
 
   if (dent.d_type == FT_DIR) {
     if (!exportDir(name)) {
       return false;
     }
+
+    text.append(QObject::tr(" dir %1"));
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
   } else if (dent.d_type == FT_SYMLINK) {
     if (!exportLink(ino, name)) {
@@ -224,11 +229,17 @@ bool ExportEngine::exportNoConfirm(unsigned long long ino, const QString &name)
 #else
   // Do nothing here
 #endif
+
+    text.append(QObject::tr(" link %1"));
   } else {
     if (!exportFile(ino, name)) {
       return false;
     }
+
+    text.append(QObject::tr(" file %1"));
   }
+
+  emit message(text.arg(name));
 
   return true;
  }
@@ -238,9 +249,9 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
   struct fs_dirent dent = fsEngine->getFileChildsDent(ino);
   bool ret;
 
-  QMessageBox msgBox(parentWidget);
+  QMessageBox msgBox;
   msgBox.setIcon(QMessageBox::Information);
-  msgBox.setText(name + QString(tr(" already exists.")));
+  msgBox.setText(QString(tr("%1 already exists.").arg(name)));
   msgBox.setInformativeText(QString(tr("Do you want to overwrite it?")));
   msgBox.setStandardButtons(QMessageBox::Apply | QMessageBox::Ignore | QMessageBox::Abort);
 
@@ -251,7 +262,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
       filePath->setPath(name);
 
       if (!filePath->removeRecursively()) {
-        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(&msgBox, QString(tr("Error")), QString(tr("Failed to remove %1").arg(name)));
         return false;
       }
 
@@ -261,7 +272,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     } else if (dent.d_type == FT_SYMLINK) {
       if (!QFile::remove(name)) {
-        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(&msgBox, QString(tr("Error")), QString(tr("Failed to remove %1").arg(name)));
         return false;
       }
 
@@ -275,7 +286,7 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 #endif
     } else {
       if (!QFile::remove(name)) {
-        QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to remove ")) + name);
+        QMessageBox::critical(&msgBox, QString(tr("Error")), QString(tr("Failed to remove %1").arg(name)));
         return false;
       }
 
@@ -303,7 +314,13 @@ bool ExportEngine::exportWithConfirm(unsigned long long ino, const QString &name
 bool ExportEngine::exportDir(const QString &name)
 {
   if (!filePath->mkpath(name)) {
-    QMessageBox::critical(parentWidget, QString(tr("Error")), QString(tr("Failed to create ")) + name);
+#if 0
+    QMessageBox msgBox;
+    QMessageBox::critical(&msgBox, QString(tr("Error")), QString(tr("Failed to create %1").arg(name)));
+#else
+    emit message(QString(tr("error: create %1 failed").arg(name)));
+#endif
+
     return false;
   }
 
@@ -318,20 +335,20 @@ bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
   bool ret;
 
   if (!fileBuf) {
-    return showError(QString(tr("Insufficient memory")));
+    return showError(QString(tr("error: create %1 failed (allocate memory failed)").arg(name)));
   }
 
   file.setFileName(name);
 
   if (!file.open(QIODevice::WriteOnly)) {
-    return showError(QString(tr("Failed to open ")) + name);
+    return showError(QString(tr("error: open %1 failed").arg(name)));
   }
 
   QFileDevice::Permissions perm = getFilePermissions(ino);
 
   if (!file.setPermissions(perm)) {
     file.close();
-    return showError(QString(tr("Failed to set permission of ")) + name);
+    return showError(QString(tr("error: set %1 permission failed").arg(name)));
   }
 
   struct fs_kstat stat = fsEngine->getFileChildsStat(ino);
@@ -393,7 +410,7 @@ exportFileExit:
   file.close();
 
   if (!ret) {
-    ret = showError(QString(tr("Failed to write ")) + name);
+    ret = showError(QString(tr("error: write %1 failed").arg(name)));
   }
 
   return ret;
@@ -406,11 +423,11 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
   bool ret;
 
   if (!fileBuf) {
-    return showError(QString(tr("Insufficient memory")));
+    return showError(QString(tr("error: create %1 failed (allocate memory failed)").arg(name)));
   }
 
   if (stat.size == 0) {
-    return showError(QString(tr("Symbol link size of ")) + name + QString(tr(" is zero")));
+    return showError(QString(tr("error: %1 invalid size").arg(name)));
   }
 
   memset((void *)fileBuf, 0, size);
@@ -430,7 +447,7 @@ bool ExportEngine::exportLink(unsigned long long ino, const QString &name)
 exportLinkExit:
 
   if (!ret) {
-    ret = showError(QString(tr("Failed to write ")) + name);
+    ret = showError(QString(tr("error: write %1 failed").arg(name)));
   }
 
   return ret;
@@ -483,9 +500,10 @@ QFileDevice::Permissions ExportEngine::getFilePermissions(unsigned long long ino
 
 bool ExportEngine::showError(const QString &msg)
 {
+#if 0
   bool ret;
 
-  QMessageBox msgBox(parentWidget);
+  QMessageBox msgBox;
   msgBox.setIcon(QMessageBox::Critical);
   msgBox.setText(msg);
   msgBox.setStandardButtons(QMessageBox::Ignore | QMessageBox::Abort);
@@ -502,4 +520,8 @@ bool ExportEngine::showError(const QString &msg)
   }
 
   return ret;
+#else
+  emit message(msg);
+  return false;
+#endif
 }
