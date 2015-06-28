@@ -68,11 +68,11 @@ void ExportEngine::process()
 
     int ret = traverse(fileList[i], address);
     if (!ret) {
-      emit(message(QString(tr("aborted."))));
+      emit(message(QString(tr("Aborted."))));
       break;
     }
 
-    emit(message(QString(tr("all completed."))));
+    emit(message(QString(tr("All completed."))));
   }
 
   emit(finished());

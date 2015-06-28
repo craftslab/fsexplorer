@@ -647,7 +647,7 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   exportEngine = new ExportEngine(list, path, fsEngine);
   exportEngine->moveToThread(thread);
 
-  setOutput(QString(tr("start now...")));
+  setOutput(QString(tr("Start now...")));
   progressBar->setRange(0, exportEngine->count());
 
   connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
