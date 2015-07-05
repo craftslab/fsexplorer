@@ -45,12 +45,11 @@ MainWindow::MainWindow()
   openSettings();
 
   fsEngine = new FsEngine(this);
+  preprocPathOpen = preprocPathOpen;
   fsPathOpen = fsPathOpen;
   fsPathExport = fsPathExport;
   fsStatus = false;
   fsHome = true;
-
-  sparsePathOpen = sparsePathOpen;
 
   setAcceptDrops(true);
 }
@@ -118,7 +117,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(name);
-    loadFile(fsPathOpen);
+
+    if (preprocFile(fsPathOpen, preprocPathOpen)) {
+      loadFile(preprocPathOpen);
+    } else {
+      loadFile(fsPathOpen);
+    }
   }
 
   writeFsPathSettings();
@@ -135,9 +139,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     fsEngine = NULL;
   }
 
-  if (!sparsePathOpen.isEmpty()) {
-    (void)QFile::remove(sparsePathOpen);
-    sparsePathOpen.clear();
+  if (!preprocPathOpen.isEmpty()) {
+    (void)QFile::remove(preprocPathOpen);
+    preprocPathOpen.clear();
   }
 
   closeSettings();
@@ -161,7 +165,12 @@ void MainWindow::openFile()
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(file);
-    loadFile(fsPathOpen);
+
+    if (preprocFile(fsPathOpen, preprocPathOpen)) {
+      loadFile(preprocPathOpen);
+    } else {
+      loadFile(fsPathOpen);
+    }
   }
 
   writeFsPathSettings();
@@ -182,9 +191,9 @@ void MainWindow::closeFile()
   fsEngine->closeFile();
   setWindowTitle(tr("%1").arg(title));
 
-  if (!sparsePathOpen.isEmpty()) {
-    (void)QFile::remove(sparsePathOpen);
-    sparsePathOpen.clear();
+  if (!preprocPathOpen.isEmpty()) {
+    (void)QFile::remove(preprocPathOpen);
+    preprocPathOpen.clear();
   }
 
   fsStatus = false;
@@ -317,7 +326,12 @@ void MainWindow::history(QAction *action)
 
     if (!fsStatus) {
       fsPathOpen = text;
-      loadFile(fsPathOpen);
+
+      if (preprocFile(fsPathOpen, preprocPathOpen)) {
+        loadFile(preprocPathOpen);
+      } else {
+        loadFile(fsPathOpen);
+      }
     }
 
     writeFsPathSettings();
@@ -505,6 +519,84 @@ void MainWindow::deactivateActions()
   emit mountedHome(false);
 }
 
+void MainWindow::loadFile(const QString &name)
+{
+  bool ret = fsEngine->openFile(name);
+  if (ret) {
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
+
+    addressBar->setText(separator);
+
+    struct fs_dirent treeRoot = fsEngine->getFileRoot();
+
+    treeFileDentList.clear();
+    createFileDentList(treeRoot.d_ino, treeFileDentList);
+
+    listFileDentList.clear();
+    listFileDentList = treeFileDentList;
+
+    treeFileStatList.clear();
+    createFileStatList(treeFileDentList, treeFileStatList);
+
+    listFileStatList.clear();
+    listFileStatList = treeFileStatList;
+
+    removeTreeAll();
+    createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
+    createTreeItem(treeFileDentList);
+
+    removeListAll();
+    createListItem(listFileDentList, listFileStatList);
+
+    treeView->setColumnHidden(TREE_INO, true);
+    connect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
+
+    QDateTime dt = QDateTime::currentDateTime();
+    QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
+    text.append(tr("mount filesystem successfully.\n\n"));
+    text.append(tr("name : %1\n").arg(name));
+    text.append(tr("type : %1\n").arg(fsEngine->getFileType()));
+    setOutput(text);
+
+    fsStatus = true;
+  } else {
+    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
+    fsStatus = false;
+  }
+
+  emit mounted(fsStatus);
+  emit mountedRw(!fsEngine->isReadOnly());
+  emit mountedWidgets(fsStatus);
+
+  fsHome = true;
+  emit mountedHome(!fsHome);
+}
+
+void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
+{
+  thread = new QThread(this);
+
+  exportEngine = new ExportEngine(list, path, fsEngine);
+  exportEngine->moveToThread(thread);
+
+  setOutput(QString(tr("Start now...")));
+  progressBar->setRange(0, exportEngine->count());
+
+  connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
+  connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
+  connect(thread, SIGNAL(started()), exportEngine, SLOT(process()));
+  connect(exportEngine, SIGNAL(message(const QString)), this, SLOT(appendOutput(const QString)));
+  connect(exportEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
+  connect(exportEngine, SIGNAL(finished()), thread, SLOT(quit()));
+  connect(exportEngine, SIGNAL(finished()), exportEngine, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), this, SLOT(showStatusLabel()));
+  connect(thread, SIGNAL(finished()), this, SLOT(restoreActions()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+  thread->start();
+}
+
 void MainWindow::pressTreeItem(const QModelIndex &index)
 {
   treeView->setCurrentIndex(index);
@@ -638,30 +730,6 @@ void MainWindow::handleSyncListItem(unsigned long long ino)
 {
   removeListAll();
   expandListItem(ino);
-}
-
-void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
-{
-  thread = new QThread(this);
-
-  exportEngine = new ExportEngine(list, path, fsEngine);
-  exportEngine->moveToThread(thread);
-
-  setOutput(QString(tr("Start now...")));
-  progressBar->setRange(0, exportEngine->count());
-
-  connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
-  connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
-  connect(thread, SIGNAL(started()), exportEngine, SLOT(process()));
-  connect(exportEngine, SIGNAL(message(const QString)), this, SLOT(appendOutput(const QString)));
-  connect(exportEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
-  connect(exportEngine, SIGNAL(finished()), thread, SLOT(quit()));
-  connect(exportEngine, SIGNAL(finished()), exportEngine, SLOT(deleteLater()));
-  connect(thread, SIGNAL(finished()), this, SLOT(showStatusLabel()));
-  connect(thread, SIGNAL(finished()), this, SLOT(restoreActions()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-
-  thread->start();
 }
 
 void MainWindow::showWindowTitle()
@@ -1238,95 +1306,23 @@ bool MainWindow::unsparseFile(const QString &src, QString &dst)
 {
   bool ret;
 
-  progressBar = new QProgressBar (this);
-  progressBar->setFixedHeight(statusLabel->height());
-  progressBar->setRange(0, 0);
-
-  statusBar()->removeWidget(statusLabel);
-  statusBar()->addWidget(progressBar, 1);
-  statusBar()->show();
-
-  emit mounted(false);
-  emit mountedRw(false);
-  emit mountedOpen(false);
-  emit mountedHome(false);
-
   ret = SparseEngine::unsparseFile(src, dst);
-
-  emit mounted(fsStatus);
-  emit mountedRw(!fsEngine->isReadOnly());
-  emit mountedOpen(true);
-  emit mountedHome(!fsHome);
-
-  statusBar()->removeWidget(progressBar);
-  statusBar()->addWidget(statusLabel, 1);
-  statusBar()->show();
 
   return ret;
 }
 
-void MainWindow::loadFile(const QString &name)
+bool MainWindow::preprocFile(const QString &src, QString &dst)
 {
-  QString pathOpen = name;
-  bool ret;
-
-  if (isSparseFile(pathOpen)) {
-    ret = unsparseFile(pathOpen, sparsePathOpen);
-    if (ret && !sparsePathOpen.isEmpty()) {
-      pathOpen = sparsePathOpen;
-    }
+  if (!isSparseFile(src)) {
+    return false;
   }
 
-  ret = fsEngine->openFile(pathOpen);
-  if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
-
-    addressBar->setText(separator);
-
-    struct fs_dirent treeRoot = fsEngine->getFileRoot();
-
-    treeFileDentList.clear();
-    createFileDentList(treeRoot.d_ino, treeFileDentList);
-
-    listFileDentList.clear();
-    listFileDentList = treeFileDentList;
-
-    treeFileStatList.clear();
-    createFileStatList(treeFileDentList, treeFileStatList);
-
-    listFileStatList.clear();
-    listFileStatList = treeFileStatList;
-
-    removeTreeAll();
-    createTreeRoot(treeRoot.d_name, treeRoot.d_ino);
-    createTreeItem(treeFileDentList);
-
-    removeListAll();
-    createListItem(listFileDentList, listFileStatList);
-
-    treeView->setColumnHidden(TREE_INO, true);
-    connect(treeItemSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(currentTreeItem(const QModelIndex &, const QModelIndex &)));
-
-    QDateTime dt = QDateTime::currentDateTime();
-    QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
-    text.append(tr("mount filesystem successfully.\n\n"));
-    text.append(tr("name : %1\n").arg(name));
-    text.append(tr("type : %1\n").arg(fsEngine->getFileType()));
-    setOutput(text);
-
-    fsStatus = true;
-  } else {
-    statusBar()->showMessage(tr("Invalid fs image!"), 2000);
-    fsStatus = false;
+  bool ret = unsparseFile(src, dst);
+  if (!ret || dst.isEmpty()) {
+    return false;
   }
 
-  emit mounted(fsStatus);
-  emit mountedRw(!fsEngine->isReadOnly());
-  emit mountedWidgets(fsStatus);
-
-  fsHome = true;
-  emit mountedHome(!fsHome);
+  return true;
 }
 
 QString MainWindow::stripString(const QString &name)

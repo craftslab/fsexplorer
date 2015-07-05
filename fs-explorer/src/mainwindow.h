@@ -105,6 +105,9 @@ private slots:
   void restoreActions();
   void deactivateActions();
 
+  void loadFile(const QString &name);
+  void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
+
   void pressTreeItem(const QModelIndex &index);
   void currentTreeItem(const QModelIndex &current, const QModelIndex &previous);
   void handleSyncTreeItem(unsigned long long ino);
@@ -114,8 +117,6 @@ private slots:
   void activateListItem(const QModelIndex &index);
   void currentListItem(const QModelIndex &current, const QModelIndex &previous);
   void handleSyncListItem(unsigned long long ino);
-
-  void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
 
 private:
   void showWindowTitle();
@@ -146,7 +147,7 @@ private:
   void confirmAddressStatus(const QString &text);
   bool isSparseFile(const QString &src);
   bool unsparseFile(const QString &src, QString &dst);
-  void loadFile(const QString &name);
+  bool preprocFile(const QString &src, QString &dst);
   QString stripString(const QString &name);
   QStringList parseAddress(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);
@@ -237,7 +238,11 @@ private:
   QStringList treeHeader;
   QStringList listHeader;
 
+  SparseEngine *sparseEngine;
+  ExportEngine *exportEngine;
   FsEngine *fsEngine;
+
+  QString preprocPathOpen;
   QString fsPathOpen;
   QString fsPathExport;
   bool fsStatus;
@@ -246,10 +251,5 @@ private:
   QList<struct fs_kstat> treeFileStatList;
   QList<struct fs_dirent> listFileDentList;
   QList<struct fs_kstat> listFileStatList;
-
-  SparseEngine *sparseEngine;
-  QString sparsePathOpen;
-
-  ExportEngine *exportEngine;
 };
 #endif
