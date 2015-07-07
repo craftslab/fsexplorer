@@ -24,8 +24,6 @@
 
 #include <QObject>
 #include <QLibrary>
-#include <QThread>
-#include <QMutexLocker>
 #include <QFile>
 #include <QTemporaryFile>
 
@@ -36,29 +34,27 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-class SparseEngine : public QThread
+class SparseEngine : public QObject
 {
   Q_OBJECT
 
 public:
-  SparseEngine(const QString &name, QObject *parent = 0);
+  SparseEngine(const QString &name);
   ~SparseEngine();
 
-  static bool isSparseFile(const QString &src);
-  static bool unsparseFile(const QString &src, QString &dst);
+  static bool isSparseFile(const QString &name);
+  int count();
 
 signals:
-  void resultReady(const QString &name);
+  void current(int num);
+  void message(const QString &text);
+  void finished(const QString &name);
 
 public slots:
-  void handleStop();
-
-protected:
-  void run();
+  void process();
 
 private:
   QFile *srcFile;
   QTemporaryFile *dstFile;
-  QMutex mutex;
 };
 #endif

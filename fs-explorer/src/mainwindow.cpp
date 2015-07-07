@@ -45,7 +45,7 @@ MainWindow::MainWindow()
   openSettings();
 
   fsEngine = new FsEngine(this);
-  preprocPathOpen = preprocPathOpen;
+  preprocPathOpen.clear();
   fsPathOpen = fsPathOpen;
   fsPathExport = fsPathExport;
   fsStatus = false;
@@ -117,12 +117,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(name);
-
-    if (preprocFile(fsPathOpen, preprocPathOpen)) {
-      loadFile(preprocPathOpen);
-    } else {
-      loadFile(fsPathOpen);
-    }
+    preprocPathOpen.clear();
+    preprocFile(fsPathOpen);
   }
 
   writeFsPathSettings();
@@ -165,12 +161,8 @@ void MainWindow::openFile()
 
   if (!fsStatus) {
     fsPathOpen = QDir::toNativeSeparators(file);
-
-    if (preprocFile(fsPathOpen, preprocPathOpen)) {
-      loadFile(preprocPathOpen);
-    } else {
-      loadFile(fsPathOpen);
-    }
+    preprocPathOpen.clear();
+    preprocFile(fsPathOpen);
   }
 
   writeFsPathSettings();
@@ -326,12 +318,8 @@ void MainWindow::history(QAction *action)
 
     if (!fsStatus) {
       fsPathOpen = text;
-
-      if (preprocFile(fsPathOpen, preprocPathOpen)) {
-        loadFile(preprocPathOpen);
-      } else {
-        loadFile(fsPathOpen);
-      }
+      preprocPathOpen.clear();
+      preprocFile(fsPathOpen);
     }
 
     writeFsPathSettings();
@@ -519,11 +507,12 @@ void MainWindow::deactivateActions()
   emit mountedHome(false);
 }
 
-void MainWindow::loadFile(const QString &name)
+void MainWindow::loadFile(const QString &orig, const QString &preproced)
 {
-  bool ret = fsEngine->openFile(name);
+  bool ret = fsEngine->openFile(preproced);
+
   if (ret) {
-    setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(name).arg(fsEngine->getFileType()));
+    setWindowTitle(tr("%1[*] - %2 - %3").arg(title).arg(orig).arg(fsEngine->getFileType()));
 
     addressBar->setText(separator);
 
@@ -555,7 +544,7 @@ void MainWindow::loadFile(const QString &name)
     QDateTime dt = QDateTime::currentDateTime();
     QString text =  QObject::tr("%1 ").arg(dt.toString(tr("yyyy-MM-dd hh:mm:ss")));
     text.append(tr("mount filesystem successfully.\n\n"));
-    text.append(tr("name : %1\n").arg(name));
+    text.append(tr("name : %1\n").arg(orig));
     text.append(tr("type : %1\n").arg(fsEngine->getFileType()));
     setOutput(text);
 
@@ -573,6 +562,12 @@ void MainWindow::loadFile(const QString &name)
   emit mountedHome(!fsHome);
 }
 
+void MainWindow::handlePreprocFile(const QString &name)
+{
+  preprocPathOpen = name;
+  loadFile(fsPathOpen, preprocPathOpen);
+}
+
 void MainWindow::handleExportFileList(const QList<unsigned long long> &list, const QString &path)
 {
   thread = new QThread(this);
@@ -586,7 +581,7 @@ void MainWindow::handleExportFileList(const QList<unsigned long long> &list, con
   connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
   connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
   connect(thread, SIGNAL(started()), exportEngine, SLOT(process()));
-  connect(exportEngine, SIGNAL(message(const QString)), this, SLOT(appendOutput(const QString)));
+  connect(exportEngine, SIGNAL(message(const QString &)), this, SLOT(appendOutput(const QString &)));
   connect(exportEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
   connect(exportEngine, SIGNAL(finished()), thread, SLOT(quit()));
   connect(exportEngine, SIGNAL(finished()), exportEngine, SLOT(deleteLater()));
@@ -1297,32 +1292,34 @@ void MainWindow::confirmAddressStatus(const QString &text)
   }
 }
 
-bool MainWindow::isSparseFile(const QString &src)
+void MainWindow::preprocFile(const QString &name)
 {
-  return SparseEngine::isSparseFile(src);
-}
-
-bool MainWindow::unsparseFile(const QString &src, QString &dst)
-{
-  bool ret;
-
-  ret = SparseEngine::unsparseFile(src, dst);
-
-  return ret;
-}
-
-bool MainWindow::preprocFile(const QString &src, QString &dst)
-{
-  if (!isSparseFile(src)) {
-    return false;
+  if (!SparseEngine::isSparseFile(name)) {
+    loadFile(name, name);
+    return;
   }
 
-  bool ret = unsparseFile(src, dst);
-  if (!ret || dst.isEmpty()) {
-    return false;
-  }
+  thread = new QThread(this);
 
-  return true;
+  sparseEngine = new SparseEngine(name);
+  sparseEngine->moveToThread(thread);
+
+  setOutput(QString(tr("Loading sparsed image...")));
+  progressBar->setRange(0, sparseEngine->count());
+
+  connect(thread, SIGNAL(started()), this, SLOT(deactivateActions()));
+  connect(thread, SIGNAL(started()), this, SLOT(showProgressBar()));
+  connect(thread, SIGNAL(started()), sparseEngine, SLOT(process()));
+  connect(sparseEngine, SIGNAL(message(const QString &)), this, SLOT(appendOutput(const QString &)));
+  connect(sparseEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
+  connect(sparseEngine, SIGNAL(finished(const QString &)), this, SLOT(handlePreprocFile(const QString &)));
+  connect(sparseEngine, SIGNAL(finished(const QString &)), thread, SLOT(quit()));
+  connect(sparseEngine, SIGNAL(finished(const QString &)), sparseEngine, SLOT(deleteLater()));
+  connect(thread, SIGNAL(finished()), this, SLOT(showStatusLabel()));
+  connect(thread, SIGNAL(finished()), this, SLOT(restoreActions()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+  thread->start();
 }
 
 QString MainWindow::stripString(const QString &name)

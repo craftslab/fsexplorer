@@ -105,7 +105,7 @@ private slots:
   void restoreActions();
   void deactivateActions();
 
-  void loadFile(const QString &name);
+  void handlePreprocFile(const QString &name);
   void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
 
   void pressTreeItem(const QModelIndex &index);
@@ -145,9 +145,8 @@ private:
 
   bool confirmFileStatus();
   void confirmAddressStatus(const QString &text);
-  bool isSparseFile(const QString &src);
-  bool unsparseFile(const QString &src, QString &dst);
-  bool preprocFile(const QString &src, QString &dst);
+  void loadFile(const QString &orig, const QString &preproced);
+  void preprocFile(const QString &name);
   QString stripString(const QString &name);
   QStringList parseAddress(const QString &name);
   bool findTreeAddress(const QString &name, QModelIndex &index);

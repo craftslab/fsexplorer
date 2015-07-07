@@ -41,7 +41,7 @@ public:
 
 signals:
   void current(int num);
-  void message(const QString text);
+  void message(const QString &text);
   void finished();
 
 public slots:
