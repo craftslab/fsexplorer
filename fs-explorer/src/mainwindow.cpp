@@ -491,12 +491,26 @@ void MainWindow::showStatusLabel()
   statusBar()->show();
 }
 
+void MainWindow::setHistoryEnabled(bool enable)
+{
+  QList<QAction *> actions = getHistoryActions();
+
+  if (actions.size() == 0) {
+    return;
+  }
+
+  for (int i = 0; i < actions.size(); ++i) {
+    actions.at(i)->setEnabled(enable);
+  }
+}
+
 void MainWindow::restoreActions()
 {
   emit mounted(fsStatus);
   emit mountedRw(!fsEngine->isReadOnly());
   emit mountedOpen(true);
   emit mountedHome(!fsHome);
+  emit mountedHistory(true);
 }
 
 void MainWindow::deactivateActions()
@@ -505,6 +519,7 @@ void MainWindow::deactivateActions()
   emit mountedRw(false);
   emit mountedOpen(false);
   emit mountedHome(false);
+  emit mountedHistory(false);
 }
 
 void MainWindow::loadFile(const QString &orig, const QString &preproced)
@@ -1139,6 +1154,8 @@ void MainWindow::createConnections()
   connect(this, SIGNAL(mounted(bool)), chartAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), homeAction, SLOT(setEnabled(bool)));
   connect(this, SIGNAL(mountedHome(bool)), upAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedHistory(bool)), clearAction, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(mountedHistory(bool)), this, SLOT(setHistoryEnabled(bool)));
   connect(this, SIGNAL(mountedWidgets(bool)), this, SLOT(showWidgets(bool)));
 
   connect(this, SIGNAL(syncTreeItem(unsigned long long)), this, SLOT(handleSyncTreeItem(unsigned long long)));

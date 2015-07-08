@@ -66,6 +66,7 @@ signals:
   void mountedRw(bool status);
   void mountedOpen(bool status);
   void mountedHome(bool status);
+  void mountedHistory(bool status);
   void mountedWidgets(bool status);
   void syncTreeItem(unsigned long long ino);
   void syncListItem(unsigned long long ino);
@@ -102,6 +103,7 @@ private slots:
   void showProgressBar();
   void setProgressBar(int val);
   void showStatusLabel();
+  void setHistoryEnabled(bool enable);
   void restoreActions();
   void deactivateActions();
 
