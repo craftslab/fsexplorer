@@ -44,11 +44,12 @@ public:
 
   static bool isSparseFile(const QString &name);
   int count();
+  const QString unsparseFile();
 
 signals:
   void current(int num);
   void message(const QString &text);
-  void finished(const QString &name);
+  void finished();
 
 public slots:
   void process();

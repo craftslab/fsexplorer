@@ -577,9 +577,8 @@ void MainWindow::loadFile(const QString &orig, const QString &preproced)
   emit mountedHome(!fsHome);
 }
 
-void MainWindow::handlePreprocFile(const QString &name)
+void MainWindow::handlePreprocFile()
 {
-  preprocPathOpen = name;
   loadFile(fsPathOpen, preprocPathOpen);
 }
 
@@ -1321,6 +1320,8 @@ void MainWindow::preprocFile(const QString &name)
   sparseEngine = new SparseEngine(name);
   sparseEngine->moveToThread(thread);
 
+  preprocPathOpen = sparseEngine->unsparseFile();
+
   setOutput(QString(tr("Loading sparsed image...")));
   progressBar->setRange(0, sparseEngine->count());
 
@@ -1329,9 +1330,9 @@ void MainWindow::preprocFile(const QString &name)
   connect(thread, SIGNAL(started()), sparseEngine, SLOT(process()));
   connect(sparseEngine, SIGNAL(message(const QString &)), this, SLOT(appendOutput(const QString &)));
   connect(sparseEngine, SIGNAL(current(int)), this, SLOT(setProgressBar(int)));
-  connect(sparseEngine, SIGNAL(finished(const QString &)), this, SLOT(handlePreprocFile(const QString &)));
-  connect(sparseEngine, SIGNAL(finished(const QString &)), thread, SLOT(quit()));
-  connect(sparseEngine, SIGNAL(finished(const QString &)), sparseEngine, SLOT(deleteLater()));
+  connect(sparseEngine, SIGNAL(finished()), this, SLOT(handlePreprocFile()));
+  connect(sparseEngine, SIGNAL(finished()), thread, SLOT(quit()));
+  connect(sparseEngine, SIGNAL(finished()), sparseEngine, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), this, SLOT(showStatusLabel()));
   connect(thread, SIGNAL(finished()), this, SLOT(restoreActions()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));

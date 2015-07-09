@@ -53,6 +53,10 @@ bool FsEngine::openFile(const QString &name)
   int32_t i, len;
   int32_t ret;
 
+  if (name.isEmpty()) {
+    return false;
+  }
+
   if (fileName && !fileName->compare(name)) {
     return false;
   }

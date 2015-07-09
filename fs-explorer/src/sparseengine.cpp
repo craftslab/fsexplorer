@@ -74,6 +74,11 @@ int SparseEngine::count()
   return 0;
 }
 
+const QString SparseEngine::unsparseFile()
+{
+  return dstFile->fileName();
+}
+
 void SparseEngine::process()
 {
   int srcHandle = srcFile->handle();
@@ -116,5 +121,5 @@ void SparseEngine::process()
     emit message(QString(tr("Aborted.")));
   }
 
-  emit finished(dstName);
+  emit finished();
 }

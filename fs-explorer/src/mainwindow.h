@@ -107,7 +107,7 @@ private slots:
   void restoreActions();
   void deactivateActions();
 
-  void handlePreprocFile(const QString &name);
+  void handlePreprocFile();
   void handleExportFileList(const QList<unsigned long long> &list, const QString &path);
 
   void pressTreeItem(const QModelIndex &index);
