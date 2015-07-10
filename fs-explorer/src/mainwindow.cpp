@@ -565,6 +565,11 @@ void MainWindow::loadFile(const QString &orig, const QString &preproced)
 
     fsStatus = true;
   } else {
+    if (!preprocPathOpen.isEmpty()) {
+      (void)QFile::remove(preprocPathOpen);
+      preprocPathOpen.clear();
+    }
+
     statusBar()->showMessage(tr("Invalid fs image!"), 2000);
     fsStatus = false;
   }
