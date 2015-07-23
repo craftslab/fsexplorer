@@ -329,17 +329,15 @@ bool ExportEngine::exportDir(const QString &name)
 
 bool ExportEngine::exportFile(unsigned long long ino, const QString &name)
 {
-  QFile file;
   long offset;
-  volatile long mod;
+  long mod;
   bool ret;
 
   if (!fileBuf) {
     return showError(QString(tr("error: create %1 failed (allocate memory failed)").arg(name)));
   }
 
-  file.setFileName(name);
-
+  QFile file(name);
   if (!file.open(QIODevice::WriteOnly)) {
     return showError(QString(tr("error: open %1 failed").arg(name)));
   }
