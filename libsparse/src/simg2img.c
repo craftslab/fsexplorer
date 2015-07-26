@@ -17,7 +17,7 @@
 #include <sparse/sparse.h>
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <stdbool.h>
@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <unistd.h>
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 			exit(-1);
 		}
 
-		lseek64(out, SEEK_SET, 0);
+		lseek64(out, 0, SEEK_SET);
 
 		ret = sparse_file_write(s, out, false, false, false);
 		if (ret < 0) {

@@ -19,7 +19,7 @@
 
 #include <fcntl.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <inttypes.h>
@@ -27,7 +27,7 @@
 
 #include <limits.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <stdbool.h>
@@ -39,7 +39,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -64,6 +64,8 @@
 #define ftruncate64 ftruncate
 #define mmap64 mmap
 #define off64_t off_t
+#elif defined(WIN32)
+#define lseek64 _lseeki64
 #endif
 
 #ifndef min
@@ -135,7 +137,7 @@ struct output_file_callback {
 #define to_output_file_callback(_o) \
 	container_of((_o), struct output_file_callback, out)
 
-#ifdef WIN32
+#if defined(WIN32)
 static int ftruncate(int fd, int64_t len)
 {
 	HANDLE handle;
@@ -214,7 +216,7 @@ static void file_close(struct output_file *out)
 }
 
 static struct output_file_ops file_ops = {
-#ifdef WIN32
+#if defined(WIN32)
 	file_open,
 	file_skip,
 	file_pad,
@@ -306,7 +308,7 @@ static void gz_file_close(struct output_file *out)
 }
 
 static struct output_file_ops gz_file_ops = {
-#ifdef WIN32
+#if defined(WIN32)
 	gz_file_open,
 	gz_file_skip,
 	gz_file_pad,
@@ -364,7 +366,7 @@ static void callback_file_close(struct output_file *out)
 }
 
 static struct output_file_ops callback_file_ops = {
-#ifdef WIN32
+#if defined(WIN32)
 	callback_file_open,
 	callback_file_skip,
 	callback_file_pad,
@@ -530,7 +532,7 @@ int write_sparse_end_chunk(struct output_file *out)
 }
 
 static struct sparse_file_ops sparse_file_ops = {
-#ifdef WIN32
+#if defined(WIN32)
 		write_sparse_data_chunk,
 		write_sparse_fill_chunk,
 		write_sparse_skip_chunk,
@@ -597,7 +599,7 @@ int write_normal_end_chunk(struct output_file *out)
 }
 
 static struct sparse_file_ops normal_file_ops = {
-#ifdef WIN32
+#if defined(WIN32)
 		write_normal_data_chunk,
 		write_normal_fill_chunk,
 		write_normal_skip_chunk,
@@ -649,7 +651,7 @@ static int output_file_init(struct output_file *out, int block_size,
 
 	if (sparse) {
 		sparse_header_t sparse_header = {
-#ifdef WIN32
+#if defined(WIN32)
 				SPARSE_HEADER_MAGIC,
 				SPARSE_HEADER_MAJOR_VER,
 				SPARSE_HEADER_MINOR_VER,

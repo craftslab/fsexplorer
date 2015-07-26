@@ -18,7 +18,7 @@
 #define _LARGEFILE64_SOURCE 1
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <stdbool.h>
@@ -29,7 +29,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <unistd.h>
@@ -44,6 +44,8 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #define lseek64 lseek
 #define off64_t off_t
+#elif defined(WIN32)
+#define lseek64 _lseeki64
 #endif
 
 void usage()

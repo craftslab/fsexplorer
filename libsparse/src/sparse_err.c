@@ -19,7 +19,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <unistd.h>

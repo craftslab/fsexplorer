@@ -33,17 +33,25 @@
 #define __u16 u16
 #define __u8 u8
 
+#if defined(WIN32)
+typedef unsigned __int64 u64;
+typedef __int64 s64;
+typedef unsigned int u32;
+typedef unsigned short int u16;
+typedef unsigned char u8;
+#else
 typedef unsigned long long u64;
 typedef signed long long s64;
 typedef unsigned int u32;
 typedef unsigned short int u16;
 typedef unsigned char u8;
+#endif /* WIN32 */
 
 #define DIV_ROUND_UP(x, y) (((x) + (y) - 1)/(y))
 #define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
 #define ALIGN_DOWN(x, y) ((y) * ((x) / (y)))
 
-#ifdef WIN32
+#if defined(WIN32)
 #define error(fmt, ...) do { fprintf(stderr, "error: %s: " fmt "\n", __FUNCTION__, __VA_ARGS__); } while (0)
 #define error_errno(s, ...) do { fprintf(stderr, "error: %s: " s ": %s\n", __FUNCTION__, __VA_ARGS__, strerror(errno)); } while (0)
 #else

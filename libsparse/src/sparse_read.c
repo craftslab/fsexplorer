@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <stdbool.h>
@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <unistd.h>
@@ -49,6 +49,8 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #define lseek64 lseek
 #define off64_t off_t
+#elif defined(WIN32)
+#define lseek64 _lseeki64
 #endif
 
 #define SPARSE_HEADER_MAJOR_VER 1

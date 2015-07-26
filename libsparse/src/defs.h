@@ -16,11 +16,11 @@
 
 #ifndef _LIBSPARSE_DEFS_H_
 
-#ifdef WIN32
+#if defined(WIN32)
 #define USE_MINGW
 #endif /* WIN32 */
 
-#ifdef WIN32
+#if defined(WIN32)
 #define __unused
 #else
 #ifndef __unused

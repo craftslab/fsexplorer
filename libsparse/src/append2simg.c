@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef WIN32
+#if defined(WIN32)
 // Do nothing here
 #else
 #include <unistd.h>
@@ -39,10 +39,9 @@
 
 #if defined(__APPLE__) && defined(__MACH__)
 #define lseek64 lseek
-#endif
-#if defined(__APPLE__) && defined(__MACH__)
-#define lseek64 lseek
 #define off64_t off_t
+#elif defined(WIN32)
+#define lseek64 _lseeki64
 #endif
 
 void usage()
@@ -63,7 +62,7 @@ int main(int argc, char *argv[])
 
     int tmp_fd;
     char *tmp_path;
-#ifdef WIN32
+#if defined(WIN32)
     int len;
 #endif /* WIN32 */
 
@@ -77,7 +76,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-#ifdef WIN32
+#if defined(WIN32)
     len = strlen(".append2simg") + strlen(output_path) + 1;
 
     tmp_path = (char *)malloc(len);
