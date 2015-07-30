@@ -21,12 +21,21 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(WIN32)
+#include <Windows.h>
+#else
 #include <sys/mman.h>
 #include <unistd.h>
+#endif /* WIN32 */
 
 #include "ext4_utils.h"
 #include "sparse_crc32.h"
 #include "sparse_format.h"
+
+#if defined(WIN32)
+#define lseek64 _lseeki64
+#define ftruncate64 _ftruncatei64
+#endif /* WIN32 */
 
 #define COPY_BUF_SIZE (1024*1024)
 #define SPARSE_HEADER_MAJOR_VER 1
@@ -34,6 +43,22 @@
 #define CHUNK_HEADER_LEN (sizeof(chunk_header_t))
 
 static u8 *copybuf;
+
+#if defined(WIN32)
+static int _ftruncatei64(int fd, s64 len)
+{
+  HANDLE handle;
+
+  (void)lseek64(fd, len, SEEK_SET);
+
+  handle = (HANDLE)_get_osfhandle(fd);
+  if (SetEndOfFile(handle) == 0) {
+    return -1;
+  }
+
+  return 0;
+}
+#endif /* WIN32 */
 
 static void usage()
 {
@@ -95,7 +120,7 @@ static int process_raw_chunk(int in, int out, u32 blocks, u32 blk_sz, u32 *crc32
   int ret;
 
   while (len) {
-    chunk = (len > COPY_BUF_SIZE) ? COPY_BUF_SIZE : len;
+    chunk = (int)((len > COPY_BUF_SIZE) ? COPY_BUF_SIZE : len);
 
     ret = read_all(in, copybuf, chunk);
     if (ret != chunk) {
@@ -135,7 +160,7 @@ static int process_fill_chunk(int in, int out, u32 blocks, u32 blk_sz, u32 *crc3
   }
 
   while (len) {
-    chunk = (len > COPY_BUF_SIZE) ? COPY_BUF_SIZE : len;
+    chunk = (int)((len > COPY_BUF_SIZE) ? COPY_BUF_SIZE : len);
 
     *crc32 = sparse_crc32(*crc32, copybuf, chunk);
 
@@ -206,9 +231,14 @@ int main(int argc, char *argv[])
     exit(-1);
   }
 
+#if defined(WIN32)
+  // Do nothing here
+#else
   if (strcmp(argv[1], "-") == 0) {
     in = STDIN_FILENO;
-  } else {
+  } else
+#endif /* WIN32 */
+  {
     if ((in = open(argv[1], O_RDONLY)) == -1) {
       fprintf(stderr, "Cannot open input file %s\n", argv[1]);
       rc = -1;
@@ -216,9 +246,14 @@ int main(int argc, char *argv[])
     }
   }
 
+#if defined(WIN32)
+  // Do nothing here
+#else
   if (strcmp(argv[2], "-") == 0) {
     out = STDOUT_FILENO;
-  } else {
+  } else
+#endif /* WIN32 */
+  {
     if ((out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0666)) == -1) {
       fprintf(stderr, "Cannot open output file %s\n", argv[2]);
       rc = -1;

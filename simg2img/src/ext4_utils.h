@@ -35,7 +35,11 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#if defined(WIN32)
+// Do nothing here
+#else
 #include <unistd.h>
+#endif /* WIN32 */
 
 #if defined(__APPLE__) && defined(__MACH__)
 #define lseek64 lseek
@@ -55,11 +59,19 @@ static inline void *mmap64(void *addr, size_t length, int prot, int flags,
 
 extern int force;
 
+#if defined(WIN32)
+#define warn(fmt, ...) do { fprintf(stderr, "warning: %s: " fmt "\n", __FUNCTION__, __VA_ARGS__); } while (0)
+#define error(fmt, ...) do { fprintf(stderr, "error: %s: " fmt "\n", __FUNCTION__, __VA_ARGS__); } while (0)
+#define error_errno(s, ...) do { fprintf(stderr, "error: %s: " s ": %s\n", __FUNCTION__, __VA_ARGS__, strerror(errno)); } while (0)
+#define critical_error(fmt, ...) do { fprintf(stderr, "critical error: %s: " fmt "\n", __FUNCTION__, __VA_ARGS__); } while (0)
+#define critical_error_errno(s, ...) do { fprintf(stderr, "critical error: %s: " s ": %s\n", __FUNCTION__, __VA_ARGS__, strerror(errno)); } while (0)
+#else
 #define warn(fmt, args...) do { fprintf(stderr, "warning: %s: " fmt "\n", __func__, ## args); } while (0)
 #define error(fmt, args...) do { fprintf(stderr, "error: %s: " fmt "\n", __func__, ## args); if (!force) longjmp(setjmp_env, EXIT_FAILURE); } while (0)
 #define error_errno(s, args...) error(s ": %s", ##args, strerror(errno))
 #define critical_error(fmt, args...) do { fprintf(stderr, "critical error: %s: " fmt "\n", __func__, ## args); longjmp(setjmp_env, EXIT_FAILURE); } while (0)
 #define critical_error_errno(s, args...) critical_error(s ": %s", ##args, strerror(errno))
+#endif /* WIN32 */
 
 #define EXT4_SUPER_MAGIC 0xEF53
 #define EXT4_JNL_BACKUP_BLOCKS 1
@@ -142,7 +154,11 @@ extern struct fs_aux_info aux_info;
 
 extern jmp_buf setjmp_env;
 
+#if defined(WIN32)
+static __inline int log_2(int j)
+#else
 static inline int log_2(int j)
+#endif /* WIN32 */
 {
   int i;
 
