@@ -518,36 +518,3 @@ struct sparse_file *sparse_file_import_auto(int fd, bool crc)
 
 	return s;
 }
-
-
-struct sparse_file *zte_sparse_file_import_auto(int fd, bool crc)
-{
-	struct sparse_file *s;
-	int64_t len;
-	int ret;
-
-	s = sparse_file_import(fd, false, crc);
-	if (s) {
-		return s;
-	}
-
-	len = lseek64(fd, 0, SEEK_END);
-	if (len < 0) {
-		return NULL;
-	}
-
-	lseek64(fd, 0, SEEK_SET);
-
-	s = sparse_file_new(4096, len);
-	if (!s) {
-		return NULL;
-	}
-
-	ret = sparse_file_read_normal(s, fd);
-	if (ret < 0) {
-		sparse_file_destroy(s);
-		return NULL;
-	}
-
-	return s;
-}

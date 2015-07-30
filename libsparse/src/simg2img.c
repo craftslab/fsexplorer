@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define _LARGEFILE64_SOURCE 1
+
 #include <sparse/sparse.h>
 
 #include <fcntl.h>

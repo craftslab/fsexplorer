@@ -272,22 +272,6 @@ struct sparse_file *sparse_file_import(int fd, bool verbose, bool crc);
  */
 struct sparse_file *sparse_file_import_auto(int fd, bool crc);
 
-/**
- * zte_sparse_file_import_auto - import an existing sparse or normal file
- *
- * @fd - file descriptor to read from
- * @crc - verify the crc of a file in the Android sparse file format
- *
- * Reads an existing sparse or normal file into a sparse file cookie.
- * Attempts to determine if the file is sparse or not by looking for the sparse
- * file magic number in the first 4 bytes.  If the file is not sparse, the file
- * will be sparsed by looking for block aligned chunks of all zeros or another
- * 32 bit value.  If crc is true, the crc of the sparse file will be verified.
- *
- * Returns a new sparse file cookie on success, NULL on error.
- */
-struct sparse_file *zte_sparse_file_import_auto(int fd, bool crc);
-
 /** sparse_file_resparse - rechunk an existing sparse file into smaller files
  *
  * @in_s - sparse file cookie of the existing sparse file
