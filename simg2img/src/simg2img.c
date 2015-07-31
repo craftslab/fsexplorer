@@ -34,7 +34,7 @@
 
 #if defined(WIN32)
 #define lseek64 _lseeki64
-#define ftruncate64 _ftruncatei64
+#define ftruncate64 _chsize_s
 #endif /* WIN32 */
 
 #define COPY_BUF_SIZE (1024*1024)
@@ -43,22 +43,6 @@
 #define CHUNK_HEADER_LEN (sizeof(chunk_header_t))
 
 static u8 *copybuf;
-
-#if defined(WIN32)
-static int _ftruncatei64(int fd, s64 len)
-{
-  HANDLE handle;
-
-  (void)lseek64(fd, len, SEEK_SET);
-
-  handle = (HANDLE)_get_osfhandle(fd);
-  if (SetEndOfFile(handle) == 0) {
-    return -1;
-  }
-
-  return 0;
-}
-#endif /* WIN32 */
 
 static void usage()
 {
