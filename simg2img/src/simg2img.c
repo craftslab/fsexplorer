@@ -223,7 +223,11 @@ int main(int argc, char *argv[])
   } else
 #endif /* WIN32 */
   {
+#if defined(WIN32)
     if ((in = open(argv[1], O_RDONLY | O_BINARY)) == -1) {
+#else
+    if ((in = open(argv[1], O_RDONLY)) == -1) {
+#endif /* WIN32 */
       fprintf(stderr, "Cannot open input file %s\n", argv[1]);
       rc = -1;
       goto main_exit;
@@ -238,7 +242,11 @@ int main(int argc, char *argv[])
   } else
 #endif /* WIN32 */
   {
+#if defined(WIN32)
     if ((out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0664)) == -1) {
+#else
+    if ((out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0664)) == -1) {
+#endif /* WIN32 */
       fprintf(stderr, "Cannot open output file %s\n", argv[2]);
       rc = -1;
       goto main_exit;
