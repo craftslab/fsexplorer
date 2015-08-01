@@ -73,7 +73,9 @@ static int32_t ext4_check_dentry(struct inode *inode, struct ext4_dir_entry_2 *d
   struct ext4_sb_info *info = (struct ext4_sb_info *)(sb->s_fs_info);
   struct ext4_super_block *es = info->s_es;
 
-  if (dentry->inode > es->s_inodes_count) {
+  if (dentry->inode == EXT4_UNUSED_INO
+      || dentry->inode == EXT4_BAD_INO
+      || dentry->inode > es->s_inodes_count) {
     return -1;
   }
 
