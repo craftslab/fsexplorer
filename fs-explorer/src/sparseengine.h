@@ -22,15 +22,12 @@
 #ifndef SPARSEENGINE_H
 #define SPARSEENGINE_H
 
+#include <stdint.h>
+
 #include <QObject>
 #include <QLibrary>
 #include <QFile>
 #include <QTemporaryFile>
-
-#ifdef __cplusplus
-extern "C" {
-}
-#endif /* __cplusplus */
 
 class SparseEngine : public QObject
 {
@@ -53,7 +50,18 @@ public slots:
   void process();
 
 private:
+  int readAll(void *buf, size_t len);
+  int writeAll(void *buf, size_t len);
+  uint32_t sparseCrc32(uint32_t crc_in, const void *buf, int size);
+  int processRawChunk(uint32_t blocks, uint32_t blk_sz, uint32_t *crc32);
+  int processFillChunk(uint32_t blocks, uint32_t blk_sz, uint32_t *crc32);
+  int processSkipChunk(uint32_t blocks, uint32_t blk_sz, uint32_t *crc32);
+  int processCrc32Chunk(uint32_t crc32);
+
+  static const uint32_t crc32Tab[];
+
   QFile *srcFile;
   QTemporaryFile *dstFile;
+  uint8_t *copyBuf;
 };
 #endif
