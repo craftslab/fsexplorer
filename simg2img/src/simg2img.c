@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #if defined(WIN32)
-#include <Windows.h>
+// Do nothing here
 #else
 #include <sys/mman.h>
 #include <unistd.h>
