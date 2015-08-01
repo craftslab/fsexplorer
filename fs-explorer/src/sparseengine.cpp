@@ -46,6 +46,7 @@ SparseEngine::~SparseEngine()
 
 bool SparseEngine::isSparseFile(const QString &name)
 {
+#if 0
   QFile file(name);
   sparse_header_t header;
   qint64 ret;
@@ -67,6 +68,9 @@ bool SparseEngine::isSparseFile(const QString &name)
   }
 
   return true;
+#else
+  return false;
+#endif
 }
 
 int SparseEngine::count()
@@ -81,6 +85,7 @@ const QString SparseEngine::unsparseFile()
 
 void SparseEngine::process()
 {
+#if 0
   int srcHandle = srcFile->handle();
   int dstHandle = dstFile->handle();
   QString dstName = dstFile->fileName();
@@ -122,4 +127,5 @@ void SparseEngine::process()
   }
 
   emit finished();
+#endif
 }
