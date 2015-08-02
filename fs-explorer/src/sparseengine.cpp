@@ -213,7 +213,8 @@ void SparseEngine::process()
      * Skip the remaining bytes in a header that is longer than
      * we expected.
      */
-    (void)srcFile->seek(sparse_header.file_hdr_sz - sizeof(sparse_header_t));
+    uint64_t offset = srcFile->pos() + sparse_header.file_hdr_sz - sizeof(sparse_header_t);
+    (void)srcFile->seek(offset);
   }
 
   for (i = 0; i < sparse_header.total_chunks; i++) {
@@ -228,7 +229,8 @@ void SparseEngine::process()
        * Skip the remaining bytes in a header that is longer than
        * we expected.
        */
-      (void)srcFile->seek(sparse_header.chunk_hdr_sz - sizeof(chunk_header_t));
+      uint64_t offset = srcFile->pos() + sparse_header.chunk_hdr_sz - sizeof(chunk_header_t);
+      (void)srcFile->seek(offset);
     }
 
     switch (chunk_header.chunk_type) {
@@ -442,7 +444,8 @@ int SparseEngine::processSkipChunk(uint32_t blocks, uint32_t blk_sz, uint32_t *c
   uint64_t len = (uint64_t)blocks * blk_sz;
   crc32 = crc32;
 
-  (void)dstFile->seek(len);
+  uint64_t offset = dstFile->pos() + len;
+  (void)dstFile->seek(offset);
 
   return blocks;
 }
