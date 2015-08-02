@@ -22,6 +22,8 @@
 #ifndef FSENGINE_H
 #define FSENGINE_H
 
+#include <stdint.h>
+
 #include <QObject>
 #include <QLibrary>
 #include <QMutexLocker>
