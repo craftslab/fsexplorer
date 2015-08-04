@@ -1,4 +1,21 @@
 -------------------------------------------------------------------------------
+Aug. 4th, 2015
+
+Major Milestone Release
+
+
+-- Improvements
+
+   * support both sparsed and unsparsed Ext4 image, e.g. system.img on Android.
+   * improve performance and UE by moving part of implementations to thread.
+   * upgrade Qt to the latest 5.5.0.
+
+-- Bug Fixes
+
+   * fix crash caused by Ext4 empty dentry name.
+
+
+-------------------------------------------------------------------------------
 Jan. 26th, 2015
 
 Major Milestone Release
