@@ -443,7 +443,7 @@ static void fs_destroy_inodes(struct super_block *sb)
     list_for_each_entry(child, &sb->s_inodes, i_sb_list) {
 #else
     for (child = list_entry((&sb->s_inodes)->next, struct inode, i_sb_list);
-         &child->i_sb_list != (&sb->s_inodes);
+         &child->i_sb_list != (&sb->s_inodes) && ptr;
          child = list_entry(ptr, struct inode, i_sb_list)) {
 #endif
       ptr = child->i_sb_list.next;
@@ -839,17 +839,17 @@ static int32_t fs_umount(const char *name, int32_t flags)
    */
   fs_destroy_inodes(&fs_sb);
 
-  if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc) {
-    free((void *)((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc);
-    ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc = NULL;
-  }
-
-  if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es) {
-    free((void *)((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es);
-    ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es = NULL;
-  }
-
   if (fs_sb.s_fs_info) {
+    if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc) {
+      free((void *)((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc);
+      ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_group_desc = NULL;
+    }
+
+    if (((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es) {
+      free((void *)((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es);
+      ((struct ext4_sb_info *)fs_sb.s_fs_info)->s_es = NULL;
+    }
+
     free((void *)fs_sb.s_fs_info);
     fs_sb.s_fs_info = NULL;
   }
