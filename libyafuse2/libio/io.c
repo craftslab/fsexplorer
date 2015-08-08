@@ -101,12 +101,12 @@ int32_t io_seek(int64_t offset)
 
   if (offset < 0) {
     return -1;
-  }    
+  }
 
   if (!io_fd) {
     error("invalid args!");
     return -1;
-  }    
+  }
 
   ret = fseek(io_fd, (long)offset, SEEK_SET);
   if (ret < 0) {
@@ -125,12 +125,12 @@ int32_t io_read(uint8_t *data, int64_t len)
 
   if (data == NULL || len <= 0) {
     return -1;
-  }    
+  }
 
   if (!io_fd) {
     error("invalid args!");
     return -1;
-  }    
+  }
 
   ret = fread((void *)data, 1, (size_t)len, io_fd);
   if (ret == 0) {
