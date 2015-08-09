@@ -70,13 +70,13 @@ int32_t io_open(const char *fs_name)
     return -1;
   }
 
-  if (io_fd >= 0) {
+  if (io_fd != -1) {
     error("close io first.");
     return -1;
   }
 
   io_fd = open64(fs_name, O_RDONLY);
-  if (io_fd < 0) {
+  if (io_fd == -1) {
     return -1;
   }
 
@@ -88,7 +88,7 @@ int32_t io_open(const char *fs_name)
  */
 void io_close(void)
 {
-  if (io_fd < 0) {
+  if (io_fd == -1) {
     return;
   }
 
@@ -102,19 +102,19 @@ void io_close(void)
  */
 int32_t io_seek(int64_t offset)
 {
-  off64_t ret = 0;
+  off64_t ret = -1;
 
   if (offset < 0) {
     return -1;
   }
 
-  if (io_fd < 0) {
+  if (io_fd == -1) {
     error("invalid args!");
     return -1;
   }
 
   ret = lseek64(io_fd, offset, SEEK_SET);
-  if (ret < 0) {
+  if (ret == -1) {
     return -1;
   }
 
@@ -126,19 +126,19 @@ int32_t io_seek(int64_t offset)
  */
 int32_t io_read(uint8_t *data, int64_t len)
 {
-  ssize_t ret = 0;
+  ssize_t ret = -1;
 
   if (data == NULL || len <= 0) {
     return -1;
   }
 
-  if (io_fd < 0) {
+  if (io_fd == -1) {
     error("invalid args!");
     return -1;
   }
 
   ret = read(io_fd, (void *)data, (size_t)len);
-  if (ret < 0) {
+  if (ret == -1) {
     return -1;
   }
 
@@ -150,19 +150,19 @@ int32_t io_read(uint8_t *data, int64_t len)
  */
 int32_t io_write(uint8_t *data, int64_t len)
 {
-  ssize_t ret = 0;
+  ssize_t ret = -1;
 
   if (data == NULL || len <= 0) {
     return -1;
   }
 
-  if (io_fd < 0) {
+  if (io_fd == -1) {
     error("invalid args!");
     return -1;
   }
 
   ret = write(io_fd, (const void *)data, (size_t)len);
-  if (ret < 0) {
+  if (ret == -1) {
     return -1;
   }
 
