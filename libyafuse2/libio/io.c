@@ -19,6 +19,8 @@
  * along with libyafuse2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _LARGEFILE64_SOURCE
+
 #include "config.h"
 #include <stdio.h>
 #include <errno.h>
