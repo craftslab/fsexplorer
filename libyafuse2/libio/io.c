@@ -107,7 +107,7 @@ void io_close(void)
  */
 int32_t io_seek(int64_t offset)
 {
-  int32_t ret = 0;
+  off64_t ret = 0;
 
   if (offset < 0) {
     return -1;
@@ -119,9 +119,9 @@ int32_t io_seek(int64_t offset)
   }
 
 #ifdef CMAKE_COMPILER_IS_GNUCC
-  ret = lseek64(io_fd, (long)offset, SEEK_SET);
+  ret = lseek64(io_fd, (off64_t)offset, SEEK_SET);
 #else
-  ret = _lseeki64(io_fd, (long)offset, SEEK_SET);
+  ret = _lseeki64(io_fd, (off64_t)offset, SEEK_SET);
 #endif /* CMAKE_COMPILER_IS_GNUCC */
 
   if (ret < 0) {
@@ -136,7 +136,7 @@ int32_t io_seek(int64_t offset)
  */
 int32_t io_read(uint8_t *data, int64_t len)
 {
-  size_t ret = 0;
+  ssize_t ret = 0;
 
   if (data == NULL || len <= 0) {
     return -1;
@@ -160,7 +160,7 @@ int32_t io_read(uint8_t *data, int64_t len)
  */
 int32_t io_write(uint8_t *data, int64_t len)
 {
-  size_t ret = 0;
+  ssize_t ret = 0;
 
   if (data == NULL || len <= 0) {
     return -1;
