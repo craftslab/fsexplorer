@@ -46,7 +46,7 @@
 /*
  * Global Variable Definition
  */
-static FILE *io_fd = NULL;
+static int io_fd = -1;
 
 /*
  * Function Declaration
@@ -65,13 +65,18 @@ int32_t io_open(const char *fs_name)
     return -1;
   }
 
-  if (io_fd) {
+  if (io_fd >= 0) {
     error("close io first.");
     return -1;
   }
 
-  io_fd = fopen(fs_name, "rb+");
-  if (!io_fd) {
+#ifdef CMAKE_COMPILER_IS_GNUCC
+  io_fd = open(fs_name, O_RDONLY);
+#else
+  io_fd = open(fs_name, O_RDONLY | O_BINARY);
+#endif /* CMAKE_COMPILER_IS_GNUCC */
+
+  if (io_fd < 0) {
     return -1;
   }
 
@@ -83,13 +88,13 @@ int32_t io_open(const char *fs_name)
  */
 void io_close(void)
 {
-  if (!io_fd) {
+  if (io_fd < 0) {
     return;
   }
 
-  (void)fclose(io_fd);
+  (void)close(io_fd);
 
-  io_fd = NULL;
+  io_fd = -1;
 }
 
 /*
@@ -103,12 +108,17 @@ int32_t io_seek(int64_t offset)
     return -1;
   }
 
-  if (!io_fd) {
+  if (io_fd < 0) {
     error("invalid args!");
     return -1;
   }
 
-  ret = fseek(io_fd, (long)offset, SEEK_SET);
+#ifdef CMAKE_COMPILER_IS_GNUCC
+  ret = lseek64(io_fd, (long)offset, SEEK_SET);
+#else
+  ret = _lseeki64(io_fd, (long)offset, SEEK_SET);
+#endif /* CMAKE_COMPILER_IS_GNUCC */
+
   if (ret < 0) {
     return -1;
   }
@@ -127,13 +137,13 @@ int32_t io_read(uint8_t *data, int64_t len)
     return -1;
   }
 
-  if (!io_fd) {
+  if (io_fd < 0) {
     error("invalid args!");
     return -1;
   }
 
-  ret = fread((void *)data, 1, (size_t)len, io_fd);
-  if (ret == 0) {
+  ret = read(io_fd, (void *)data, (size_t)len);
+  if (ret < 0) {
     return -1;
   }
 
@@ -151,17 +161,15 @@ int32_t io_write(uint8_t *data, int64_t len)
     return -1;
   }
 
-  if (!io_fd) {
+  if (io_fd < 0) {
     error("invalid args!");
     return -1;
   }
 
-  ret = fwrite((const void *)data, 1, (size_t)len, io_fd);
-  if (ret == 0) {
+  ret = write(io_fd, (const void *)data, (size_t)len);
+  if (ret < 0) {
     return -1;
   }
-
-  fflush(io_fd);
 
   return 0;
 }
