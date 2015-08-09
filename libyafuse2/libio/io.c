@@ -19,6 +19,8 @@
  * along with libyafuse2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _LARGEFILE64_SOURCE
+
 #include "config.h"
 #include <stdio.h>
 #include <errno.h>
@@ -27,6 +29,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#include <unistd.h>
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #ifdef DEBUG
 #define DEBUG_LIBIO_IO
