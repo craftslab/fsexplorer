@@ -19,8 +19,6 @@
  * along with libyafuse2.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _LARGEFILE64_SOURCE
-
 #include "config.h"
 #include <stdio.h>
 #include <errno.h>
@@ -75,12 +73,7 @@ int32_t io_open(const char *fs_name)
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  io_fd = open(fs_name, O_RDONLY);
-#else
-  io_fd = open(fs_name, O_RDONLY | O_BINARY);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
+  io_fd = open64(fs_name, O_RDONLY);
   if (io_fd < 0) {
     return -1;
   }
@@ -118,12 +111,7 @@ int32_t io_seek(int64_t offset)
     return -1;
   }
 
-#ifdef CMAKE_COMPILER_IS_GNUCC
-  ret = lseek64(io_fd, (off64_t)offset, SEEK_SET);
-#else
-  ret = _lseeki64(io_fd, (off64_t)offset, SEEK_SET);
-#endif /* CMAKE_COMPILER_IS_GNUCC */
-
+  ret = lseek64(io_fd, offset, SEEK_SET);
   if (ret < 0) {
     return -1;
   }

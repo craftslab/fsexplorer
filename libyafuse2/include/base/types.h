@@ -59,9 +59,14 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-#ifndef CMAKE_COMPILER_IS_GNUCC
+#ifdef CMAKE_COMPILER_IS_GNUCC
+#define open64(pathname, flags) open(pathname, flags)
+#else
+#define off64_t int64_t
+#define open64(pathname, flags) open(pathname, (flags) | O_BINARY)
+#define lseek64 _lseeki64
 #define snprintf _snprintf
-#endif
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #define DIV_ROUND_UP(x, y) (((x) + (y) - 1)/(y))
 #define ALIGN(x, y) ((y) * DIV_ROUND_UP((x), (y)))
@@ -78,7 +83,7 @@
 #else
 #define container_of(ptr, type, member) ( \
       (type *)((char *)ptr - offsetof(type, member)))
-#endif
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 #define list_entry(ptr, type, member) \
   container_of(ptr, type, member)
@@ -93,7 +98,7 @@
   for (pos = list_entry((head)->prev, typeof(*pos), member); \
        &pos->member != (head); \
        pos = list_entry(pos->member.prev, typeof(*pos), member))
-#endif
+#endif /* CMAKE_COMPILER_IS_GNUCC */
 
 /*
  * Type Definition
