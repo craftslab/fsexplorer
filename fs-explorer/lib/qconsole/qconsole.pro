@@ -1,7 +1,6 @@
 #
 # Sub project file
 #
-
 TEMPLATE = lib
 
 CONFIG += staticlib

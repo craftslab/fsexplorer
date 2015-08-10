@@ -1,7 +1,6 @@
 #
 # Main project file
 #
-
 TEMPLATE = subdirs
 
 message(built for $$MACH-bit arch)

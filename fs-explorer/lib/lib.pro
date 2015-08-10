@@ -1,7 +1,6 @@
 #
 # Sub project file
 #
-
 TEMPLATE = subdirs
 
 CONFIG += ordered
