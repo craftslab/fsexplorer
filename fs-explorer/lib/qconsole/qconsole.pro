@@ -1,6 +1,9 @@
 #
-# Sub project file
+# Project Sub File
 #
+
+include(../../configure.pri)
+
 TEMPLATE = lib
 
 CONFIG += staticlib
@@ -9,10 +12,10 @@ CONFIG += qt
 QT += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$LIB_PREFIX/qconsole
 
-HEADERS += $$PWD/*.h
-SOURCES += $$PWD/*.cpp
+HEADERS += $$LIB_PREFIX/qconsole/*.h
+SOURCES += $$LIB_PREFIX/qconsole/*.cpp
 
 release {
   TARGET = qconsole

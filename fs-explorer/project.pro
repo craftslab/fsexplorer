@@ -1,6 +1,9 @@
 #
-# Main project file
+# Project Main File
 #
+
+include(configure.pri)
+
 TEMPLATE = subdirs
 
 message(built for $$MACH-bit arch)

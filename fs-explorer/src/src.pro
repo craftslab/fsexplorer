@@ -1,6 +1,9 @@
 #
-# Sub project file
+# Project Sub File
 #
+
+include(../configure.pri)
+
 TEMPLATE = app
 
 CONFIG += qt
@@ -8,25 +11,24 @@ CONFIG += qt
 QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-RESOURCES += src.qrc
-RC_FILE += src.rc
+RESOURCES += $$SRC_PREFIX/src.qrc
+RC_FILE   += $$SRC_PREFIX/src.rc
+FORMS     += $$SRC_PREFIX/aboutdialog.ui
 
-FORMS += aboutdialog.ui
+INCLUDEPATH += $$LIB_PREFIX/qconsole
+INCLUDEPATH += $$LIB_PREFIX/libyafuse2/include
 
-INCLUDEPATH += $$PWD/../lib/qconsole
-INCLUDEPATH += $$PWD/../lib/libyafuse2/include
+HEADERS += $$SRC_PREFIX/*.h
+SOURCES += $$SRC_PREFIX/*.cpp
 
-HEADERS += $$PWD/*.h
-SOURCES += $$PWD/*.cpp
-
-DEPENDPATH += $$PWD/../lib/qconsole
+DEPENDPATH += $$LIB_PREFIX/qconsole
 
 unix {
-  LIBS += -L$$PWD/../lib/qconsole -lqconsole
+  LIBS += -L$$LIB_PREFIX/qconsole -lqconsole
 }
 
 win32 {
-  LIBS += -L$$PWD/../lib/qconsole/release -lqconsole
+  LIBS += -L$$LIB_PREFIX/qconsole/release -lqconsole
 }
 
 unix {
@@ -34,15 +36,15 @@ unix {
 }
 
 win32 {
-  inst_ico.files += $$PWD/images/icon.ico
+  inst_ico.files += $$SRC_PREFIX/images/icon.ico
 }
 
-inst_releasenote.files = $$PWD/../ReleaseNote.txt
-inst_releasenote.path = $$INSTALL_PREFIX
-INSTALLS += inst_releasenote
+inst_releasenote.files = $$PREFIX/ReleaseNote.txt
+inst_releasenote.path  = $$INSTALL_PREFIX
+INSTALLS               += inst_releasenote
 
 inst_ico.path = $$INSTALL_PREFIX
-INSTALLS += inst_ico
+INSTALLS      += inst_ico
 
 release {
   TARGET = fs-explorer
