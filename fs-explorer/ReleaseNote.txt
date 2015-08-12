@@ -1,4 +1,27 @@
 -------------------------------------------------------------------------------
+Aug. 12th, 2015
+
+Minor Release
+
+
+-- Improvements
+
+   * Refactor qmake project file.
+
+
+-------------------------------------------------------------------------------
+Aug. 9th, 2015
+
+Major Milestone Release
+
+
+-- Bug Fixes
+
+   * fix crash caused by invalid pointer in exception mode.
+   * fix lseek64 error on Windows and Ubuntu.
+
+
+-------------------------------------------------------------------------------
 Aug. 4th, 2015
 
 Major Milestone Release
