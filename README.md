@@ -9,7 +9,8 @@
 
 *fsexplorer* is a file system explorer written in C/C++.
 
-- [x] View/Read ext4 image
+- [x] View/Read Ext4 image
+- [x] View/Read FAT32 image
 - [x] Support sparse/unsparse image
 
 
